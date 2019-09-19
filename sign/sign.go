@@ -3,10 +3,12 @@ package sign
 
 import (
 	"crypto/hmac"
+	"crypto/sha1"
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"hash"
 	"strings"
 )
 
@@ -22,6 +24,12 @@ const (
 	modeTLSDirect      = "2"
 	modeTcpDirectPlain = "3"
 	modeITLSDNSID2     = "8"
+)
+
+// signmethod 签名方法
+const (
+	SignMethodSHA256 = "hmacsha256"
+	SignMethodSHA1   = "hmacsha1"
 )
 
 // mqtt 域名
@@ -82,11 +90,12 @@ const (
 	SecureModeITLSDNSID2
 )
 
-//
+// MQTTSign MQTT签名主要设置
 type MQTTSign struct {
 	enableTLS   bool
 	deviceModel bool
 	clientIDkv  map[string]string
+	hfc         func() hash.Hash
 }
 
 // NewMQTTSign 新建一个签名,默认不支持PreAUTH也不支持TLS(即安全模式为SecureModeTcpDirectPlain)
@@ -98,10 +107,22 @@ func NewMQTTSign() *MQTTSign {
 			"timestamp":  fixedTimestamp,
 			"_v":         IotxSDKVersion,
 			"securemode": modeTcpDirectPlain,
-			"signmethod": "hmacsha256",
+			"signmethod": SignMethodSHA256,
 			"lan":        "Golang",
 			"v":          IotxAlinkVersion,
 		},
+		hfc: sha256.New,
+	}
+}
+
+// SetSignMethod 设置签名方法
+func (this *MQTTSign) SetSignMethod(method string) {
+	if method == SignMethodSHA1 {
+		this.clientIDkv["signmethod"] = SignMethodSHA1
+		this.hfc = sha1.New
+	} else {
+		this.clientIDkv["signmethod"] = SignMethodSHA256
+		this.hfc = sha256.New
 	}
 }
 
@@ -119,7 +140,7 @@ func (this *MQTTSign) SetSupportSecureMode(mode SecureMode) {
 		this.clientIDkv["securemode"] = modeTcpDirectPlain
 	case SecureModeITLSDNSID2:
 		this.enableTLS = true
-		this.clientIDkv["securemode"] = modeTcpDirectPlain
+		this.clientIDkv["securemode"] = modeITLSDNSID2
 	default:
 		panic("invalid secure mode")
 	}
@@ -173,7 +194,7 @@ func (this *MQTTSign) Generate(meta *MetaInfo, region MQTTCloudRegion) (*MQTTSig
 
 	signOut.clientID = this.generateClientID(deviceID)
 	/* setup password */
-	h := hmac.New(sha256.New, []byte(meta.DeviceSecret))
+	h := hmac.New(this.hfc, []byte(meta.DeviceSecret))
 	signSource := fmt.Sprintf("clientId%sdeviceName%sproductKey%stimestamp%s",
 		deviceID, meta.DeviceName, meta.ProductKey, fixedTimestamp)
 	h.Write([]byte(signSource))
