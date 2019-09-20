@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"hash"
+	"sort"
 	"strings"
 )
 
@@ -175,10 +176,17 @@ func (this *MQTTSign) generateClientID(deviceID string) string {
 	builder.WriteString(deviceID)
 	builder.WriteString("|")
 
-	for k, v := range this.clientIDkv {
-		builder.WriteString(k)
+	sKey := make([]string, 0, len(this.clientIDkv))
+	for k := range this.clientIDkv {
+		sKey = append(sKey, k)
+	}
+
+	sort.Strings(sKey)
+
+	for _, kValue := range sKey {
+		builder.WriteString(kValue)
 		builder.WriteString("=")
-		builder.WriteString(v)
+		builder.WriteString(this.clientIDkv[kValue])
 		builder.WriteString(",")
 	}
 
@@ -197,7 +205,9 @@ func (this *MQTTSign) Generate(meta *MetaInfo, region MQTTCloudRegion) (*MQTTSig
 	h := hmac.New(this.hfc, []byte(meta.DeviceSecret))
 	signSource := fmt.Sprintf("clientId%sdeviceName%sproductKey%stimestamp%s",
 		deviceID, meta.DeviceName, meta.ProductKey, fixedTimestamp)
-	h.Write([]byte(signSource))
+	if _, err := h.Write([]byte(signSource)); err != nil {
+		return nil, err
+	}
 	signOut.password = hex.EncodeToString(h.Sum(nil))
 
 	/* setup HostName */
