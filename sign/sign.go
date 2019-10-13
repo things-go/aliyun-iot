@@ -1,4 +1,4 @@
-// package 实现阿里云设备签名
+// package sign 实现阿里云设备签名
 package sign
 
 import (
@@ -13,13 +13,14 @@ import (
 	"strings"
 )
 
+// default defined
 const (
-	IotxAlinkVersion = "20"
-	IotxSDKVersion   = "sdk-golang-3.0.1"
-	fixedTimestamp   = "2524608000000"
+	IotAlinkVersion = "20"
+	IotSDKVersion   = "sdk-golang-3.0.1"
+	fixedTimestamp  = "2524608000000"
 )
 
-/* all secure mode define */
+// all secure mode define
 const (
 	modeTLSGuider      = "-1"
 	modeTLSDirect      = "2"
@@ -27,7 +28,7 @@ const (
 	modeITLSDNSID2     = "8"
 )
 
-// signmethod 签名方法
+// sign method 签名方法
 const (
 	SignMethodSHA256 = "hmacsha256"
 	SignMethodSHA1   = "hmacsha1"
@@ -54,7 +55,7 @@ var httpDomain = []string{
 // MQTTCloudRegion MQTT云端地域
 type MQTTCloudRegion byte
 
-// 云平台地域
+// 云平台地域定义
 const (
 	CloudRegionShangHai MQTTCloudRegion = iota
 	CloudRegionSingapore
@@ -106,11 +107,11 @@ func NewMQTTSign() *MQTTSign {
 		deviceModel: true,
 		clientIDkv: map[string]string{
 			"timestamp":  fixedTimestamp,
-			"_v":         IotxSDKVersion,
+			"_v":         IotSDKVersion,
 			"securemode": modeTcpDirectPlain,
 			"signmethod": SignMethodSHA256,
 			"lan":        "Golang",
-			"v":          IotxAlinkVersion,
+			"v":          IotAlinkVersion,
 		},
 		hfc: sha256.New,
 	}
@@ -150,7 +151,7 @@ func (this *MQTTSign) SetSupportSecureMode(mode SecureMode) {
 // SetSupportDeviceModel 设置支持物模型
 func (this *MQTTSign) SetSupportDeviceModel(enable bool) {
 	if enable {
-		this.clientIDkv["v"] = IotxAlinkVersion
+		this.clientIDkv["v"] = IotAlinkVersion
 		delete(this.clientIDkv, "gw")
 		delete(this.clientIDkv, "ext")
 	} else {
