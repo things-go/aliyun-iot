@@ -43,15 +43,6 @@ var mqttDomain = []string{
 	"iot-as-mqtt.eu-central-1.aliyuncs.com",   /* Germany */
 }
 
-// http 域名
-var httpDomain = []string{
-	"iot-auth.cn-shanghai.aliyuncs.com",    /* Shanghai */
-	"iot-auth.ap-southeast-1.aliyuncs.com", /* Singapore */
-	"iot-auth.ap-northeast-1.aliyuncs.com", /* Japan */
-	"iot-auth.us-west-1.aliyuncs.com",      /* America */
-	"iot-auth.eu-central-1.aliyuncs.com",   /* Germany */
-}
-
 // MQTTCloudRegion MQTT云端地域
 type MQTTCloudRegion byte
 
@@ -69,7 +60,7 @@ const (
 type MetaInfo struct {
 	ProductKey, ProductSecret string
 	DeviceName, DeviceSecret  string
-	CustomDomain              string
+	CustomDomain              string // 如果使用CloudRegionCustom,需要定义此字段
 }
 
 // MQTTSignInfo 签名后的信息
@@ -213,7 +204,7 @@ func (this *MQTTSign) Generate(meta *MetaInfo, region MQTTCloudRegion) (*MQTTSig
 
 	/* setup HostName */
 	if region == CloudRegionCustom {
-		if len(meta.CustomDomain) == 0 {
+		if meta.CustomDomain == "" {
 			return nil, errors.New("custom domain invalid")
 		}
 		signOut.HostName = meta.CustomDomain
