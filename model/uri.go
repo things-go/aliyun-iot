@@ -5,6 +5,10 @@ import (
 	"strings"
 )
 
+const (
+	SEP = "/"
+)
+
 // URI 前缀定义
 const (
 	URISysPrefix             = "/sys/%s/%s/"

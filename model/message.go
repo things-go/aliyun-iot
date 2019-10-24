@@ -33,9 +33,10 @@ type Request struct {
 
 // Response 应答
 type Response struct {
-	ID   string
-	Code int
-	Data interface{}
+	ID      string
+	Code    int
+	Data    interface{}
+	Message string
 }
 
 // ResponseInfo 回复的消息
@@ -60,6 +61,7 @@ type Manager struct {
 	requestID              int32
 	reportID               int32
 	ProductKey, DeviceName string
+	uriOffset              int
 }
 
 // RequestID 获得下一个requestID
@@ -94,7 +96,7 @@ func (sf *Manager) UpstreamThingModelUpRaw(payload interface{}) error {
 }
 
 // UpstreamThingPropertyPost 上传数属性数据
-func (sf *Manager) UpstreamThingPropertyPost(params interface{}) error {
+func (sf *Manager) UpstreamThingEventPropertyPost(params interface{}) error {
 	uri := URIService(URISysPrefix, URIThingEventPropertyPost, sf.ProductKey, sf.DeviceName)
 	return sf.SendRequest(uri, sf.RequestID(), methodPropertyPost, params)
 }
@@ -129,8 +131,48 @@ func (sf *Manager) UpstreamThingDynamictslGet() error {
 	return sf.SendRequest(uri, sf.RequestID(), methodDynamicTslGet, `{"nodes\":["type","identifier"],"addDefault":false}`)
 }
 
-// UpstreamThingNtpRequest ntp请求
-func (sf *Manager) UpstreamThingNtpRequest() error {
+// UpstreamExtNtpRequest ntp请求
+func (sf *Manager) UpstreamExtNtpRequest() error {
 	uri := URIService(URIExtNtpPrefix, URINtpRequest, sf.ProductKey, sf.DeviceName)
 	return sf.Publish(uri, `{"deviceSendTime":"1234"}`)
+}
+
+func ThingModelDownRaw(productKey, deviceName string, payload []byte) error {
+	// hex 2 string
+	return nil
+}
+
+func ThingModelUpRawReply(productKey, deviceName string, payload []byte) error {
+	// hex 2 string
+	return nil
+}
+
+func ThingEventPropertyPostReply(rsp *Response) error {
+	return nil
+}
+
+func ThingEventPostReply(eventID string, rsp *Response) error {
+	return nil
+}
+
+func ThingDeviceInfoUpdateReply(rsp *Response) error {
+	return nil
+}
+func ThingDeviceInfoDeleteReply(rsp *Response) error {
+	return nil
+}
+
+func ThingDsltemplateGetReply(rsp *Response) error {
+	return nil
+}
+
+func ThingDynamictslGetReply(rsp *Response) error {
+	return nil
+}
+func ExtNtpResponse(payload []byte) error {
+	return nil
+}
+
+func ExtErrorResponse(rsp *Response) error {
+	return nil
 }
