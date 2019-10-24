@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// ProcThingModelDownRaw 处理透传
 func ProcThingModelDownRaw(m *Manager, uri string, payload []byte) error {
 	uris := strings.Split(uri, SEP)
 	if len(uris) != (m.uriOffset + 6) {
@@ -13,11 +14,39 @@ func ProcThingModelDownRaw(m *Manager, uri string, payload []byte) error {
 	return ThingModelDownRaw(uris[m.uriOffset+1], uris[m.uriOffset+2], payload)
 }
 
+func ProcThingServicePropertySet(m *Manager, uri string, payload []byte) error {
+	code := CodeSuccess
+	if err := ThingServicePropertySet(payload); err != nil {
+		code = CodeRequestError
+	}
+	return m.SendResponse(URIServiceReplyWithRequestURI(uri), m.ReportID(), code, "{}")
+}
+
+// deprecated
+func ProcThingServicePropertyGet(m *Manager, uri string, payload []byte) error {
+	uris := strings.Split(uri, SEP)
+	if len(uris) != (m.uriOffset + 6) {
+		return ErrInvalidURI
+	}
+	return ThingServicePropertyGet(uris[m.uriOffset+1], uris[m.uriOffset+2], payload)
+}
+
+func ProcThingServiceRequest(m *Manager, uri string, payload []byte) error {
+	uris := strings.Split(uri, SEP)
+	if len(uris) != (m.uriOffset + 6) {
+		return ErrInvalidURI
+	}
+
+	return ThingServiceRequest(uris[m.uriOffset+1], uris[m.uriOffset+2], uris[m.uriOffset+5], payload)
+}
+
+// ProcThingModelUpRawReply 处理透传上行的应答
 func ProcThingModelUpRawReply(m *Manager, uri string, payload []byte) error {
 	uris := strings.Split(uri, SEP)
 	if len(uris) != (m.uriOffset + 6) {
 		return ErrInvalidURI
 	}
+
 	return ThingModelUpRawReply(uris[m.uriOffset+1], uris[m.uriOffset+2], payload)
 }
 

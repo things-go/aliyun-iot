@@ -33,10 +33,10 @@ type Request struct {
 
 // Response 应答
 type Response struct {
-	ID      string
-	Code    int
-	Data    interface{}
-	Message string
+	ID      int32       `json:"id,string"`
+	Code    int         `json:"code"`
+	Data    interface{} `json:"data"`
+	Message string      `json:"message,omitempty"`
 }
 
 // ResponseInfo 回复的消息
@@ -82,6 +82,14 @@ func (sf *Manager) ReportID() int32 {
 // API内部已实现json序列化
 func (sf *Manager) SendRequest(uriService string, requestID int32, method string, params interface{}) error {
 	out, err := json.Marshal(&Request{requestID, Version, params, method})
+	if err != nil {
+		return err
+	}
+	return sf.Publish(uriService, out)
+}
+
+func (sf *Manager) SendResponse(uriService string, reportID int32, code int, data interface{}) error {
+	out, err := json.Marshal(&Response{reportID, code, data, ""})
 	if err != nil {
 		return err
 	}
@@ -139,6 +147,18 @@ func (sf *Manager) UpstreamExtNtpRequest() error {
 
 func ThingModelDownRaw(productKey, deviceName string, payload []byte) error {
 	// hex 2 string
+	return nil
+}
+func ThingServicePropertySet(payload []byte) error {
+	return nil
+}
+
+// deprecated
+func ThingServicePropertyGet(productKey, deviceName string, payload []byte) error {
+	return nil
+}
+
+func ThingServiceRequest(productKey, deviceName, srvID string, payload []byte) error {
 	return nil
 }
 

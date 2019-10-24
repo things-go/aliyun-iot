@@ -84,3 +84,7 @@ func URIService(prefix, name, productKey, deviceName string) string {
 	}
 	return str.String()
 }
+
+func URIServiceReplyWithRequestURI(uri string) string {
+	return uri + "_" + URIReplySuffix
+}
