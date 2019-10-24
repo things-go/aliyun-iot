@@ -52,9 +52,10 @@ type Conn interface {
 // Manager 管理
 type Manager struct {
 	Conn
-
-	ProductKey string
-	DeviceName string
+	*devMgr
+	ProductKey   string
+	DeviceName   string
+	DeviceSecret string
 
 	requestID int32
 	reportID  int32
@@ -63,11 +64,18 @@ type Manager struct {
 }
 
 // New 创建一个物管理
-func New(productKey, deviceName string) *Manager {
-	return &Manager{
-		ProductKey: productKey,
-		DeviceName: deviceName,
+func New(productKey, deviceName, deviceSecret string) *Manager {
+	sf := &Manager{
+		ProductKey:   productKey,
+		DeviceName:   deviceName,
+		DeviceSecret: deviceSecret,
+		devMgr:       newDevMgr(),
 	}
+	id, _ := sf.Create("itself", sf.ProductKey, sf.DeviceName, sf.DeviceSecret)
+	if id != 0 {
+		panic("first")
+	}
+	return sf
 }
 
 // SetCon 设置连接接口
@@ -125,7 +133,13 @@ func (sf *Manager) UpstreamThingModelUpRaw(payload interface{}) error {
 }
 
 // UpstreamThingPropertyPost 上传数属性数据
-func (sf *Manager) UpstreamThingEventPropertyPost(params interface{}) error {
+func (sf *Manager) UpstreamThingEventPropertyPost(devID int, params interface{}) error {
+	if devID < 0 {
+		return ErrInvalidParameter
+	}
+
+	sf.se
+
 	uri := URIService(URISysPrefix, URIThingEventPropertyPost, sf.ProductKey, sf.DeviceName)
 	return sf.SendRequest(uri, sf.RequestID(), methodPropertyPost, params)
 }

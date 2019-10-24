@@ -28,7 +28,7 @@ func (sf *mqttClient) Subscribe(topic string, streamFunc model.ProcDownStreamFun
 	}).Error()
 }
 
-func NewWithMQTT(productKey, deviceName string, c mqtt.Client) *model.Manager {
-	sf := model.New(productKey, deviceName)
+func NewWithMQTT(productKey, deviceName, deviceSecret string, c mqtt.Client) *model.Manager {
+	sf := model.New(productKey, deviceName, deviceSecret)
 	return sf.SetCon(&mqttClient{c: c, containOf: sf})
 }

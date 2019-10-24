@@ -39,6 +39,7 @@ func main() {
 	manage := aliIOT.NewWithMQTT(
 		"a1QR3GD1Db3",
 		"MPA19GT010070140",
+		"CsC7Gmb6EvDLOm8V40HLOQwFPdc3KCHT",
 		client)
 
 	client.Connect().Wait()
