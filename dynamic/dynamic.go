@@ -33,7 +33,7 @@ type Response struct {
 	Message string `json:"message"`
 }
 
-// DynamicRegister 动态注册,传入三元组,获得DeviceSecret
+// DynamicRegister 动态注册,传入三元组,获得DeviceSecret,直接修改meta
 func DynamicRegister(meta *MetaInfo, region infra.CloudRegion) error {
 	var domain string
 
@@ -42,7 +42,7 @@ func DynamicRegister(meta *MetaInfo, region infra.CloudRegion) error {
 		return errors.New("invalid params")
 	}
 
-	// Calcute Signature
+	// 计算签名 Signature
 	random, sign, err := calcDynregSign(meta)
 	if err != nil {
 		return err
@@ -57,36 +57,40 @@ func DynamicRegister(meta *MetaInfo, region infra.CloudRegion) error {
 		domain = infra.HTTPCloudDomain[region]
 	}
 
-	reqPayload := fmt.Sprintf("productKey=%s&deviceName=%s&random=%s&sign=%s&signMethod=%s",
+	requestBody := fmt.Sprintf("productKey=%s&deviceName=%s&random=%s&sign=%s&signMethod=%s",
 		meta.ProductKey, meta.DeviceName, random, sign, "hmacsha256")
 
-	request, err := http.NewRequest(http.MethodGet,
-		fmt.Sprintf("http://%s/auth/register/device", domain),
-		bytes.NewBufferString(reqPayload))
+	request, err := http.NewRequest(http.MethodPost,
+		fmt.Sprintf("https://%s/auth/register/device", domain),
+		bytes.NewBufferString(requestBody))
 	if err != nil {
 		return err
 	}
 	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	request.Header.Set("Accept", "text/xml,text/javascript,text/html,application/json")
-	client := http.Client{Timeout: time.Millisecond * 1000}
-	response, err := client.Do(request)
+
+	response, err := (&http.Client{Timeout: time.Millisecond * 2000}).Do(request)
 	if err != nil {
 		return err
 	}
 	defer response.Body.Close()
 
-	rspPayload := &Response{}
-	if err = json.NewDecoder(response.Body).Decode(rspPayload); err != nil {
+	responsePayload := Response{}
+	if err = json.NewDecoder(response.Body).Decode(&responsePayload); err != nil {
 		return err
 	}
-	meta.DeviceSecret = rspPayload.Data.DeviceSecret
+	if responsePayload.Code != 200 {
+		return errors.New("got response but code not 200 and failed")
+	}
+	meta.DeviceSecret = responsePayload.Data.DeviceSecret
 	return nil
 }
 
-// 计算动态签名
+// 计算动态签名,以productKey为key
 func calcDynregSign(info *MetaInfo) (random, sign string, err error) {
 	random = "8Ygb7ULYh53B6OA"
 	signSource := fmt.Sprintf("deviceName%sproductKey%srandom%s", info.DeviceName, info.ProductKey, random)
+
 	/* setup password */
 	h := hmac.New(sha256.New, []byte(info.ProductSecret))
 	if _, err = h.Write([]byte(signSource)); err != nil {

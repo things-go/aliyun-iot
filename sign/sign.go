@@ -66,10 +66,10 @@ type MetaInfo struct {
 // MQTTSignInfo 签名后的信息
 type MQTTSignInfo struct {
 	HostName string
-	port     uint16
-	clientID string
+	Port     uint16
+	ClientID string
 	UserName string
-	password string
+	Password string
 }
 
 // SecureMode 安全模式
@@ -189,18 +189,18 @@ func (this *MQTTSign) generateClientID(deviceID string) string {
 func (this *MQTTSign) Generate(meta *MetaInfo, region MQTTCloudRegion) (*MQTTSignInfo, error) {
 	signOut := &MQTTSignInfo{}
 
-	/* setup clientID */
+	/* setup ClientID */
 	deviceID := fmt.Sprintf("%s.%s", meta.ProductKey, meta.DeviceName)
 
-	signOut.clientID = this.generateClientID(deviceID)
-	/* setup password */
+	signOut.ClientID = this.generateClientID(deviceID)
+	/* setup Password */
 	h := hmac.New(this.hfc, []byte(meta.DeviceSecret))
 	signSource := fmt.Sprintf("clientId%sdeviceName%sproductKey%stimestamp%s",
 		deviceID, meta.DeviceName, meta.ProductKey, fixedTimestamp)
 	if _, err := h.Write([]byte(signSource)); err != nil {
 		return nil, err
 	}
-	signOut.password = hex.EncodeToString(h.Sum(nil))
+	signOut.Password = hex.EncodeToString(h.Sum(nil))
 
 	/* setup HostName */
 	if region == CloudRegionCustom {
@@ -214,11 +214,11 @@ func (this *MQTTSign) Generate(meta *MetaInfo, region MQTTCloudRegion) (*MQTTSig
 	/* setup UserName */
 	signOut.UserName = fmt.Sprintf("%s&%s", meta.DeviceName, meta.ProductKey)
 
-	/* setup port */
+	/* setup Port */
 	if this.enableTLS {
-		signOut.port = 443
+		signOut.Port = 443
 	} else {
-		signOut.port = 1883
+		signOut.Port = 1883
 	}
 
 	return signOut, nil
