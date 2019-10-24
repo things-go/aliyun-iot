@@ -7,17 +7,10 @@ import (
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
+	"github.com/thinkgos/aliIOT"
 	"github.com/thinkgos/aliIOT/model"
 	"github.com/thinkgos/aliIOT/sign"
 )
-
-type wrapper struct {
-	Client mqtt.Client
-}
-
-func (sf *wrapper) Publish(topic string, payload interface{}) error {
-	return sf.Client.Publish(topic, 1, false, payload).Error()
-}
 
 func main() {
 	signs, err := sign.NewMQTTSign().Generate(&sign.MetaInfo{
@@ -43,21 +36,17 @@ func main() {
 		log.Println("mqtt client connection lost, ", err)
 	})
 	client := mqtt.NewClient(opts)
-	wp := &wrapper{Client: client}
-	manage := &model.Manager{
-		Conn:       wp,
-		ProductKey: "a1QR3GD1Db3",
-		DeviceName: "MPA19GT010070140",
-	}
+	manage := aliIOT.New("a1QR3GD1Db3", "MPA19GT010070140", client)
 
-	client.Subscribe("/sys/a1QR3GD1Db3/MPA19GT010070140/thing/event/property/post_reply", 1, func(client mqtt.Client, message mqtt.Message) {
-		_ = model.ProcThingEventPostReply(manage, message.Topic(), message.Payload())
-	})
 	client.Connect().Wait()
+
+	_ = manage.Subscribe("/sys/a1QR3GD1Db3/MPA19GT010070140/thing/event/property/post_reply", model.ProcThingEventPostReply)
+
 	for {
 		err = manage.UpstreamThingEventPropertyPost(map[string]interface{}{
-			"AcTm": rand.Intn(255),
-			"AeTm": rand.Intn(255),
+			"Temp":         rand.Intn(200),
+			"Humi":         rand.Intn(100),
+			"SwitchStatus": rand.Intn(1),
 		})
 		if err != nil {
 			log.Printf("error: %#v", err)

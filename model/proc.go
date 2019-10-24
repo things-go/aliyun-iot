@@ -5,6 +5,8 @@ import (
 	"strings"
 )
 
+type ProcDownStreamFunc func(m *Manager, uri string, payload []byte) error
+
 // ProcThingModelDownRaw 处理透传
 func ProcThingModelDownRaw(m *Manager, uri string, payload []byte) error {
 	uris := strings.Split(uri, SEP)

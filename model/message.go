@@ -40,30 +40,48 @@ type Response struct {
 	Message string      `json:"message,omitempty"`
 }
 
-// ResponseInfo 回复的消息
-type ResponseInfo struct {
-	ID         int
-	Qos        int
-	URIPrefix  string
-	URIName    string
-	ProductKey string
-	DeviceName string
-}
-
 // Conn conn接口
 type Conn interface {
 	// Publish will publish a message with the specified QoS and content
 	Publish(topic string, payload interface{}) error
+	UnderlyingClient() interface{}
+	Subscribe(topic string, streamFunc ProcDownStreamFunc) error
+	ContainerOf() *Manager
 }
 
 // Manager 管理
 type Manager struct {
 	Conn
-	requestID  int32
-	reportID   int32
+
 	ProductKey string
 	DeviceName string
-	uriOffset  int
+
+	requestID int32
+	reportID  int32
+
+	uriOffset int
+}
+
+func New(productKey, deviceName string) *Manager {
+	return &Manager{
+		ProductKey: productKey,
+		DeviceName: deviceName,
+	}
+}
+
+func (sf *Manager) SetCon(conn Conn) *Manager {
+	sf.Conn = conn
+	return sf
+}
+
+// EnableCOAP 采用COAP
+func (sf *Manager) EnableCOAP(enable bool) *Manager {
+	if enable {
+		sf.uriOffset = 1
+	} else {
+		sf.uriOffset = 0
+	}
+	return sf
 }
 
 // RequestID 获得下一个requestID
