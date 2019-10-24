@@ -88,3 +88,7 @@ func URIService(prefix, name, productKey, deviceName string) string {
 func URIServiceReplyWithRequestURI(uri string) string {
 	return uri + "_" + URIReplySuffix
 }
+
+func URIServiceSpilt(uri string) []string {
+	return strings.Split(strings.TrimLeft(uri, SEP), SEP)
+}

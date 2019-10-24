@@ -36,11 +36,14 @@ func main() {
 		log.Println("mqtt client connection lost, ", err)
 	})
 	client := mqtt.NewClient(opts)
-	manage := aliIOT.New("a1QR3GD1Db3", "MPA19GT010070140", client)
+	manage := aliIOT.NewWithMQTT(
+		"a1QR3GD1Db3",
+		"MPA19GT010070140",
+		client)
 
 	client.Connect().Wait()
 
-	_ = manage.Subscribe("/sys/a1QR3GD1Db3/MPA19GT010070140/thing/event/property/post_reply", model.ProcThingEventPostReply)
+	_ = manage.Subscribe(manage.URIService(model.URISysPrefix, model.URIThingEventPropertyPostReply), model.ProcThingEventPostReply)
 
 	for {
 		err = manage.UpstreamThingEventPropertyPost(map[string]interface{}{

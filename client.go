@@ -5,29 +5,30 @@ import (
 	"github.com/thinkgos/aliIOT/model"
 )
 
-type Client struct {
+type mqttClient struct {
 	c         mqtt.Client
 	containOf *model.Manager
 }
 
-func (sf *Client) Publish(topic string, payload interface{}) error {
+func (sf *mqttClient) Publish(topic string, payload interface{}) error {
 	return sf.c.Publish(topic, 1, false, payload).Error()
 }
 
-func (sf *Client) UnderlyingClient() interface{} {
+func (sf *mqttClient) UnderlyingClient() interface{} {
 	return sf.c
 }
-func (sf *Client) ContainerOf() *model.Manager {
+
+func (sf *mqttClient) ContainerOf() *model.Manager {
 	return sf.containOf
 }
 
-func (sf *Client) Subscribe(topic string, streamFunc model.ProcDownStreamFunc) error {
+func (sf *mqttClient) Subscribe(topic string, streamFunc model.ProcDownStreamFunc) error {
 	return sf.c.Subscribe(topic, 1, func(client mqtt.Client, message mqtt.Message) {
 		_ = streamFunc(sf.containOf, message.Topic(), message.Payload())
 	}).Error()
 }
 
-func New(productKey, deviceName string, c mqtt.Client) *model.Manager {
+func NewWithMQTT(productKey, deviceName string, c mqtt.Client) *model.Manager {
 	sf := model.New(productKey, deviceName)
-	return sf.SetCon(&Client{c: c, containOf: sf})
+	return sf.SetCon(&mqttClient{c: c, containOf: sf})
 }

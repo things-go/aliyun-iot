@@ -2,14 +2,13 @@ package model
 
 import (
 	"encoding/json"
-	"strings"
 )
 
 type ProcDownStreamFunc func(m *Manager, uri string, payload []byte) error
 
 // ProcThingModelDownRaw 处理透传
 func ProcThingModelDownRaw(m *Manager, uri string, payload []byte) error {
-	uris := strings.Split(uri, SEP)
+	uris := URIServiceSpilt(uri)
 	if len(uris) != (m.uriOffset + 6) {
 		return ErrInvalidURI
 	}
@@ -26,7 +25,7 @@ func ProcThingServicePropertySet(m *Manager, uri string, payload []byte) error {
 
 // deprecated
 func ProcThingServicePropertyGet(m *Manager, uri string, payload []byte) error {
-	uris := strings.Split(uri, SEP)
+	uris := URIServiceSpilt(uri)
 	if len(uris) != (m.uriOffset + 6) {
 		return ErrInvalidURI
 	}
@@ -34,7 +33,7 @@ func ProcThingServicePropertyGet(m *Manager, uri string, payload []byte) error {
 }
 
 func ProcThingServiceRequest(m *Manager, uri string, payload []byte) error {
-	uris := strings.Split(uri, SEP)
+	uris := URIServiceSpilt(uri)
 	if len(uris) != (m.uriOffset + 6) {
 		return ErrInvalidURI
 	}
@@ -44,7 +43,7 @@ func ProcThingServiceRequest(m *Manager, uri string, payload []byte) error {
 
 // ProcThingModelUpRawReply 处理透传上行的应答
 func ProcThingModelUpRawReply(m *Manager, uri string, payload []byte) error {
-	uris := strings.Split(uri, SEP)
+	uris := URIServiceSpilt(uri)
 	if len(uris) != (m.uriOffset + 6) {
 		return ErrInvalidURI
 	}
@@ -54,7 +53,7 @@ func ProcThingModelUpRawReply(m *Manager, uri string, payload []byte) error {
 
 // ProcThingEventPost 处理ThingEventXXX的应答
 func ProcThingEventPostReply(m *Manager, uri string, payload []byte) error {
-	uris := strings.Split(uri, SEP)
+	uris := URIServiceSpilt(uri)
 	if len(uris) != (m.uriOffset + 7) {
 		return ErrInvalidURI
 	}

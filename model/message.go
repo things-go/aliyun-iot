@@ -3,8 +3,8 @@ package model
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
+	"log"
 	"sync/atomic"
 )
 
@@ -62,6 +62,7 @@ type Manager struct {
 	uriOffset int
 }
 
+// New 创建一个物管理
 func New(productKey, deviceName string) *Manager {
 	return &Manager{
 		ProductKey: productKey,
@@ -69,6 +70,7 @@ func New(productKey, deviceName string) *Manager {
 	}
 }
 
+// SetCon 设置连接接口
 func (sf *Manager) SetCon(conn Conn) *Manager {
 	sf.Conn = conn
 	return sf
@@ -187,25 +189,31 @@ func ThingModelUpRawReply(productKey, deviceName string, payload []byte) error {
 }
 
 func ThingEventPropertyPostReply(rsp *Response) error {
-	return errors.New("got it reply")
+	log.Println("ThingEventPropertyPostReply")
+	return nil
 }
 
 func ThingEventPostReply(eventID string, rsp *Response) error {
+	log.Println("ThingEventPostReply")
 	return nil
 }
 
 func ThingDeviceInfoUpdateReply(rsp *Response) error {
+	log.Println("ThingDeviceInfoUpdateReply")
 	return nil
 }
 func ThingDeviceInfoDeleteReply(rsp *Response) error {
+	log.Println("ThingDeviceInfoDeleteReply")
 	return nil
 }
 
 func ThingDsltemplateGetReply(rsp *Response) error {
+	log.Println("ThingDsltemplateGetReply")
 	return nil
 }
 
 func ThingDynamictslGetReply(rsp *Response) error {
+	log.Println("ThingDynamictslGetReply")
 	return nil
 }
 func ExtNtpResponse(payload []byte) error {
