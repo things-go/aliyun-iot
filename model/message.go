@@ -127,8 +127,17 @@ func (sf *Manager) SendResponse(uriService string, reportID int32, code int, dat
 }
 
 // UpstreamThingModelUpRaw 上传透传数据
-func (sf *Manager) UpstreamThingModelUpRaw(payload interface{}) error {
-	uri := URIService(URISysPrefix, URIThingModelUpRaw, sf.ProductKey, sf.DeviceName)
+func (sf *Manager) UpstreamThingModelUpRaw(devID int, payload interface{}) error {
+	if devID < 0 {
+		return ErrInvalidParameter
+	}
+
+	node, err := sf.SearchNodeByID(devID)
+	if err != nil {
+		return err
+	}
+
+	uri := URIService(URISysPrefix, URIThingModelUpRaw, node.ProductKey, node.DeviceName)
 	return sf.SendRequest(uri, sf.RequestID(), methodUpRaw, payload)
 }
 
@@ -138,27 +147,57 @@ func (sf *Manager) UpstreamThingEventPropertyPost(devID int, params interface{})
 		return ErrInvalidParameter
 	}
 
-	sf.se
+	node, err := sf.SearchNodeByID(devID)
+	if err != nil {
+		return err
+	}
 
-	uri := URIService(URISysPrefix, URIThingEventPropertyPost, sf.ProductKey, sf.DeviceName)
+	uri := URIService(URISysPrefix, URIThingEventPropertyPost, node.ProductKey, node.DeviceName)
 	return sf.SendRequest(uri, sf.RequestID(), methodPropertyPost, params)
 }
 
 // UpstreamThingEventPost 事件上传
-func (sf *Manager) UpstreamThingEventPost(EventID string, params interface{}) error {
-	uri := URIService(URISysPrefix, fmt.Sprintf(URIThingEventPost, EventID), sf.ProductKey, sf.DeviceName)
+func (sf *Manager) UpstreamThingEventPost(devID int, EventID string, params interface{}) error {
+	if devID < 0 {
+		return ErrInvalidParameter
+	}
+
+	node, err := sf.SearchNodeByID(devID)
+	if err != nil {
+		return err
+	}
+
+	uri := URIService(URISysPrefix, fmt.Sprintf(URIThingEventPost, EventID), node.ProductKey, node.DeviceName)
 	return sf.SendRequest(uri, sf.RequestID(), fmt.Sprintf(methodEventPostFormat, EventID), params)
 }
 
 // UpstreamThingDeviceInfoUpdate 设备信息上传
-func (sf *Manager) UpstreamThingDeviceInfoUpdate(params interface{}) error {
-	uri := URIService(URISysPrefix, URIThingDeviceInfoUpdate, sf.ProductKey, sf.DeviceName)
+func (sf *Manager) UpstreamThingDeviceInfoUpdate(devID int, params interface{}) error {
+	if devID < 0 {
+		return ErrInvalidParameter
+	}
+
+	node, err := sf.SearchNodeByID(devID)
+	if err != nil {
+		return err
+	}
+
+	uri := URIService(URISysPrefix, URIThingDeviceInfoUpdate, node.ProductKey, node.DeviceName)
 	return sf.SendRequest(uri, sf.RequestID(), methodDeviceInfoUpdate, params)
 }
 
 // UpstreamThingDeviceInfoDelete 设备信息删除
-func (sf *Manager) UpstreamThingDeviceInfoDelete(params interface{}) error {
-	uri := URIService(URISysPrefix, URIThingDeviceInfoDelete, sf.ProductKey, sf.DeviceName)
+func (sf *Manager) UpstreamThingDeviceInfoDelete(devID int, params interface{}) error {
+	if devID < 0 {
+		return ErrInvalidParameter
+	}
+
+	node, err := sf.SearchNodeByID(devID)
+	if err != nil {
+		return err
+	}
+
+	uri := URIService(URISysPrefix, URIThingDeviceInfoDelete, node.ProductKey, node.DeviceName)
 	return sf.SendRequest(uri, sf.RequestID(), methodDeviceInfoDelete, params)
 }
 

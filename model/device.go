@@ -68,7 +68,7 @@ func (sf *devMgr) Len() int {
 	return sf.listHead.Len()
 }
 
-// Create 创建设备,返回设备ID
+// Create 创建一个设备,并返回设备ID
 func (sf *devMgr) Create(types, productKey, deviceName, deviceSecret string) (int, error) {
 	if productKey == "" ||
 		deviceName == "" ||
@@ -91,6 +91,7 @@ func (sf *devMgr) Create(types, productKey, deviceName, deviceSecret string) (in
 	return id, nil
 }
 
+// DeleteByID 删除一个设备
 func (sf *devMgr) DeleteByID(devID int) error {
 	if devID < 0 {
 		return ErrInvalidParameter
@@ -110,6 +111,7 @@ func (sf *devMgr) DeleteByID(devID int) error {
 	return nil
 }
 
+// DeleteByPkDn 删除一个子设备
 func (sf *devMgr) DeleteByPkDn(productKey, deviceName string) error {
 	sf.rw.Lock()
 	defer sf.rw.Unlock()
@@ -125,6 +127,7 @@ func (sf *devMgr) DeleteByPkDn(productKey, deviceName string) error {
 	return nil
 }
 
+// searchByID 使用devID寻找一个节点,需要带锁操作
 func (sf *devMgr) searchByID(devID int) (*DevNode, error) {
 	for e := sf.listHead.Front(); e != nil; e = e.Next() {
 		node := e.Value.(*DevNode)
@@ -135,6 +138,7 @@ func (sf *devMgr) searchByID(devID int) (*DevNode, error) {
 	return nil, ErrNotFound
 }
 
+// SearchByID 使用devID寻找一个节点
 func (sf *devMgr) SearchByID(devID int) (int, error) {
 	sf.rw.RLock()
 	defer sf.rw.RUnlock()
@@ -146,6 +150,7 @@ func (sf *devMgr) SearchByID(devID int) (int, error) {
 	return node.id, nil
 }
 
+// SearchNodeByID 使用devID查找一个设备节点信息
 func (sf *devMgr) SearchNodeByID(devID int) (DevNode, error) {
 	sf.rw.RLock()
 	defer sf.rw.RUnlock()
@@ -156,6 +161,7 @@ func (sf *devMgr) SearchNodeByID(devID int) (DevNode, error) {
 	return *node, err
 }
 
+// searchByPkDn 使用productKey deviceName查找一个节点,需要带锁
 func (sf *devMgr) searchByPkDn(productKey, deviceName string) (*DevNode, error) {
 	for e := sf.listHead.Front(); e != nil; e = e.Next() {
 		node := e.Value.(*DevNode)
@@ -168,6 +174,7 @@ func (sf *devMgr) searchByPkDn(productKey, deviceName string) (*DevNode, error) 
 	return nil, ErrNotFound
 }
 
+// SearchByPkDn 使用productKey deviceName查找一个设备,返回设备id
 func (sf *devMgr) SearchByPkDn(productKey, deviceName string) (int, error) {
 	sf.rw.RLock()
 	defer sf.rw.RUnlock()
@@ -178,6 +185,7 @@ func (sf *devMgr) SearchByPkDn(productKey, deviceName string) (int, error) {
 	return node.id, nil
 }
 
+// SearchNodeByPkDn 使用productKey deviceName查找一个设备节点信息
 func (sf *devMgr) SearchNodeByPkDn(productKey, deviceName string) (DevNode, error) {
 	sf.rw.RLock()
 	defer sf.rw.RUnlock()
@@ -188,6 +196,7 @@ func (sf *devMgr) SearchNodeByPkDn(productKey, deviceName string) (DevNode, erro
 	return *node, nil
 }
 
+// SetDevAvail 设置avail
 func (sf *devMgr) SetDevAvail(devID int, enable bool) error {
 	if devID < 0 {
 		return ErrInvalidParameter
@@ -207,6 +216,7 @@ func (sf *devMgr) SetDevAvail(devID int, enable bool) error {
 	return nil
 }
 
+// DevAvail 获取avail
 func (sf *devMgr) DevAvail(productKey, deviceName string) (DevAvail, error) {
 	sf.rw.RLock()
 	defer sf.rw.Unlock()
@@ -218,6 +228,7 @@ func (sf *devMgr) DevAvail(productKey, deviceName string) (DevAvail, error) {
 	return node.avail, nil
 }
 
+// SetDevStatus 设置设备的状态
 func (sf *devMgr) SetDevStatus(devID int, status DevStatus) error {
 	if devID < 0 {
 		return ErrInvalidParameter
@@ -233,6 +244,7 @@ func (sf *devMgr) SetDevStatus(devID int, status DevStatus) error {
 	return nil
 }
 
+// DevStatus 获取设备的状态
 func (sf *devMgr) DevStatus(devID int) (DevStatus, error) {
 	sf.rw.RLock()
 	defer sf.rw.Unlock()
@@ -243,6 +255,7 @@ func (sf *devMgr) DevStatus(devID int) (DevStatus, error) {
 	return node.status, nil
 }
 
+// SetDeviceSecret 设置设备密钥
 func (sf *devMgr) SetDeviceSecret(devID int, deviceSecret string) error {
 	sf.rw.Lock()
 	defer sf.rw.Unlock()
@@ -254,6 +267,7 @@ func (sf *devMgr) SetDeviceSecret(devID int, deviceSecret string) error {
 	return nil
 }
 
+// 获得设备类型
 func (sf *devMgr) DevTypes(devID int) (string, error) {
 	if devID < 0 {
 		return "", ErrInvalidParameter
@@ -267,4 +281,24 @@ func (sf *devMgr) DevTypes(devID int) (string, error) {
 		return "", err
 	}
 	return node.types, nil
+}
+
+// ID 返回设备ID
+func (sf *DevNode) ID() int {
+	return sf.id
+}
+
+// ID 返回设备状态
+func (sf *DevNode) Status() DevStatus {
+	return sf.status
+}
+
+// ID 返回设备avail
+func (sf *DevNode) Avail() DevAvail {
+	return sf.avail
+}
+
+// ID 返回设备类型
+func (sf *DevNode) Types() string {
+	return sf.types
 }
