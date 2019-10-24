@@ -1,3 +1,4 @@
+// Package dynamic 实现动态注册
 package dynamic
 
 import (
@@ -33,6 +34,7 @@ type MetaInfo struct {
 	CustomDomain  string // 如果使用CloudRegionCustom,需要定义此字段
 }
 
+// Response 应答
 type Response struct {
 	Code int `json:"code"`
 	Data struct {
@@ -43,8 +45,8 @@ type Response struct {
 	Message string `json:"message"`
 }
 
-// DynamicRegister 动态注册,传入三元组,获得DeviceSecret,直接修改meta,指定签名算法,未设置或错误,将采用默认sha256
-func DynamicRegister(meta *MetaInfo, region infra.CloudRegion, signMethod ...string) error {
+// Register2Cloud 动态注册,传入三元组,获得DeviceSecret,直接修改meta,指定签名算法,未设置或错误,将采用默认sha256
+func Register2Cloud(meta *MetaInfo, region infra.CloudRegion, signMethod ...string) error {
 	var domain string
 
 	if meta.ProductKey == "" || meta.ProductSecret == "" ||

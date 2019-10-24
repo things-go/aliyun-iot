@@ -1,6 +1,6 @@
 package infra
 
-// http 域名
+// HTTPCloudDomain http 域名
 var HTTPCloudDomain = []string{
 	"iot-auth.cn-shanghai.aliyuncs.com",    /* Shanghai */
 	"iot-auth.ap-southeast-1.aliyuncs.com", /* Singapore */
@@ -9,7 +9,7 @@ var HTTPCloudDomain = []string{
 	"iot-auth.eu-central-1.aliyuncs.com",   /* Germany */
 }
 
-// mqtt 域名
+// MQTTCloudDomain mqtt 域名
 var MQTTCloudDomain = []string{
 	"iot-as-mqtt.cn-shanghai.aliyuncs.com",    /* Shanghai */
 	"iot-as-mqtt.ap-southeast-1.aliyuncs.com", /* Singapore */
@@ -18,7 +18,7 @@ var MQTTCloudDomain = []string{
 	"iot-as-mqtt.eu-central-1.aliyuncs.com",   /* Germany */
 }
 
-// CloudRegionRegion MQTT,HTPP云端地域
+// CloudRegion MQTT,HTPP云端地域
 type CloudRegion byte
 
 // 云平台地域定义CloudRegionRegion

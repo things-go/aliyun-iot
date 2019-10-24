@@ -5,70 +5,71 @@ import (
 	"strings"
 )
 
-// uri 前缀定义
+// URI 前缀定义
 const (
-	UriSysPrefix             = "/sys/%s/%s/"
-	UriExtSessionPrefix      = "/ext/session/%s/%s/"
-	UriExtNtpPrefix          = "/ext/ntp/%s/%s/"
-	UriExtErrorPrefix        = "/ext/error/%s/%s"
-	UriOtaDeviceInformPrefix = "/ota/device/inform/%s/%s"
+	URISysPrefix             = "/sys/%s/%s/"
+	URIExtSessionPrefix      = "/ext/session/%s/%s/"
+	URIExtNtpPrefix          = "/ext/ntp/%s/%s/"
+	URIExtErrorPrefix        = "/ext/error/%s/%s"
+	URIOtaDeviceInformPrefix = "/ota/device/inform/%s/%s"
 
-	UriReplySuffix = "reply"
+	URIReplySuffix = "reply"
 )
 
+// URI thing定义
 const (
 	/* Model Raw From Cloud To Local Request And Response*/
-	UriThingModelDownRaw      = "thing/model/down_raw"
-	UriThingModelDownRawReply = "thing/model/down_raw_reply"
-	UriThingModelUpRaw        = "thing/model/up_raw"
-	UriThingModelUpRawReply   = "thing/model/up_raw_reply"
+	URIThingModelDownRaw      = "thing/model/down_raw"
+	URIThingModelDownRawReply = "thing/model/down_raw_reply"
+	URIThingModelUpRaw        = "thing/model/up_raw"
+	URIThingModelUpRawReply   = "thing/model/up_raw_reply"
 
-	UriRRPCRequestWildcard = "rrpc/request/+"
+	URIRRPCRequestWildcard = "rrpc/request/+"
 
 	/* service From Cloud To Local Request And Response*/
-	UriThingServicePropertySet      = "thing/service/property/set"
-	UriThingServicePropertySetReply = "thing/service/property/set_reply"
-	UriThingServicePropertyGet      = "thing/service/property/get"
-	UriThingServicePropertyGetReply = "thing/service/property/get_reply"
-	UriThingServiceRequestWildcard  = "thing/service/+"
-	UriThingServiceRequestWildcard2 = "thing/service/#"
-	UriThingServiceRequest          = "thing/service/%s"
-	UriThingServiceResponse         = "thing/service/%s_reply"
+	URIThingServicePropertySet      = "thing/service/property/set"
+	URIThingServicePropertySetReply = "thing/service/property/set_reply"
+	URIThingServicePropertyGet      = "thing/service/property/get"
+	URIThingServicePropertyGetReply = "thing/service/property/get_reply"
+	URIThingServiceRequestWildcard  = "thing/service/+"
+	URIThingServiceRequestWildcard2 = "thing/service/#"
+	URIThingServiceRequest          = "thing/service/%s"
+	URIThingServiceResponse         = "thing/service/%s_reply"
 
 	/* event From Local To Cloud Request And Response*/
-	UriThingEventPropertyPost      = "thing/event/property/post"
-	UriThingEventPropertyPostReply = "thing/event/property/post_reply"
-	UriThingEventPost              = "thing/event/%s/post"
-	UriThingEventPostReply         = "thing/event/%s/post_reply"
-	UriThingEventPostReplyWildcard = "thing/event/+/post_reply"
+	URIThingEventPropertyPost      = "thing/event/property/post"
+	URIThingEventPropertyPostReply = "thing/event/property/post_reply"
+	URIThingEventPost              = "thing/event/%s/post"
+	URIThingEventPostReply         = "thing/event/%s/post_reply"
+	URIThingEventPostReplyWildcard = "thing/event/+/post_reply"
 
 	/* device info From Local To Cloud Request And Response */
-	UriThingDeviceInfoUpdate      = "thing/deviceinfo/update"
-	UriThingDeviceInfoUpdateReply = "thing/deviceinfo/update_reply"
-	UriThingDeviceInfoDelete      = "thing/deviceinfo/delete"
-	UriThingDeviceInfoDeleteReply = "thing/deviceinfo/delete_reply"
+	URIThingDeviceInfoUpdate      = "thing/deviceinfo/update"
+	URIThingDeviceInfoUpdateReply = "thing/deviceinfo/update_reply"
+	URIThingDeviceInfoDelete      = "thing/deviceinfo/delete"
+	URIThingDeviceInfoDeleteReply = "thing/deviceinfo/delete_reply"
 
 	/* dsl template From Local To Cloud Request And Response */
-	UriThingDslTemplateGet      = "thing/dsltemplate/get"
-	UriThingDslTemplateGetReply = "thing/dsltemplate/get_reply"
+	URIThingDslTemplateGet      = "thing/dsltemplate/get"
+	URIThingDslTemplateGetReply = "thing/dsltemplate/get_reply"
 
 	/* dynamic tsl From Local To Cloud Request And Response */
-	UriThingDynamicTslGet      = "thing/dynamicTsl/get"
-	UriThingDynamicTslGetReply = "thing/dynamicTsl/get_reply"
+	URIThingDynamicTslGet      = "thing/dynamicTsl/get"
+	URIThingDynamicTslGetReply = "thing/dynamicTsl/get_reply"
 
 	/* ntp From Local To Cloud Request And Response */
-	UriNtpRequest  = "request"
-	UriNtpResponse = "response"
+	URINtpRequest  = "request"
+	URINtpResponse = "response"
 
 	//! config
-	UriThingConfigGet       = "thing/config/get"
-	UriThingConfigGetReply  = "thing/config/get_reply"
-	UriThingConfigPush      = "thing/config/push"
-	UriThingConfigPushReply = "thing/config/push_reply"
+	URIThingConfigGet       = "thing/config/get"
+	URIThingConfigGetReply  = "thing/config/get_reply"
+	URIThingConfigPush      = "thing/config/push"
+	URIThingConfigPushReply = "thing/config/push_reply"
 )
 
-// UriService 生成uri定义符
-func UriService(prefix, name, productKey, deviceName string) string {
+// URIService 生成URI定义符
+func URIService(prefix, name, productKey, deviceName string) string {
 	str := strings.Builder{}
 	str.Grow(len(prefix) + len(name) + len(productKey) + len(deviceName))
 	if prefix != "" {

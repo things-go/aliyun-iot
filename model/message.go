@@ -1,3 +1,4 @@
+// Package model 实现阿里去物模型
 package model
 
 import (
@@ -6,6 +7,7 @@ import (
 	"sync/atomic"
 )
 
+// 平台通信版本
 const (
 	Version = "1.0"
 )
@@ -21,6 +23,7 @@ const (
 	methodDynamicTslGet    = "thing.dynamicTsl.get"
 )
 
+// Request 请求
 type Request struct {
 	ID      int32       `json:"id,string"`
 	Version string      `json:"version"`
@@ -28,24 +31,30 @@ type Request struct {
 	Method  string      `json:"method"`
 }
 
+// Response 应答
 type Response struct {
 	ID   string
 	Code int
 	Data interface{}
 }
 
+// ResponseInfo 回复的消息
 type ResponseInfo struct {
-	ID                     int
-	Qos                    int
-	UriPrefix, UriName     string
-	ProductKey, DeviceName string
+	ID         int
+	Qos        int
+	URIPrefix  string
+	URIName    string
+	ProductKey string
+	DeviceName string
 }
 
+// Conn conn接口
 type Conn interface {
 	// Publish will publish a message with the specified QoS and content
 	Publish(topic string, payload interface{}) error
 }
 
+// Manager 管理
 type Manager struct {
 	Conn
 	requestID              int32
@@ -54,74 +63,74 @@ type Manager struct {
 }
 
 // RequestID 获得下一个requestID
-func (this *Manager) RequestID() int32 {
-	return atomic.AddInt32(&this.requestID, 1)
+func (sf *Manager) RequestID() int32 {
+	return atomic.AddInt32(&sf.requestID, 1)
 }
 
 // ReportID 获得下一个reportID
-func (this *Manager) ReportID() int32 {
-	return atomic.AddInt32(&this.reportID, 1)
+func (sf *Manager) ReportID() int32 {
+	return atomic.AddInt32(&sf.reportID, 1)
 }
 
-// 发送请求,
+// SendRequest 发送请求
 // uriService 唯一定位服务器或(topic)
 // requestID: 请求ID
 // method: 方法
 // params: 消息体
 // API内部已实现json序列化
-func (this *Manager) SendRequest(uriService string, requestID int32, method string, params interface{}) error {
+func (sf *Manager) SendRequest(uriService string, requestID int32, method string, params interface{}) error {
 	out, err := json.Marshal(&Request{requestID, Version, params, method})
 	if err != nil {
 		return err
 	}
-	return this.Publish(uriService, out)
+	return sf.Publish(uriService, out)
 }
 
 // UpstreamThingModelUpRaw 上传透传数据
-func (this *Manager) UpstreamThingModelUpRaw(payload interface{}) error {
-	uri := UriService(UriSysPrefix, UriThingModelUpRaw, this.ProductKey, this.DeviceName)
+func (sf *Manager) UpstreamThingModelUpRaw(payload interface{}) error {
+	uri := URIService(URISysPrefix, URIThingModelUpRaw, sf.ProductKey, sf.DeviceName)
 
-	return this.SendRequest(uri, this.RequestID(), methodUpRaw, payload)
+	return sf.SendRequest(uri, sf.RequestID(), methodUpRaw, payload)
 }
 
 // UpstreamThingPropertyPost 上传数属性数据
-func (this *Manager) UpstreamThingPropertyPost(params interface{}) error {
-	uri := UriService(UriSysPrefix, UriThingEventPropertyPost, this.ProductKey, this.DeviceName)
-	return this.SendRequest(uri, this.RequestID(), methodPropertyPost, params)
+func (sf *Manager) UpstreamThingPropertyPost(params interface{}) error {
+	uri := URIService(URISysPrefix, URIThingEventPropertyPost, sf.ProductKey, sf.DeviceName)
+	return sf.SendRequest(uri, sf.RequestID(), methodPropertyPost, params)
 }
 
 // UpstreamThingEventPost 事件上传
-func (this *Manager) UpstreamThingEventPost(EventID string, params interface{}) error {
-	uri := UriService(UriSysPrefix, fmt.Sprintf(UriThingEventPost, EventID), this.ProductKey, this.DeviceName)
-	return this.SendRequest(uri, this.RequestID(), fmt.Sprintf(methodEventPostFormat, EventID), params)
+func (sf *Manager) UpstreamThingEventPost(EventID string, params interface{}) error {
+	uri := URIService(URISysPrefix, fmt.Sprintf(URIThingEventPost, EventID), sf.ProductKey, sf.DeviceName)
+	return sf.SendRequest(uri, sf.RequestID(), fmt.Sprintf(methodEventPostFormat, EventID), params)
 }
 
 // UpstreamThingDeviceInfoUpdate 设备信息上传
-func (this *Manager) UpstreamThingDeviceInfoUpdate(params interface{}) error {
-	uri := UriService(UriSysPrefix, UriThingDeviceInfoUpdate, this.ProductKey, this.DeviceName)
-	return this.SendRequest(uri, this.RequestID(), methodDeviceInfoUpdate, params)
+func (sf *Manager) UpstreamThingDeviceInfoUpdate(params interface{}) error {
+	uri := URIService(URISysPrefix, URIThingDeviceInfoUpdate, sf.ProductKey, sf.DeviceName)
+	return sf.SendRequest(uri, sf.RequestID(), methodDeviceInfoUpdate, params)
 }
 
 // UpstreamThingDeviceInfoDelete 设备信息删除
-func (this *Manager) UpstreamThingDeviceInfoDelete(params interface{}) error {
-	uri := UriService(UriSysPrefix, UriThingDeviceInfoDelete, this.ProductKey, this.DeviceName)
-	return this.SendRequest(uri, this.RequestID(), methodDeviceInfoDelete, params)
+func (sf *Manager) UpstreamThingDeviceInfoDelete(params interface{}) error {
+	uri := URIService(URISysPrefix, URIThingDeviceInfoDelete, sf.ProductKey, sf.DeviceName)
+	return sf.SendRequest(uri, sf.RequestID(), methodDeviceInfoDelete, params)
 }
 
-// UpstreamThingDsltemplateGet
-func (this *Manager) UpstreamThingDsltemplateGet() error {
-	uri := UriService(UriSysPrefix, UriThingDslTemplateGet, this.ProductKey, this.DeviceName)
-	return this.SendRequest(uri, this.RequestID(), methodDslTemplateGet, "{}")
+// UpstreamThingDsltemplateGet 获取
+func (sf *Manager) UpstreamThingDsltemplateGet() error {
+	uri := URIService(URISysPrefix, URIThingDslTemplateGet, sf.ProductKey, sf.DeviceName)
+	return sf.SendRequest(uri, sf.RequestID(), methodDslTemplateGet, "{}")
 }
 
-// UpstreamThingDynamictslGet
-func (this *Manager) UpstreamThingDynamictslGet() error {
-	uri := UriService(UriSysPrefix, UriThingDynamicTslGet, this.ProductKey, this.DeviceName)
-	return this.SendRequest(uri, this.RequestID(), methodDynamicTslGet, `{"nodes\":["type","identifier"],"addDefault":false}`)
+// UpstreamThingDynamictslGet 获取
+func (sf *Manager) UpstreamThingDynamictslGet() error {
+	uri := URIService(URISysPrefix, URIThingDynamicTslGet, sf.ProductKey, sf.DeviceName)
+	return sf.SendRequest(uri, sf.RequestID(), methodDynamicTslGet, `{"nodes\":["type","identifier"],"addDefault":false}`)
 }
 
-// UpstreamThingNtpRequest
-func (this *Manager) UpstreamThingNtpRequest() error {
-	uri := UriService(UriExtNtpPrefix, UriNtpRequest, this.ProductKey, this.DeviceName)
-	return this.Publish(uri, `{"deviceSendTime":"1234"}`)
+// UpstreamThingNtpRequest ntp请求
+func (sf *Manager) UpstreamThingNtpRequest() error {
+	uri := URIService(URIExtNtpPrefix, URINtpRequest, sf.ProductKey, sf.DeviceName)
+	return sf.Publish(uri, `{"deviceSendTime":"1234"}`)
 }

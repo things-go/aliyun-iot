@@ -1,4 +1,4 @@
-// package sign 实现阿里云设备签名
+// Package sign 实现MQTT设备签名
 package sign
 
 import (
@@ -24,7 +24,7 @@ const (
 const (
 	modeTLSGuider      = "-1"
 	modeTLSDirect      = "2"
-	modeTcpDirectPlain = "3"
+	modeTCPDirectPlain = "3"
 	modeITLSDNSID2     = "8"
 )
 
@@ -81,7 +81,7 @@ type SecureMode byte
 const (
 	SecureModeTLSGuider SecureMode = iota
 	SecureModeTLSDirect
-	SecureModeTcpDirectPlain
+	SecureModeTCPDirectPlain
 	SecureModeITLSDNSID2
 )
 
@@ -101,7 +101,7 @@ func NewMQTTSign() *MQTTSign {
 		clientIDkv: map[string]string{
 			"timestamp":  fixedTimestamp,
 			"_v":         IotSDKVersion,
-			"securemode": modeTcpDirectPlain,
+			"securemode": modeTCPDirectPlain,
 			"signmethod": SignMethodSHA256,
 			"lan":        "Golang",
 			"v":          IotAlinkVersion,
@@ -111,76 +111,80 @@ func NewMQTTSign() *MQTTSign {
 }
 
 // SetSignMethod 设置签名方法
-func (this *MQTTSign) SetSignMethod(method string) {
+func (sf *MQTTSign) SetSignMethod(method string) *MQTTSign {
 	if method == SignMethodSHA1 {
-		this.clientIDkv["signmethod"] = SignMethodSHA1
-		this.hfc = sha1.New
+		sf.clientIDkv["signmethod"] = SignMethodSHA1
+		sf.hfc = sha1.New
 	} else {
-		this.clientIDkv["signmethod"] = SignMethodSHA256
-		this.hfc = sha256.New
+		sf.clientIDkv["signmethod"] = SignMethodSHA256
+		sf.hfc = sha256.New
 	}
+	return sf
 }
 
 // SetSupportSecureMode 设置支持的安全模式
-func (this *MQTTSign) SetSupportSecureMode(mode SecureMode) {
+func (sf *MQTTSign) SetSupportSecureMode(mode SecureMode) *MQTTSign {
 	switch mode {
 	case SecureModeTLSGuider:
-		this.enableTLS = true
-		this.clientIDkv["securemode"] = modeTLSGuider
+		sf.enableTLS = true
+		sf.clientIDkv["securemode"] = modeTLSGuider
 	case SecureModeTLSDirect:
-		this.enableTLS = true
-		this.clientIDkv["securemode"] = modeTLSDirect
-	case SecureModeTcpDirectPlain:
-		this.enableTLS = false
-		this.clientIDkv["securemode"] = modeTcpDirectPlain
+		sf.enableTLS = true
+		sf.clientIDkv["securemode"] = modeTLSDirect
+	case SecureModeTCPDirectPlain:
+		sf.enableTLS = false
+		sf.clientIDkv["securemode"] = modeTCPDirectPlain
 	case SecureModeITLSDNSID2:
-		this.enableTLS = true
-		this.clientIDkv["securemode"] = modeITLSDNSID2
+		sf.enableTLS = true
+		sf.clientIDkv["securemode"] = modeITLSDNSID2
 	default:
 		panic("invalid secure mode")
 	}
+	return sf
 }
 
 // SetSupportDeviceModel 设置支持物模型
-func (this *MQTTSign) SetSupportDeviceModel(enable bool) {
+func (sf *MQTTSign) SetSupportDeviceModel(enable bool) *MQTTSign {
 	if enable {
-		this.clientIDkv["v"] = IotAlinkVersion
-		delete(this.clientIDkv, "gw")
-		delete(this.clientIDkv, "ext")
+		sf.clientIDkv["v"] = IotAlinkVersion
+		delete(sf.clientIDkv, "gw")
+		delete(sf.clientIDkv, "ext")
 	} else {
-		this.clientIDkv["gw"] = "0"
-		this.clientIDkv["ext"] = "0"
-		delete(this.clientIDkv, "v")
+		sf.clientIDkv["gw"] = "0"
+		sf.clientIDkv["ext"] = "0"
+		delete(sf.clientIDkv, "v")
 	}
+	return sf
 }
 
 // AddCustomKV 添加一个用户的键值对,键值对将被添加到clientID上
-func (this *MQTTSign) AddCustomKV(key, value string) {
-	this.clientIDkv[key] = value
+func (sf *MQTTSign) AddCustomKV(key, value string) *MQTTSign {
+	sf.clientIDkv[key] = value
+	return sf
 }
 
 // DeleteCustomKV 删除一个用户的键值对
-func (this *MQTTSign) DeleteCustomKV(key string) {
-	delete(this.clientIDkv, key)
+func (sf *MQTTSign) DeleteCustomKV(key string) {
+	delete(sf.clientIDkv, key)
 }
 
 // generateClientID 根据deviceID生成clientID
-func (this *MQTTSign) generateClientID(deviceID string) string {
+func (sf *MQTTSign) generateClientID(deviceID string) string {
 	builder := new(strings.Builder)
 	builder.WriteString(deviceID)
 	builder.WriteString("|")
 
-	sKey := make([]string, 0, len(this.clientIDkv))
-	for k := range this.clientIDkv {
+	sKey := make([]string, 0, len(sf.clientIDkv))
+	for k := range sf.clientIDkv {
 		sKey = append(sKey, k)
 	}
 
 	sort.Strings(sKey)
 
-	for _, kValue := range sKey {
-		builder.WriteString(kValue)
+	for _, Value := range sKey {
+		builder.WriteString(Value)
 		builder.WriteString("=")
-		builder.WriteString(this.clientIDkv[kValue])
+		builder.WriteString(sf.clientIDkv[Value])
 		builder.WriteString(",")
 	}
 
@@ -188,15 +192,15 @@ func (this *MQTTSign) generateClientID(deviceID string) string {
 }
 
 // Generate 根据MetaInfo和region生成签名
-func (this *MQTTSign) Generate(meta *MetaInfo, region MQTTCloudRegion) (*MQTTSignInfo, error) {
+func (sf *MQTTSign) Generate(meta *MetaInfo, region MQTTCloudRegion) (*MQTTSignInfo, error) {
 	signOut := &MQTTSignInfo{}
 
 	/* setup ClientID */
 	deviceID := fmt.Sprintf("%s.%s", meta.ProductKey, meta.DeviceName)
 
-	signOut.ClientID = this.generateClientID(deviceID)
+	signOut.ClientID = sf.generateClientID(deviceID)
 	/* setup Password */
-	h := hmac.New(this.hfc, []byte(meta.DeviceSecret))
+	h := hmac.New(sf.hfc, []byte(meta.DeviceSecret))
 	signSource := fmt.Sprintf("clientId%sdeviceName%sproductKey%stimestamp%s",
 		deviceID, meta.DeviceName, meta.ProductKey, fixedTimestamp)
 	if _, err := h.Write([]byte(signSource)); err != nil {
@@ -217,7 +221,7 @@ func (this *MQTTSign) Generate(meta *MetaInfo, region MQTTCloudRegion) (*MQTTSig
 	signOut.UserName = fmt.Sprintf("%s&%s", meta.DeviceName, meta.ProductKey)
 
 	/* setup Port */
-	if this.enableTLS {
+	if sf.enableTLS {
 		signOut.Port = 443
 	} else {
 		signOut.Port = 1883
