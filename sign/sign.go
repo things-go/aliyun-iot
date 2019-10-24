@@ -58,9 +58,11 @@ const (
 
 // MetaInfo 产品与设备三元组
 type MetaInfo struct {
-	ProductKey, ProductSecret string
-	DeviceName, DeviceSecret  string
-	CustomDomain              string // 如果使用CloudRegionCustom,需要定义此字段
+	ProductKey    string
+	ProductSecret string
+	DeviceName    string
+	DeviceSecret  string
+	CustomDomain  string // 如果使用CloudRegionCustom,需要定义此字段
 }
 
 // MQTTSignInfo 签名后的信息

@@ -3,15 +3,25 @@ package dynamic
 import (
 	"bytes"
 	"crypto/hmac"
+	"crypto/md5"
+	"crypto/sha1"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"hash"
 	"net/http"
 	"time"
 
 	"github.com/thinkgos/aliIOT/infra"
+)
+
+// sign method 签名方法
+const (
+	SignMethodSHA256 = "hmacsha256"
+	SignMethodSHA1   = "hmacsha1"
+	SignMethodMD5    = "hmacmd5"
 )
 
 // MetaInfo 产品与设备三元组
@@ -33,17 +43,17 @@ type Response struct {
 	Message string `json:"message"`
 }
 
-// DynamicRegister 动态注册,传入三元组,获得DeviceSecret,直接修改meta
-func DynamicRegister(meta *MetaInfo, region infra.CloudRegion) error {
+// DynamicRegister 动态注册,传入三元组,获得DeviceSecret,直接修改meta,指定签名算法,未设置或错误,将采用默认sha256
+func DynamicRegister(meta *MetaInfo, region infra.CloudRegion, signMethod ...string) error {
 	var domain string
 
 	if meta.ProductKey == "" || meta.ProductSecret == "" ||
 		meta.DeviceName == "" {
 		return errors.New("invalid params")
 	}
-
+	signMd := append(signMethod, SignMethodSHA256)[0]
 	// 计算签名 Signature
-	random, sign, err := calcDynregSign(meta)
+	random, sign, err := calcDynregSign(meta, signMd)
 	if err != nil {
 		return err
 	}
@@ -58,7 +68,7 @@ func DynamicRegister(meta *MetaInfo, region infra.CloudRegion) error {
 	}
 
 	requestBody := fmt.Sprintf("productKey=%s&deviceName=%s&random=%s&sign=%s&signMethod=%s",
-		meta.ProductKey, meta.DeviceName, random, sign, "hmacsha256")
+		meta.ProductKey, meta.DeviceName, random, sign, signMd)
 
 	request, err := http.NewRequest(http.MethodPost,
 		fmt.Sprintf("https://%s/auth/register/device", domain),
@@ -80,19 +90,30 @@ func DynamicRegister(meta *MetaInfo, region infra.CloudRegion) error {
 		return err
 	}
 	if responsePayload.Code != 200 {
-		return errors.New("got response but code not 200 and failed")
+		return errors.New("got response but payload failed")
 	}
 	meta.DeviceSecret = responsePayload.Data.DeviceSecret
 	return nil
 }
 
 // 计算动态签名,以productKey为key
-func calcDynregSign(info *MetaInfo) (random, sign string, err error) {
+func calcDynregSign(info *MetaInfo, signMethod string) (random, sign string, err error) {
+	var h hash.Hash
+
 	random = "8Ygb7ULYh53B6OA"
 	signSource := fmt.Sprintf("deviceName%sproductKey%srandom%s", info.DeviceName, info.ProductKey, random)
 
 	/* setup password */
-	h := hmac.New(sha256.New, []byte(info.ProductSecret))
+	switch signMethod {
+	case SignMethodSHA1:
+		h = hmac.New(sha1.New, []byte(info.ProductSecret))
+	case SignMethodMD5:
+		h = hmac.New(md5.New, []byte(info.ProductSecret))
+	default: // SignMethodSHA256
+		h = hmac.New(sha256.New, []byte(info.ProductSecret))
+		sign = SignMethodSHA256
+	}
+
 	if _, err = h.Write([]byte(signSource)); err != nil {
 		return
 	}
