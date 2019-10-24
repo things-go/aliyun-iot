@@ -3,6 +3,7 @@ package model
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"sync/atomic"
 )
@@ -58,10 +59,11 @@ type Conn interface {
 // Manager 管理
 type Manager struct {
 	Conn
-	requestID              int32
-	reportID               int32
-	ProductKey, DeviceName string
-	uriOffset              int
+	requestID  int32
+	reportID   int32
+	ProductKey string
+	DeviceName string
+	uriOffset  int
 }
 
 // RequestID 获得下一个requestID
@@ -99,7 +101,6 @@ func (sf *Manager) SendResponse(uriService string, reportID int32, code int, dat
 // UpstreamThingModelUpRaw 上传透传数据
 func (sf *Manager) UpstreamThingModelUpRaw(payload interface{}) error {
 	uri := URIService(URISysPrefix, URIThingModelUpRaw, sf.ProductKey, sf.DeviceName)
-
 	return sf.SendRequest(uri, sf.RequestID(), methodUpRaw, payload)
 }
 
@@ -168,7 +169,7 @@ func ThingModelUpRawReply(productKey, deviceName string, payload []byte) error {
 }
 
 func ThingEventPropertyPostReply(rsp *Response) error {
-	return nil
+	return errors.New("got it reply")
 }
 
 func ThingEventPostReply(eventID string, rsp *Response) error {
