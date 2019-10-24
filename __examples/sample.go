@@ -47,7 +47,7 @@ func main() {
 	_ = manage.Subscribe(manage.URIService(model.URISysPrefix, model.URIThingEventPropertyPostReply), model.ProcThingEventPostReply)
 
 	for {
-		err = manage.UpstreamThingEventPropertyPost(map[string]interface{}{
+		err = manage.UpstreamThingEventPropertyPost(model.DevItself, map[string]interface{}{
 			"Temp":         rand.Intn(200),
 			"Humi":         rand.Intn(100),
 			"SwitchStatus": rand.Intn(1),

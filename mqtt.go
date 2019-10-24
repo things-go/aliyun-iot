@@ -10,8 +10,8 @@ type mqttClient struct {
 	containOf *model.Manager
 }
 
-func (sf *mqttClient) Publish(topic string, payload interface{}) error {
-	return sf.c.Publish(topic, 1, false, payload).Error()
+func (sf *mqttClient) Publish(topic string, qos int, payload interface{}) error {
+	return sf.c.Publish(topic, qos, false, payload).Error()
 }
 
 func (sf *mqttClient) UnderlyingClient() interface{} {

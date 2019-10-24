@@ -71,6 +71,12 @@ const (
 	URIThingConfigPush      = "thing/config/push"
 	URIThingConfigPushReply = "thing/config/push_reply"
 )
+const (
+	CombineSubDevLogin       = "combine/login"
+	CombineSubDevLoginReply  = "combine/login_reply"
+	CombineSubDevLogout      = "combine/logout"
+	CombineSubDevLogoutReply = "combine/logout_reply"
+)
 
 // URIService 生成URI定义符
 func URIService(prefix, name, productKey, deviceName string) string {
