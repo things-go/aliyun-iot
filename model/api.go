@@ -56,9 +56,11 @@ type Manager struct {
 
 	*devMgr
 	msgCache *cache.Cache
+	pool     *pool
 	*clog.Clog
 	Conn
-	gwUserProc GatewayUserProc
+	gwUserProc  GatewayUserProc
+	devUserProc DevUserProc
 }
 
 // New 创建一个物管理
@@ -67,18 +69,29 @@ func New(opt *Options) *Manager {
 		opt:        *opt,
 		devMgr:     newDevMgr(),
 		Clog:       clog.NewWithPrefix("alink -- >"),
-		gwUserProc: gwUserProc{},
+		gwUserProc: GwNopUserProc{},
 	}
 	if opt.enableCache {
+		sf.pool = newPool()
 		sf.msgCache = cache.New(time.Second*10, time.Second*30)
 	}
+	sf.CacheInit()
 	_, _ = sf.Create("itself", opt.productKey, opt.deviceName, opt.deviceSecret)
 	return sf
 }
 
-// SetCon 设置连接接口
-func (sf *Manager) SetCon(conn Conn) *Manager {
+// SetConn 设置连接接口
+func (sf *Manager) SetConn(conn Conn) *Manager {
 	sf.Conn = conn
+	return sf
+}
+
+func (sf *Manager) SetGwUserProc(proc GatewayUserProc) *Manager {
+	sf.gwUserProc = proc
+	return sf
+}
+func (sf *Manager) SetDevUserProc(proc DevUserProc) *Manager {
+	sf.devUserProc = proc
 	return sf
 }
 

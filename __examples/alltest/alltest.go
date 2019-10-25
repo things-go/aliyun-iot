@@ -32,3 +32,11 @@ func main() {
 
 	fmt.Printf("%#v", rsp)
 }
+
+type UserProc struct {
+	model.GwNopUserProc
+}
+
+func (UserProc) DownstreamGwExtSubDevRegisterReply(m *model.Manager, rsp *model.GwSubDevRegisterResponse) error {
+
+}

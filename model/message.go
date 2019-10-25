@@ -3,7 +3,6 @@ package model
 
 import (
 	"fmt"
-	"log"
 	"time"
 )
 
@@ -21,27 +20,28 @@ func (sf *Manager) UpstreamThingModelUpRaw(devID int, payload interface{}) error
 	return sf.Publish(URIService(URISysPrefix, URIThingModelUpRaw, node.ProductKey, node.DeviceName), 1, payload)
 }
 
-func DownstreamThingModelUpRawReply(productKey, deviceName string, payload []byte) error {
-	return nil
+// 上报属性数据,返回id
+func (sf *Manager) upsThingEventPropertyPost(devID int, params interface{}) (int, error) {
+	node, err := sf.SearchNodeByID(devID)
+	if err != nil {
+		return 0, err
+	}
+
+	id := sf.RequestID()
+	return id, sf.SendRequest(URIService(URISysPrefix, URIThingEventPropertyPost, node.ProductKey, node.DeviceName),
+		id, methodPropertyPost, params)
 }
 
-// UpstreamThingPropertyPost 上传数属性数据
+// UpstreamThingPropertyPost 上传属性数据
 func (sf *Manager) UpstreamThingEventPropertyPost(devID int, params interface{}) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
-
-	node, err := sf.SearchNodeByID(devID)
+	id, err := sf.upsThingEventPropertyPost(devID, params)
 	if err != nil {
 		return err
 	}
-
-	uri := URIService(URISysPrefix, URIThingEventPropertyPost, node.ProductKey, node.DeviceName)
-	return sf.SendRequest(uri, sf.RequestID(), methodPropertyPost, params)
-}
-
-func DownstreamThingEventPropertyPostReply(rsp *Response) error {
-	log.Println("DownstreamThingEventPropertyPostReply")
+	sf.CacheInsert(id, devID, MsgTypePostProperty, "")
 	return nil
 }
 
@@ -60,11 +60,6 @@ func (sf *Manager) UpstreamThingEventPost(devID int, EventID string, params inte
 	return sf.SendRequest(uri, sf.RequestID(), fmt.Sprintf(methodEventPostFormat, EventID), params)
 }
 
-func DownstreamThingEventPostReply(eventID string, rsp *Response) error {
-	log.Println("DownstreamThingEventPostReply")
-	return nil
-}
-
 // UpstreamThingDeviceInfoUpdate 设备信息上传
 func (sf *Manager) UpstreamThingDeviceInfoUpdate(devID int, params interface{}) error {
 	if devID < 0 {
@@ -78,11 +73,6 @@ func (sf *Manager) UpstreamThingDeviceInfoUpdate(devID int, params interface{}) 
 
 	uri := URIService(URISysPrefix, URIThingDeviceInfoUpdate, node.ProductKey, node.DeviceName)
 	return sf.SendRequest(uri, sf.RequestID(), methodDeviceInfoUpdate, params)
-}
-
-func DownstreamThingDeviceInfoUpdateReply(rsp *Response) error {
-	log.Println("DownstreamThingDeviceInfoUpdateReply")
-	return nil
 }
 
 // UpstreamThingDeviceInfoDelete 设备信息删除
@@ -100,31 +90,16 @@ func (sf *Manager) UpstreamThingDeviceInfoDelete(devID int, params interface{}) 
 	return sf.SendRequest(uri, sf.RequestID(), methodDeviceInfoDelete, params)
 }
 
-func DownstreamThingDeviceInfoDeleteReply(rsp *Response) error {
-	log.Println("DownstreamThingDeviceInfoDeleteReply")
-	return nil
-}
-
 // UpstreamThingDsltemplateGet 获取
 func (sf *Manager) UpstreamThingDsltemplateGet() error {
 	uri := URIService(URISysPrefix, URIThingDslTemplateGet, sf.opt.productKey, sf.opt.deviceName)
 	return sf.SendRequest(uri, sf.RequestID(), methodDslTemplateGet, "{}")
 }
 
-func DownstreamThingDsltemplateGetReply(rsp *Response) error {
-	log.Println("DownstreamThingDsltemplateGetReply")
-	return nil
-}
-
 // UpstreamThingDynamictslGet 获取
 func (sf *Manager) UpstreamThingDynamictslGet() error {
 	uri := URIService(URISysPrefix, URIThingDynamicTslGet, sf.opt.productKey, sf.opt.deviceName)
 	return sf.SendRequest(uri, sf.RequestID(), methodDynamicTslGet, `{"nodes\":["type","identifier"],"addDefault":false}`)
-}
-
-func DownstreamThingDynamictslGetReply(rsp *Response) error {
-	log.Println("DownstreamThingDynamictslGetReply")
-	return nil
 }
 
 // UpstreamExtNtpRequest ntp请求
@@ -140,31 +115,4 @@ type NtpResponse struct {
 	DeviceSendTime int `json:"deviceSendTime,string"`
 	ServerRecvTime int `json:"serverRecvTime,string"`
 	ServerSendTime int `json:"serverSendTime,string"`
-}
-
-//
-func DownstreamExtNtpResponse(rsp *NtpResponse) error {
-	return nil
-}
-
-// deprecated
-func DownstreamThingServicePropertyGet(productKey, deviceName string, payload []byte) error {
-	return nil
-}
-
-func DownstreamThingServiceRequest(productKey, deviceName, srvID string, payload []byte) error {
-	return nil
-}
-
-func DownstreamThingServicePropertySet(payload []byte) error {
-	return nil
-}
-
-func DownstreamExtErrorResponse(rsp *Response) error {
-	return nil
-}
-
-func DownstreamThingModelDownRaw(productKey, deviceName string, payload []byte) error {
-	// hex 2 string
-	return nil
 }

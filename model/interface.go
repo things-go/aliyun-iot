@@ -20,3 +20,19 @@ type GatewayUserProc interface {
 	DownstreamGwThingTopoDeleteReply(m *Manager, rsp *Response) error
 	DownstreamGwThingTopoGetReply(m *Manager, rsp *GwTopoGetResponse) error
 }
+
+type DevUserProc interface {
+	DownstreamThingModelUpRawReply(productKey, deviceName string, payload []byte) error
+	DownstreamThingEventPropertyPostReply(rsp *Response) error
+	DownstreamThingEventPostReply(eventID string, rsp *Response) error
+	DownstreamThingDeviceInfoUpdateReply(rsp *Response) error
+	DownstreamThingDeviceInfoDeleteReply(rsp *Response) error
+	DownstreamThingDsltemplateGetReply(rsp *Response) error
+	DownstreamThingDynamictslGetReply(rsp *Response) error
+	DownstreamExtNtpResponse(rsp *NtpResponse) error
+	DownstreamExtErrorResponse(rsp *Response) error
+	DownstreamThingModelDownRaw(productKey, deviceName string, payload []byte) error
+	DownstreamThingServicePropertyGet(productKey, deviceName string, payload []byte) error
+	DownstreamThingServiceRequest(productKey, deviceName, srvID string, payload []byte) error
+	DownstreamThingServicePropertySet(payload []byte) error
+}

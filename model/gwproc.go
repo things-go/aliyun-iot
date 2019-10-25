@@ -1,37 +1,37 @@
 package model
 
-type gwUserProc struct{}
+type GwNopUserProc struct{}
 
-func (gwUserProc) DownstreamGwExtSubDevRegisterReply(m *Manager, rsp *GwSubDevRegisterResponse) error {
+func (GwNopUserProc) DownstreamGwExtSubDevRegisterReply(m *Manager, rsp *GwSubDevRegisterResponse) error {
 	return nil
 }
 
-func (gwUserProc) DownstreamGwExtSubDevCombineLoginReply(m *Manager, rsp *Response) error {
+func (GwNopUserProc) DownstreamGwExtSubDevCombineLoginReply(m *Manager, rsp *Response) error {
 	return nil
 }
 
 // DownstreamGwExtSubDevCombineLogoutReply
-func (gwUserProc) DownstreamGwExtSubDevCombineLogoutReply(m *Manager, rsp *Response) error {
+func (GwNopUserProc) DownstreamGwExtSubDevCombineLogoutReply(m *Manager, rsp *Response) error {
 	return nil
 }
 
-func (gwUserProc) DownstreamGwSubDevThingDisable(m *Manager, productKey, deviceName string) error {
+func (GwNopUserProc) DownstreamGwSubDevThingDisable(m *Manager, productKey, deviceName string) error {
 	return nil
 }
-func (gwUserProc) DownstreamGwSubDevThingEnable(m *Manager, productKey, deviceName string) error {
+func (GwNopUserProc) DownstreamGwSubDevThingEnable(m *Manager, productKey, deviceName string) error {
 	return nil
 }
-func (gwUserProc) DownstreamGwSubDevThingDelete(m *Manager, productKey, deviceName string) error {
+func (GwNopUserProc) DownstreamGwSubDevThingDelete(m *Manager, productKey, deviceName string) error {
 	return nil
 }
-func (gwUserProc) DownstreamGwThingTopoAddReply(m *Manager, rsp *Response) error {
-	return nil
-}
-
-func (gwUserProc) DownstreamGwThingTopoDeleteReply(m *Manager, rsp *Response) error {
+func (GwNopUserProc) DownstreamGwThingTopoAddReply(m *Manager, rsp *Response) error {
 	return nil
 }
 
-func (gwUserProc) DownstreamGwThingTopoGetReply(m *Manager, rsp *GwTopoGetResponse) error {
+func (GwNopUserProc) DownstreamGwThingTopoDeleteReply(m *Manager, rsp *Response) error {
+	return nil
+}
+
+func (GwNopUserProc) DownstreamGwThingTopoGetReply(m *Manager, rsp *GwTopoGetResponse) error {
 	return nil
 }

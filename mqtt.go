@@ -32,5 +32,5 @@ func (sf *mqttClient) Subscribe(topic string, streamFunc model.ProcDownStreamFun
 
 func NewWithMQTT(options *model.Options, c mqtt.Client) *model.Manager {
 	sf := model.New(options)
-	return sf.SetCon(&mqttClient{c: c, containOf: sf})
+	return sf.SetConn(&mqttClient{c: c, containOf: sf})
 }
