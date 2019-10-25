@@ -15,4 +15,5 @@ type GatewayUserProc interface {
 	DownstreamExtSubDevCombineLogoutReply(m *Manager, rsp *Response) error
 	DownstreamThingTopoAddReply(m *Manager, rsp *Response) error
 	DownstreamThingTopoDeleteReply(m *Manager, rsp *Response) error
+	DownstreamThingTopoGetReply(m *Manager, rsp *GwTopoGetResponse) error
 }

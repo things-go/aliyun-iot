@@ -18,4 +18,5 @@ const (
 	methodSubDevRegister = "thing.sub.register"
 	methodTopoAdd        = "thing.topo.add"
 	methodTopoDelete     = "thing.topo.delete"
+	methodTopoGet        = "thing.topo.get"
 )

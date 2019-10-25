@@ -156,3 +156,11 @@ func ProcThingTopoDeleteReply(m *Manager, rawURI string, payload []byte) error {
 	}
 	return m.gwUserProc.DownstreamThingTopoDeleteReply(m, &rsp)
 }
+
+func ProcThingTopoGetReply(m *Manager, rawURI string, payload []byte) error {
+	rsp := GwTopoGetResponse{}
+	if err := json.Unmarshal(payload, &rsp); err != nil {
+		return err
+	}
+	return m.gwUserProc.DownstreamThingTopoGetReply(m, &rsp)
+}

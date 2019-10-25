@@ -75,11 +75,13 @@ const (
 	URIThingSubDevRegister      = "thing/sub/register"
 	URIThingSubDevRegisterReply = "thing/sub/register_reply"
 
-	//
+	// 网关网络拓扑
 	URIThingTopoAdd         = "thing/topo/add"
 	URIThingTopoAddReply    = "thing/topo/add_reply"
 	URIThingTopoDelete      = "thing/topo/delete"
 	URIThingTopoDeleteReply = "thing/topo/delete_reply"
+	URIThingTopoGet         = "thing/topo/get"
+	URIThingTopoGetReply    = "thing/topo/get_reply"
 )
 const (
 	URISubDevCombineLogin      = "combine/login"

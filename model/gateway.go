@@ -207,6 +207,21 @@ func (sf *Manager) UpstreamThingTopoDelete(devID int) error {
 	return nil
 }
 
+type GwTopoGetData struct {
+	ProductKey string `json:"productKey"`
+	DeviceName string `json:"deviceName"`
+}
+
+type GwTopoGetResponse struct {
+	Response
+	Data []GwTopoGetData `json:"data"`
+}
+
+func (sf *Manager) UpstreamThingTopoGet() error {
+	return sf.SendRequest(sf.URIService(URISysPrefix, URIThingTopoGet),
+		sf.RequestID(), methodTopoGet, "{}")
+}
+
 type gwUserProc struct{}
 
 func (gwUserProc) DownstreamExtSubDevRegisterReply(m *Manager, rsp *SubDevRegisterResponse) error {
@@ -227,5 +242,9 @@ func (gwUserProc) DownstreamThingTopoAddReply(m *Manager, rsp *Response) error {
 }
 
 func (gwUserProc) DownstreamThingTopoDeleteReply(m *Manager, rsp *Response) error {
+	return nil
+}
+
+func (gwUserProc) DownstreamThingTopoGetReply(m *Manager, rsp *GwTopoGetResponse) error {
 	return nil
 }
