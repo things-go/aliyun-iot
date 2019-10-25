@@ -2,8 +2,6 @@ package model
 
 import (
 	"encoding/json"
-
-	"github.com/thinkgos/aliIOT/infra"
 )
 
 type ProcDownStreamFunc func(m *Manager, rawURI string, payload []byte) error
@@ -14,15 +12,11 @@ func ProcThingModelDownRaw(m *Manager, rawURI string, payload []byte) error {
 	if len(uris) != (m.uriOffset + 6) {
 		return ErrInvalidURI
 	}
-	return ThingModelDownRaw(uris[m.uriOffset+1], uris[m.uriOffset+2], payload)
+	return DownstreamThingModelDownRaw(uris[m.uriOffset+1], uris[m.uriOffset+2], payload)
 }
 
 func ProcThingServicePropertySet(m *Manager, rawURI string, payload []byte) error {
-	code := infra.CodeSuccess
-	if err := ThingServicePropertySet(payload); err != nil {
-		code = infra.CodeRequestError
-	}
-	return m.SendResponse(URIServiceReplyWithRequestURI(rawURI), m.RequestID(), code, "{}")
+	return DownstreamThingServicePropertySet(payload)
 }
 
 // deprecated
@@ -31,7 +25,7 @@ func ProcThingServicePropertyGet(m *Manager, rawURI string, payload []byte) erro
 	if len(uris) != (m.uriOffset + 6) {
 		return ErrInvalidURI
 	}
-	return ThingServicePropertyGet(uris[m.uriOffset+1], uris[m.uriOffset+2], payload)
+	return DownstreamThingServicePropertyGet(uris[m.uriOffset+1], uris[m.uriOffset+2], payload)
 }
 
 func ProcThingServiceRequest(m *Manager, rawURI string, payload []byte) error {
@@ -40,7 +34,7 @@ func ProcThingServiceRequest(m *Manager, rawURI string, payload []byte) error {
 		return ErrInvalidURI
 	}
 
-	return ThingServiceRequest(uris[m.uriOffset+1], uris[m.uriOffset+2], uris[m.uriOffset+5], payload)
+	return DownstreamThingServiceRequest(uris[m.uriOffset+1], uris[m.uriOffset+2], uris[m.uriOffset+5], payload)
 }
 
 // ProcThingModelUpRawReply 处理透传上行的应答
@@ -50,7 +44,7 @@ func ProcThingModelUpRawReply(m *Manager, rawURI string, payload []byte) error {
 		return ErrInvalidURI
 	}
 
-	return ThingModelUpRawReply(uris[m.uriOffset+1], uris[m.uriOffset+2], payload)
+	return DownstreamThingModelUpRawReply(uris[m.uriOffset+1], uris[m.uriOffset+2], payload)
 }
 
 // ProcThingEventPost 处理ThingEventXXX的应答
@@ -67,9 +61,9 @@ func ProcThingEventPostReply(m *Manager, rawURI string, payload []byte) error {
 	}
 
 	if EventID == "property" {
-		_ = ThingEventPropertyPostReply(&rsp)
+		_ = DownstreamThingEventPropertyPostReply(&rsp)
 	} else {
-		_ = ThingEventPostReply(EventID, &rsp)
+		_ = DownstreamThingEventPostReply(EventID, &rsp)
 	}
 
 	return nil
@@ -80,7 +74,7 @@ func ProcThingDeviceInfoUpdateReply(m *Manager, rawURI string, payload []byte) e
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
-	return ThingDeviceInfoUpdateReply(&rsp)
+	return DownstreamThingDeviceInfoUpdateReply(&rsp)
 }
 
 func ProcThingDeviceInfoDeleteReply(m *Manager, rawURI string, payload []byte) error {
@@ -88,7 +82,7 @@ func ProcThingDeviceInfoDeleteReply(m *Manager, rawURI string, payload []byte) e
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
-	return ThingDeviceInfoDeleteReply(&rsp)
+	return DownstreamThingDeviceInfoDeleteReply(&rsp)
 }
 func ProcThingDsltemplateGetReply(m *Manager, rawURI string, payload []byte) error {
 	rsp := Response{}
@@ -96,7 +90,7 @@ func ProcThingDsltemplateGetReply(m *Manager, rawURI string, payload []byte) err
 		return err
 	}
 
-	return ThingDsltemplateGetReply(&rsp)
+	return DownstreamThingDsltemplateGetReply(&rsp)
 }
 func ProcThingDynamictslGetReply(m *Manager, rawURI string, payload []byte) error {
 	rsp := Response{}
@@ -104,11 +98,15 @@ func ProcThingDynamictslGetReply(m *Manager, rawURI string, payload []byte) erro
 		return err
 	}
 
-	return ThingDynamictslGetReply(&rsp)
+	return DownstreamThingDynamictslGetReply(&rsp)
 }
 
 func ProcExtNtpResponse(m *Manager, rawURI string, payload []byte) error {
-	return ExtNtpResponse(payload)
+	rsp := NtpResponse{}
+	if err := json.Unmarshal(payload, &rsp); err != nil {
+		return err
+	}
+	return DownstreamExtNtpResponse(&rsp)
 }
 
 func ProcExtErrorResponse(m *Manager, rawURI string, payload []byte) error {
@@ -116,7 +114,7 @@ func ProcExtErrorResponse(m *Manager, rawURI string, payload []byte) error {
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
-	return ExtErrorResponse(&rsp)
+	return DownstreamExtErrorResponse(&rsp)
 }
 
 func ProcExtSubDevCombineLoginReply(m *Manager, rawURI string, payload []byte) error {
@@ -124,7 +122,7 @@ func ProcExtSubDevCombineLoginReply(m *Manager, rawURI string, payload []byte) e
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
-	return ExtExtSubDevCombineLoginReply(&rsp)
+	return DownstreamExtSubDevCombineLoginReply(&rsp)
 }
 
 func ProcExtSubDevCombineLogoutReply(m *Manager, rawURI string, payload []byte) error {
@@ -132,7 +130,7 @@ func ProcExtSubDevCombineLogoutReply(m *Manager, rawURI string, payload []byte) 
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
-	return ExtExtSubDevCombineLogoutReply(&rsp)
+	return DownstreamExtSubDevCombineLogoutReply(&rsp)
 }
 
 func ProcThingSubDevRegisterReply(m *Manager, rawURI string, payload []byte) error {
@@ -140,5 +138,5 @@ func ProcThingSubDevRegisterReply(m *Manager, rawURI string, payload []byte) err
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
-	return ExtExtSubDevRegisterReply(&rsp)
+	return DownstreamExtSubDevRegisterReply(&rsp)
 }

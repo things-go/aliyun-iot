@@ -79,6 +79,10 @@ func (sf *Manager) UpstreamExtSubDevCombineLogin(devID int) error {
 	return sf.Publish(sf.URIService(URIExtSessionPrefix, URISubDevCombineLogin), 0, req)
 }
 
+func DownstreamExtSubDevCombineLoginReply(rsp *Response) error {
+	return nil
+}
+
 // SubDevCombineLogoutParams 子设备下线参数域
 type SubDevCombineLogoutParams struct {
 	ProductKey string `json:"productKey"`
@@ -117,6 +121,9 @@ func (sf *Manager) UpstreamExtSubDevCombineLogout(devID int) error {
 	// NOTE: 子设备下线,要用网关的productKey和deviceName
 	return sf.Publish(sf.URIService(URIExtSessionPrefix, URISubDevCombineLogout), 0, req)
 }
+func DownstreamExtSubDevCombineLogoutReply(rsp *Response) error {
+	return nil
+}
 
 // MetaInfo 产品与设备三元组
 type MetaInfo struct {
@@ -149,4 +156,8 @@ func (sf *Manager) UpstreamSubDevRegister(meta ...*MetaInfo) error {
 	}
 
 	return sf.SendRequest(sf.URIService(URISysPrefix, URIThingSubDevRegister), sf.RequestID(), methodSubDevRegister, sublist)
+}
+
+func DownstreamExtSubDevRegisterReply(rsp *Response) error {
+	return nil
 }
