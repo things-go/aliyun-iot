@@ -47,7 +47,8 @@ func main() {
 		log.Println("mqtt client connection lost, ", err)
 	})
 	client := mqtt.NewClient(opts)
-	manage := aliIOT.NewWithMQTT(productKey, deviceName, deviceSecret, client)
+	dmopt := model.NewOption(productKey, deviceName, deviceSecret).Valid()
+	manage := aliIOT.NewWithMQTT(dmopt, client)
 
 	client.Connect().Wait()
 	manage.LogMode(true)

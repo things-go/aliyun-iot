@@ -66,10 +66,11 @@ type Manager struct {
 // New 创建一个物管理
 func New(opt *Options) *Manager {
 	sf := &Manager{
-		opt:        *opt,
-		devMgr:     newDevMgr(),
-		Clog:       clog.NewWithPrefix("alink -- >"),
-		gwUserProc: GwNopUserProc{},
+		opt:         *opt,
+		devMgr:      newDevMgr(),
+		Clog:        clog.NewWithPrefix("alink -- >"),
+		gwUserProc:  GwNopUserProc{},
+		devUserProc: DevNopUserProc{},
 	}
 	if opt.enableCache {
 		sf.pool = newPool()
