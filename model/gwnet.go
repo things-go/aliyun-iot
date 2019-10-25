@@ -10,7 +10,7 @@ import (
 type SubDevTopoAddParams struct {
 	ProductKey string `json:"productKey"`
 	DeviceName string `json:"deviceName"`
-	ClientId   string `json:"clientId"`
+	ClientID   string `json:"clientId"`
 	Timestamp  int64  `json:"timestamp,string"`
 	SignMethod string `json:"signMethod"`
 	Sign       string `json:"sign"`

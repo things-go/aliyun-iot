@@ -49,65 +49,36 @@ type Response struct {
 
 // Manager 管理
 type Manager struct {
-	Conn
-	*devMgr
-	*clog.Clog
-
-	ProductKey   string
-	DeviceName   string
-	DeviceSecret string
-
-	enableCache bool
-	msgCache    *cache.Cache
-
 	requestID int32
 	reportID  int32
 
-	uriOffset int
+	opt Options
 
+	*devMgr
+	msgCache *cache.Cache
+	*clog.Clog
+	Conn
 	gwUserProc GatewayUserProc
 }
 
 // New 创建一个物管理
-func New(productKey, deviceName, deviceSecret string) *Manager {
+func New(opt *Options) *Manager {
 	sf := &Manager{
-		ProductKey:   productKey,
-		DeviceName:   deviceName,
-		DeviceSecret: deviceSecret,
-		devMgr:       newDevMgr(),
-		Clog:         clog.NewWithPrefix("alink -- >"),
-		gwUserProc:   gwUserProc{},
+		opt:        *opt,
+		devMgr:     newDevMgr(),
+		Clog:       clog.NewWithPrefix("alink -- >"),
+		gwUserProc: gwUserProc{},
 	}
-	id, _ := sf.Create("itself", sf.ProductKey, sf.DeviceName, sf.DeviceSecret)
-	if id != 0 {
-		panic("first")
+	if opt.enableCache {
+		sf.msgCache = cache.New(time.Second*10, time.Second*30)
 	}
+	_, _ = sf.Create("itself", opt.productKey, opt.deviceName, opt.deviceSecret)
 	return sf
 }
 
 // SetCon 设置连接接口
 func (sf *Manager) SetCon(conn Conn) *Manager {
 	sf.Conn = conn
-	return sf
-}
-
-// EnableCOAP 采用COAP
-func (sf *Manager) EnableCOAP(enable bool) *Manager {
-	if enable {
-		sf.uriOffset = 1
-	} else {
-		sf.uriOffset = 0
-	}
-	return sf
-}
-
-func (sf *Manager) MessageCacheEnable(enable bool) *Manager {
-	if enable {
-		sf.msgCache = cache.New(time.Second*10, time.Second*30)
-	} else {
-		sf.msgCache = nil
-	}
-	sf.enableCache = enable
 	return sf
 }
 

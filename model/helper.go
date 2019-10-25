@@ -9,7 +9,7 @@ import (
 
 // URIService 获得本设备URI
 func (sf *Manager) URIService(prefix, name string) string {
-	return URIService(prefix, name, sf.ProductKey, sf.DeviceName)
+	return URIService(prefix, name, sf.opt.productKey, sf.opt.deviceName)
 }
 
 // 可以采用Sha256,hmacMd5,hmacSha1,hmacSha256

@@ -11,10 +11,10 @@ type ProcDownStreamFunc func(m *Manager, rawURI string, payload []byte) error
 // ProcThingModelDownRaw 处理透传
 func ProcThingModelDownRaw(m *Manager, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) != (m.uriOffset + 6) {
+	if len(uris) != (m.opt.uriOffset + 6) {
 		return ErrInvalidURI
 	}
-	return DownstreamThingModelDownRaw(uris[m.uriOffset+1], uris[m.uriOffset+2], payload)
+	return DownstreamThingModelDownRaw(uris[m.opt.uriOffset+1], uris[m.opt.uriOffset+2], payload)
 }
 
 func ProcThingServicePropertySet(m *Manager, rawURI string, payload []byte) error {
@@ -24,38 +24,38 @@ func ProcThingServicePropertySet(m *Manager, rawURI string, payload []byte) erro
 // deprecated
 func ProcThingServicePropertyGet(m *Manager, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) != (m.uriOffset + 6) {
+	if len(uris) != (m.opt.uriOffset + 6) {
 		return ErrInvalidURI
 	}
-	return DownstreamThingServicePropertyGet(uris[m.uriOffset+1], uris[m.uriOffset+2], payload)
+	return DownstreamThingServicePropertyGet(uris[m.opt.uriOffset+1], uris[m.opt.uriOffset+2], payload)
 }
 
 func ProcThingServiceRequest(m *Manager, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) != (m.uriOffset + 6) {
+	if len(uris) != (m.opt.uriOffset + 6) {
 		return ErrInvalidURI
 	}
 
-	return DownstreamThingServiceRequest(uris[m.uriOffset+1], uris[m.uriOffset+2], uris[m.uriOffset+5], payload)
+	return DownstreamThingServiceRequest(uris[m.opt.uriOffset+1], uris[m.opt.uriOffset+2], uris[m.opt.uriOffset+5], payload)
 }
 
 // ProcThingModelUpRawReply 处理透传上行的应答
 func ProcThingModelUpRawReply(m *Manager, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) != (m.uriOffset + 6) {
+	if len(uris) != (m.opt.uriOffset + 6) {
 		return ErrInvalidURI
 	}
 
-	return DownstreamThingModelUpRawReply(uris[m.uriOffset+1], uris[m.uriOffset+2], payload)
+	return DownstreamThingModelUpRawReply(uris[m.opt.uriOffset+1], uris[m.opt.uriOffset+2], payload)
 }
 
 // ProcThingEventPost 处理ThingEventXXX的应答
 func ProcThingEventPostReply(m *Manager, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) != (m.uriOffset + 7) {
+	if len(uris) != (m.opt.uriOffset + 7) {
 		return ErrInvalidURI
 	}
-	EventID := uris[m.uriOffset+5]
+	EventID := uris[m.opt.uriOffset+5]
 
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {

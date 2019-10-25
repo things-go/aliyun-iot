@@ -24,7 +24,7 @@ type GwSubDevRegisterParams struct {
 
 // SubDevRegisterDataReply 子设备注册应答数据域
 type GwSubDevRegisterData struct {
-	IotId        int64  `json:"iotId,string"`
+	IotID        int64  `json:"iotId,string"`
 	ProductKey   string `json:"productKey"`
 	DeviceName   string `json:"deviceName"`
 	DeviceSecret string `json:"deviceSecret"`
@@ -50,7 +50,7 @@ func (sf *Manager) UpstreamGwSubDevRegister(meta ...*MetaInfo) error {
 type GwSubDevCombineLoginParams struct {
 	ProductKey   string `json:"productKey"`
 	DeviceName   string `json:"deviceName"`
-	ClientId     string `json:"clientId"`
+	ClientID     string `json:"clientId"`
 	Timestamp    int64  `json:"timestamp,string"`
 	SignMethod   string `json:"signMethod"`
 	Sign         string `json:"sign"`
@@ -88,7 +88,7 @@ func (sf *Manager) UpstreamGwExtSubDevCombineLogin(devID int) error {
 		Params: GwSubDevCombineLoginParams{
 			ProductKey:   node.ProductKey,
 			DeviceName:   node.DeviceName,
-			ClientId:     clientID,
+			ClientID:     clientID,
 			Timestamp:    timestamp,
 			SignMethod:   infra.SignMethodHMACSHA1,
 			Sign:         sign,

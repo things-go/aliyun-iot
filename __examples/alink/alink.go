@@ -1,4 +1,4 @@
-package alink
+package main
 
 import (
 	"fmt"
@@ -37,11 +37,11 @@ func main() {
 		log.Println("mqtt client connection lost, ", err)
 	})
 	client := mqtt.NewClient(opts)
-	manage := aliIOT.NewWithMQTT(
-		"a1iJcssSlPC",
+
+	dmopt := model.NewOption("a1iJcssSlPC",
 		"dyncreg",
-		"bOtuBFIZgDdNb2RamMRh7eaOn6VoyurP",
-		client)
+		"bOtuBFIZgDdNb2RamMRh7eaOn6VoyurP").Valid()
+	manage := aliIOT.NewWithMQTT(dmopt, client)
 
 	client.Connect().Wait()
 

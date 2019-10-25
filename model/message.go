@@ -107,7 +107,7 @@ func DownstreamThingDeviceInfoDeleteReply(rsp *Response) error {
 
 // UpstreamThingDsltemplateGet 获取
 func (sf *Manager) UpstreamThingDsltemplateGet() error {
-	uri := URIService(URISysPrefix, URIThingDslTemplateGet, sf.ProductKey, sf.DeviceName)
+	uri := URIService(URISysPrefix, URIThingDslTemplateGet, sf.opt.productKey, sf.opt.deviceName)
 	return sf.SendRequest(uri, sf.RequestID(), methodDslTemplateGet, "{}")
 }
 
@@ -118,7 +118,7 @@ func DownstreamThingDsltemplateGetReply(rsp *Response) error {
 
 // UpstreamThingDynamictslGet 获取
 func (sf *Manager) UpstreamThingDynamictslGet() error {
-	uri := URIService(URISysPrefix, URIThingDynamicTslGet, sf.ProductKey, sf.DeviceName)
+	uri := URIService(URISysPrefix, URIThingDynamicTslGet, sf.opt.productKey, sf.opt.deviceName)
 	return sf.SendRequest(uri, sf.RequestID(), methodDynamicTslGet, `{"nodes\":["type","identifier"],"addDefault":false}`)
 }
 
@@ -131,7 +131,7 @@ func DownstreamThingDynamictslGetReply(rsp *Response) error {
 // 发送一条Qos = 0的消息,并带上设备当前的时间戳,平台将回复 设备的发送时间,平台的接收时间, 平台的发送时间.
 // 设备计算当前精确时间 = (平台接收时间 + 平台发送时间 + 设备接收时间 - 设备发送时间) / 2
 func (sf *Manager) UpstreamExtNtpRequest() error {
-	return sf.Publish(URIService(URIExtNtpPrefix, URINtpRequest, sf.ProductKey, sf.DeviceName),
+	return sf.Publish(URIService(URIExtNtpPrefix, URINtpRequest, sf.opt.productKey, sf.opt.deviceName),
 		0, fmt.Sprintf(`{"deviceSendTime":"%d"}`, time.Now().Unix()))
 }
 
