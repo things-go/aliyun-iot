@@ -174,7 +174,7 @@ func ProcThingDisable(m *Manager, rawURI string, payload []byte) error {
 	}
 
 	req := Request{}
-	if err := json.Unmarshal(payload, req); err != nil {
+	if err := json.Unmarshal(payload, &req); err != nil {
 		return err
 	}
 
@@ -190,7 +190,7 @@ func ProcThingEnable(m *Manager, rawURI string, payload []byte) error {
 	}
 
 	req := Request{}
-	if err := json.Unmarshal(payload, req); err != nil {
+	if err := json.Unmarshal(payload, &req); err != nil {
 		return err
 	}
 
@@ -206,7 +206,7 @@ func ProcThingDelete(m *Manager, rawURI string, payload []byte) error {
 	}
 
 	req := Request{}
-	if err := json.Unmarshal(payload, req); err != nil {
+	if err := json.Unmarshal(payload, &req); err != nil {
 		return err
 	}
 

@@ -3,6 +3,10 @@ package model
 import (
 	"encoding/json"
 	"sync/atomic"
+	"time"
+
+	"github.com/patrickmn/go-cache"
+	"github.com/thinkgos/aliIOT/clog"
 )
 
 type MsgType byte
@@ -47,10 +51,14 @@ type Response struct {
 type Manager struct {
 	Conn
 	*devMgr
+	*clog.Clog
 
 	ProductKey   string
 	DeviceName   string
 	DeviceSecret string
+
+	enableCache bool
+	msgCache    *cache.Cache
 
 	requestID int32
 	reportID  int32
@@ -67,8 +75,8 @@ func New(productKey, deviceName, deviceSecret string) *Manager {
 		DeviceName:   deviceName,
 		DeviceSecret: deviceSecret,
 		devMgr:       newDevMgr(),
-
-		gwUserProc: gwUserProc{},
+		Clog:         clog.NewWithPrefix("alink -- >"),
+		gwUserProc:   gwUserProc{},
 	}
 	id, _ := sf.Create("itself", sf.ProductKey, sf.DeviceName, sf.DeviceSecret)
 	if id != 0 {
@@ -90,6 +98,16 @@ func (sf *Manager) EnableCOAP(enable bool) *Manager {
 	} else {
 		sf.uriOffset = 0
 	}
+	return sf
+}
+
+func (sf *Manager) MessageCacheEnable(enable bool) *Manager {
+	if enable {
+		sf.msgCache = cache.New(time.Second*10, time.Second*30)
+	} else {
+		sf.msgCache = nil
+	}
+	sf.enableCache = enable
 	return sf
 }
 

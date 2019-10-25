@@ -18,12 +18,10 @@ func (sf *Manager) UpstreamThingModelUpRaw(devID int, payload interface{}) error
 		return err
 	}
 
-	uri := URIService(URISysPrefix, URIThingModelUpRaw, node.ProductKey, node.DeviceName)
-	return sf.Publish(uri, 1, payload)
+	return sf.Publish(URIService(URISysPrefix, URIThingModelUpRaw, node.ProductKey, node.DeviceName), 1, payload)
 }
 
 func DownstreamThingModelUpRawReply(productKey, deviceName string, payload []byte) error {
-	// hex 2 string
 	return nil
 }
 

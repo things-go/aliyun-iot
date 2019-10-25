@@ -152,6 +152,9 @@ func (sf *devMgr) SearchByID(devID int) (int, error) {
 
 // SearchNodeByID 使用devID查找一个设备节点信息
 func (sf *devMgr) SearchNodeByID(devID int) (DevNode, error) {
+	if devID < 0 {
+		return DevNode{}, ErrInvalidParameter
+	}
 	sf.rw.RLock()
 	defer sf.rw.RUnlock()
 	node, err := sf.searchByID(devID)
