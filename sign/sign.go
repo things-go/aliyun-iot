@@ -11,13 +11,13 @@ import (
 	"hash"
 	"sort"
 	"strings"
+
+	"github.com/thinkgos/aliIOT/infra"
 )
 
 // default defined
 const (
-	IotAlinkVersion = "20"
-	IotSDKVersion   = "sdk-golang-3.0.1"
-	fixedTimestamp  = "2524608000000"
+	fixedTimestamp = "2524608000000"
 )
 
 // all secure mode define
@@ -100,11 +100,11 @@ func NewMQTTSign() *MQTTSign {
 		deviceModel: true,
 		clientIDkv: map[string]string{
 			"timestamp":  fixedTimestamp,
-			"_v":         IotSDKVersion,
+			"_v":         infra.IOTSDKVersion,
 			"securemode": modeTCPDirectPlain,
 			"signmethod": SignMethodSHA256,
 			"lan":        "Golang",
-			"v":          IotAlinkVersion,
+			"v":          infra.IOTAlinkVersion,
 		},
 		hfc: sha256.New,
 	}
@@ -146,7 +146,7 @@ func (sf *MQTTSign) SetSupportSecureMode(mode SecureMode) *MQTTSign {
 // SetSupportDeviceModel 设置支持物模型
 func (sf *MQTTSign) SetSupportDeviceModel(enable bool) *MQTTSign {
 	if enable {
-		sf.clientIDkv["v"] = IotAlinkVersion
+		sf.clientIDkv["v"] = infra.IOTAlinkVersion
 		delete(sf.clientIDkv, "gw")
 		delete(sf.clientIDkv, "ext")
 	} else {
@@ -178,7 +178,7 @@ func (sf *MQTTSign) generateClientID(deviceID string) string {
 	for k := range sf.clientIDkv {
 		sKey = append(sKey, k)
 	}
-
+	// 对键进行排序
 	sort.Strings(sKey)
 
 	for _, Value := range sKey {
@@ -199,10 +199,11 @@ func (sf *MQTTSign) Generate(meta *MetaInfo, region MQTTCloudRegion) (*MQTTSignI
 	deviceID := fmt.Sprintf("%s.%s", meta.ProductKey, meta.DeviceName)
 
 	signOut.ClientID = sf.generateClientID(deviceID)
-	/* setup Password */
-	h := hmac.New(sf.hfc, []byte(meta.DeviceSecret))
+
 	signSource := fmt.Sprintf("clientId%sdeviceName%sproductKey%stimestamp%s",
 		deviceID, meta.DeviceName, meta.ProductKey, fixedTimestamp)
+	/* setup Password */
+	h := hmac.New(sf.hfc, []byte(meta.DeviceSecret))
 	if _, err := h.Write([]byte(signSource)); err != nil {
 		return nil, err
 	}

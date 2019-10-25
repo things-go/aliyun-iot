@@ -78,7 +78,7 @@ const (
 	CombineSubDevLogoutReply = "combine/logout_reply"
 )
 
-// URIService 生成URI定义符
+// URIService 生成URI
 func URIService(prefix, name, productKey, deviceName string) string {
 	str := strings.Builder{}
 	str.Grow(len(prefix) + len(name) + len(productKey) + len(deviceName))
@@ -91,6 +91,7 @@ func URIService(prefix, name, productKey, deviceName string) string {
 	return str.String()
 }
 
+// URIServiceReplyWithRequestURI 根据请求的URI生成应答的URI
 func URIServiceReplyWithRequestURI(uri string) string {
 	return uri + "_" + URIReplySuffix
 }

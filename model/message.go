@@ -6,22 +6,6 @@ import (
 	"log"
 )
 
-// 平台通信版本
-const (
-	Version = "1.0"
-)
-
-// method 定义
-const (
-	methodPropertyPost     = "thing.event.property.post"
-	methodDeviceInfoUpdate = "thing.deviceinfo.update"
-	methodDeviceInfoDelete = "thing.deviceinfo.delete"
-	//methodUpRaw            = "thing.model.up_raw"
-	methodEventPostFormat = "thing.event.%s.post"
-	methodDslTemplateGet  = "thing.dsltemplate.get"
-	methodDynamicTslGet   = "thing.dynamicTsl.get"
-)
-
 // UpstreamThingModelUpRaw 上传透传数据
 func (sf *Manager) UpstreamThingModelUpRaw(devID int, payload interface{}) error {
 	if devID < 0 {
@@ -112,7 +96,7 @@ func (sf *Manager) UpstreamThingDynamictslGet() error {
 // UpstreamExtNtpRequest ntp请求
 func (sf *Manager) UpstreamExtNtpRequest() error {
 	uri := URIService(URIExtNtpPrefix, URINtpRequest, sf.ProductKey, sf.DeviceName)
-	return sf.Publish(uri, `{"deviceSendTime":"1234"}`)
+	return sf.Publish(uri, 1, `{"deviceSendTime":"1234"}`)
 }
 
 func ThingModelDownRaw(productKey, deviceName string, payload []byte) error {

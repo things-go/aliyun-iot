@@ -29,7 +29,7 @@ const (
 
 // Request 请求
 type Request struct {
-	ID      int32       `json:"id,string"`
+	ID      int         `json:"id,string"`
 	Version string      `json:"version"`
 	Params  interface{} `json:"params"`
 	Method  string      `json:"method"`
@@ -37,7 +37,7 @@ type Request struct {
 
 // Response 应答
 type Response struct {
-	ID      int32       `json:"id,string"`
+	ID      int         `json:"id,string"`
 	Code    int         `json:"code"`
 	Data    interface{} `json:"data"`
 	Message string      `json:"message,omitempty"`
@@ -89,13 +89,13 @@ func (sf *Manager) EnableCOAP(enable bool) *Manager {
 }
 
 // RequestID 获得下一个requestID
-func (sf *Manager) RequestID() int32 {
-	return atomic.AddInt32(&sf.requestID, 1)
+func (sf *Manager) RequestID() int {
+	return int(atomic.AddInt32(&sf.requestID, 1))
 }
 
 // ReportID 获得下一个reportID
-func (sf *Manager) ReportID() int32 {
-	return atomic.AddInt32(&sf.reportID, 1)
+func (sf *Manager) ReportID() int {
+	return int(atomic.AddInt32(&sf.reportID, 1))
 }
 
 // SendRequest 发送请求
@@ -104,7 +104,7 @@ func (sf *Manager) ReportID() int32 {
 // method: 方法
 // params: 消息体
 // API内部已实现json序列化
-func (sf *Manager) SendRequest(uriService string, requestID int32, method string, params interface{}) error {
+func (sf *Manager) SendRequest(uriService string, requestID int, method string, params interface{}) error {
 	out, err := json.Marshal(&Request{requestID, Version, params, method})
 	if err != nil {
 		return err
@@ -112,7 +112,7 @@ func (sf *Manager) SendRequest(uriService string, requestID int32, method string
 	return sf.Publish(uriService, 1, out)
 }
 
-func (sf *Manager) SendResponse(uriService string, reportID int32, code int, data interface{}) error {
+func (sf *Manager) SendResponse(uriService string, reportID int, code int, data interface{}) error {
 	out, err := json.Marshal(&Response{reportID, code, data, ""})
 	if err != nil {
 		return err
