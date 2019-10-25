@@ -118,11 +118,11 @@ func ProcExtErrorResponse(m *Manager, rawURI string, payload []byte) error {
 }
 
 func ProcThingSubDevRegisterReply(m *Manager, rawURI string, payload []byte) error {
-	rsp := SubDevRegisterResponse{}
+	rsp := GwSubDevRegisterResponse{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
-	return m.gwUserProc.DownstreamExtSubDevRegisterReply(m, &rsp)
+	return m.gwUserProc.DownstreamGwExtSubDevRegisterReply(m, &rsp)
 }
 
 func ProcExtSubDevCombineLoginReply(m *Manager, rawURI string, payload []byte) error {
@@ -130,7 +130,7 @@ func ProcExtSubDevCombineLoginReply(m *Manager, rawURI string, payload []byte) e
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
-	return m.gwUserProc.DownstreamExtSubDevCombineLoginReply(m, &rsp)
+	return m.gwUserProc.DownstreamGwExtSubDevCombineLoginReply(m, &rsp)
 }
 
 func ProcExtSubDevCombineLogoutReply(m *Manager, rawURI string, payload []byte) error {
@@ -138,7 +138,7 @@ func ProcExtSubDevCombineLogoutReply(m *Manager, rawURI string, payload []byte) 
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
-	return m.gwUserProc.DownstreamExtSubDevCombineLogoutReply(m, &rsp)
+	return m.gwUserProc.DownstreamGwExtSubDevCombineLogoutReply(m, &rsp)
 }
 
 func ProcThingTopoAddReply(m *Manager, rawURI string, payload []byte) error {
@@ -146,7 +146,7 @@ func ProcThingTopoAddReply(m *Manager, rawURI string, payload []byte) error {
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
-	return m.gwUserProc.DownstreamThingTopoAddReply(m, &rsp)
+	return m.gwUserProc.DownstreamGwThingTopoAddReply(m, &rsp)
 }
 
 func ProcThingTopoDeleteReply(m *Manager, rawURI string, payload []byte) error {
@@ -154,7 +154,7 @@ func ProcThingTopoDeleteReply(m *Manager, rawURI string, payload []byte) error {
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
-	return m.gwUserProc.DownstreamThingTopoDeleteReply(m, &rsp)
+	return m.gwUserProc.DownstreamGwThingTopoDeleteReply(m, &rsp)
 }
 
 func ProcThingTopoGetReply(m *Manager, rawURI string, payload []byte) error {
@@ -162,5 +162,5 @@ func ProcThingTopoGetReply(m *Manager, rawURI string, payload []byte) error {
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
-	return m.gwUserProc.DownstreamThingTopoGetReply(m, &rsp)
+	return m.gwUserProc.DownstreamGwThingTopoGetReply(m, &rsp)
 }

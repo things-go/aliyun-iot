@@ -10,10 +10,10 @@ type Conn interface {
 }
 
 type GatewayUserProc interface {
-	DownstreamExtSubDevRegisterReply(m *Manager, rsp *SubDevRegisterResponse) error
-	DownstreamExtSubDevCombineLoginReply(m *Manager, rsp *Response) error
-	DownstreamExtSubDevCombineLogoutReply(m *Manager, rsp *Response) error
-	DownstreamThingTopoAddReply(m *Manager, rsp *Response) error
-	DownstreamThingTopoDeleteReply(m *Manager, rsp *Response) error
-	DownstreamThingTopoGetReply(m *Manager, rsp *GwTopoGetResponse) error
+	DownstreamGwExtSubDevRegisterReply(m *Manager, rsp *GwSubDevRegisterResponse) error
+	DownstreamGwExtSubDevCombineLoginReply(m *Manager, rsp *Response) error
+	DownstreamGwExtSubDevCombineLogoutReply(m *Manager, rsp *Response) error
+	DownstreamGwThingTopoAddReply(m *Manager, rsp *Response) error
+	DownstreamGwThingTopoDeleteReply(m *Manager, rsp *Response) error
+	DownstreamGwThingTopoGetReply(m *Manager, rsp *GwTopoGetResponse) error
 }
