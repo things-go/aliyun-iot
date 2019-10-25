@@ -16,8 +16,8 @@ import (
 //HMACSHA1     "hmacSha1"
 //HMACSHA256   "hmacSha256"
 
-// CombineSUbDevLoginParams 子设备上线参数域
-type CombineSUbDevLoginParams struct {
+// SubDevCombineLoginParams 子设备上线参数域
+type SubDevCombineLoginParams struct {
 	ProductKey   string `json:"productKey"`
 	DeviceName   string `json:"deviceName"`
 	ClientId     string `json:"clientId"`
@@ -27,10 +27,10 @@ type CombineSUbDevLoginParams struct {
 	CleanSession bool   `json:"cleanSession,string"`
 }
 
-// CombineSubDevLoginRequest 子设备上线请求
-type CombineSubDevLoginRequest struct {
+// SubDevCombineLoginRequest 子设备上线请求
+type SubDevCombineLoginRequest struct {
 	ID     int                      `json:"id,string"`
-	Params CombineSUbDevLoginParams `json:"params"`
+	Params SubDevCombineLoginParams `json:"params"`
 }
 
 func generateLoginSign(productKey, deviceName, deviceSecret, clientID string, timestamp int64) (string, error) {
@@ -65,9 +65,9 @@ func (sf *Manager) UpstreamExtSubDevCombineLogin(devID int) error {
 	if err != nil {
 		return err
 	}
-	req, err := json.Marshal(&CombineSubDevLoginRequest{
+	req, err := json.Marshal(&SubDevCombineLoginRequest{
 		ID: sf.RequestID(),
-		Params: CombineSUbDevLoginParams{
+		Params: SubDevCombineLoginParams{
 			ProductKey:   node.ProductKey,
 			DeviceName:   node.DeviceName,
 			ClientId:     clientID,
@@ -81,19 +81,19 @@ func (sf *Manager) UpstreamExtSubDevCombineLogin(devID int) error {
 		return err
 	}
 	// NOTE: 子设备登陆,要用网关的productKey和deviceName
-	return sf.Publish(sf.URIService(URIExtSessionPrefix, CombineSubDevLogin), 0, req)
+	return sf.Publish(sf.URIService(URIExtSessionPrefix, URISubDevCombineLogin), 0, req)
 }
 
-// CombineSUbDevLogoutParams 子设备下线参数域
-type CombineSUbDevLogoutParams struct {
+// SubDevCombineLogoutParams 子设备下线参数域
+type SubDevCombineLogoutParams struct {
 	ProductKey string `json:"productKey"`
 	DeviceName string `json:"deviceName"`
 }
 
-// CombineSubDevLogoutRequest 子设备下线请求
-type CombineSubDevLogoutRequest struct {
+// SubDevCombineLogoutRequest 子设备下线请求
+type SubDevCombineLogoutRequest struct {
 	ID     int                       `json:"id,string"`
-	Params CombineSUbDevLogoutParams `json:"params"`
+	Params SubDevCombineLogoutParams `json:"params"`
 }
 
 // UpstreamExtSubDevCombineLogout 子设备下线
@@ -108,9 +108,9 @@ func (sf *Manager) UpstreamExtSubDevCombineLogout(devID int) error {
 		return err
 	}
 
-	req, err := json.Marshal(&CombineSubDevLogoutRequest{
+	req, err := json.Marshal(&SubDevCombineLogoutRequest{
 		sf.RequestID(),
-		CombineSUbDevLogoutParams{
+		SubDevCombineLogoutParams{
 			ProductKey: node.ProductKey,
 			DeviceName: node.DeviceName,
 		},
@@ -120,5 +120,38 @@ func (sf *Manager) UpstreamExtSubDevCombineLogout(devID int) error {
 	}
 
 	// NOTE: 子设备下线,要用网关的productKey和deviceName
-	return sf.Publish(sf.URIService(URIExtSessionPrefix, CombineSubDevLogout), 0, req)
+	return sf.Publish(sf.URIService(URIExtSessionPrefix, URISubDevCombineLogout), 0, req)
+}
+
+// MetaInfo 产品与设备三元组
+type MetaInfo struct {
+	ProductKey    string
+	ProductSecret string
+	DeviceName    string
+	DeviceSecret  string
+}
+
+// SubDevRegisterParams 子设备注册参数域
+type SubDevRegisterParams struct {
+	ProductKey string `json:"productKey"`
+	DeviceName string `json:"deviceName"`
+}
+
+// SubDevRegisterDataReply 子设备注册应答数据域
+type SubDevRegisterDataReply struct {
+	IotId        int    `json:"iotId"`
+	ProductKey   string `json:"productKey"`
+	DeviceName   string `json:"deviceName"`
+	DeviceSecret string `json:"deviceSecret"`
+}
+
+// UpstreamSubDevRegister 子设备动态注册
+func (sf *Manager) UpstreamSubDevRegister(meta ...*MetaInfo) error {
+	sublist := make([]SubDevRegisterParams, 0, len(meta))
+
+	for _, v := range meta {
+		sublist = append(sublist, SubDevRegisterParams{v.ProductKey, v.DeviceName})
+	}
+
+	return sf.SendRequest(sf.URIService(URISysPrefix, URIThingSubDevRegister), sf.RequestID(), methodSubDevRegister, sublist)
 }

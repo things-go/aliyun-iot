@@ -70,12 +70,16 @@ const (
 	URIThingConfigGetReply  = "thing/config/get_reply"
 	URIThingConfigPush      = "thing/config/push"
 	URIThingConfigPushReply = "thing/config/push_reply"
+
+	// 子设备动态注册
+	URIThingSubDevRegister      = "thing/sub/register"
+	URIThingSubDevRegisterReply = "thing/sub/register_reply"
 )
 const (
-	CombineSubDevLogin       = "combine/login"
-	CombineSubDevLoginReply  = "combine/login_reply"
-	CombineSubDevLogout      = "combine/logout"
-	CombineSubDevLogoutReply = "combine/logout_reply"
+	URISubDevCombineLogin      = "combine/login"
+	URISubDevCombineLoginReply = "combine/login_reply"
+	URISubDevCombineLogout     = "combine/logout"
+	SubDevCombineLogoutReply   = "combine/logout_reply"
 )
 
 // URIService 生成URI

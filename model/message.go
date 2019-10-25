@@ -156,3 +156,14 @@ func ExtNtpResponse(payload []byte) error {
 func ExtErrorResponse(rsp *Response) error {
 	return nil
 }
+
+func ExtExtSubDevCombineLoginReply(rsp *Response) error {
+	return nil
+}
+
+func ExtExtSubDevCombineLogoutReply(rsp *Response) error {
+	return nil
+}
+func ExtExtSubDevRegisterReply(rsp *Response) error {
+	return nil
+}

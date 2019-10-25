@@ -14,4 +14,6 @@ const (
 	methodEventPostFormat = "thing.event.%s.post"
 	methodDslTemplateGet  = "thing.dsltemplate.get"
 	methodDynamicTslGet   = "thing.dynamicTsl.get"
+
+	methodSubDevRegister = "thing.sub.register"
 )

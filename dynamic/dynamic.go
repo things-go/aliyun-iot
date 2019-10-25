@@ -1,4 +1,4 @@
-// Package dynamic 实现动态注册
+// Package dynamic 实现动态注册,只限直连设备动态注册
 package dynamic
 
 import (

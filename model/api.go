@@ -37,10 +37,10 @@ type Request struct {
 
 // Response 应答
 type Response struct {
-	ID      int         `json:"id,string"`
-	Code    int         `json:"code"`
-	Data    interface{} `json:"data"`
-	Message string      `json:"message,omitempty"`
+	ID      int             `json:"id,string"`
+	Code    int             `json:"code"`
+	Data    json.RawMessage `json:"data"`
+	Message string          `json:"message,omitempty"`
 }
 
 // Manager 管理
@@ -113,7 +113,16 @@ func (sf *Manager) SendRequest(uriService string, requestID int, method string, 
 }
 
 func (sf *Manager) SendResponse(uriService string, reportID int, code int, data interface{}) error {
-	out, err := json.Marshal(&Response{reportID, code, data, ""})
+	out, err := json.Marshal(struct {
+		*Response
+		Data interface{} `json:"data"`
+	}{
+		&Response{
+			ID:   reportID,
+			Code: code,
+		},
+		data,
+	})
 	if err != nil {
 		return err
 	}

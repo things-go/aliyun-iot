@@ -116,3 +116,27 @@ func ProcExtErrorResponse(m *Manager, rawURI string, payload []byte) error {
 	}
 	return ExtErrorResponse(&rsp)
 }
+
+func ProcExtSubDevCombineLoginReply(m *Manager, rawURI string, payload []byte) error {
+	rsp := Response{}
+	if err := json.Unmarshal(payload, &rsp); err != nil {
+		return err
+	}
+	return ExtExtSubDevCombineLoginReply(&rsp)
+}
+
+func ProcExtSubDevCombineLogoutReply(m *Manager, rawURI string, payload []byte) error {
+	rsp := Response{}
+	if err := json.Unmarshal(payload, &rsp); err != nil {
+		return err
+	}
+	return ExtExtSubDevCombineLogoutReply(&rsp)
+}
+
+func ProcThingSubDevRegisterReply(m *Manager, rawURI string, payload []byte) error {
+	rsp := Response{}
+	if err := json.Unmarshal(payload, &rsp); err != nil {
+		return err
+	}
+	return ExtExtSubDevRegisterReply(&rsp)
+}
