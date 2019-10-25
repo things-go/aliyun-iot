@@ -71,30 +71,3 @@ func (sf *Manager) UpstreamGwThingTopoGet() error {
 	return sf.SendRequest(sf.URIService(URISysPrefix, URIThingTopoGet),
 		sf.RequestID(), methodTopoGet, "{}")
 }
-
-type gwUserProc struct{}
-
-func (gwUserProc) DownstreamGwExtSubDevRegisterReply(m *Manager, rsp *GwSubDevRegisterResponse) error {
-	return nil
-}
-
-func (gwUserProc) DownstreamGwExtSubDevCombineLoginReply(m *Manager, rsp *Response) error {
-	return nil
-}
-
-// DownstreamGwExtSubDevCombineLogoutReply
-func (gwUserProc) DownstreamGwExtSubDevCombineLogoutReply(m *Manager, rsp *Response) error {
-	return nil
-}
-
-func (gwUserProc) DownstreamGwThingTopoAddReply(m *Manager, rsp *Response) error {
-	return nil
-}
-
-func (gwUserProc) DownstreamGwThingTopoDeleteReply(m *Manager, rsp *Response) error {
-	return nil
-}
-
-func (gwUserProc) DownstreamGwThingTopoGetReply(m *Manager, rsp *GwTopoGetResponse) error {
-	return nil
-}

@@ -16,6 +16,9 @@ const (
 	methodDynamicTslGet   = "thing.dynamicTsl.get"
 
 	methodSubDevRegister = "thing.sub.register"
+	methodSubDevDisable  = "thing.disable"
+	methodSubDevEnable   = "thing.enable"
+	methodSubDevDelete   = "thing.delete"
 	methodTopoAdd        = "thing.topo.add"
 	methodTopoDelete     = "thing.topo.delete"
 	methodTopoGet        = "thing.topo.get"

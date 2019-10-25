@@ -2,6 +2,8 @@ package model
 
 import (
 	"encoding/json"
+
+	"github.com/thinkgos/aliIOT/infra"
 )
 
 type ProcDownStreamFunc func(m *Manager, rawURI string, payload []byte) error
@@ -163,4 +165,53 @@ func ProcThingTopoGetReply(m *Manager, rawURI string, payload []byte) error {
 		return err
 	}
 	return m.gwUserProc.DownstreamGwThingTopoGetReply(m, &rsp)
+}
+
+func ProcThingDisable(m *Manager, rawURI string, payload []byte) error {
+	uris := URIServiceSpilt(rawURI)
+	if len(uris) != 5 {
+		return ErrInvalidURI
+	}
+
+	req := Request{}
+	if err := json.Unmarshal(payload, req); err != nil {
+		return err
+	}
+
+	if err := m.SendResponse(URIServiceReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}"); err != nil {
+		return err
+	}
+	return m.gwUserProc.DownstreamGwSubDevThingDisable(m, uris[1], uris[2])
+}
+func ProcThingEnable(m *Manager, rawURI string, payload []byte) error {
+	uris := URIServiceSpilt(rawURI)
+	if len(uris) != 5 {
+		return ErrInvalidURI
+	}
+
+	req := Request{}
+	if err := json.Unmarshal(payload, req); err != nil {
+		return err
+	}
+
+	if err := m.SendResponse(URIServiceReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}"); err != nil {
+		return err
+	}
+	return m.gwUserProc.DownstreamGwSubDevThingDisable(m, "", "")
+}
+func ProcThingDelete(m *Manager, rawURI string, payload []byte) error {
+	uris := URIServiceSpilt(rawURI)
+	if len(uris) != 5 {
+		return ErrInvalidURI
+	}
+
+	req := Request{}
+	if err := json.Unmarshal(payload, req); err != nil {
+		return err
+	}
+
+	if err := m.SendResponse(URIServiceReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}"); err != nil {
+		return err
+	}
+	return m.gwUserProc.DownstreamGwSubDevThingDisable(m, "", "")
 }

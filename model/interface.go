@@ -13,6 +13,9 @@ type GatewayUserProc interface {
 	DownstreamGwExtSubDevRegisterReply(m *Manager, rsp *GwSubDevRegisterResponse) error
 	DownstreamGwExtSubDevCombineLoginReply(m *Manager, rsp *Response) error
 	DownstreamGwExtSubDevCombineLogoutReply(m *Manager, rsp *Response) error
+	DownstreamGwSubDevThingDisable(m *Manager, productKey, deviceName string) error
+	DownstreamGwSubDevThingEnable(m *Manager, productKey, deviceName string) error
+	DownstreamGwSubDevThingDelete(m *Manager, productKey, deviceName string) error
 	DownstreamGwThingTopoAddReply(m *Manager, rsp *Response) error
 	DownstreamGwThingTopoDeleteReply(m *Manager, rsp *Response) error
 	DownstreamGwThingTopoGetReply(m *Manager, rsp *GwTopoGetResponse) error
