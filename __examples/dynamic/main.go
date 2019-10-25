@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"github.com/thinkgos/aliIOT/dynamic"
-	"github.com/thinkgos/aliIOT/infra"
 )
 
 // jKNDfbUTddX8FVfMNg6kB6mnTReO7mVh
@@ -14,7 +13,7 @@ func main() {
 		ProductSecret: "lw3QzKHNfh7XvOxO",
 		DeviceName:    "dyncreg",
 	}
-	err := dynamic.Register2Cloud(&meta, infra.CloudRegionShangHai)
+	err := dynamic.Register2Cloud(&meta, dynamic.CloudRegionShangHai)
 	if err != nil {
 		panic(err)
 	}
