@@ -7,6 +7,7 @@ import (
 	"github.com/thinkgos/aliIOT/infra"
 )
 
+// jKNDfbUTddX8FVfMNg6kB6mnTReO7mVh
 func main() {
 	meta := dynamic.MetaInfo{
 		ProductKey:    "a1iJcssSlPC",

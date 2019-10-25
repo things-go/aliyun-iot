@@ -11,11 +11,6 @@ import (
 	"github.com/thinkgos/aliIOT/infra"
 )
 
-//SHA256       "Sha256"
-//HMACMD5      "hmacMd5"
-//HMACSHA1     "hmacSha1"
-//HMACSHA256   "hmacSha256"
-
 // SubDevCombineLoginParams 子设备上线参数域
 type SubDevCombineLoginParams struct {
 	ProductKey   string `json:"productKey"`

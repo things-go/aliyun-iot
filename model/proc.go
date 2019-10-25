@@ -2,6 +2,8 @@ package model
 
 import (
 	"encoding/json"
+
+	"github.com/thinkgos/aliIOT/infra"
 )
 
 type ProcDownStreamFunc func(m *Manager, rawURI string, payload []byte) error
@@ -16,9 +18,9 @@ func ProcThingModelDownRaw(m *Manager, rawURI string, payload []byte) error {
 }
 
 func ProcThingServicePropertySet(m *Manager, rawURI string, payload []byte) error {
-	code := CodeSuccess
+	code := infra.CodeSuccess
 	if err := ThingServicePropertySet(payload); err != nil {
-		code = CodeRequestError
+		code = infra.CodeRequestError
 	}
 	return m.SendResponse(URIServiceReplyWithRequestURI(rawURI), m.RequestID(), code, "{}")
 }

@@ -3,12 +3,13 @@ package main
 import (
 	"fmt"
 
+	"github.com/thinkgos/aliIOT/infra"
 	"github.com/thinkgos/aliIOT/sign"
 )
 
 func main() {
 	sig := sign.NewMQTTSign()
-	sig.SetSignMethod(sign.SignMethodSHA1)
+	sig.SetSignMethod(infra.SignMethodHMACSHA256)
 	signout, err := sig.Generate(&sign.MetaInfo{
 		ProductKey:   "a1QR3GD1Db3",
 		DeviceName:   "testcar",

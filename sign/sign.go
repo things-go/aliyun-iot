@@ -11,12 +11,11 @@ import (
 	"hash"
 	"sort"
 	"strings"
-
-	"github.com/thinkgos/aliIOT/infra"
 )
 
 // default defined
 const (
+	alinkVersion   = "20"
 	fixedTimestamp = "2524608000000"
 )
 
@@ -26,12 +25,6 @@ const (
 	modeTLSDirect      = "2"
 	modeTCPDirectPlain = "3"
 	modeITLSDNSID2     = "8"
-)
-
-// sign method 签名方法
-const (
-	SignMethodSHA256 = "hmacsha256"
-	SignMethodSHA1   = "hmacsha1"
 )
 
 // mqtt 域名
@@ -100,23 +93,22 @@ func NewMQTTSign() *MQTTSign {
 		deviceModel: true,
 		clientIDkv: map[string]string{
 			"timestamp":  fixedTimestamp,
-			"_v":         infra.IOTSDKVersion,
 			"securemode": modeTCPDirectPlain,
-			"signmethod": SignMethodSHA256,
+			"signmethod": "hmacsha256",
 			"lan":        "Golang",
-			"v":          infra.IOTAlinkVersion,
+			"v":          alinkVersion,
 		},
 		hfc: sha256.New,
 	}
 }
 
-// SetSignMethod 设置签名方法
+// SetSignMethod 设置签名方法,目前只支持hmacsha1,hmacsha256, see package infra
 func (sf *MQTTSign) SetSignMethod(method string) *MQTTSign {
-	if method == SignMethodSHA1 {
-		sf.clientIDkv["signmethod"] = SignMethodSHA1
+	if method == "hmacsha1" {
+		sf.clientIDkv["signmethod"] = "hmacsha1"
 		sf.hfc = sha1.New
 	} else {
-		sf.clientIDkv["signmethod"] = SignMethodSHA256
+		sf.clientIDkv["signmethod"] = "hmacsha256"
 		sf.hfc = sha256.New
 	}
 	return sf
@@ -146,7 +138,7 @@ func (sf *MQTTSign) SetSupportSecureMode(mode SecureMode) *MQTTSign {
 // SetSupportDeviceModel 设置支持物模型
 func (sf *MQTTSign) SetSupportDeviceModel(enable bool) *MQTTSign {
 	if enable {
-		sf.clientIDkv["v"] = infra.IOTAlinkVersion
+		sf.clientIDkv["v"] = alinkVersion
 		delete(sf.clientIDkv, "gw")
 		delete(sf.clientIDkv, "ext")
 	} else {
@@ -157,6 +149,11 @@ func (sf *MQTTSign) SetSupportDeviceModel(enable bool) *MQTTSign {
 	return sf
 }
 
+func (sf *MQTTSign) SetSDKVersion(ver string) *MQTTSign {
+	sf.clientIDkv["_v"] = ver
+	return sf
+}
+
 // AddCustomKV 添加一个用户的键值对,键值对将被添加到clientID上
 func (sf *MQTTSign) AddCustomKV(key, value string) *MQTTSign {
 	sf.clientIDkv[key] = value
@@ -164,8 +161,9 @@ func (sf *MQTTSign) AddCustomKV(key, value string) *MQTTSign {
 }
 
 // DeleteCustomKV 删除一个用户的键值对
-func (sf *MQTTSign) DeleteCustomKV(key string) {
+func (sf *MQTTSign) DeleteCustomKV(key string) *MQTTSign {
 	delete(sf.clientIDkv, key)
+	return sf
 }
 
 // generateClientID 根据deviceID生成clientID

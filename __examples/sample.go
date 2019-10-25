@@ -8,16 +8,17 @@ import (
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/thinkgos/aliIOT"
+	"github.com/thinkgos/aliIOT/infra"
 	"github.com/thinkgos/aliIOT/model"
 	"github.com/thinkgos/aliIOT/sign"
 )
 
 func main() {
-	signs, err := sign.NewMQTTSign().Generate(&sign.MetaInfo{
-		ProductKey:    "a1QR3GD1Db3",
+	signs, err := sign.NewMQTTSign().SetSDKVersion(infra.IOTSDKVersion).Generate(&sign.MetaInfo{
+		ProductKey:    "a1iJcssSlPC",
 		ProductSecret: "mvngTYBlX9Z9l1V0",
-		DeviceName:    "MPA19GT010070140",
-		DeviceSecret:  "CsC7Gmb6EvDLOm8V40HLOQwFPdc3KCHT",
+		DeviceName:    "dyncreg",
+		DeviceSecret:  "irqurH8zaIg1ChoeaBjLHiqBXEZnlVq8",
 	}, sign.CloudRegionShangHai)
 	if err != nil {
 		panic(err)
@@ -37,9 +38,9 @@ func main() {
 	})
 	client := mqtt.NewClient(opts)
 	manage := aliIOT.NewWithMQTT(
-		"a1QR3GD1Db3",
-		"MPA19GT010070140",
-		"CsC7Gmb6EvDLOm8V40HLOQwFPdc3KCHT",
+		"a1iJcssSlPC",
+		"dyncreg",
+		"bOtuBFIZgDdNb2RamMRh7eaOn6VoyurP",
 		client)
 
 	client.Connect().Wait()

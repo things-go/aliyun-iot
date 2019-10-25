@@ -1,4 +1,4 @@
-package model
+package infra
 
 const (
 	CodeSuccess            = 200
@@ -17,4 +17,10 @@ const (
 	CodeDeviceDeleted             = 521  // 子设备已被禁用
 	CodeDeviceForbidden           = 522  // 子设备已被禁用
 	CodeInvalidSign               = 6287 // 子设备密码或签名错误
+
+	// 直接设备一型一密动态注册错误码
+	CodeDeviceDynamicRegisterNotEnable = 6288 // 设备动态注册未打开
+	CodeDeviceSignMethodNotSupport     = 6292 // 设备签名方法不支持
+	CodeDeviceSignVerifyFailed         = 6600 // 签名校验失败
+	CodeDeviceAlreadyActive            = 6289 // 设备已激活
 )

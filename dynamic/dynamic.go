@@ -92,7 +92,7 @@ func Register2Cloud(meta *MetaInfo, region infra.CloudRegion, signMethod ...stri
 		return err
 	}
 	if responsePayload.Code != 200 {
-		return errors.New("got response but payload failed")
+		return fmt.Errorf("got response but payload failed, %#v", responsePayload)
 	}
 	meta.DeviceSecret = responsePayload.Data.DeviceSecret
 	return nil
