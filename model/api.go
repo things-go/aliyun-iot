@@ -47,6 +47,7 @@ type Response struct {
 type Manager struct {
 	Conn
 	*devMgr
+
 	ProductKey   string
 	DeviceName   string
 	DeviceSecret string
@@ -55,6 +56,8 @@ type Manager struct {
 	reportID  int32
 
 	uriOffset int
+
+	gwUserProc GatewayUserProc
 }
 
 // New 创建一个物管理
@@ -64,6 +67,8 @@ func New(productKey, deviceName, deviceSecret string) *Manager {
 		DeviceName:   deviceName,
 		DeviceSecret: deviceSecret,
 		devMgr:       newDevMgr(),
+
+		gwUserProc: gwUserProc{},
 	}
 	id, _ := sf.Create("itself", sf.ProductKey, sf.DeviceName, sf.DeviceSecret)
 	if id != 0 {

@@ -8,3 +8,11 @@ type Conn interface {
 	Subscribe(topic string, streamFunc ProcDownStreamFunc) error
 	ContainerOf() *Manager
 }
+
+type GatewayUserProc interface {
+	DownstreamExtSubDevRegisterReply(m *Manager, rsp *SubDevRegisterResponse) error
+	DownstreamExtSubDevCombineLoginReply(m *Manager, rsp *Response) error
+	DownstreamExtSubDevCombineLogoutReply(m *Manager, rsp *Response) error
+	DownstreamThingTopoAddReply(m *Manager, rsp *Response) error
+	DownstreamThingTopoDeleteReply(m *Manager, rsp *Response) error
+}

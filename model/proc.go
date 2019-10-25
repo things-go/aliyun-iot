@@ -117,12 +117,20 @@ func ProcExtErrorResponse(m *Manager, rawURI string, payload []byte) error {
 	return DownstreamExtErrorResponse(&rsp)
 }
 
+func ProcThingSubDevRegisterReply(m *Manager, rawURI string, payload []byte) error {
+	rsp := SubDevRegisterResponse{}
+	if err := json.Unmarshal(payload, &rsp); err != nil {
+		return err
+	}
+	return m.gwUserProc.DownstreamExtSubDevRegisterReply(m, &rsp)
+}
+
 func ProcExtSubDevCombineLoginReply(m *Manager, rawURI string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
-	return DownstreamExtSubDevCombineLoginReply(&rsp)
+	return m.gwUserProc.DownstreamExtSubDevCombineLoginReply(m, &rsp)
 }
 
 func ProcExtSubDevCombineLogoutReply(m *Manager, rawURI string, payload []byte) error {
@@ -130,13 +138,21 @@ func ProcExtSubDevCombineLogoutReply(m *Manager, rawURI string, payload []byte) 
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
-	return DownstreamExtSubDevCombineLogoutReply(&rsp)
+	return m.gwUserProc.DownstreamExtSubDevCombineLogoutReply(m, &rsp)
 }
 
-func ProcThingSubDevRegisterReply(m *Manager, rawURI string, payload []byte) error {
+func ProcThingTopoAddReply(m *Manager, rawURI string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
-	return DownstreamExtSubDevRegisterReply(&rsp)
+	return m.gwUserProc.DownstreamThingTopoAddReply(m, &rsp)
+}
+
+func ProcThingTopoDeleteReply(m *Manager, rawURI string, payload []byte) error {
+	rsp := Response{}
+	if err := json.Unmarshal(payload, &rsp); err != nil {
+		return err
+	}
+	return m.gwUserProc.DownstreamThingTopoDeleteReply(m, &rsp)
 }

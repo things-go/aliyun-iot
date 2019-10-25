@@ -74,6 +74,12 @@ const (
 	// 子设备动态注册
 	URIThingSubDevRegister      = "thing/sub/register"
 	URIThingSubDevRegisterReply = "thing/sub/register_reply"
+
+	//
+	URIThingTopoAdd         = "thing/topo/add"
+	URIThingTopoAddReply    = "thing/topo/add_reply"
+	URIThingTopoDelete      = "thing/topo/delete"
+	URIThingTopoDeleteReply = "thing/topo/delete_reply"
 )
 const (
 	URISubDevCombineLogin      = "combine/login"
