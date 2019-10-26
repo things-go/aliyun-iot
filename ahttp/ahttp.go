@@ -13,6 +13,8 @@ import (
 	"net/http"
 	"sync/atomic"
 	"time"
+
+	"github.com/thinkgos/aliIOT/clog"
 )
 
 const (
@@ -55,6 +57,7 @@ type Client struct {
 	token atomic.Value
 
 	c *http.Client
+	*clog.Clog
 }
 
 // 默认
@@ -66,6 +69,7 @@ func New() *Client {
 		c: &http.Client{
 			Timeout: defaultTimeout,
 		},
+		Clog: clog.NewWithPrefix("http --> "),
 	}
 	sf.token.Store("")
 	return sf
@@ -181,9 +185,11 @@ func (sf *Client) SendAuth() error {
 		default:
 			err = ErrUnknown
 		}
+		sf.Debug("auth failed, %#v", err)
 		return err
 	}
 	sf.token.Store(rspPy.Info.Token)
+	sf.Debug("auth success!")
 	return nil
 }
 
@@ -213,7 +219,7 @@ func (sf *Client) sendData(uri string, payload []byte) (int64, error) {
 	if err = json.NewDecoder(response.Body).Decode(&rspPy); err != nil {
 		return 0, err
 	}
-
+	sf.Debug("send data response, %+v", rspPy)
 	switch rspPy.Code {
 	case CodeSuccess:
 		return rspPy.Info.MessageID, nil
@@ -238,11 +244,16 @@ func (sf *Client) sendData(uri string, payload []byte) (int64, error) {
 func (sf *Client) SendData(uri string, payload []byte) error {
 	_, err := sf.sendData(uri, payload)
 	if err != nil {
-		if err == ErrTokenExpired || err == ErrTokenCheckFailed {
+		if err == ErrTokenExpired ||
+			err == ErrTokenCheckFailed ||
+			err == ErrTokenIsNull {
+			sf.Debug("token invalid,try auth again")
 			if err = sf.SendAuth(); err != nil {
 				return err
 			}
 			_, err = sf.sendData(uri, payload)
+		} else {
+			sf.Error("send data failed, %#v", err)
 		}
 	}
 	return err
