@@ -210,7 +210,7 @@ type DataResponse struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 	Info    struct {
-		MessageID int64 `json:"token"`
+		MessageID int64 `json:"messageID"`
 	} `json:"info"`
 }
 

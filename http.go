@@ -27,8 +27,8 @@ func (sf *httpClient) Subscribe(topic string, streamFunc model.ProcDownStreamFun
 }
 
 func NewWithHTTP(options *model.Options) *model.Manager {
-	options.EnableHTTP(true)
-	client := ahttp.New().SetDeviceMetaInfo(options.MetaInfo())
+	client := ahttp.New().
+		SetDeviceMetaInfo(options.EnableHTTP(true).MetaInfo())
 	sf := model.New(options)
 	return sf.SetConn(&httpClient{c: client, containOf: sf})
 }

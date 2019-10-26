@@ -8,8 +8,7 @@ import (
 )
 
 func main() {
-	sig := sign.NewMQTTSign()
-	sig.SetSignMethod(infra.SignMethodHMACSHA256)
+	sig := sign.NewMQTTSign().SetSignMethod(infra.SignMethodHMACSHA256)
 	signout, err := sig.Generate(&sign.MetaInfo{
 		ProductKey:   "a1QR3GD1Db3",
 		DeviceName:   "testcar",
@@ -20,5 +19,4 @@ func main() {
 	}
 
 	fmt.Printf("%+v", signout)
-
 }

@@ -10,13 +10,22 @@ const (
 	DefaultCleanupInterval = time.Second * 30
 )
 
+// 当前的工作方式
+const (
+	workOnMQTT = iota
+	workOnCOAP
+	workOnHTTP
+)
+
 // Options
 type Options struct {
 	productKey   string
 	deviceName   string
 	deviceSecret string
 	enableCache  bool
-	uriOffset    int
+
+	uriOffset int
+	workOnWho byte
 
 	expiration      time.Duration
 	cleanupInterval time.Duration
@@ -39,6 +48,7 @@ func (sf *Options) Valid() *Options {
 	return sf
 }
 
+// MetaInfo 获取设备mata info
 func (sf *Options) MetaInfo() (productKey, deviceName, deviceSecret string) {
 	return sf.productKey, sf.deviceName, sf.deviceSecret
 }
@@ -59,14 +69,23 @@ func (sf *Options) SetCacheTimeout(expiration, cleanupInterval time.Duration) *O
 // EnableCOAP 采用COAP
 func (sf *Options) EnableCOAP(enable bool) *Options {
 	if enable {
+		sf.workOnWho = workOnCOAP
 		sf.uriOffset = 1
 	} else {
+		sf.workOnWho = workOnMQTT
 		sf.uriOffset = 0
 	}
 	return sf
 }
 
+// EnableCOAP 采用HTTP
 func (sf *Options) EnableHTTP(enable bool) *Options {
-	sf.EnableCOAP(enable)
+	if enable {
+		sf.workOnWho = workOnHTTP
+		sf.uriOffset = 1
+	} else {
+		sf.workOnWho = workOnHTTP
+		sf.uriOffset = 0
+	}
 	return sf
 }
