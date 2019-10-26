@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"hash"
 	"net/http"
+	"sync/atomic"
 	"time"
 )
 
@@ -51,14 +52,14 @@ type Client struct {
 	version      string
 	signMethod   string
 
-	token string
+	token atomic.Value
 
 	c *http.Client
 }
 
 // 默认
 func New() *Client {
-	return &Client{
+	sf := &Client{
 		host:       "https://iot-as-http.cn-shanghai.aliyuncs.com",
 		version:    "default",
 		signMethod: signMethodMD5,
@@ -66,6 +67,8 @@ func New() *Client {
 			Timeout: defaultTimeout,
 		},
 	}
+	sf.token.Store("")
+	return sf
 }
 
 // SetHost 设置主机
@@ -163,23 +166,84 @@ func (sf *Client) SendAuth() error {
 		return err
 	}
 
-	if rspPy.Code != 0 {
+	if rspPy.Code != CodeSuccess {
 		switch rspPy.Code {
-		case 10000:
+		case CodeUnknown:
 			err = ErrUnknown
-		case 10001:
+		case CodeParamException:
 			err = ErrParamException
-		case 20000:
+		case CodeAuthFailed:
 			err = ErrAuthFailed
-		case 20004:
+		case CodeUpdateSessionFailed:
 			err = ErrUpdateSessionFailed
-		case 40000:
+		case CodeRequestTooMany:
 			err = ErrRequestTooMany
 		default:
 			err = ErrUnknown
 		}
 		return err
 	}
-	sf.token = rspPy.Info.Token
+	sf.token.Store(rspPy.Info.Token)
 	return nil
+}
+
+// DataResponse 上报数据回复
+type DataResponse struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Info    struct {
+		MessageID int64 `json:"token"`
+	} `json:"info"`
+}
+
+func (sf *Client) sendData(uri string, payload []byte) (int64, error) {
+	request, err := http.NewRequest(http.MethodPost, sf.host+"/topic"+uri, bytes.NewBuffer(payload))
+	if err != nil {
+		return 0, err
+	}
+	request.Header.Set("Content-Type", "application/octet-stream")
+	request.Header.Set("password", sf.token.Load().(string))
+	response, err := sf.c.Do(request)
+	if err != nil {
+		return 0, err
+	}
+	defer response.Body.Close()
+
+	rspPy := DataResponse{}
+	if err = json.NewDecoder(response.Body).Decode(&rspPy); err != nil {
+		return 0, err
+	}
+
+	switch rspPy.Code {
+	case CodeSuccess:
+		return rspPy.Info.MessageID, nil
+	case CodeParamException:
+		err = ErrParamException
+	case CodeTokenExpired:
+		err = ErrTokenExpired
+	case CodeTokenIsNull:
+		err = ErrTokenIsNull
+	case CodeTokenCheckFailed:
+		err = ErrTokenCheckFailed
+	case CodePublishMessageFailed:
+		err = ErrPublishMessageFailed
+	case CodeRequestTooMany:
+		err = ErrRequestTooMany
+	default:
+		err = ErrUnknown
+	}
+	return 0, err
+}
+
+func (sf *Client) SendData(uri string, payload []byte) error {
+	_, err := sf.sendData(uri, payload)
+	if err != nil {
+		if err == ErrTokenExpired || err == ErrTokenCheckFailed {
+			if err = sf.SendAuth(); err != nil {
+				return err
+			}
+			_, err = sf.sendData(uri, payload)
+		}
+	}
+	return err
 }
