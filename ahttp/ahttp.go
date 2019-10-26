@@ -214,13 +214,23 @@ type DataResponse struct {
 	} `json:"info"`
 }
 
-func (sf *Client) sendData(uri string, payload []byte) (int64, error) {
+func (sf *Client) publish(uri string, payload interface{}) (int64, error) {
 	token := sf.token.Load().(string)
 	if token == "" {
 		return 0, ErrTokenIsNull
 	}
 
-	request, err := http.NewRequest(http.MethodPost, sf.host+uri, bytes.NewBuffer(payload))
+	var buf *bytes.Buffer
+	switch v := payload.(type) {
+	case string:
+		buf = bytes.NewBufferString(v)
+	case []byte:
+		buf = bytes.NewBuffer(v)
+	default:
+		return 0, errors.New("Unknown payload type")
+	}
+
+	request, err := http.NewRequest(http.MethodPost, sf.host+uri, buf)
 	if err != nil {
 		return 0, err
 	}
@@ -236,7 +246,7 @@ func (sf *Client) sendData(uri string, payload []byte) (int64, error) {
 	if err = json.NewDecoder(response.Body).Decode(&rspPy); err != nil {
 		return 0, err
 	}
-	sf.Debug("send data response, %+v", rspPy)
+	sf.Debug("publish response, %+v", rspPy)
 	switch rspPy.Code {
 	case CodeSuccess:
 		return rspPy.Info.MessageID, nil
@@ -259,17 +269,7 @@ func (sf *Client) sendData(uri string, payload []byte) (int64, error) {
 }
 
 func (sf *Client) Publish(uri string, payload interface{}) error {
-	var pubPayload []byte
-
-	switch v := payload.(type) {
-	case string:
-		pubPayload = []byte(v)
-	case []byte:
-		pubPayload = v
-	default:
-		return errors.New("Unknown payload type")
-	}
-	_, err := sf.sendData(uri, pubPayload)
+	_, err := sf.publish(uri, payload)
 	if err != nil {
 		if err == ErrTokenExpired ||
 			err == ErrTokenCheckFailed ||
@@ -277,7 +277,7 @@ func (sf *Client) Publish(uri string, payload interface{}) error {
 			if err = sf.sendAuth(); err != nil {
 				return err
 			}
-			_, err = sf.sendData(uri, pubPayload)
+			_, err = sf.publish(uri, payload)
 		} else {
 			sf.Error("send data failed, %#v", err)
 		}
