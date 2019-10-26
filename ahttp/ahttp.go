@@ -1,3 +1,4 @@
+// Package ahttp 实现http client 上传数据. 授权方式为自动调用授权,可手动调用,也可以直接调用发送数据接口
 package ahttp
 
 import (
@@ -132,8 +133,8 @@ func (sf *AuthRequest) generateSign(deviceSecret string) error {
 	return nil
 }
 
-// SendAuth 鉴权
-func (sf *Client) SendAuth() error {
+// sendAuth 鉴权
+func (sf *Client) sendAuth() error {
 	if sf.productKey == "" ||
 		sf.deviceName == "" ||
 		sf.deviceSecret == "" {
@@ -214,12 +215,17 @@ type DataResponse struct {
 }
 
 func (sf *Client) sendData(uri string, payload []byte) (int64, error) {
+	token := sf.token.Load().(string)
+	if token == "" {
+		return 0, ErrTokenIsNull
+	}
+
 	request, err := http.NewRequest(http.MethodPost, sf.host+"/topic"+uri, bytes.NewBuffer(payload))
 	if err != nil {
 		return 0, err
 	}
 	request.Header.Set("Content-Type", "application/octet-stream")
-	request.Header.Set("password", sf.token.Load().(string))
+	request.Header.Set("password", token)
 	response, err := sf.c.Do(request)
 	if err != nil {
 		return 0, err
@@ -258,8 +264,7 @@ func (sf *Client) SendData(uri string, payload []byte) error {
 		if err == ErrTokenExpired ||
 			err == ErrTokenCheckFailed ||
 			err == ErrTokenIsNull {
-			sf.Debug("token invalid,try auth again")
-			if err = sf.SendAuth(); err != nil {
+			if err = sf.sendAuth(); err != nil {
 				return err
 			}
 			_, err = sf.sendData(uri, payload)
