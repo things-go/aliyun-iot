@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"hash"
 	"net/http"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -18,9 +19,10 @@ import (
 )
 
 const (
-	signMethodSHA1 = "hmacsha1"
-	signMethodMD5  = "hmacmd5"
-	defaultTimeout = time.Second * 2
+	signMethodSHA1     = "hmacsha1"
+	signMethodMD5      = "hmacmd5"
+	defaultTimeout     = time.Second * 2
+	defaultCanAuthTime = time.Minute * 15 //
 )
 
 // AuthRequest 鉴权请求
@@ -54,7 +56,9 @@ type Client struct {
 	version      string
 	signMethod   string
 
-	token atomic.Value
+	token    atomic.Value
+	whenAuth time.Time
+	mu       sync.Mutex
 
 	c *http.Client
 	*clog.Clog
@@ -136,6 +140,12 @@ func (sf *Client) SendAuth() error {
 		return errors.New("invalid meta info")
 	}
 
+	sf.mu.Lock()
+	defer sf.mu.Unlock()
+	// 如果刚在15分钟内刚授权过,不用再授权了. 直接返回
+	if time.Since(sf.whenAuth) < defaultCanAuthTime {
+		return nil
+	}
 	authPy := AuthRequest{
 		Version:    sf.version,
 		ClientID:   sf.productKey + "." + sf.deviceName,
@@ -189,7 +199,8 @@ func (sf *Client) SendAuth() error {
 		return err
 	}
 	sf.token.Store(rspPy.Info.Token)
-	sf.Debug("auth success!")
+	sf.whenAuth = time.Now()
+	sf.Debug("auth success! token")
 	return nil
 }
 
