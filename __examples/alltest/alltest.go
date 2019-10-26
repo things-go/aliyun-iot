@@ -1,42 +1,17 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-
-	"github.com/thinkgos/aliIOT/model"
+	"time"
 )
 
 func main() {
-	rsp := model.GwSubDevRegisterResponse{}
-	if err := json.Unmarshal([]byte(`{
-		  "id": "123",
-		  "code": 200,
-		  "data": [
-		    {
-		      "iotId": "12344",
-		      "productKey": "1234556554",
-		      "deviceName": "deviceName1234",
-		      "deviceSecret": "xxxxxx"
-		    },
-		    {
-		      "iotId": "12344",
-		      "productKey": "1234556554",
-		      "deviceName": "deviceName1234",
-		      "deviceSecret": "xxxxxx"
-		    }
-		  ]
-	}`), &rsp); err != nil {
-		panic(err)
+	var t = time.Date(2019, 10, 26, 22, 56, 0, 0, time.Local)
+
+	ts := time.Since(t)
+	if ts < time.Minute*15 {
+		fmt.Println("haha")
 	}
-
-	fmt.Printf("%#v", rsp)
-}
-
-type UserProc struct {
-	model.GwNopUserProc
-}
-
-func (UserProc) DownstreamGwExtSubDevRegisterReply(m *model.Manager, rsp *model.GwSubDevRegisterResponse) error {
+	fmt.Println(ts.Minutes())
 
 }

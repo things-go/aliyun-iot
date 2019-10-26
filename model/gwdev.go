@@ -43,7 +43,7 @@ func (sf *Manager) UpstreamGwSubDevRegister(meta ...*MetaInfo) error {
 		sublist = append(sublist, GwSubDevRegisterParams{v.ProductKey, v.DeviceName})
 	}
 
-	return sf.SendRequest(sf.URIService(URISysPrefix, URIThingSubDevRegister), sf.RequestID(), methodSubDevRegister, sublist)
+	return sf.SendRequest(sf.URIServiceItself(URISysPrefix, URIThingSubDevRegister), sf.RequestID(), methodSubDevRegister, sublist)
 }
 
 // GwSubDevCombineLoginParams 子设备上线参数域
@@ -99,7 +99,7 @@ func (sf *Manager) UpstreamGwExtSubDevCombineLogin(devID int) error {
 		return err
 	}
 	// NOTE: 子设备登陆,要用网关的productKey和deviceName
-	return sf.Publish(sf.URIService(URIExtSessionPrefix, URISubDevCombineLogin), 0, req)
+	return sf.Publish(sf.URIServiceItself(URIExtSessionPrefix, URISubDevCombineLogin), 0, req)
 }
 
 // GwSubDevCombineLogoutParams 子设备下线参数域
@@ -138,5 +138,5 @@ func (sf *Manager) UpstreamGwExtSubDevCombineLogout(devID int) error {
 	}
 
 	// NOTE: 子设备下线,要用网关的productKey和deviceName
-	return sf.Publish(sf.URIService(URIExtSessionPrefix, URISubDevCombineLogout), 0, req)
+	return sf.Publish(sf.URIServiceItself(URIExtSessionPrefix, URISubDevCombineLogout), 0, req)
 }

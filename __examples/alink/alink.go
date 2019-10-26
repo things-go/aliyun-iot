@@ -13,12 +13,19 @@ import (
 	"github.com/thinkgos/aliIOT/sign"
 )
 
+const (
+	productKey    = "a1iJcssSlPC"
+	productSecret = "mvngTYBlX9Z9l1V0"
+	deviceName    = "dyncreg"
+	deviceSecret  = "irqurH8zaIg1ChoeaBjLHiqBXEZnlVq8"
+)
+
 func main() {
 	signs, err := sign.NewMQTTSign().SetSDKVersion(infra.IOTSDKVersion).Generate(&sign.MetaInfo{
-		ProductKey:    "a1iJcssSlPC",
-		ProductSecret: "mvngTYBlX9Z9l1V0",
-		DeviceName:    "dyncreg",
-		DeviceSecret:  "irqurH8zaIg1ChoeaBjLHiqBXEZnlVq8",
+		ProductKey:    productKey,
+		ProductSecret: productSecret,
+		DeviceName:    deviceName,
+		DeviceSecret:  deviceSecret,
 	}, sign.CloudRegionShangHai)
 	if err != nil {
 		panic(err)
@@ -38,14 +45,12 @@ func main() {
 	})
 	client := mqtt.NewClient(opts)
 
-	dmopt := model.NewOption("a1iJcssSlPC",
-		"dyncreg",
-		"bOtuBFIZgDdNb2RamMRh7eaOn6VoyurP").Valid()
+	dmopt := model.NewOption(productKey, deviceName, deviceSecret).Valid()
 	manage := aliIOT.NewWithMQTT(dmopt, client)
 
 	client.Connect().Wait()
 
-	_ = manage.Subscribe(manage.URIService(model.URISysPrefix, model.URIThingEventPropertyPostReply), model.ProcThingEventPostReply)
+	_ = manage.Subscribe(manage.URIServiceItself(model.URISysPrefix, model.URIThingEventPropertyPostReply), model.ProcThingEventPostReply)
 
 	for {
 		err = manage.UpstreamThingEventPropertyPost(model.DevItself, map[string]interface{}{

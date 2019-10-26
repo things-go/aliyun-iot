@@ -52,7 +52,7 @@ func main() {
 
 	client.Connect().Wait()
 	manage.LogMode(true)
-	_ = manage.Subscribe(manage.URIService(model.URISysPrefix, model.URIThingModelUpRawReply), model.ProcThingModelUpRawReply)
+	_ = manage.Subscribe(manage.URIServiceItself(model.URISysPrefix, model.URIThingModelUpRawReply), model.ProcThingModelUpRawReply)
 
 	//b, _ := hex.DecodeString(payload)
 	//log.Printf("%#v", b)

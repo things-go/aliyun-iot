@@ -220,7 +220,7 @@ func (sf *Client) sendData(uri string, payload []byte) (int64, error) {
 		return 0, ErrTokenIsNull
 	}
 
-	request, err := http.NewRequest(http.MethodPost, sf.host+"/topic"+uri, bytes.NewBuffer(payload))
+	request, err := http.NewRequest(http.MethodPost, sf.host+uri, bytes.NewBuffer(payload))
 	if err != nil {
 		return 0, err
 	}
@@ -258,8 +258,18 @@ func (sf *Client) sendData(uri string, payload []byte) (int64, error) {
 	return 0, err
 }
 
-func (sf *Client) SendData(uri string, payload []byte) error {
-	_, err := sf.sendData(uri, payload)
+func (sf *Client) Publish(uri string, payload interface{}) error {
+	var pubPayload []byte
+
+	switch v := payload.(type) {
+	case string:
+		pubPayload = []byte(v)
+	case []byte:
+		pubPayload = v
+	default:
+		return errors.New("Unknown payload type")
+	}
+	_, err := sf.sendData(uri, pubPayload)
 	if err != nil {
 		if err == ErrTokenExpired ||
 			err == ErrTokenCheckFailed ||
@@ -267,7 +277,7 @@ func (sf *Client) SendData(uri string, payload []byte) error {
 			if err = sf.sendAuth(); err != nil {
 				return err
 			}
-			_, err = sf.sendData(uri, payload)
+			_, err = sf.sendData(uri, pubPayload)
 		} else {
 			sf.Error("send data failed, %#v", err)
 		}

@@ -40,7 +40,7 @@ func (sf *Manager) UpstreamGwThingTopoAdd(metas ...*MetaInfo) error {
 		})
 	}
 
-	return sf.SendRequest(sf.URIService(URISysPrefix, URIThingTopoAdd),
+	return sf.SendRequest(sf.URIServiceItself(URISysPrefix, URIThingTopoAdd),
 		sf.RequestID(), methodTopoAdd, sublist)
 }
 
@@ -68,6 +68,6 @@ type GwTopoGetResponse struct {
 }
 
 func (sf *Manager) UpstreamGwThingTopoGet() error {
-	return sf.SendRequest(sf.URIService(URISysPrefix, URIThingTopoGet),
+	return sf.SendRequest(sf.URIServiceItself(URISysPrefix, URIThingTopoGet),
 		sf.RequestID(), methodTopoGet, "{}")
 }

@@ -17,7 +17,7 @@ func (sf *Manager) UpstreamThingModelUpRaw(devID int, payload interface{}) error
 		return err
 	}
 
-	return sf.Publish(URIService(URISysPrefix, URIThingModelUpRaw, node.ProductKey, node.DeviceName), 1, payload)
+	return sf.Publish(sf.URIService(URISysPrefix, URIThingModelUpRaw, node.ProductKey, node.DeviceName), 1, payload)
 }
 
 // 上报属性数据,返回id
@@ -28,7 +28,7 @@ func (sf *Manager) upsThingEventPropertyPost(devID int, params interface{}) (int
 	}
 
 	id := sf.RequestID()
-	return id, sf.SendRequest(URIService(URISysPrefix, URIThingEventPropertyPost, node.ProductKey, node.DeviceName),
+	return id, sf.SendRequest(sf.URIService(URISysPrefix, URIThingEventPropertyPost, node.ProductKey, node.DeviceName),
 		id, methodPropertyPost, params)
 }
 
@@ -56,7 +56,7 @@ func (sf *Manager) UpstreamThingEventPost(devID int, EventID string, params inte
 		return err
 	}
 
-	uri := URIService(URISysPrefix, fmt.Sprintf(URIThingEventPost, EventID), node.ProductKey, node.DeviceName)
+	uri := sf.URIService(URISysPrefix, fmt.Sprintf(URIThingEventPost, EventID), node.ProductKey, node.DeviceName)
 	return sf.SendRequest(uri, sf.RequestID(), fmt.Sprintf(methodEventPostFormat, EventID), params)
 }
 
@@ -71,7 +71,7 @@ func (sf *Manager) UpstreamThingDeviceInfoUpdate(devID int, params interface{}) 
 		return err
 	}
 
-	uri := URIService(URISysPrefix, URIThingDeviceInfoUpdate, node.ProductKey, node.DeviceName)
+	uri := sf.URIService(URISysPrefix, URIThingDeviceInfoUpdate, node.ProductKey, node.DeviceName)
 	return sf.SendRequest(uri, sf.RequestID(), methodDeviceInfoUpdate, params)
 }
 
@@ -86,19 +86,19 @@ func (sf *Manager) UpstreamThingDeviceInfoDelete(devID int, params interface{}) 
 		return err
 	}
 
-	uri := URIService(URISysPrefix, URIThingDeviceInfoDelete, node.ProductKey, node.DeviceName)
+	uri := sf.URIService(URISysPrefix, URIThingDeviceInfoDelete, node.ProductKey, node.DeviceName)
 	return sf.SendRequest(uri, sf.RequestID(), methodDeviceInfoDelete, params)
 }
 
 // UpstreamThingDsltemplateGet 获取
 func (sf *Manager) UpstreamThingDsltemplateGet() error {
-	uri := URIService(URISysPrefix, URIThingDslTemplateGet, sf.opt.productKey, sf.opt.deviceName)
+	uri := sf.URIService(URISysPrefix, URIThingDslTemplateGet, sf.opt.productKey, sf.opt.deviceName)
 	return sf.SendRequest(uri, sf.RequestID(), methodDslTemplateGet, "{}")
 }
 
 // UpstreamThingDynamictslGet 获取
 func (sf *Manager) UpstreamThingDynamictslGet() error {
-	uri := URIService(URISysPrefix, URIThingDynamicTslGet, sf.opt.productKey, sf.opt.deviceName)
+	uri := sf.URIService(URISysPrefix, URIThingDynamicTslGet, sf.opt.productKey, sf.opt.deviceName)
 	return sf.SendRequest(uri, sf.RequestID(), methodDynamicTslGet, `{"nodes\":["type","identifier"],"addDefault":false}`)
 }
 
@@ -106,7 +106,7 @@ func (sf *Manager) UpstreamThingDynamictslGet() error {
 // 发送一条Qos = 0的消息,并带上设备当前的时间戳,平台将回复 设备的发送时间,平台的接收时间, 平台的发送时间.
 // 设备计算当前精确时间 = (平台接收时间 + 平台发送时间 + 设备接收时间 - 设备发送时间) / 2
 func (sf *Manager) UpstreamExtNtpRequest() error {
-	return sf.Publish(URIService(URIExtNtpPrefix, URINtpRequest, sf.opt.productKey, sf.opt.deviceName),
+	return sf.Publish(sf.URIService(URIExtNtpPrefix, URINtpRequest, sf.opt.productKey, sf.opt.deviceName),
 		0, fmt.Sprintf(`{"deviceSendTime":"%d"}`, time.Now().Unix()))
 }
 

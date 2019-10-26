@@ -10,9 +10,9 @@ const (
 	CodeUnknown              = 10000
 	CodeParamException       = 10001
 	CodeAuthFailed           = 20000
-	CodeTokenExpired         = 20001
-	CodeTokenIsNull          = 20002
-	CodeTokenCheckFailed     = 20003 // 根据token获取identify信息失败。需重新调用auth进行鉴权，获取token。
+	CodeTokenExpired         = 20001 // 需重新调用auth进行鉴权，获取token
+	CodeTokenIsNull          = 20002 // 需重新调用auth进行鉴权，获取token
+	CodeTokenCheckFailed     = 20003 // 根据token获取identify信息失败。需重新调用auth进行鉴权，获取token
 	CodePublishMessageFailed = 30001
 	CodeUpdateSessionFailed  = 20004
 	CodeRequestTooMany       = 40000

@@ -39,6 +39,10 @@ func (sf *Options) Valid() *Options {
 	return sf
 }
 
+func (sf *Options) MetaInfo() (productKey, deviceName, deviceSecret string) {
+	return sf.productKey, sf.deviceName, sf.deviceSecret
+}
+
 // SetEnableCache 使能消息缓存
 func (sf *Options) SetEnableCache(enable bool) *Options {
 	sf.enableCache = enable
@@ -59,5 +63,10 @@ func (sf *Options) EnableCOAP(enable bool) *Options {
 	} else {
 		sf.uriOffset = 0
 	}
+	return sf
+}
+
+func (sf *Options) EnableHTTP(enable bool) *Options {
+	sf.EnableCOAP(enable)
 	return sf
 }

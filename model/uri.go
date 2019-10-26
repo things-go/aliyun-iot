@@ -11,6 +11,8 @@ const (
 
 // URI 前缀定义
 const (
+	URICOAPHTTPPrePrefix = "/topic"
+
 	URISysPrefix             = "/sys/%s/%s/"
 	URIExtSessionPrefix      = "/ext/session/%s/%s/"
 	URIExtNtpPrefix          = "/ext/ntp/%s/%s/"
@@ -90,7 +92,7 @@ const (
 	SubDevCombineLogoutReply   = "combine/logout_reply"
 )
 
-// URIService 生成URI
+// URIServiceItself 生成URI
 func URIService(prefix, name, productKey, deviceName string) string {
 	str := strings.Builder{}
 	str.Grow(len(prefix) + len(name) + len(productKey) + len(deviceName))
