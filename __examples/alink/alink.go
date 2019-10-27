@@ -14,10 +14,10 @@ import (
 )
 
 const (
-	productKey    = "a1iJcssSlPC"
-	productSecret = "mvngTYBlX9Z9l1V0"
-	deviceName    = "dyncreg"
-	deviceSecret  = "irqurH8zaIg1ChoeaBjLHiqBXEZnlVq8"
+	productKey    = "a1QR3GD1Db3"
+	productSecret = ""
+	deviceName    = "MPA19GT010070140"
+	deviceSecret  = "CsC7Gmb6EvDLOm8V40HLOQwFPdc3KCHT"
 )
 
 func main() {
@@ -25,8 +25,7 @@ func main() {
 		ProductKey:    productKey,
 		ProductSecret: productSecret,
 		DeviceName:    deviceName,
-		DeviceSecret:  deviceSecret,
-	}, sign.CloudRegionShangHai)
+		DeviceSecret:  deviceSecret}, sign.CloudRegionShangHai)
 	if err != nil {
 		panic(err)
 	}
@@ -50,19 +49,39 @@ func main() {
 
 	client.Connect().Wait()
 
-	_ = manage.Subscribe(manage.URIServiceItself(model.URISysPrefix, model.URIThingEventPropertyPostReply), model.ProcThingEventPostReply)
+	_ = manage.Subscribe(manage.URIServiceItself(model.URISysPrefix, model.URIThingEventPostReplySingleWildcard), model.ProcThingEventPostReply)
+	//_ = manage.Subscribe(manage.URIServiceItself(model.URISysPrefix, model.URIThingServiceRequestWildcard2), model.ProcThingServiceRequest)
+
+	go func() {
+		for {
+			err := manage.UpstreamThingEventPost(model.DevItself, "tempAlarm", map[string]interface{}{
+				"high": 1,
+			})
+			if err != nil {
+				log.Printf("error: %#v", err)
+			} else {
+				log.Printf("success")
+			}
+			time.Sleep(time.Second * 10)
+		}
+
+	}()
 
 	for {
 		err = manage.UpstreamThingEventPropertyPost(model.DevItself, map[string]interface{}{
 			"Temp":         rand.Intn(200),
 			"Humi":         rand.Intn(100),
-			"SwitchStatus": rand.Intn(1),
+			"switchStatus": rand.Intn(1),
 		})
 		if err != nil {
 			log.Printf("error: %#v", err)
 		} else {
 			log.Printf("success")
 		}
-		time.Sleep(time.Second * 10)
+		time.Sleep(time.Second * 30)
 	}
+}
+
+type UserProc struct {
+	model.DevUserProc
 }

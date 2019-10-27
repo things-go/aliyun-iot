@@ -31,11 +31,11 @@ const (
 	URIThingModelUpRawReply   = "thing/model/up_raw_reply"
 
 	// 事件上行,下行云端
-	URIThingEventPropertyPost      = "thing/event/property/post"
-	URIThingEventPropertyPostReply = "thing/event/property/post_reply"
-	URIThingEventPost              = "thing/event/%s/post"
-	URIThingEventPostReply         = "thing/event/%s/post_reply"
-	URIThingEventPostReplyWildcard = "thing/event/+/post_reply"
+	URIThingEventPropertyPost            = "thing/event/property/post"
+	URIThingEventPropertyPostReply       = "thing/event/property/post_reply"
+	URIThingEventPost                    = "thing/event/%s/post"
+	URIThingEventPostReply               = "thing/event/%s/post_reply"
+	URIThingEventPostReplySingleWildcard = "thing/event/+/post_reply"
 
 	// 设备信息上行,下行云端
 	URIThingDeviceInfoUpdate      = "thing/deviceinfo/update"
@@ -50,17 +50,17 @@ const (
 	URIThingDesiredPropertyDeleteReply = "thing/property/desired/delete_reply"
 
 	// 服务调用上行,下行云端
-	URIThingServicePropertySet      = "thing/service/property/set"
-	URIThingServicePropertySetReply = "thing/service/property/set_reply"
-	URIThingServicePropertyGet      = "thing/service/property/get"
-	URIThingServicePropertyGetReply = "thing/service/property/get_reply"
-	URIThingServiceRequestWildcard  = "thing/service/+"
-	URIThingServiceRequestWildcard2 = "thing/service/#"
-	URIThingServiceRequest          = "thing/service/%s"
-	URIThingServiceResponse         = "thing/service/%s_reply"
+	URIThingServicePropertySet           = "thing/service/property/set"
+	URIThingServicePropertySetReply      = "thing/service/property/set_reply"
+	URIThingServicePropertyGet           = "thing/service/property/get"
+	URIThingServicePropertyGetReply      = "thing/service/property/get_reply"
+	URIThingServiceRequest               = "thing/service/%s"
+	URIThingServiceResponse              = "thing/service/%s_reply"
+	URIThingServiceRequestSingleWildcard = "thing/service/+"
+	URIThingServiceRequestMultiWildcard2 = "thing/service/#"
 
 	// RRPC调用
-	URIRRPCRequestWildcard = "rrpc/request/+"
+	URIRRPCRequestSingleWildcard = "rrpc/request/+"
 
 	/* dsl template From Local To Cloud Request And Response */
 	URIThingDslTemplateGet      = "thing/dsltemplate/get"

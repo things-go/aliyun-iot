@@ -22,6 +22,9 @@ func (sf *mqttClient) UnderlyingClient() interface{} {
 
 func (sf *mqttClient) Subscribe(topic string, streamFunc model.ProcDownStreamFunc) error {
 	return sf.c.Subscribe(topic, 1, func(client mqtt.Client, message mqtt.Message) {
+		if message.Duplicate() {
+			return
+		}
 		if err := streamFunc(sf.containOf, message.Topic(), message.Payload()); err != nil {
 			sf.log.Error("topic: %s, Error: %+v", message.Topic(), err)
 		}

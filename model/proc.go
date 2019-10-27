@@ -30,7 +30,7 @@ func ProcThingModelDownRaw(m *Manager, rawURI string, payload []byte) error {
 // ProcThingEventPost 处理ThingEvent XXX的应答
 func ProcThingEventPostReply(m *Manager, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) != (m.opt.uriOffset + 7) {
+	if len(uris) < (m.opt.uriOffset + 7) {
 		return ErrInvalidURI
 	}
 	EventID := uris[m.opt.uriOffset+5]
@@ -132,6 +132,15 @@ func ProcThingConfigPush(m *Manager, rawURI string, payload []byte) error {
 }
 
 // deprecated
+func ProcExtErrorResponse(m *Manager, rawURI string, payload []byte) error {
+	rsp := Response{}
+	if err := json.Unmarshal(payload, &rsp); err != nil {
+		return err
+	}
+	return m.devUserProc.DownstreamExtErrorResponse(&rsp)
+}
+
+// deprecated
 func ProcThingServicePropertyGet(m *Manager, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) != (m.opt.uriOffset + 6) {
@@ -144,19 +153,10 @@ func ProcThingServicePropertySet(m *Manager, rawURI string, payload []byte) erro
 	return m.devUserProc.DownstreamThingServicePropertySet(payload)
 }
 
-// deprecated
-func ProcExtErrorResponse(m *Manager, rawURI string, payload []byte) error {
-	rsp := Response{}
-	if err := json.Unmarshal(payload, &rsp); err != nil {
-		return err
-	}
-	return m.devUserProc.DownstreamExtErrorResponse(&rsp)
-}
-
 // ProcThingServiceRequest 服务调用
 func ProcThingServiceRequest(m *Manager, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) != (m.opt.uriOffset + 6) {
+	if len(uris) < (m.opt.uriOffset + 6) {
 		return ErrInvalidURI
 	}
 

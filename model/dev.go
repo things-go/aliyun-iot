@@ -61,7 +61,6 @@ func (sf *Manager) UpstreamThingEventPost(devID int, EventID string, params inte
 	}
 	sf.CacheInsert(id, devID, MsgTypeEventPost, method)
 	return nil
-
 }
 
 // UpstreamThingDeviceInfoUpdate 设备信息上传
