@@ -39,6 +39,9 @@ type DevUserProc interface {
 	DownstreamThingDsltemplateGetReply(rsp *Response) error
 	DownstreamThingDynamictslGetReply(rsp *Response) error
 	DownstreamExtNtpResponse(rsp *NtpResponsePayload) error
+	DownstreamThingConfigGetReply(rsp *ConfigGetResponse) error
+	DownstreamThingConfigPush(rsp *ConfigPushRequest) error
+
 	DownstreamExtErrorResponse(rsp *Response) error
 	DownstreamThingModelDownRaw(productKey, deviceName string, payload []byte) error
 	DownstreamThingServicePropertyGet(productKey, deviceName string, payload []byte) error

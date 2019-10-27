@@ -49,6 +49,14 @@ func (DevNopUserProc) DownstreamExtNtpResponse(rsp *NtpResponsePayload) error {
 	return nil
 }
 
+func (DevNopUserProc) DownstreamThingConfigGetReply(rsp *ConfigGetResponse) error {
+	return nil
+}
+
+func (DevNopUserProc) DownstreamThingConfigPush(rsp *ConfigPushRequest) error {
+	return nil
+}
+
 func (DevNopUserProc) DownstreamExtErrorResponse(rsp *Response) error {
 	return nil
 }

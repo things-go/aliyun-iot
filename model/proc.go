@@ -102,6 +102,36 @@ func ProcThingDynamictslGetReply(m *Manager, rawURI string, payload []byte) erro
 	return m.devUserProc.DownstreamThingDynamictslGetReply(&rsp)
 }
 
+func ProcExtNtpResponse(m *Manager, rawURI string, payload []byte) error {
+	rsp := NtpResponsePayload{}
+	if err := json.Unmarshal(payload, &rsp); err != nil {
+		return err
+	}
+	return m.devUserProc.DownstreamExtNtpResponse(&rsp)
+}
+
+func ProcThingConfigGetReply(m *Manager, rawURI string, payload []byte) error {
+	rsp := ConfigGetResponse{}
+	err := json.Unmarshal(payload, &rsp)
+	if err != nil {
+		return err
+	}
+	m.CacheRemove(rsp.ID)
+	return m.devUserProc.DownstreamThingConfigGetReply(&rsp)
+}
+
+func ProcThingConfigPush(m *Manager, rawURI string, payload []byte) error {
+	req := ConfigPushRequest{}
+	if err := json.Unmarshal(payload, &req); err != nil {
+		return err
+	}
+	if err := m.SendResponse(URIServiceReplyWithRequestURI(rawURI),
+		req.ID, infra.CodeSuccess, "{}"); err != nil {
+		return err
+	}
+	return m.devUserProc.DownstreamThingConfigPush(&req)
+}
+
 func ProcThingServicePropertySet(m *Manager, rawURI string, payload []byte) error {
 	return m.devUserProc.DownstreamThingServicePropertySet(payload)
 }
@@ -122,14 +152,6 @@ func ProcThingServiceRequest(m *Manager, rawURI string, payload []byte) error {
 	}
 
 	return m.devUserProc.DownstreamThingServiceRequest(uris[m.opt.uriOffset+1], uris[m.opt.uriOffset+2], uris[m.opt.uriOffset+5], payload)
-}
-
-func ProcExtNtpResponse(m *Manager, rawURI string, payload []byte) error {
-	rsp := NtpResponsePayload{}
-	if err := json.Unmarshal(payload, &rsp); err != nil {
-		return err
-	}
-	return m.devUserProc.DownstreamExtNtpResponse(&rsp)
 }
 
 func ProcExtErrorResponse(m *Manager, rawURI string, payload []byte) error {

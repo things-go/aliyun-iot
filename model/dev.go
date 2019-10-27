@@ -180,9 +180,9 @@ func (sf *Manager) UpstreamThingDynamictslGet() error {
 
 // NtpResponsePayload ntp回复payload
 type NtpResponsePayload struct {
-	DeviceSendTime int `json:"deviceSendTime,string"`
-	ServerRecvTime int `json:"serverRecvTime,string"`
-	ServerSendTime int `json:"serverSendTime,string"`
+	DeviceSendTime int64 `json:"deviceSendTime,string"`
+	ServerRecvTime int64 `json:"serverRecvTime,string"`
+	ServerSendTime int64 `json:"serverSendTime,string"`
 }
 
 // UpstreamExtNtpRequest ntp请求
@@ -199,14 +199,24 @@ type ConfigGetParams struct {
 	GetType     string `json:"getType"`
 }
 
-// ConfigGetData 配置获取数据域
-type ConfigGetData struct {
+// ConfigParamsAndData 配置获取参数域,或推送数据域
+type ConfigParamsAndData struct {
 	ConfigId   string `json:"configId"`
 	ConfigSize int64  `json:"configSize"`
 	Sign       string `json:"sign"`
 	SignMethod string `json:"signMethod"`
 	URL        string `json:"url"`
 	GetType    string `json:"getType"`
+}
+
+type ConfigGetResponse struct {
+	Response
+	Data ConfigParamsAndData `json:"data"`
+}
+
+type ConfigPushRequest struct {
+	Request
+	Params ConfigParamsAndData `json:"params"`
 }
 
 // UpstreamThingConfigGet 获取配置参数
