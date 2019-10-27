@@ -20,10 +20,10 @@ import (
 )
 
 const (
-	signMethodSHA1     = "hmacsha1"
-	signMethodMD5      = "hmacmd5"
-	defaultTimeout     = time.Second * 2
-	defaultCanAuthTime = time.Minute * 15 //
+	signMethodSHA1       = "hmacsha1"
+	signMethodMD5        = "hmacmd5"
+	defaultTimeout       = time.Second * 2
+	defaultAuthLimitTime = time.Minute * 15 // 当授权通过后,在15分钟内不可再授权,防止授权频繁
 )
 
 // AuthRequest 鉴权请求
@@ -65,7 +65,10 @@ type Client struct {
 	*clog.Clog
 }
 
-// 默认
+// New 新建alink http client
+// 默认hmacmd5加签算法
+// 默认上海host
+// 请求超时2秒
 func New() *Client {
 	sf := &Client{
 		host:       "https://iot-as-http.cn-shanghai.aliyuncs.com",
@@ -85,7 +88,6 @@ func (sf *Client) SetHost(h string) *Client {
 	if h != "" {
 		sf.host = h
 	}
-
 	return sf
 }
 
@@ -144,7 +146,7 @@ func (sf *Client) sendAuth() error {
 	sf.mu.Lock()
 	defer sf.mu.Unlock()
 	// 如果刚在15分钟内刚授权过,不用再授权了. 直接返回
-	if time.Since(sf.whenAuth) < defaultCanAuthTime {
+	if time.Since(sf.whenAuth) < defaultAuthLimitTime {
 		return nil
 	}
 	authPy := AuthRequest{

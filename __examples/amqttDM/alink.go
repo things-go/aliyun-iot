@@ -21,27 +21,29 @@ const (
 )
 
 func main() {
-	signs, err := sign.NewMQTTSign().SetSDKVersion(infra.IOTSDKVersion).Generate(&sign.MetaInfo{
-		ProductKey:    productKey,
-		ProductSecret: productSecret,
-		DeviceName:    deviceName,
-		DeviceSecret:  deviceSecret}, sign.CloudRegionShangHai)
+	signs, err := sign.NewMQTTSign().
+		SetSDKVersion(infra.IOTSDKVersion).
+		Generate(&sign.MetaInfo{
+			ProductKey:    productKey,
+			ProductSecret: productSecret,
+			DeviceName:    deviceName,
+			DeviceSecret:  deviceSecret}, sign.CloudRegionShangHai)
 	if err != nil {
 		panic(err)
 	}
-	opts := mqtt.NewClientOptions()
-	opts.AddBroker(fmt.Sprintf("%s:%d", signs.HostName, signs.Port))
-	opts.SetClientID(signs.ClientID)
-	opts.SetUsername(signs.UserName)
-	opts.SetPassword(signs.Password)
-	opts.SetCleanSession(true)
-	opts.SetAutoReconnect(true)
-	opts.SetOnConnectHandler(func(cli mqtt.Client) {
-		log.Println("mqtt client connection success")
-	})
-	opts.SetConnectionLostHandler(func(cli mqtt.Client, err error) {
-		log.Println("mqtt client connection lost, ", err)
-	})
+	opts := mqtt.NewClientOptions().
+		AddBroker(fmt.Sprintf("%s:%d", signs.HostName, signs.Port)).
+		SetClientID(signs.ClientID).
+		SetUsername(signs.UserName).
+		SetPassword(signs.Password).
+		SetCleanSession(true).
+		SetAutoReconnect(true).
+		SetOnConnectHandler(func(cli mqtt.Client) {
+			log.Println("mqtt client connection success")
+		}).
+		SetConnectionLostHandler(func(cli mqtt.Client, err error) {
+			log.Println("mqtt client connection lost, ", err)
+		})
 	client := mqtt.NewClient(opts)
 
 	dmopt := model.NewOption(productKey, deviceName, deviceSecret).Valid()
