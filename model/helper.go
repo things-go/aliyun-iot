@@ -19,6 +19,17 @@ func (sf *Manager) URIService(prefix, name, productKey, deviceName string) strin
 	return URIService(prefix, name, productKey, deviceName)
 }
 
+func (sf *Manager) URIExtRRPCService(prefix, messageID, topic string) string {
+	if sf.opt.uriOffset == 1 {
+		return URICOAPHTTPPrePrefix + prefix + messageID + topic
+	}
+	return prefix + messageID + topic
+}
+
+func (sf *Manager) URIExtRRPCWildcardService(topic string) string {
+	return sf.URIExtRRPCService(URIExtRRPCPrefix, "+", topic)
+}
+
 // 可以采用Sha256,hmacMd5,hmacSha1,hmacSha256
 func generateSign(productKey, deviceName, deviceSecret, clientID string, timestamp int64) (string, error) {
 	signSource := fmt.Sprintf("clientId%sdeviceName%sproductKey%stimestamp%d",

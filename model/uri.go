@@ -22,6 +22,16 @@ const (
 	URIReplySuffix = "reply"
 )
 
+const (
+	//  系统RRPC调用
+	URIRRPCRequestSingleWildcard = "rrpc/request/+"
+	URIRRPCResponse              = "rrpc/response/%s"
+
+	// 自定义RRPC
+	URIExtRRPCPrefix         = "/ext/rrpc/%s/"
+	URIExtRRPCSingleWildcard = "/ext/rrpc/+/"
+)
+
 // URI thing定义
 const (
 	// 透传数据上行,下行云端
@@ -52,15 +62,10 @@ const (
 	// 服务调用上行,下行云端
 	URIThingServicePropertySet           = "thing/service/property/set"
 	URIThingServicePropertySetReply      = "thing/service/property/set_reply"
-	URIThingServicePropertyGet           = "thing/service/property/get"
-	URIThingServicePropertyGetReply      = "thing/service/property/get_reply"
 	URIThingServiceRequest               = "thing/service/%s"
 	URIThingServiceResponse              = "thing/service/%s_reply"
 	URIThingServiceRequestSingleWildcard = "thing/service/+"
 	URIThingServiceRequestMultiWildcard2 = "thing/service/#"
-
-	// RRPC调用
-	URIRRPCRequestSingleWildcard = "rrpc/request/+"
 
 	/* dsl template From Local To Cloud Request And Response */
 	URIThingDslTemplateGet      = "thing/dsltemplate/get"

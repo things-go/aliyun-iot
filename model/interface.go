@@ -40,11 +40,12 @@ type DevUserProc interface {
 	DownstreamThingDynamictslGetReply(rsp *Response) error
 	DownstreamExtNtpResponse(rsp *NtpResponsePayload) error
 	DownstreamThingConfigGetReply(rsp *ConfigGetResponse) error
+	// 处理下行请求
 	DownstreamThingConfigPush(rsp *ConfigPushRequest) error
-
 	DownstreamExtErrorResponse(rsp *Response) error
 	DownstreamThingModelDownRaw(productKey, deviceName string, payload []byte) error
-	DownstreamThingServicePropertyGet(productKey, deviceName string, payload []byte) error
-	DownstreamThingServiceRequest(productKey, deviceName, srvID string, payload []byte) error
 	DownstreamThingServicePropertySet(payload []byte) error
+	DownstreamThingServiceRequest(productKey, deviceName, srvID string, payload []byte) error
+	DownStreamRRPCRequest(m *Manager, productKey, deviceName, messageID string, payload []byte) error
+	DownStreamExtRRPCRequest(m *Manager, topic string, payload []byte) error
 }

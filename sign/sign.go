@@ -136,7 +136,7 @@ func (sf *MQTTSign) SetSupportSecureMode(mode SecureMode) *MQTTSign {
 }
 
 // SetSupportDeviceModel 设置支持物模型
-func (sf *MQTTSign) SetSupportDeviceModel(enable bool) *MQTTSign {
+func (sf *MQTTSign) SetDisableDeviceModel(enable bool) *MQTTSign {
 	if enable {
 		sf.clientIDkv["v"] = alinkVersion
 		delete(sf.clientIDkv, "gw")
@@ -146,6 +146,15 @@ func (sf *MQTTSign) SetSupportDeviceModel(enable bool) *MQTTSign {
 		sf.clientIDkv["ext"] = "0"
 		delete(sf.clientIDkv, "v")
 	}
+	return sf
+}
+
+// 支持扩展RRPC 仅物模型下支持
+func (sf *MQTTSign) SetSupportExtRRPC() *MQTTSign {
+	if _, ok := sf.clientIDkv["v"]; ok {
+		sf.clientIDkv["ext"] = "1"
+	}
+
 	return sf
 }
 

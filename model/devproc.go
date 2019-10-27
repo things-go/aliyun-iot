@@ -1,6 +1,9 @@
 package model
 
-import "log"
+import (
+	"fmt"
+	"log"
+)
 
 type DevNopUserProc struct{}
 
@@ -71,12 +74,6 @@ func (DevNopUserProc) DownstreamThingModelDownRaw(productKey, deviceName string,
 	return nil
 }
 
-// deprecated
-func (DevNopUserProc) DownstreamThingServicePropertyGet(productKey, deviceName string, payload []byte) error {
-	log.Println("DownstreamThingServicePropertyGet")
-	return nil
-}
-
 // DownstreamThingServicePropertySet 设置设备属性
 func (DevNopUserProc) DownstreamThingServicePropertySet(payload []byte) error {
 	log.Println("DownstreamThingServicePropertySet")
@@ -87,4 +84,15 @@ func (DevNopUserProc) DownstreamThingServicePropertySet(payload []byte) error {
 func (DevNopUserProc) DownstreamThingServiceRequest(productKey, deviceName, srvID string, payload []byte) error {
 	log.Println("DownstreamThingServiceRequest")
 	return nil
+}
+
+func (DevNopUserProc) DownStreamRRPCRequest(m *Manager, productKey, deviceName, messageID string, payload []byte) error {
+	log.Println("DownStreamRRPCRequest")
+	return m.Publish(m.URIService(URISysPrefix, fmt.Sprintf(URIRRPCResponse, messageID),
+		productKey, deviceName), 0, "default system RRPC implementation")
+}
+
+func (DevNopUserProc) DownStreamExtRRPCRequest(m *Manager, topic string, payload []byte) error {
+	log.Println("DownStreamRRPCRequest")
+	return m.Publish(topic, 0, "default ext RRPC implementation")
 }
