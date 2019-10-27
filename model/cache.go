@@ -3,7 +3,7 @@ package model
 import (
 	"strconv"
 
-	"github.com/patrickmn/go-cache"
+	"github.com/thinkgos/go-cache"
 )
 
 type messageCacheEntry struct {

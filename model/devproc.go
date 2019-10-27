@@ -18,6 +18,16 @@ func (DevNopUserProc) DownstreamThingEventPostReply(eventID string, rsp *Respons
 	return nil
 }
 
+func (DevNopUserProc) DownstreamThingDesiredPropertyGetReply(rsp *Response) error {
+	log.Println("DownstreamThingDesiredPropertyGetReply")
+	return nil
+}
+
+func (DevNopUserProc) DownstreamThingDesiredPropertyDeleteReply(rsp *Response) error {
+	log.Println("DownstreamThingDesiredPropertyDeleteReply")
+	return nil
+}
+
 func (DevNopUserProc) DownstreamThingDeviceInfoUpdateReply(rsp *Response) error {
 	log.Println("DownstreamThingDeviceInfoUpdateReply")
 	return nil

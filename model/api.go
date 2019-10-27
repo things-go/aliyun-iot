@@ -5,16 +5,19 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/patrickmn/go-cache"
+	"github.com/thinkgos/go-cache"
 )
 
 type MsgType byte
 
 const (
-	MsgTypePostProperty                MsgType = iota //!< post property value to cloud
+	MsgTypeUpRaw                       MsgType = iota //!< post raw data to cloud
+	MsgTypePropertyPost                               //!< post property value to cloud
+	MsgTypeEventPost                                  //!< post event identifies value to cloud
 	MsgTypeDeviceInfoUpdate                           //!< post device info update message to cloud
 	MsgTypeDeviceInfoDelete                           //!< post device info delete message to cloud
-	MsgTypeUpRaw                                      //!< post raw data to cloud
+	MsgTypePropertyDesiredGet                         //!< get a device's desired property
+	MsgTypePropertyDesiredDelete                      //!< delete a device's desired property
 	MsgTypeSubDevLogin                                //!< only for slave device, send login request to cloud
 	MsgTypeSubDevLogout                               //!< only for slave device, send logout request to cloud
 	MsgTypeSubDevDeleteTopo                           //!< only for slave device, send delete topo request to cloud
@@ -25,8 +28,6 @@ const (
 	MsgTypeRequestCOTA                                //!< only for master device, request config ota data from cloud
 	MsgTypeRequestFOTAImage                           //!< only for master device, request fota image from cloud
 	MsgTypeReportSubDevFirmwareVersion                //!< report subdev's firmware version
-	MsgTypePropertyDesiredGet                         //!< get a device's desired property
-	MsgTypePropertyDesiredDelete                      //!< delete a device's desired property
 
 )
 
@@ -89,6 +90,7 @@ func (sf *Manager) SetGwUserProc(proc GatewayUserProc) *Manager {
 	sf.gwUserProc = proc
 	return sf
 }
+
 func (sf *Manager) SetDevUserProc(proc DevUserProc) *Manager {
 	sf.devUserProc = proc
 	return sf
@@ -137,7 +139,7 @@ func (sf *Manager) SendResponse(uriService string, reportID int, code int, data 
 
 func (sf *Manager) AlinkReport(msgType MsgType, devID int, payload interface{}) error {
 	switch msgType {
-	case MsgTypePostProperty:
+	case MsgTypePropertyPost:
 		return sf.UpstreamThingEventPropertyPost(devID, payload)
 	case MsgTypeDeviceInfoUpdate:
 		return sf.UpstreamThingDeviceInfoUpdate(devID, payload)

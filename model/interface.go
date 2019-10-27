@@ -34,6 +34,8 @@ type DevUserProc interface {
 	DownstreamThingEventPostReply(eventID string, rsp *Response) error
 	DownstreamThingDeviceInfoUpdateReply(rsp *Response) error
 	DownstreamThingDeviceInfoDeleteReply(rsp *Response) error
+	DownstreamThingDesiredPropertyGetReply(rsp *Response) error
+	DownstreamThingDesiredPropertyDeleteReply(rsp *Response) error
 	DownstreamThingDsltemplateGetReply(rsp *Response) error
 	DownstreamThingDynamictslGetReply(rsp *Response) error
 	DownstreamExtNtpResponse(rsp *NtpResponse) error

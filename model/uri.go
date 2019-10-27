@@ -24,15 +24,32 @@ const (
 
 // URI thing定义
 const (
-	/* Model Raw From Cloud To Local Request And Response*/
+	// 透传数据上行,下行云端
 	URIThingModelDownRaw      = "thing/model/down_raw"
 	URIThingModelDownRawReply = "thing/model/down_raw_reply"
 	URIThingModelUpRaw        = "thing/model/up_raw"
 	URIThingModelUpRawReply   = "thing/model/up_raw_reply"
 
-	URIRRPCRequestWildcard = "rrpc/request/+"
+	// 事件上行,下行云端
+	URIThingEventPropertyPost      = "thing/event/property/post"
+	URIThingEventPropertyPostReply = "thing/event/property/post_reply"
+	URIThingEventPost              = "thing/event/%s/post"
+	URIThingEventPostReply         = "thing/event/%s/post_reply"
+	URIThingEventPostReplyWildcard = "thing/event/+/post_reply"
 
-	/* service From Cloud To Local Request And Response*/
+	// 设备信息上行,下行云端
+	URIThingDeviceInfoUpdate      = "thing/deviceinfo/update"
+	URIThingDeviceInfoUpdateReply = "thing/deviceinfo/update_reply"
+	URIThingDeviceInfoDelete      = "thing/deviceinfo/delete"
+	URIThingDeviceInfoDeleteReply = "thing/deviceinfo/delete_reply"
+
+	// 期望属性值上行,下行云端
+	URIThingDesiredPropertyGet         = "thing/property/desired/get"
+	URIThingDesiredPropertyGetReply    = "thing/property/desired/get_reply"
+	URIThingDesiredPropertyDelete      = "thing/property/desired/delete"
+	URIThingDesiredPropertyDeleteReply = "thing/property/desired/delete_reply"
+
+	// 服务调用上行,下行云端
 	URIThingServicePropertySet      = "thing/service/property/set"
 	URIThingServicePropertySetReply = "thing/service/property/set_reply"
 	URIThingServicePropertyGet      = "thing/service/property/get"
@@ -42,18 +59,8 @@ const (
 	URIThingServiceRequest          = "thing/service/%s"
 	URIThingServiceResponse         = "thing/service/%s_reply"
 
-	/* event From Local To Cloud Request And Response*/
-	URIThingEventPropertyPost      = "thing/event/property/post"
-	URIThingEventPropertyPostReply = "thing/event/property/post_reply"
-	URIThingEventPost              = "thing/event/%s/post"
-	URIThingEventPostReply         = "thing/event/%s/post_reply"
-	URIThingEventPostReplyWildcard = "thing/event/+/post_reply"
-
-	/* device info From Local To Cloud Request And Response */
-	URIThingDeviceInfoUpdate      = "thing/deviceinfo/update"
-	URIThingDeviceInfoUpdateReply = "thing/deviceinfo/update_reply"
-	URIThingDeviceInfoDelete      = "thing/deviceinfo/delete"
-	URIThingDeviceInfoDeleteReply = "thing/deviceinfo/delete_reply"
+	// RRPC调用
+	URIRRPCRequestWildcard = "rrpc/request/+"
 
 	/* dsl template From Local To Cloud Request And Response */
 	URIThingDslTemplateGet      = "thing/dsltemplate/get"
@@ -72,10 +79,17 @@ const (
 	URIThingConfigGetReply  = "thing/config/get_reply"
 	URIThingConfigPush      = "thing/config/push"
 	URIThingConfigPushReply = "thing/config/push_reply"
-
+)
+const (
 	// 子设备动态注册
 	URIThingSubDevRegister      = "thing/sub/register"
 	URIThingSubDevRegisterReply = "thing/sub/register_reply"
+
+	// 子设备登录
+	URISubDevCombineLogin      = "combine/login"
+	URISubDevCombineLoginReply = "combine/login_reply"
+	URISubDevCombineLogout     = "combine/logout"
+	SubDevCombineLogoutReply   = "combine/logout_reply"
 
 	// 网关网络拓扑
 	URIThingTopoAdd         = "thing/topo/add"
@@ -84,12 +98,6 @@ const (
 	URIThingTopoDeleteReply = "thing/topo/delete_reply"
 	URIThingTopoGet         = "thing/topo/get"
 	URIThingTopoGetReply    = "thing/topo/get_reply"
-)
-const (
-	URISubDevCombineLogin      = "combine/login"
-	URISubDevCombineLoginReply = "combine/login_reply"
-	URISubDevCombineLogout     = "combine/logout"
-	SubDevCombineLogoutReply   = "combine/logout_reply"
 )
 
 // URIServiceItself 生成URI

@@ -20,28 +20,25 @@ func (sf *Manager) UpstreamThingModelUpRaw(devID int, payload interface{}) error
 	return sf.Publish(sf.URIService(URISysPrefix, URIThingModelUpRaw, node.ProductKey, node.DeviceName), 1, payload)
 }
 
-// 上报属性数据,返回id
-func (sf *Manager) upsThingEventPropertyPost(devID int, params interface{}) (int, error) {
-	node, err := sf.SearchNodeByID(devID)
-	if err != nil {
-		return 0, err
-	}
-
-	id := sf.RequestID()
-	return id, sf.SendRequest(sf.URIService(URISysPrefix, URIThingEventPropertyPost, node.ProductKey, node.DeviceName),
-		id, methodPropertyPost, params)
-}
-
 // UpstreamThingPropertyPost 上传属性数据
 func (sf *Manager) UpstreamThingEventPropertyPost(devID int, params interface{}) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
-	id, err := sf.upsThingEventPropertyPost(devID, params)
+
+	node, err := sf.SearchNodeByID(devID)
 	if err != nil {
 		return err
 	}
-	sf.CacheInsert(id, devID, MsgTypePostProperty, "")
+
+	id := sf.RequestID()
+	err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingEventPropertyPost, node.ProductKey, node.DeviceName),
+		id, methodEventPropertyPost, params)
+	if err != nil {
+		return err
+	}
+
+	sf.CacheInsert(id, devID, MsgTypePropertyPost, "property")
 	return nil
 }
 
@@ -55,9 +52,16 @@ func (sf *Manager) UpstreamThingEventPost(devID int, EventID string, params inte
 	if err != nil {
 		return err
 	}
+	id := sf.RequestID()
+	method := fmt.Sprintf(methodEventFormatPost, EventID)
+	err = sf.SendRequest(sf.URIService(URISysPrefix, fmt.Sprintf(URIThingEventPost, EventID), node.ProductKey, node.DeviceName),
+		id, method, params)
+	if err != nil {
+		return err
+	}
+	sf.CacheInsert(id, devID, MsgTypeEventPost, method)
+	return nil
 
-	uri := sf.URIService(URISysPrefix, fmt.Sprintf(URIThingEventPost, EventID), node.ProductKey, node.DeviceName)
-	return sf.SendRequest(uri, sf.RequestID(), fmt.Sprintf(methodEventPostFormat, EventID), params)
 }
 
 // UpstreamThingDeviceInfoUpdate 设备信息上传
@@ -71,8 +75,15 @@ func (sf *Manager) UpstreamThingDeviceInfoUpdate(devID int, params interface{}) 
 		return err
 	}
 
-	uri := sf.URIService(URISysPrefix, URIThingDeviceInfoUpdate, node.ProductKey, node.DeviceName)
-	return sf.SendRequest(uri, sf.RequestID(), methodDeviceInfoUpdate, params)
+	id := sf.RequestID()
+	err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingDeviceInfoUpdate, node.ProductKey, node.DeviceName),
+		id, methodDeviceInfoUpdate, params)
+	if err != nil {
+		return err
+	}
+
+	sf.CacheInsert(id, devID, MsgTypeDeviceInfoUpdate, methodDeviceInfoUpdate)
+	return nil
 }
 
 // UpstreamThingDeviceInfoDelete 设备信息删除
@@ -86,8 +97,56 @@ func (sf *Manager) UpstreamThingDeviceInfoDelete(devID int, params interface{}) 
 		return err
 	}
 
-	uri := sf.URIService(URISysPrefix, URIThingDeviceInfoDelete, node.ProductKey, node.DeviceName)
-	return sf.SendRequest(uri, sf.RequestID(), methodDeviceInfoDelete, params)
+	id := sf.RequestID()
+	err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingDeviceInfoDelete, node.ProductKey, node.DeviceName),
+		id, methodDeviceInfoDelete, params)
+	if err != nil {
+		return err
+	}
+	sf.CacheInsert(id, devID, MsgTypeDeviceInfoDelete, methodDeviceInfoDelete)
+	return nil
+}
+
+// UpstreamThingPropertyDesiredGet 获取期望值
+func (sf *Manager) UpstreamThingPropertyDesiredGet(devID int, params interface{}) error {
+	if devID < 0 {
+		return ErrInvalidParameter
+	}
+
+	node, err := sf.SearchNodeByID(devID)
+	if err != nil {
+		return err
+	}
+
+	id := sf.RequestID()
+	err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingDesiredPropertyGet, node.ProductKey, node.DeviceName),
+		id, methodDesiredPropertyGet, params)
+	if err != nil {
+		return err
+	}
+	sf.CacheInsert(id, devID, MsgTypePropertyDesiredGet, methodDesiredPropertyGet)
+	return nil
+}
+
+// UpstreamThingPropertyDesiredDelete 清空期望值
+func (sf *Manager) UpstreamThingPropertyDesiredDelete(devID int, params interface{}) error {
+	if devID < 0 {
+		return ErrInvalidParameter
+	}
+
+	node, err := sf.SearchNodeByID(devID)
+	if err != nil {
+		return err
+	}
+
+	id := sf.RequestID()
+	err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingDesiredPropertyDelete, node.ProductKey, node.DeviceName),
+		id, methodDesiredPropertyDelete, params)
+	if err != nil {
+		return err
+	}
+	sf.CacheInsert(id, devID, MsgTypePropertyDesiredDelete, methodDesiredPropertyDelete)
+	return nil
 }
 
 // UpstreamThingDsltemplateGet 获取

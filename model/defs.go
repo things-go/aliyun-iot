@@ -7,13 +7,15 @@ const (
 
 // method 定义
 const (
-	methodPropertyPost     = "thing.event.property.post"
-	methodDeviceInfoUpdate = "thing.deviceinfo.update"
-	methodDeviceInfoDelete = "thing.deviceinfo.delete"
-	//methodUpRaw            = "thing.model.up_raw"
-	methodEventPostFormat = "thing.event.%s.post"
-	methodDslTemplateGet  = "thing.dsltemplate.get"
-	methodDynamicTslGet   = "thing.dynamicTsl.get"
+	methodModelUpRaw            = "thing.model.up_raw"
+	methodEventPropertyPost     = "thing.event.property.post"
+	methodEventFormatPost       = "thing.event.%s.post"
+	methodDeviceInfoUpdate      = "thing.deviceinfo.update"
+	methodDeviceInfoDelete      = "thing.deviceinfo.delete"
+	methodDesiredPropertyGet    = "thing.property.desired.get"
+	methodDesiredPropertyDelete = "thing.property.desired.delete"
+	methodDslTemplateGet        = "thing.dsltemplate.get"
+	methodDynamicTslGet         = "thing.dynamicTsl.get"
 
 	methodSubDevRegister = "thing.sub.register"
 	methodSubDevDisable  = "thing.disable"
