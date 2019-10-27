@@ -1,5 +1,9 @@
 package model
 
+import (
+	"github.com/thinkgos/aliIOT/clog"
+)
+
 // Conn conn接口
 type Conn interface {
 	// Publish will publish a message with the specified QoS and content
@@ -7,6 +11,9 @@ type Conn interface {
 	UnderlyingClient() interface{}
 	Subscribe(topic string, streamFunc ProcDownStreamFunc) error
 	ContainerOf() *Manager
+	// 目志调试
+	LogProvider() clog.LogProvider
+	LogMode(enable bool)
 }
 
 type GatewayUserProc interface {

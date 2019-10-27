@@ -2,6 +2,7 @@ package aliIOT
 
 import (
 	"github.com/thinkgos/aliIOT/ahttp"
+	"github.com/thinkgos/aliIOT/clog"
 	"github.com/thinkgos/aliIOT/model"
 )
 
@@ -26,9 +27,18 @@ func (sf *httpClient) Subscribe(topic string, streamFunc model.ProcDownStreamFun
 	return nil
 }
 
+func (sf *httpClient) LogProvider() clog.LogProvider {
+	return sf.c.Clog
+}
+
+func (sf *httpClient) LogMode(enable bool) {
+	sf.c.LogMode(enable)
+}
+
 func NewWithHTTP(options *model.Options) *model.Manager {
 	client := ahttp.New().
 		SetDeviceMetaInfo(options.EnableHTTP(true).MetaInfo())
+
 	sf := model.New(options)
 	return sf.SetConn(&httpClient{c: client, containOf: sf})
 }

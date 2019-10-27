@@ -1,17 +1,16 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"time"
 )
 
+type Name struct {
+	A int `json:"a,string"`
+}
+
 func main() {
-	var t = time.Date(2019, 10, 26, 22, 56, 0, 0, time.Local)
-
-	ts := time.Since(t)
-	if ts < time.Minute*15 {
-		fmt.Println("haha")
-	}
-	fmt.Println(ts.Minutes())
-
+	name := Name{}
+	json.Unmarshal([]byte(`{"a":"12000"}`), name)
+	fmt.Println(name)
 }

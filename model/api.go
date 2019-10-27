@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/patrickmn/go-cache"
-	"github.com/thinkgos/aliIOT/clog"
 )
 
 type MsgType byte
@@ -57,7 +56,6 @@ type Manager struct {
 	*devMgr
 	msgCache *cache.Cache
 	pool     *pool
-	*clog.Clog
 	Conn
 	gwUserProc  GatewayUserProc
 	devUserProc DevUserProc
@@ -68,7 +66,6 @@ func New(opt *Options) *Manager {
 	sf := &Manager{
 		opt:         *opt,
 		devMgr:      newDevMgr(),
-		Clog:        clog.NewWithPrefix("alink -- >"),
 		gwUserProc:  GwNopUserProc{},
 		devUserProc: DevNopUserProc{},
 	}
@@ -84,6 +81,7 @@ func New(opt *Options) *Manager {
 // SetConn 设置连接接口
 func (sf *Manager) SetConn(conn Conn) *Manager {
 	sf.Conn = conn
+
 	return sf
 }
 
