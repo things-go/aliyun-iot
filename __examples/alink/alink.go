@@ -50,7 +50,7 @@ func main() {
 	client.Connect().Wait()
 
 	_ = manage.Subscribe(manage.URIServiceItself(model.URISysPrefix, model.URIThingEventPostReplySingleWildcard), model.ProcThingEventPostReply)
-	//_ = manage.Subscribe(manage.URIServiceItself(model.URISysPrefix, model.URIThingServiceRequestWildcard2), model.ProcThingServiceRequest)
+	_ = manage.Subscribe(manage.URIServiceItself(model.URISysPrefix, model.URIThingServiceRequestWildcard2), model.ProcThingServiceRequest)
 
 	go func() {
 		for {

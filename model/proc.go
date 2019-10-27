@@ -140,27 +140,25 @@ func ProcExtErrorResponse(m *Manager, rawURI string, payload []byte) error {
 	return m.devUserProc.DownstreamExtErrorResponse(&rsp)
 }
 
-// deprecated
-func ProcThingServicePropertyGet(m *Manager, rawURI string, payload []byte) error {
-	uris := URIServiceSpilt(rawURI)
-	if len(uris) != (m.opt.uriOffset + 6) {
-		return ErrInvalidURI
-	}
-	return m.devUserProc.DownstreamThingServicePropertyGet(uris[m.opt.uriOffset+1], uris[m.opt.uriOffset+2], payload)
-}
-
-func ProcThingServicePropertySet(m *Manager, rawURI string, payload []byte) error {
-	return m.devUserProc.DownstreamThingServicePropertySet(payload)
-}
-
 // ProcThingServiceRequest 服务调用
+// 主要处理 thing/service/property/[set,get], thing/service/{tsl.event.identifier}
 func ProcThingServiceRequest(m *Manager, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (m.opt.uriOffset + 6) {
 		return ErrInvalidURI
 	}
 
-	return m.devUserProc.DownstreamThingServiceRequest(uris[m.opt.uriOffset+1], uris[m.opt.uriOffset+2], uris[m.opt.uriOffset+5], payload)
+	serviceID := uris[m.opt.uriOffset+5]
+	if serviceID == "property" && (len(uris) >= (m.opt.uriOffset + 7)) {
+		if uris[m.opt.uriOffset+6] == "get" {
+			return m.devUserProc.DownstreamThingServicePropertyGet(uris[m.opt.uriOffset+1], uris[m.opt.uriOffset+2], payload)
+		}
+		if uris[m.opt.uriOffset+6] == "set" {
+			return m.devUserProc.DownstreamThingServicePropertySet(payload)
+		}
+	}
+
+	return m.devUserProc.DownstreamThingServiceRequest(uris[m.opt.uriOffset+1], uris[m.opt.uriOffset+2], serviceID, payload)
 }
 
 func ProcThingSubDevRegisterReply(m *Manager, rawURI string, payload []byte) error {
