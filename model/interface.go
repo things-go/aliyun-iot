@@ -29,7 +29,7 @@ type GatewayUserProc interface {
 }
 
 type DevUserProc interface {
-	DownstreamThingModelUpRawReply(productKey, deviceName string, payload []byte) error
+	DownstreamThingModelUpRawReply(m *Manager, productKey, deviceName string, payload []byte) error
 	DownstreamThingEventPropertyPostReply(rsp *Response) error
 	DownstreamThingEventPostReply(eventID string, rsp *Response) error
 	DownstreamThingDeviceInfoUpdateReply(rsp *Response) error
@@ -43,9 +43,9 @@ type DevUserProc interface {
 	// 处理下行请求
 	DownstreamThingConfigPush(rsp *ConfigPushRequest) error
 	DownstreamExtErrorResponse(rsp *Response) error
-	DownstreamThingModelDownRaw(productKey, deviceName string, payload []byte) error
-	DownstreamThingServicePropertySet(payload []byte) error
-	DownstreamThingServiceRequest(productKey, deviceName, srvID string, payload []byte) error
+	DownstreamThingModelDownRaw(m *Manager, productKey, deviceName string, payload []byte) error
+	DownstreamThingServicePropertySet(m *Manager, topic string, payload []byte) error
+	DownstreamThingServiceRequest(m *Manager, productKey, deviceName, srvID string, payload []byte) error
 	DownStreamRRPCRequest(m *Manager, productKey, deviceName, messageID string, payload []byte) error
 	DownStreamExtRRPCRequest(m *Manager, topic string, payload []byte) error
 }

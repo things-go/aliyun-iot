@@ -11,20 +11,20 @@ type ProcDownStreamFunc func(m *Manager, rawURI string, payload []byte) error
 // ProcThingModelUpRawReply 处理透传上行的应答
 func ProcThingModelUpRawReply(m *Manager, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) != (m.opt.uriOffset + 6) {
+	if len(uris) < (m.opt.uriOffset + 6) {
 		return ErrInvalidURI
 	}
 
-	return m.devUserProc.DownstreamThingModelUpRawReply(uris[m.opt.uriOffset+1], uris[m.opt.uriOffset+2], payload)
+	return m.devUserProc.DownstreamThingModelUpRawReply(m, uris[m.opt.uriOffset+1], uris[m.opt.uriOffset+2], payload)
 }
 
 // ProcThingModelDownRaw 处理透传下行
 func ProcThingModelDownRaw(m *Manager, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) != (m.opt.uriOffset + 6) {
+	if len(uris) < (m.opt.uriOffset + 6) {
 		return ErrInvalidURI
 	}
-	return m.devUserProc.DownstreamThingModelDownRaw(uris[m.opt.uriOffset+1], uris[m.opt.uriOffset+2], payload)
+	return m.devUserProc.DownstreamThingModelDownRaw(m, uris[m.opt.uriOffset+1], uris[m.opt.uriOffset+2], payload)
 }
 
 // ProcThingEventPost 处理ThingEvent XXX的应答
@@ -152,10 +152,10 @@ func ProcThingServiceRequest(m *Manager, rawURI string, payload []byte) error {
 	if serviceID == "property" &&
 		len(uris) >= (m.opt.uriOffset+7) &&
 		uris[m.opt.uriOffset+6] == "set" {
-		return m.devUserProc.DownstreamThingServicePropertySet(payload)
+		return m.devUserProc.DownstreamThingServicePropertySet(m, rawURI, payload)
 	}
 
-	return m.devUserProc.DownstreamThingServiceRequest(uris[m.opt.uriOffset+1], uris[m.opt.uriOffset+2], serviceID, payload)
+	return m.devUserProc.DownstreamThingServiceRequest(m, uris[m.opt.uriOffset+1], uris[m.opt.uriOffset+2], serviceID, payload)
 }
 
 func ProcRRPCRequest(m *Manager, rawURI string, payload []byte) error {
@@ -170,7 +170,7 @@ func ProcRRPCRequest(m *Manager, rawURI string, payload []byte) error {
 }
 
 func ProcExtRRPCRequest(m *Manager, rawURI string, payload []byte) error {
-	return m.devUserProc.DownStreamExtRRPCRequest(rawURI, payload)
+	return m.devUserProc.DownStreamExtRRPCRequest(m, rawURI, payload)
 }
 
 func ProcThingSubDevRegisterReply(m *Manager, rawURI string, payload []byte) error {

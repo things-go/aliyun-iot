@@ -54,7 +54,7 @@ func (sf *Manager) UpstreamThingEventPost(devID int, EventID string, params inte
 	}
 	id := sf.RequestID()
 	method := fmt.Sprintf(methodEventFormatPost, EventID)
-	err = sf.SendRequest(sf.URIService(URISysPrefix, fmt.Sprintf(URIThingEventPost, EventID), node.ProductKey, node.DeviceName),
+	err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingEventPost, node.ProductKey, node.DeviceName, EventID),
 		id, method, params)
 	if err != nil {
 		return err
@@ -173,7 +173,7 @@ func (sf *Manager) UpstreamThingDsltemplateGet(devID int) error {
 // UpstreamThingDynamictslGet 获取
 func (sf *Manager) UpstreamThingDynamictslGet() error {
 	// TODO: 需要确定.未来审核
-	uri := sf.URIServiceItself(URISysPrefix, URIThingDynamicTslGet)
+	uri := sf.URIServiceSelf(URISysPrefix, URIThingDynamicTslGet)
 	return sf.SendRequest(uri, sf.RequestID(), methodDynamicTslGet, `{"nodes\":["type","identifier"],"addDefault":false}`)
 }
 
@@ -188,7 +188,7 @@ type NtpResponsePayload struct {
 // 发送一条Qos = 0的消息,并带上设备当前的时间戳,平台将回复 设备的发送时间,平台的接收时间, 平台的发送时间.
 // 设备计算当前精确时间 = (平台接收时间 + 平台发送时间 + 设备接收时间 - 设备发送时间) / 2
 func (sf *Manager) UpstreamExtNtpRequest() error {
-	return sf.Publish(sf.URIServiceItself(URIExtNtpPrefix, URINtpRequest),
+	return sf.Publish(sf.URIServiceSelf(URIExtNtpPrefix, URINtpRequest),
 		0, fmt.Sprintf(`{"deviceSendTime":"%d"}`, time.Now().Unix()))
 }
 

@@ -1,13 +1,16 @@
 package model
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
+
+	"github.com/thinkgos/aliIOT/infra"
 )
 
 type DevNopUserProc struct{}
 
-func (DevNopUserProc) DownstreamThingModelUpRawReply(productKey, deviceName string, payload []byte) error {
+func (DevNopUserProc) DownstreamThingModelUpRawReply(m *Manager, productKey, deviceName string, payload []byte) error {
 	log.Println("DownstreamThingModelUpRawReply")
 	return nil
 }
@@ -69,27 +72,36 @@ func (DevNopUserProc) DownstreamExtErrorResponse(rsp *Response) error {
 	return nil
 }
 
-func (DevNopUserProc) DownstreamThingModelDownRaw(productKey, deviceName string, payload []byte) error {
+func (DevNopUserProc) DownstreamThingModelDownRaw(m *Manager, productKey, deviceName string, payload []byte) error {
 	log.Println("DownstreamThingModelDownRaw")
 	return nil
 }
 
 // DownstreamThingServicePropertySet 设置设备属性
-func (DevNopUserProc) DownstreamThingServicePropertySet(payload []byte) error {
-	log.Println("DownstreamThingServicePropertySet")
-	return nil
+func (DevNopUserProc) DownstreamThingServicePropertySet(m *Manager, topic string, payload []byte) error {
+	rsp := Response{}
+	if err := json.Unmarshal(payload, &rsp); err != nil {
+		return nil
+	}
+	return m.SendResponse(URIServiceReplyWithRequestURI(topic), rsp.ID, infra.CodeSuccess, "{}")
 }
 
 // DownstreamThingServiceRequest 设备服务调用请求
-func (DevNopUserProc) DownstreamThingServiceRequest(productKey, deviceName, srvID string, payload []byte) error {
+func (DevNopUserProc) DownstreamThingServiceRequest(m *Manager, productKey, deviceName, srvID string, payload []byte) error {
+	rsp := Response{}
+	if err := json.Unmarshal(payload, &rsp); err != nil {
+		return nil
+	}
+
 	log.Println("DownstreamThingServiceRequest")
-	return nil
+	return m.SendResponse(m.URIService(URISysPrefix, fmt.Sprintf(URIThingServiceRequest, srvID), productKey, deviceName),
+		rsp.ID, infra.CodeSuccess, "{}")
 }
 
 func (DevNopUserProc) DownStreamRRPCRequest(m *Manager, productKey, deviceName, messageID string, payload []byte) error {
 	log.Println("DownStreamRRPCRequest")
-	return m.Publish(m.URIService(URISysPrefix, fmt.Sprintf(URIRRPCResponse, messageID),
-		productKey, deviceName), 0, "default system RRPC implementation")
+	return m.Publish(m.URIService(URISysPrefix, URIRRPCResponse, productKey, deviceName, messageID),
+		0, "default system RRPC implementation")
 }
 
 func (DevNopUserProc) DownStreamExtRRPCRequest(m *Manager, topic string, payload []byte) error {

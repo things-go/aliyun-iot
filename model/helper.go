@@ -7,16 +7,16 @@ import (
 	"fmt"
 )
 
-// URIServiceItself 获得本设备URI
-func (sf *Manager) URIServiceItself(prefix, name string) string {
+// URIServiceSelf 获得本设备URI
+func (sf *Manager) URIServiceSelf(prefix, name string) string {
 	return URIService(prefix, name, sf.opt.productKey, sf.opt.deviceName)
 }
 
-func (sf *Manager) URIService(prefix, name, productKey, deviceName string) string {
+func (sf *Manager) URIService(prefix, name, productKey, deviceName string, inName ...string) string {
 	if sf.opt.uriOffset == 1 {
 		prefix = URICOAPHTTPPrePrefix + prefix
 	}
-	return URIService(prefix, name, productKey, deviceName)
+	return URIService(prefix, name, productKey, deviceName, inName...)
 }
 
 func (sf *Manager) URIExtRRPCService(prefix, messageID, topic string) string {

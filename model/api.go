@@ -52,7 +52,6 @@ type Response struct {
 // Manager 管理
 type Manager struct {
 	requestID int32
-	reportID  int32
 
 	opt Options
 
@@ -103,11 +102,6 @@ func (sf *Manager) RequestID() int {
 	return int(atomic.AddInt32(&sf.requestID, 1))
 }
 
-// ReportID 获得下一个reportID
-func (sf *Manager) ReportID() int {
-	return int(atomic.AddInt32(&sf.reportID, 1))
-}
-
 // SendRequest 发送请求
 // uriService 唯一定位服务器或(topic)
 // requestID: 请求ID
@@ -122,13 +116,13 @@ func (sf *Manager) SendRequest(uriService string, requestID int, method string, 
 	return sf.Publish(uriService, 1, out)
 }
 
-func (sf *Manager) SendResponse(uriService string, reportID int, code int, data interface{}) error {
+func (sf *Manager) SendResponse(uriService string, id int, code int, data interface{}) error {
 	out, err := json.Marshal(struct {
 		*Response
 		Data interface{} `json:"data"`
 	}{
 		&Response{
-			ID:   reportID,
+			ID:   id,
 			Code: code,
 		},
 		data,
