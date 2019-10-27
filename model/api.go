@@ -11,24 +11,25 @@ import (
 type MsgType byte
 
 const (
-	MsgTypeModelUpRaw                  MsgType = iota //!< post raw data to cloud
-	MsgTypeEventPropertyPost                          //!< post property value to cloud
-	MsgTypeEventPost                                  //!< post event identifies value to cloud
-	MsgTypeDeviceInfoUpdate                           //!< post device info update message to cloud
-	MsgTypeDeviceInfoDelete                           //!< post device info delete message to cloud
-	MsgTypeDesiredPropertyGet                         //!< get a device's desired property
-	MsgTypeDesiredPropertyDelete                      //!< delete a device's desired property
-	MsgTypeDsltemplateGet                             //<! get a device's dsltemplate
-	MsgTypeSubDevLogin                                //!< only for slave device, send login request to cloud
-	MsgTypeSubDevLogout                               //!< only for slave device, send logout request to cloud
-	MsgTypeSubDevDeleteTopo                           //!< only for slave device, send delete topo request to cloud
-	MsgTypeQueryTimestamp                             //!< query ntp time from cloud
-	MsgTypeQueryTopoList                              //!< only for master device, query topo list
-	MsgTypeQueryFOTAData                              //!< only for master device, qurey firmware ota data
-	MsgTypeQueryCOTAData                              //!< only for master device, qurey config ota data
-	MsgTypeRequestCOTA                                //!< only for master device, request config ota data from cloud
-	MsgTypeRequestFOTAImage                           //!< only for master device, request fota image from cloud
-	MsgTypeReportSubDevFirmwareVersion                //!< report subdev's firmware version
+	MsgTypeModelUpRaw            MsgType = iota //!< post raw data to cloud
+	MsgTypeEventPropertyPost                    //!< post property value to cloud
+	MsgTypeEventPost                            //!< post event identifies value to cloud
+	MsgTypeDeviceInfoUpdate                     //!< post device info update message to cloud
+	MsgTypeDeviceInfoDelete                     //!< post device info delete message to cloud
+	MsgTypeDesiredPropertyGet                   //!< get a device's desired property
+	MsgTypeDesiredPropertyDelete                //!< delete a device's desired property
+	MsgTypeDsltemplateGet                       //<! get a device's dsltemplate
+	MsgTypeConfigGet
+	MsgTypeSubDevLogin                 //!< only for slave device, send login request to cloud
+	MsgTypeSubDevLogout                //!< only for slave device, send logout request to cloud
+	MsgTypeSubDevDeleteTopo            //!< only for slave device, send delete topo request to cloud
+	MsgTypeQueryTimestamp              //!< query ntp time from cloud
+	MsgTypeQueryTopoList               //!< only for master device, query topo list
+	MsgTypeQueryFOTAData               //!< only for master device, qurey firmware ota data
+	MsgTypeQueryCOTAData               //!< only for master device, qurey config ota data
+	MsgTypeRequestCOTA                 //!< only for master device, request config ota data from cloud
+	MsgTypeRequestFOTAImage            //!< only for master device, request fota image from cloud
+	MsgTypeReportSubDevFirmwareVersion //!< report subdev's firmware version
 
 )
 

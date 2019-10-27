@@ -209,11 +209,13 @@ type ConfigParamsAndData struct {
 	GetType    string `json:"getType"`
 }
 
+// ConfigGetResponse 配置获取的回复
 type ConfigGetResponse struct {
 	Response
 	Data ConfigParamsAndData `json:"data"`
 }
 
+// ConfigPushRequest 配置推送的请求
 type ConfigPushRequest struct {
 	Request
 	Params ConfigParamsAndData `json:"params"`
@@ -232,7 +234,9 @@ func (sf *Manager) UpstreamThingConfigGet(devID int) error {
 
 	id := sf.RequestID()
 	if err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingConfigGet, node.ProductKey, node.DeviceName),
-		id, methodTopoGet, `{"configScope":"product","getType":"file"}`); err != nil {
+		id, methodConfigGet, `{"configScope":"product","getType":"file"}`); err != nil {
 		return err
 	}
+	sf.CacheInsert(id, devID, MsgTypeConfigGet, methodConfigGet)
+	return nil
 }

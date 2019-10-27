@@ -112,8 +112,7 @@ func ProcExtNtpResponse(m *Manager, rawURI string, payload []byte) error {
 
 func ProcThingConfigGetReply(m *Manager, rawURI string, payload []byte) error {
 	rsp := ConfigGetResponse{}
-	err := json.Unmarshal(payload, &rsp)
-	if err != nil {
+	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
 	m.CacheRemove(rsp.ID)
@@ -132,10 +131,6 @@ func ProcThingConfigPush(m *Manager, rawURI string, payload []byte) error {
 	return m.devUserProc.DownstreamThingConfigPush(&req)
 }
 
-func ProcThingServicePropertySet(m *Manager, rawURI string, payload []byte) error {
-	return m.devUserProc.DownstreamThingServicePropertySet(payload)
-}
-
 // deprecated
 func ProcThingServicePropertyGet(m *Manager, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
@@ -145,6 +140,20 @@ func ProcThingServicePropertyGet(m *Manager, rawURI string, payload []byte) erro
 	return m.devUserProc.DownstreamThingServicePropertyGet(uris[m.opt.uriOffset+1], uris[m.opt.uriOffset+2], payload)
 }
 
+func ProcThingServicePropertySet(m *Manager, rawURI string, payload []byte) error {
+	return m.devUserProc.DownstreamThingServicePropertySet(payload)
+}
+
+// deprecated
+func ProcExtErrorResponse(m *Manager, rawURI string, payload []byte) error {
+	rsp := Response{}
+	if err := json.Unmarshal(payload, &rsp); err != nil {
+		return err
+	}
+	return m.devUserProc.DownstreamExtErrorResponse(&rsp)
+}
+
+// ProcThingServiceRequest 服务调用
 func ProcThingServiceRequest(m *Manager, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) != (m.opt.uriOffset + 6) {
@@ -152,14 +161,6 @@ func ProcThingServiceRequest(m *Manager, rawURI string, payload []byte) error {
 	}
 
 	return m.devUserProc.DownstreamThingServiceRequest(uris[m.opt.uriOffset+1], uris[m.opt.uriOffset+2], uris[m.opt.uriOffset+5], payload)
-}
-
-func ProcExtErrorResponse(m *Manager, rawURI string, payload []byte) error {
-	rsp := Response{}
-	if err := json.Unmarshal(payload, &rsp); err != nil {
-		return err
-	}
-	return m.devUserProc.DownstreamExtErrorResponse(&rsp)
 }
 
 func ProcThingSubDevRegisterReply(m *Manager, rawURI string, payload []byte) error {
