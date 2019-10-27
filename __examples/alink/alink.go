@@ -49,9 +49,9 @@ func main() {
 
 	client.Connect().Wait()
 
-	_ = manage.Subscribe(manage.URIServiceItself(model.URISysPrefix, model.URIThingEventPostReplySingleWildcard), model.ProcThingEventPostReply)
-	_ = manage.Subscribe(manage.URIServiceItself(model.URISysPrefix, model.URIThingServiceRequestWildcard2), model.ProcThingServiceRequest)
-
+	_ = manage.Subscribe(manage.URIServiceSelf(model.URISysPrefix, model.URIThingEventPostReplySingleWildcard), model.ProcThingEventPostReply)
+	//_ = manage.Subscribe(manage.URIServiceSelf(model.URISysPrefix, model.URIThingServiceRequestMultiWildcard2), model.ProcThingServiceRequest)
+	_ = manage.Subscribe(manage.URIServiceSelf(model.URISysPrefix, model.URIRRPCRequestSingleWildcard), model.ProcRRPCRequest)
 	go func() {
 		for {
 			err := manage.UpstreamThingEventPost(model.DevItself, "tempAlarm", map[string]interface{}{
@@ -82,6 +82,7 @@ func main() {
 	}
 }
 
-type UserProc struct {
-	model.DevUserProc
-}
+//
+//type UserProc struct {
+//	model.DevUserProc
+//}
