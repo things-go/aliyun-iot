@@ -38,7 +38,7 @@ func (sf *Manager) UpstreamThingEventPropertyPost(devID int, params interface{})
 		return err
 	}
 
-	sf.CacheInsert(id, devID, MsgTypePropertyPost, "property")
+	sf.CacheInsert(id, devID, MsgTypeEventPropertyPost, "property")
 	return nil
 }
 
@@ -107,8 +107,8 @@ func (sf *Manager) UpstreamThingDeviceInfoDelete(devID int, params interface{}) 
 	return nil
 }
 
-// UpstreamThingPropertyDesiredGet 获取期望值
-func (sf *Manager) UpstreamThingPropertyDesiredGet(devID int, params interface{}) error {
+// UpstreamThingDesiredPropertyGet 获取期望值
+func (sf *Manager) UpstreamThingDesiredPropertyGet(devID int, params interface{}) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
@@ -124,12 +124,12 @@ func (sf *Manager) UpstreamThingPropertyDesiredGet(devID int, params interface{}
 	if err != nil {
 		return err
 	}
-	sf.CacheInsert(id, devID, MsgTypePropertyDesiredGet, methodDesiredPropertyGet)
+	sf.CacheInsert(id, devID, MsgTypeDesiredPropertyGet, methodDesiredPropertyGet)
 	return nil
 }
 
 // UpstreamThingPropertyDesiredDelete 清空期望值
-func (sf *Manager) UpstreamThingPropertyDesiredDelete(devID int, params interface{}) error {
+func (sf *Manager) UpstreamThingDesiredPropertyDelete(devID int, params interface{}) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
@@ -145,33 +145,84 @@ func (sf *Manager) UpstreamThingPropertyDesiredDelete(devID int, params interfac
 	if err != nil {
 		return err
 	}
-	sf.CacheInsert(id, devID, MsgTypePropertyDesiredDelete, methodDesiredPropertyDelete)
+	sf.CacheInsert(id, devID, MsgTypeDesiredPropertyDelete, methodDesiredPropertyDelete)
 	return nil
 }
 
-// UpstreamThingDsltemplateGet 获取
-func (sf *Manager) UpstreamThingDsltemplateGet() error {
-	uri := sf.URIService(URISysPrefix, URIThingDslTemplateGet, sf.opt.productKey, sf.opt.deviceName)
-	return sf.SendRequest(uri, sf.RequestID(), methodDslTemplateGet, "{}")
+// UpstreamThingDsltemplateGet 设备可以通过上行请求获取设备的TSL模板（包含属性、服务和事件的定义）
+// see https://help.aliyun.com/document_detail/89305.html?spm=a2c4g.11186623.6.672.5d3d70374hpPcx
+func (sf *Manager) UpstreamThingDsltemplateGet(devID int) error {
+	if devID < 0 {
+		return ErrInvalidParameter
+	}
+
+	node, err := sf.SearchNodeByID(devID)
+	if err != nil {
+		return err
+	}
+
+	id := sf.RequestID()
+	if err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingDslTemplateGet, node.ProductKey, node.DeviceName),
+		id, methodDslTemplateGet, "{}"); err != nil {
+		return err
+	}
+
+	sf.CacheInsert(id, devID, MsgTypeDsltemplateGet, methodDslTemplateGet)
+	return nil
 }
 
 // UpstreamThingDynamictslGet 获取
 func (sf *Manager) UpstreamThingDynamictslGet() error {
-	uri := sf.URIService(URISysPrefix, URIThingDynamicTslGet, sf.opt.productKey, sf.opt.deviceName)
+	// TODO: 需要确定.未来审核
+	uri := sf.URIServiceItself(URISysPrefix, URIThingDynamicTslGet)
 	return sf.SendRequest(uri, sf.RequestID(), methodDynamicTslGet, `{"nodes\":["type","identifier"],"addDefault":false}`)
+}
+
+// NtpResponsePayload ntp回复payload
+type NtpResponsePayload struct {
+	DeviceSendTime int `json:"deviceSendTime,string"`
+	ServerRecvTime int `json:"serverRecvTime,string"`
+	ServerSendTime int `json:"serverSendTime,string"`
 }
 
 // UpstreamExtNtpRequest ntp请求
 // 发送一条Qos = 0的消息,并带上设备当前的时间戳,平台将回复 设备的发送时间,平台的接收时间, 平台的发送时间.
 // 设备计算当前精确时间 = (平台接收时间 + 平台发送时间 + 设备接收时间 - 设备发送时间) / 2
 func (sf *Manager) UpstreamExtNtpRequest() error {
-	return sf.Publish(sf.URIService(URIExtNtpPrefix, URINtpRequest, sf.opt.productKey, sf.opt.deviceName),
+	return sf.Publish(sf.URIServiceItself(URIExtNtpPrefix, URINtpRequest),
 		0, fmt.Sprintf(`{"deviceSendTime":"%d"}`, time.Now().Unix()))
 }
 
-// NtpResponse ntp回复payload
-type NtpResponse struct {
-	DeviceSendTime int `json:"deviceSendTime,string"`
-	ServerRecvTime int `json:"serverRecvTime,string"`
-	ServerSendTime int `json:"serverSendTime,string"`
+// ConfigGetParams 配置参数
+type ConfigGetParams struct {
+	ConfigScope string `json:"configScope"`
+	GetType     string `json:"getType"`
+}
+
+// ConfigGetData 配置获取数据域
+type ConfigGetData struct {
+	ConfigId   string `json:"configId"`
+	ConfigSize int64  `json:"configSize"`
+	Sign       string `json:"sign"`
+	SignMethod string `json:"signMethod"`
+	URL        string `json:"url"`
+	GetType    string `json:"getType"`
+}
+
+// UpstreamThingConfigGet 获取配置参数
+func (sf *Manager) UpstreamThingConfigGet(devID int) error {
+	if devID < 0 {
+		return ErrInvalidParameter
+	}
+
+	node, err := sf.SearchNodeByID(devID)
+	if err != nil {
+		return err
+	}
+
+	id := sf.RequestID()
+	if err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingConfigGet, node.ProductKey, node.DeviceName),
+		id, methodTopoGet, `{"configScope":"product","getType":"file"}`); err != nil {
+		return err
+	}
 }

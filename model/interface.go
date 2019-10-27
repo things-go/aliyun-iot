@@ -38,7 +38,7 @@ type DevUserProc interface {
 	DownstreamThingDesiredPropertyDeleteReply(rsp *Response) error
 	DownstreamThingDsltemplateGetReply(rsp *Response) error
 	DownstreamThingDynamictslGetReply(rsp *Response) error
-	DownstreamExtNtpResponse(rsp *NtpResponse) error
+	DownstreamExtNtpResponse(rsp *NtpResponsePayload) error
 	DownstreamExtErrorResponse(rsp *Response) error
 	DownstreamThingModelDownRaw(productKey, deviceName string, payload []byte) error
 	DownstreamThingServicePropertyGet(productKey, deviceName string, payload []byte) error

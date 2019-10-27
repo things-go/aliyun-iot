@@ -11,13 +11,14 @@ import (
 type MsgType byte
 
 const (
-	MsgTypeUpRaw                       MsgType = iota //!< post raw data to cloud
-	MsgTypePropertyPost                               //!< post property value to cloud
+	MsgTypeModelUpRaw                  MsgType = iota //!< post raw data to cloud
+	MsgTypeEventPropertyPost                          //!< post property value to cloud
 	MsgTypeEventPost                                  //!< post event identifies value to cloud
 	MsgTypeDeviceInfoUpdate                           //!< post device info update message to cloud
 	MsgTypeDeviceInfoDelete                           //!< post device info delete message to cloud
-	MsgTypePropertyDesiredGet                         //!< get a device's desired property
-	MsgTypePropertyDesiredDelete                      //!< delete a device's desired property
+	MsgTypeDesiredPropertyGet                         //!< get a device's desired property
+	MsgTypeDesiredPropertyDelete                      //!< delete a device's desired property
+	MsgTypeDsltemplateGet                             //<! get a device's dsltemplate
 	MsgTypeSubDevLogin                                //!< only for slave device, send login request to cloud
 	MsgTypeSubDevLogout                               //!< only for slave device, send logout request to cloud
 	MsgTypeSubDevDeleteTopo                           //!< only for slave device, send delete topo request to cloud
@@ -139,13 +140,13 @@ func (sf *Manager) SendResponse(uriService string, reportID int, code int, data 
 
 func (sf *Manager) AlinkReport(msgType MsgType, devID int, payload interface{}) error {
 	switch msgType {
-	case MsgTypePropertyPost:
+	case MsgTypeEventPropertyPost:
 		return sf.UpstreamThingEventPropertyPost(devID, payload)
 	case MsgTypeDeviceInfoUpdate:
 		return sf.UpstreamThingDeviceInfoUpdate(devID, payload)
 	case MsgTypeDeviceInfoDelete:
 		return sf.UpstreamThingDeviceInfoDelete(devID, payload)
-	case MsgTypeUpRaw:
+	case MsgTypeModelUpRaw:
 		return sf.UpstreamThingModelUpRaw(devID, payload)
 	case MsgTypeSubDevLogin:
 		// TODO
@@ -155,9 +156,9 @@ func (sf *Manager) AlinkReport(msgType MsgType, devID int, payload interface{}) 
 		// todo
 	case MsgTypeReportSubDevFirmwareVersion:
 		// TODO
-	case MsgTypePropertyDesiredGet:
+	case MsgTypeDesiredPropertyGet:
 		// TODO
-	case MsgTypePropertyDesiredDelete:
+	case MsgTypeDesiredPropertyDelete:
 		// TODO
 
 	}

@@ -16,6 +16,7 @@ const (
 	methodDesiredPropertyDelete = "thing.property.desired.delete"
 	methodDslTemplateGet        = "thing.dsltemplate.get"
 	methodDynamicTslGet         = "thing.dynamicTsl.get"
+	methodConfigGet             = "thing.config.get"
 
 	methodSubDevRegister = "thing.sub.register"
 	methodSubDevDisable  = "thing.disable"

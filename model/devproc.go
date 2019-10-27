@@ -18,16 +18,6 @@ func (DevNopUserProc) DownstreamThingEventPostReply(eventID string, rsp *Respons
 	return nil
 }
 
-func (DevNopUserProc) DownstreamThingDesiredPropertyGetReply(rsp *Response) error {
-	log.Println("DownstreamThingDesiredPropertyGetReply")
-	return nil
-}
-
-func (DevNopUserProc) DownstreamThingDesiredPropertyDeleteReply(rsp *Response) error {
-	log.Println("DownstreamThingDesiredPropertyDeleteReply")
-	return nil
-}
-
 func (DevNopUserProc) DownstreamThingDeviceInfoUpdateReply(rsp *Response) error {
 	log.Println("DownstreamThingDeviceInfoUpdateReply")
 	return nil
@@ -37,6 +27,15 @@ func (DevNopUserProc) DownstreamThingDeviceInfoDeleteReply(rsp *Response) error 
 	return nil
 }
 
+func (DevNopUserProc) DownstreamThingDesiredPropertyGetReply(rsp *Response) error {
+	log.Println("DownstreamThingDesiredPropertyGetReply")
+	return nil
+}
+
+func (DevNopUserProc) DownstreamThingDesiredPropertyDeleteReply(rsp *Response) error {
+	log.Println("DownstreamThingDesiredPropertyDeleteReply")
+	return nil
+}
 func (DevNopUserProc) DownstreamThingDsltemplateGetReply(rsp *Response) error {
 	log.Println("DownstreamThingDsltemplateGetReply")
 	return nil
@@ -46,7 +45,7 @@ func (DevNopUserProc) DownstreamThingDynamictslGetReply(rsp *Response) error {
 	log.Println("DownstreamThingDynamictslGetReply")
 	return nil
 }
-func (DevNopUserProc) DownstreamExtNtpResponse(rsp *NtpResponse) error {
+func (DevNopUserProc) DownstreamExtNtpResponse(rsp *NtpResponsePayload) error {
 	return nil
 }
 

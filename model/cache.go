@@ -38,7 +38,7 @@ func (sf *Manager) CacheInsert(id, devID int, msgType MsgType, data string) {
 }
 
 func (sf *Manager) CacheRemove(id int) {
-	if sf.opt.enableCache {
+	if !sf.opt.enableCache {
 		return
 	}
 	sf.msgCache.Delete(strconv.Itoa(id))

@@ -8,15 +8,6 @@ import (
 
 type ProcDownStreamFunc func(m *Manager, rawURI string, payload []byte) error
 
-// ProcThingModelDownRaw 处理透传
-func ProcThingModelDownRaw(m *Manager, rawURI string, payload []byte) error {
-	uris := URIServiceSpilt(rawURI)
-	if len(uris) != (m.opt.uriOffset + 6) {
-		return ErrInvalidURI
-	}
-	return m.devUserProc.DownstreamThingModelDownRaw(uris[m.opt.uriOffset+1], uris[m.opt.uriOffset+2], payload)
-}
-
 // ProcThingModelUpRawReply 处理透传上行的应答
 func ProcThingModelUpRawReply(m *Manager, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
@@ -27,7 +18,16 @@ func ProcThingModelUpRawReply(m *Manager, rawURI string, payload []byte) error {
 	return m.devUserProc.DownstreamThingModelUpRawReply(uris[m.opt.uriOffset+1], uris[m.opt.uriOffset+2], payload)
 }
 
-// ProcThingEventPost 处理ThingEventXXX的应答
+// ProcThingModelDownRaw 处理透传下行
+func ProcThingModelDownRaw(m *Manager, rawURI string, payload []byte) error {
+	uris := URIServiceSpilt(rawURI)
+	if len(uris) != (m.opt.uriOffset + 6) {
+		return ErrInvalidURI
+	}
+	return m.devUserProc.DownstreamThingModelDownRaw(uris[m.opt.uriOffset+1], uris[m.opt.uriOffset+2], payload)
+}
+
+// ProcThingEventPost 处理ThingEvent XXX的应答
 func ProcThingEventPostReply(m *Manager, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) != (m.opt.uriOffset + 7) {
@@ -42,12 +42,9 @@ func ProcThingEventPostReply(m *Manager, rawURI string, payload []byte) error {
 
 	m.CacheRemove(rsp.ID)
 	if EventID == "property" {
-		_ = m.devUserProc.DownstreamThingEventPropertyPostReply(&rsp)
-	} else {
-		_ = m.devUserProc.DownstreamThingEventPostReply(EventID, &rsp)
+		return m.devUserProc.DownstreamThingEventPropertyPostReply(&rsp)
 	}
-
-	return nil
+	return m.devUserProc.DownstreamThingEventPostReply(EventID, &rsp)
 }
 
 func ProcThingDeviceInfoUpdateReply(m *Manager, rawURI string, payload []byte) error {
@@ -55,6 +52,7 @@ func ProcThingDeviceInfoUpdateReply(m *Manager, rawURI string, payload []byte) e
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
+	m.CacheRemove(rsp.ID)
 	return m.devUserProc.DownstreamThingDeviceInfoUpdateReply(&rsp)
 }
 
@@ -63,16 +61,38 @@ func ProcThingDeviceInfoDeleteReply(m *Manager, rawURI string, payload []byte) e
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
+	m.CacheRemove(rsp.ID)
 	return m.devUserProc.DownstreamThingDeviceInfoDeleteReply(&rsp)
 }
+
+func ProcThingDesiredPropertyGetReply(m *Manager, rawURI string, payload []byte) error {
+	rsp := Response{}
+	if err := json.Unmarshal(payload, &rsp); err != nil {
+		return err
+	}
+	m.CacheRemove(rsp.ID)
+	return m.devUserProc.DownstreamThingDesiredPropertyGetReply(&rsp)
+}
+
+func ProcThingDesiredPropertyDeleteReply(m *Manager, rawURI string, payload []byte) error {
+	rsp := Response{}
+	if err := json.Unmarshal(payload, &rsp); err != nil {
+		return err
+	}
+	m.CacheRemove(rsp.ID)
+	return m.devUserProc.DownstreamThingDesiredPropertyDeleteReply(&rsp)
+}
+
 func ProcThingDsltemplateGetReply(m *Manager, rawURI string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
-
+	m.CacheRemove(rsp.ID)
 	return m.devUserProc.DownstreamThingDsltemplateGetReply(&rsp)
 }
+
+// TODO: 需确认
 func ProcThingDynamictslGetReply(m *Manager, rawURI string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
@@ -105,7 +125,7 @@ func ProcThingServiceRequest(m *Manager, rawURI string, payload []byte) error {
 }
 
 func ProcExtNtpResponse(m *Manager, rawURI string, payload []byte) error {
-	rsp := NtpResponse{}
+	rsp := NtpResponsePayload{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
