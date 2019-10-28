@@ -74,7 +74,7 @@ func Register2Cloud(meta *MetaInfo, region CloudRegion, signMethod ...string) er
 	}
 
 	signMd := append(signMethod, signMethodSHA256)[0]
-	if !(signMd == "hmacmd5" || signMd == "hmacsha1" || (signMd == signMethodSHA256)) {
+	if !(signMd == signMethodMD5 || signMd == signMethodSHA1 || (signMd == signMethodSHA256)) {
 		signMd = signMethodSHA256
 	}
 	// 计算签名 Signature

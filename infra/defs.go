@@ -7,8 +7,8 @@ const (
 
 // 签名方法
 const (
-	SignMethodSHA256     = "Sha256"
-	SignMethodHMACMD5    = "hmacMd5"
-	SignMethodHMACSHA1   = "hmacSha1"
-	SignMethodHMACSHA256 = "hmacSha256"
+	SignMethodSHA256     = "sha256"
+	SignMethodHMACMD5    = "hmacmd5"
+	SignMethodHMACSHA1   = "hmacsha1"
+	SignMethodHMACSHA256 = "hmacsha256"
 )

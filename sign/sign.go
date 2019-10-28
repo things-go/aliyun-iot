@@ -136,7 +136,7 @@ func (sf *MQTTSign) SetSupportSecureMode(mode SecureMode) *MQTTSign {
 }
 
 // SetSupportDeviceModel 设置支持物模型
-func (sf *MQTTSign) SetDisableDeviceModel(enable bool) *MQTTSign {
+func (sf *MQTTSign) SetSupportDeviceModel(enable bool) *MQTTSign {
 	if enable {
 		sf.clientIDkv["v"] = alinkVersion
 		delete(sf.clientIDkv, "gw")
