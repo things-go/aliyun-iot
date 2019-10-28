@@ -151,22 +151,26 @@ func ProcThingConfigPush(m *Manager, rawURI string, payload []byte) error {
 	return m.devUserProc.DownstreamThingConfigPush(m, &req)
 }
 
+// ProcThingServicePropertySet 属性设置调用
+// 处理 thing/service/property/set
+func ProcThingServicePropertySet(m *Manager, rawURI string, payload []byte) error {
+	uris := URIServiceSpilt(rawURI)
+	if len(uris) < (m.cfg.uriOffset + 7) {
+		return ErrInvalidURI
+	}
+	m.debug("downstream thing <service>: property set requst")
+	return m.devUserProc.DownstreamThingServicePropertySet(m, rawURI, payload)
+}
+
 // ProcThingServiceRequest 服务调用
-// 主要处理 thing/service/property/set, thing/service/{tsl.event.identifier}
+// 处理 thing/service/{tsl.event.identifier}
 func ProcThingServiceRequest(m *Manager, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (m.cfg.uriOffset + 6) {
 		return ErrInvalidURI
 	}
-
 	serviceID := uris[m.cfg.uriOffset+5]
 	m.debug("downstream thing <service>: %s set requst", serviceID)
-	if serviceID == "property" &&
-		len(uris) >= (m.cfg.uriOffset+7) &&
-		uris[m.cfg.uriOffset+6] == "set" {
-		return m.devUserProc.DownstreamThingServicePropertySet(m, rawURI, payload)
-	}
-
 	return m.devUserProc.DownstreamThingServiceRequest(m, uris[m.cfg.uriOffset+1], uris[m.cfg.uriOffset+2], serviceID, payload)
 }
 
