@@ -6,7 +6,7 @@ import (
 )
 
 // 设备本身, 对于网关,独立设备,就是指代本身
-const DevSelf = 0
+const DevLocal = 0
 
 type DevType byte
 

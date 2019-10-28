@@ -56,7 +56,7 @@ func main() {
 	_ = manage.Subscribe(manage.URIServiceSelf(model.URISysPrefix, model.URIThingModelDownRaw), model.ProcThingModelDownRaw)
 
 	for {
-		err = manage.UpstreamThingModelUpRaw(model.DevSelf, bPayload)
+		err = manage.UpstreamThingModelUpRaw(model.DevLocal, bPayload)
 		if err != nil {
 			log.Printf("error: %#v", err)
 		}

@@ -75,7 +75,7 @@ func EventPostTest() {
 
 	go func() {
 		for {
-			err := manage.UpstreamThingEventPost(model.DevSelf, "tempAlarm", map[string]interface{}{
+			err := manage.UpstreamThingEventPost(model.DevLocal, "tempAlarm", map[string]interface{}{
 				"high": 1,
 			})
 			if err != nil {
@@ -87,7 +87,7 @@ func EventPostTest() {
 	}()
 
 	for {
-		err := manage.UpstreamThingEventPropertyPost(model.DevSelf, map[string]interface{}{
+		err := manage.UpstreamThingEventPropertyPost(model.DevLocal, map[string]interface{}{
 			"Temp":         rand.Intn(200),
 			"Humi":         rand.Intn(100),
 			"switchStatus": rand.Intn(1),
@@ -106,7 +106,7 @@ func DeviceInfoTest() {
 	_ = manage.Subscribe(manage.URIServiceSelf(model.URISysPrefix, model.URIThingDeviceInfoDeleteReply),
 		model.ProcThingDeviceInfoDeleteReply)
 
-	if err := manage.UpstreamThingDeviceInfoUpdate(model.DevSelf,
+	if err := manage.UpstreamThingDeviceInfoUpdate(model.DevLocal,
 		[]dm.DevInfoLabelUpdate{
 			{AttrKey: "attrKey", AttrValue: "attrValue"},
 		}); err != nil {
@@ -114,7 +114,7 @@ func DeviceInfoTest() {
 		return
 	}
 	time.Sleep(time.Minute * 1)
-	if err := manage.UpstreamThingDeviceInfoDelete(model.DevSelf,
+	if err := manage.UpstreamThingDeviceInfoDelete(model.DevLocal,
 		[]dm.DevInfoLabelDelete{
 			{AttrKey: "attrKey"},
 		}); err != nil {
@@ -131,7 +131,7 @@ func ConfigTest() {
 	_ = manage.Subscribe(manage.URIServiceSelf(model.URISysPrefix, model.URIThingConfigPush),
 		model.ProcThingConfigPush)
 
-	err := manage.UpstreamThingConfigGet(model.DevSelf)
+	err := manage.UpstreamThingConfigGet(model.DevLocal)
 	if err != nil {
 		log.Println(err)
 		return
@@ -141,7 +141,7 @@ func ConfigTest() {
 func DslTemplateTest() {
 	_ = manage.Subscribe(manage.URIServiceSelf(model.URISysPrefix, model.URIThingDslTemplateGetReply),
 		model.ProcThingDsltemplateGetReply)
-	err := manage.UpstreamThingDsltemplateGet(model.DevSelf)
+	err := manage.UpstreamThingDsltemplateGet(model.DevLocal)
 	if err != nil {
 		log.Println(err)
 		return

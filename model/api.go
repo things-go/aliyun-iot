@@ -2,6 +2,7 @@ package model
 
 import (
 	"encoding/json"
+	"fmt"
 	"sync/atomic"
 	"time"
 
@@ -79,9 +80,34 @@ func New(opt *Config) *Manager {
 		sf.msgCache = cache.New(time.Second*10, time.Second*30)
 	}
 	sf.CacheInit()
-	_, _ = sf.Create(DevTypeSingle, opt.productKey, opt.deviceName, opt.deviceSecret)
+	err := sf.insert(DevLocal, DevTypeSingle, opt.productKey, opt.deviceName, opt.deviceSecret)
+	if err != nil {
+		panic(fmt.Sprintf("device local duplicate,cause: ", err))
+	}
 	return sf
 }
+
+func (sf *Manager) Connect() error {
+	var devType DevType
+	if sf.cfg.hasGateway {
+		devType = DevTypeGateway
+	} else {
+		devType = DevTypeSingle
+	}
+	return sf.SubscribeAllTopic(devType, sf.cfg.productKey, sf.cfg.deviceName)
+}
+
+//
+//func (sf *Manager) NewSubDevice(devType int, info *MetaInfo) (int, error) {
+//	if !sf.cfg.hasGateway {
+//		return 0, ErrFeatureNotSupport
+//	}
+//	return sf.Create(DevTypeSubDev, info.ProductKey, info.DeviceName, info.DeviceSecret)
+//}
+//
+//func (sf *Manager) SubDeviceConnect(id int) {
+//
+//}
 
 // SetConn 设置连接接口
 func (sf *Manager) SetConn(conn Conn) *Manager {
