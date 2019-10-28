@@ -3,15 +3,13 @@ package aliIOT
 import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/thinkgos/aliIOT/clog"
-	"github.com/thinkgos/aliIOT/feature"
 	"github.com/thinkgos/aliIOT/model"
 )
 
 type MQTTClient struct {
 	c mqtt.Client
 	*model.Manager
-	features *feature.Options
-	log      *clog.Clog
+	log *clog.Clog
 }
 
 func (sf *MQTTClient) Publish(topic string, qos byte, payload interface{}) error {
@@ -47,7 +45,7 @@ func (sf *MQTTClient) UnderlyingClient() interface{} {
 
 func NewWithMQTT(config *model.Config, c mqtt.Client) *MQTTClient {
 	m := model.New(config)
-	mqttCli := &MQTTClient{c, m, config.FeatureOption(), clog.NewWithPrefix("mqtt --> ")}
+	mqttCli := &MQTTClient{c, m, clog.NewWithPrefix("mqtt --> ")}
 	m.SetConn(mqttCli)
 	return mqttCli
 }

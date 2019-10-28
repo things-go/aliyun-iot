@@ -86,7 +86,6 @@ func New(opt *Config) *Manager {
 // SetConn 设置连接接口
 func (sf *Manager) SetConn(conn Conn) *Manager {
 	sf.Conn = conn
-
 	return sf
 }
 

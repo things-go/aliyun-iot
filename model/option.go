@@ -2,8 +2,6 @@ package model
 
 import (
 	"time"
-
-	"github.com/thinkgos/aliIOT/feature"
 )
 
 // 默认值
@@ -31,7 +29,12 @@ type Config struct {
 	cacheExpiration      time.Duration
 	cacheCleanupInterval time.Duration
 	enableCache          bool
-	*feature.Options
+
+	hasNTP      bool
+	hasRawModel bool
+	hasDesired  bool
+	hasExtRRPC  bool
+	hasGateway  bool
 }
 
 // NewOption 创建选项
@@ -43,7 +46,6 @@ func NewOption(productKey, deviceName, deviceSecret string) *Config {
 
 		cacheExpiration:      DefaultExpiration,
 		cacheCleanupInterval: DefaultCleanupInterval,
-		Options:              feature.New(),
 	}
 }
 
@@ -94,6 +96,30 @@ func (sf *Config) EnableHTTP(enable bool) *Config {
 	return sf
 }
 
-func (sf *Config) FeatureOption() *feature.Options {
-	return sf.Options
+func (sf *Config) EnableNTP() *Config {
+	sf.hasNTP = true
+	return sf
+}
+
+// 使能透传 EnableModelRaw
+func (sf *Config) EnableModelRaw() *Config {
+	sf.hasRawModel = true
+	return sf
+}
+
+// EnableDesired 使能期望属性
+func (sf *Config) EnableDesired() *Config {
+	sf.hasDesired = true
+	return sf
+}
+
+// EnableExtRRPC 使能扩展RRPC功能
+func (sf *Config) EnableExtRRPC() *Config {
+	sf.hasExtRRPC = true
+	return sf
+}
+
+func (sf *Config) EnableGateway() *Config {
+	sf.hasGateway = true
+	return sf
 }
