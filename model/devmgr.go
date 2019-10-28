@@ -9,17 +9,28 @@ import (
 // 设备本身, 对于网关,独立设备,就是指代本身
 const DevSelf = 0
 
+type DevType byte
+
+const (
+	DevTypeSingle = 1 << iota
+	DevTypeSubdev
+	DevTypeGateway
+
+	DevTypeMain = DevTypeSingle | DevTypeSubdev
+	DevTypeALl
+)
+
 // DevStatus 设备状态
 type DevStatus byte
 
 // 设备状态
 const (
-	DevStatusUnauthorized = iota // Subdev Created
-	DevStatusAuthorized          // Receive Topo Add Notify
-	DevStatusRegistered          // Receive Subdev Registered
-	DevStatusAttached            // Receive Subdev Topo Add Reply
-	DevStatusLogined             // Receive Subdev Login Reply
-	DevStatusOnline              // After All Topic Subscribed
+	DevStatusUnauthorized DevStatus = iota // Subdev Created
+	DevStatusAuthorized                    // Receive Topo Add Notify
+	DevStatusRegistered                    // Receive Subdev Registered
+	DevStatusAttached                      // Receive Subdev Topo Add Reply
+	DevStatusLogined                       // Receive Subdev Login Reply
+	DevStatusOnline                        // After All Topic Subscribed
 )
 
 // 设备有效
@@ -41,7 +52,7 @@ type devMgr struct {
 // 设备节点
 type DevNode struct {
 	id           int
-	types        string
+	types        DevType
 	ProductKey   string
 	DeviceName   string
 	DeviceSecret string
@@ -69,7 +80,7 @@ func (sf *devMgr) Len() int {
 }
 
 // Create 创建一个设备,并返回设备ID
-func (sf *devMgr) Create(types, productKey, deviceName, deviceSecret string) (int, error) {
+func (sf *devMgr) Create(types DevType, productKey, deviceName, deviceSecret string) (int, error) {
 	if productKey == "" ||
 		deviceName == "" ||
 		deviceSecret == "" {
@@ -271,9 +282,9 @@ func (sf *devMgr) SetDeviceSecret(devID int, deviceSecret string) error {
 }
 
 // 获得设备类型
-func (sf *devMgr) DevTypes(devID int) (string, error) {
+func (sf *devMgr) DevTypes(devID int) (DevType, error) {
 	if devID < 0 {
-		return "", ErrInvalidParameter
+		return 0, ErrInvalidParameter
 	}
 
 	sf.rw.RLock()
@@ -281,7 +292,7 @@ func (sf *devMgr) DevTypes(devID int) (string, error) {
 
 	node, err := sf.searchByID(devID)
 	if err != nil {
-		return "", err
+		return 0, err
 	}
 	return node.types, nil
 }
@@ -302,6 +313,6 @@ func (sf *DevNode) Avail() DevAvail {
 }
 
 // ID 返回设备类型
-func (sf *DevNode) Types() string {
+func (sf *DevNode) Types() DevType {
 	return sf.types
 }

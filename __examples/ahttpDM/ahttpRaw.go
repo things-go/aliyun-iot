@@ -26,8 +26,6 @@ func main() {
 		err := manage.UpstreamThingModelUpRaw(model.DevSelf, bPayload)
 		if err != nil {
 			fmt.Println(err)
-		} else {
-			fmt.Println("success")
 		}
 		time.Sleep(time.Second * 10)
 	}

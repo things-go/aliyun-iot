@@ -79,7 +79,7 @@ func New(opt *Config) *Manager {
 		sf.msgCache = cache.New(time.Second*10, time.Second*30)
 	}
 	sf.CacheInit()
-	_, _ = sf.Create("itself", opt.productKey, opt.deviceName, opt.deviceSecret)
+	_, _ = sf.Create(DevTypeSingle, opt.productKey, opt.deviceName, opt.deviceSecret)
 	return sf
 }
 

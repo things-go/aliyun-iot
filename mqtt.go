@@ -3,49 +3,51 @@ package aliIOT
 import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/thinkgos/aliIOT/clog"
+	"github.com/thinkgos/aliIOT/feature"
 	"github.com/thinkgos/aliIOT/model"
 )
 
-type mqttClient struct {
-	c         mqtt.Client
-	containOf *model.Manager
-	log       *clog.Clog
+type MQTTClient struct {
+	c mqtt.Client
+	*model.Manager
+	features *feature.Options
+	log      *clog.Clog
 }
 
-func (sf *mqttClient) Publish(topic string, qos byte, payload interface{}) error {
+func (sf *MQTTClient) Publish(topic string, qos byte, payload interface{}) error {
 	return sf.c.Publish(topic, qos, false, payload).Error()
 }
 
-func (sf *mqttClient) UnderlyingClient() interface{} {
-	return sf.c
-}
-
-func (sf *mqttClient) Subscribe(topic string, streamFunc model.ProcDownStreamFunc) error {
+func (sf *MQTTClient) Subscribe(topic string, streamFunc model.ProcDownStreamFunc) error {
 	return sf.c.Subscribe(topic, 1, func(client mqtt.Client, message mqtt.Message) {
 		if message.Duplicate() {
 			return
 		}
-		if err := streamFunc(sf.containOf, message.Topic(), message.Payload()); err != nil {
+		if err := streamFunc(sf.Manager, message.Topic(), message.Payload()); err != nil {
 			sf.log.Error("topic: %s, Error: %+v", message.Topic(), err)
 		}
 	}).Error()
 }
 
-func (sf *mqttClient) LogProvider() clog.LogProvider {
+func (sf *MQTTClient) UnSubscribe(topic ...string) error {
+	return sf.c.Unsubscribe(topic...).Error()
+}
+
+func (sf *MQTTClient) LogProvider() clog.LogProvider {
 	return sf.log
 }
 
-func (sf *mqttClient) LogMode(enable bool) {
+func (sf *MQTTClient) LogMode(enable bool) {
 	sf.log.LogMode(enable)
 }
 
-func NewWithMQTT(config *model.Config, c mqtt.Client) *Client {
-	sf := model.New(config)
-	return &Client{
-		sf.SetConn(&mqttClient{
-			c:         c,
-			containOf: sf,
-			log:       clog.NewWithPrefix("mqtt --> ")}),
-		config.FeatureOption(),
-	}
+func (sf *MQTTClient) UnderlyingClient() interface{} {
+	return sf.c
+}
+
+func NewWithMQTT(config *model.Config, c mqtt.Client) *MQTTClient {
+	m := model.New(config)
+	mqttCli := &MQTTClient{c, m, config.FeatureOption(), clog.NewWithPrefix("mqtt --> ")}
+	m.SetConn(mqttCli)
+	return mqttCli
 }

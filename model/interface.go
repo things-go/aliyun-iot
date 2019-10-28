@@ -8,8 +8,8 @@ import (
 type Conn interface {
 	// Publish will publish a message with the specified QoS and content
 	Publish(topic string, qos byte, payload interface{}) error
-	UnderlyingClient() interface{}
-	Subscribe(topic string, streamFunc ProcDownStreamFunc) error
+	Subscribe(topic string, callback ProcDownStreamFunc) error
+	UnSubscribe(topic ...string) error
 	// 目志调试
 	LogProvider() clog.LogProvider
 	LogMode(enable bool)
