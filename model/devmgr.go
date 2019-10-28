@@ -1,7 +1,6 @@
 package model
 
 import (
-	"container/list"
 	"errors"
 	"sync"
 )
@@ -46,7 +45,7 @@ const (
 type devMgr struct {
 	globalDevID int
 	rw          sync.RWMutex
-	listHead    *list.List
+	nodes       map[int]*DevNode
 }
 
 // 设备节点
@@ -62,8 +61,8 @@ type DevNode struct {
 
 func newDevMgr() *devMgr {
 	return &devMgr{
-		globalDevID: 0,
-		listHead:    list.New(),
+		globalDevID: 1,
+		nodes:       make(map[int]*DevNode),
 	}
 }
 
@@ -76,7 +75,9 @@ func (sf *devMgr) nestDevID() int {
 
 // Len 设备个数
 func (sf *devMgr) Len() int {
-	return sf.listHead.Len()
+	sf.rw.RLock()
+	defer sf.rw.Unlock()
+	return len(sf.nodes)
 }
 
 // Create 创建一个设备,并返回设备ID
@@ -86,67 +87,71 @@ func (sf *devMgr) Create(types DevType, productKey, deviceName, deviceSecret str
 		deviceSecret == "" {
 		return 0, errors.New("invalid parameter")
 	}
+	sf.rw.Lock()
+	defer sf.rw.Unlock()
+
 	node, err := sf.searchByPkDn(productKey, deviceName)
 	if err == nil {
 		return node.id, nil
 	}
 
 	id := sf.nestDevID()
-	sf.listHead.PushBack(&DevNode{
+	sf.nodes[id] = &DevNode{
 		id:           id,
 		types:        types,
 		ProductKey:   productKey,
 		DeviceName:   deviceName,
 		DeviceSecret: deviceSecret,
-	})
+	}
 	return id, nil
 }
 
-// DeleteByID 删除一个设备
-func (sf *devMgr) DeleteByID(devID int) error {
-	if devID < 0 {
-		return ErrInvalidParameter
+func (sf *devMgr) insert(devID int, types DevType, productKey, deviceName, deviceSecret string) error {
+	if productKey == "" ||
+		deviceName == "" ||
+		deviceSecret == "" {
+		return errors.New("invalid parameter")
 	}
 
 	sf.rw.Lock()
 	defer sf.rw.Unlock()
-	var next *list.Element
-	for e := sf.listHead.Front(); e != nil; e = next {
-		next = e.Next()
-		node := e.Value.(*DevNode)
-		if node.id == devID {
-			sf.listHead.Remove(e)
-			break
-		}
+
+	if _, exist := sf.nodes[devID]; exist {
+		return errors.New("device node has exist")
+	}
+	sf.nodes[devID] = &DevNode{
+		id:           devID,
+		types:        types,
+		ProductKey:   productKey,
+		DeviceName:   deviceName,
+		DeviceSecret: deviceSecret,
 	}
 	return nil
+}
+
+// DeleteByID 删除一个设备
+func (sf *devMgr) DeleteByID(devID int) {
+	if devID < 0 {
+		return
+	}
+
+	sf.rw.Lock()
+	delete(sf.nodes, devID)
+	sf.rw.Unlock()
 }
 
 // DeleteByPkDn 删除一个子设备
-func (sf *devMgr) DeleteByPkDn(productKey, deviceName string) error {
+func (sf *devMgr) DeleteByPkDn(productKey, deviceName string) {
 	sf.rw.Lock()
 	defer sf.rw.Unlock()
-	var next *list.Element
-	for e := sf.listHead.Front(); e != nil; e = next {
-		next = e.Next()
-		node := e.Value.(*DevNode)
+
+	for id, node := range sf.nodes {
 		if node.ProductKey == productKey &&
 			node.DeviceName == deviceName {
-			sf.listHead.Remove(e)
+			delete(sf.nodes, id)
+			return
 		}
 	}
-	return nil
-}
-
-// searchByID 使用devID寻找一个节点,需要带锁操作
-func (sf *devMgr) searchByID(devID int) (*DevNode, error) {
-	for e := sf.listHead.Front(); e != nil; e = e.Next() {
-		node := e.Value.(*DevNode)
-		if node.id == devID {
-			return node, nil
-		}
-	}
-	return nil, ErrNotFound
 }
 
 // SearchByID 使用devID寻找一个节点
@@ -154,33 +159,30 @@ func (sf *devMgr) SearchByID(devID int) (int, error) {
 	sf.rw.RLock()
 	defer sf.rw.RUnlock()
 
-	node, err := sf.searchByID(devID)
-	if err != nil {
-		return 0, err
+	node, exist := sf.nodes[devID]
+	if !exist {
+		return 0, ErrNotFound
 	}
 	return node.id, nil
 }
 
 // SearchNodeByID 使用devID查找一个设备节点信息
 func (sf *devMgr) SearchNodeByID(devID int) (DevNode, error) {
-	if devID < 0 {
-		return DevNode{}, ErrInvalidParameter
-	}
 	sf.rw.RLock()
 	defer sf.rw.RUnlock()
-	node, err := sf.searchByID(devID)
-	if err != nil {
-		return DevNode{}, err
+	node, exist := sf.nodes[devID]
+	if !exist {
+		return DevNode{}, ErrNotFound
 	}
-	return *node, err
+	return *node, nil
 }
 
 // searchByPkDn 使用productKey deviceName查找一个节点,需要带锁
 func (sf *devMgr) searchByPkDn(productKey, deviceName string) (*DevNode, error) {
-	for e := sf.listHead.Front(); e != nil; e = e.Next() {
-		node := e.Value.(*DevNode)
+	for id, node := range sf.nodes {
 		if node.ProductKey == productKey &&
 			node.DeviceName == deviceName {
+			delete(sf.nodes, id)
 			return node, nil
 		}
 	}
@@ -212,15 +214,12 @@ func (sf *devMgr) SearchNodeByPkDn(productKey, deviceName string) (DevNode, erro
 
 // SetDevAvail 设置avail
 func (sf *devMgr) SetDevAvail(devID int, enable bool) error {
-	if devID < 0 {
-		return ErrInvalidParameter
-	}
 	sf.rw.Lock()
 	defer sf.rw.Unlock()
 
-	node, err := sf.searchByID(devID)
-	if err != nil {
-		return err
+	node, exist := sf.nodes[devID]
+	if !exist {
+		return ErrNotFound
 	}
 	if enable {
 		node.avail = DevAvailEnable
@@ -250,8 +249,8 @@ func (sf *devMgr) SetDevStatus(devID int, status DevStatus) error {
 	sf.rw.Lock()
 	defer sf.rw.Unlock()
 
-	node, err := sf.searchByID(devID)
-	if err != nil {
+	node, exist := sf.nodes[devID]
+	if !exist {
 		return ErrNotFound
 	}
 	node.status = status
@@ -262,9 +261,10 @@ func (sf *devMgr) SetDevStatus(devID int, status DevStatus) error {
 func (sf *devMgr) DevStatus(devID int) (DevStatus, error) {
 	sf.rw.RLock()
 	defer sf.rw.Unlock()
-	node, err := sf.searchByID(devID)
-	if err != nil {
-		return DevStatusUnauthorized, err
+
+	node, exist := sf.nodes[devID]
+	if !exist {
+		return DevStatusUnauthorized, ErrNotFound
 	}
 	return node.status, nil
 }
@@ -273,9 +273,10 @@ func (sf *devMgr) DevStatus(devID int) (DevStatus, error) {
 func (sf *devMgr) SetDeviceSecret(devID int, deviceSecret string) error {
 	sf.rw.Lock()
 	defer sf.rw.Unlock()
-	node, err := sf.searchByID(devID)
-	if err != nil {
-		return err
+
+	node, exist := sf.nodes[devID]
+	if !exist {
+		return ErrNotFound
 	}
 	node.DeviceSecret = deviceSecret
 	return nil
@@ -283,16 +284,12 @@ func (sf *devMgr) SetDeviceSecret(devID int, deviceSecret string) error {
 
 // 获得设备类型
 func (sf *devMgr) DevTypes(devID int) (DevType, error) {
-	if devID < 0 {
-		return 0, ErrInvalidParameter
-	}
-
 	sf.rw.RLock()
 	defer sf.rw.RUnlock()
 
-	node, err := sf.searchByID(devID)
-	if err != nil {
-		return 0, err
+	node, exist := sf.nodes[devID]
+	if !exist {
+		return 0, ErrNotFound
 	}
 	return node.types, nil
 }
