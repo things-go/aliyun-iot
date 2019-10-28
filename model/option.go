@@ -2,6 +2,8 @@ package model
 
 import (
 	"time"
+
+	"github.com/thinkgos/aliIOT/feature"
 )
 
 // 默认值
@@ -17,57 +19,59 @@ const (
 	workOnHTTP
 )
 
-// Options
-type Options struct {
+// Config
+type Config struct {
 	productKey   string
 	deviceName   string
 	deviceSecret string
-	enableCache  bool
 
 	uriOffset int
 	workOnWho byte
 
-	expiration      time.Duration
-	cleanupInterval time.Duration
+	cacheExpiration      time.Duration
+	cacheCleanupInterval time.Duration
+	enableCache          bool
+	*feature.Options
 }
 
 // NewOption 创建选项
-func NewOption(productKey, deviceName, deviceSecret string) *Options {
-	return &Options{
+func NewOption(productKey, deviceName, deviceSecret string) *Config {
+	return &Config{
 		productKey:   productKey,
 		deviceName:   deviceName,
 		deviceSecret: deviceSecret,
 
-		expiration:      DefaultExpiration,
-		cleanupInterval: DefaultCleanupInterval,
+		cacheExpiration:      DefaultExpiration,
+		cacheCleanupInterval: DefaultCleanupInterval,
+		Options:              feature.New(),
 	}
 }
 
 // Valid 校验消息有效,无效采用相应默认值
-func (sf *Options) Valid() *Options {
+func (sf *Config) Valid() *Config {
 	return sf
 }
 
 // MetaInfo 获取设备mata info
-func (sf *Options) MetaInfo() (productKey, deviceName, deviceSecret string) {
+func (sf *Config) MetaInfo() (productKey, deviceName, deviceSecret string) {
 	return sf.productKey, sf.deviceName, sf.deviceSecret
 }
 
 // SetEnableCache 使能消息缓存
-func (sf *Options) SetEnableCache(enable bool) *Options {
+func (sf *Config) SetEnableCache(enable bool) *Config {
 	sf.enableCache = enable
 	return sf
 }
 
 // SetCacheTimeout 设备消息缓存超时时间
-func (sf *Options) SetCacheTimeout(expiration, cleanupInterval time.Duration) *Options {
-	sf.expiration = expiration
-	sf.cleanupInterval = cleanupInterval
+func (sf *Config) SetCacheTimeout(expiration, cleanupInterval time.Duration) *Config {
+	sf.cacheExpiration = expiration
+	sf.cacheCleanupInterval = cleanupInterval
 	return sf
 }
 
 // EnableCOAP 采用COAP
-func (sf *Options) EnableCOAP(enable bool) *Options {
+func (sf *Config) EnableCOAP(enable bool) *Config {
 	if enable {
 		sf.workOnWho = workOnCOAP
 		sf.uriOffset = 1
@@ -79,7 +83,7 @@ func (sf *Options) EnableCOAP(enable bool) *Options {
 }
 
 // EnableCOAP 采用HTTP
-func (sf *Options) EnableHTTP(enable bool) *Options {
+func (sf *Config) EnableHTTP(enable bool) *Config {
 	if enable {
 		sf.workOnWho = workOnHTTP
 		sf.uriOffset = 1
@@ -88,4 +92,8 @@ func (sf *Options) EnableHTTP(enable bool) *Options {
 		sf.uriOffset = 0
 	}
 	return sf
+}
+
+func (sf *Config) FeatureOption() *feature.Options {
+	return sf.Options
 }

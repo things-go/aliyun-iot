@@ -31,10 +31,6 @@ func (sf *mqttClient) Subscribe(topic string, streamFunc model.ProcDownStreamFun
 	}).Error()
 }
 
-func (sf *mqttClient) ContainerOf() *model.Manager {
-	return sf.containOf
-}
-
 func (sf *mqttClient) LogProvider() clog.LogProvider {
 	return sf.log
 }
@@ -43,7 +39,13 @@ func (sf *mqttClient) LogMode(enable bool) {
 	sf.log.LogMode(enable)
 }
 
-func NewWithMQTT(options *model.Options, c mqtt.Client) *model.Manager {
-	sf := model.New(options)
-	return sf.SetConn(&mqttClient{c: c, containOf: sf, log: clog.NewWithPrefix("mqtt --> ")})
+func NewWithMQTT(config *model.Config, c mqtt.Client) *Client {
+	sf := model.New(config)
+	return &Client{
+		sf.SetConn(&mqttClient{
+			c:         c,
+			containOf: sf,
+			log:       clog.NewWithPrefix("mqtt --> ")}),
+		config.FeatureOption(),
+	}
 }

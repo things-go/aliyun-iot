@@ -56,7 +56,7 @@ type Response struct {
 type Manager struct {
 	requestID int32
 
-	opt Options
+	cfg Config
 
 	*devMgr
 	msgCache *cache.Cache
@@ -67,9 +67,9 @@ type Manager struct {
 }
 
 // New 创建一个物管理
-func New(opt *Options) *Manager {
+func New(opt *Config) *Manager {
 	sf := &Manager{
-		opt:         *opt,
+		cfg:         *opt,
 		devMgr:      newDevMgr(),
 		gwUserProc:  GwNopUserProc{},
 		devUserProc: DevNopUserProc{},

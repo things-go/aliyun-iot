@@ -11,15 +11,14 @@ type messageCacheEntry struct {
 	id      int
 	devID   int // 设备id
 	data    string
-	count   int
 }
 
 func (sf *Manager) CacheInit() {
-	if !sf.opt.enableCache {
+	if !sf.cfg.enableCache {
 		return
 	}
 	sf.pool = newPool()
-	sf.msgCache = cache.New(sf.opt.expiration, sf.opt.cleanupInterval)
+	sf.msgCache = cache.New(sf.cfg.cacheExpiration, sf.cfg.cacheCleanupInterval)
 	sf.msgCache.OnEvicted(func(s string, v interface{}) { // 超时处理
 		sf.pool.Put(v)
 		sf.debug("cache timeout - %s", s)
@@ -27,7 +26,7 @@ func (sf *Manager) CacheInit() {
 }
 
 func (sf *Manager) CacheInsert(id, devID int, msgType MsgType, data string) {
-	if !sf.opt.enableCache {
+	if !sf.cfg.enableCache {
 		return
 	}
 	entry := sf.pool.Get()
@@ -40,7 +39,7 @@ func (sf *Manager) CacheInsert(id, devID int, msgType MsgType, data string) {
 }
 
 func (sf *Manager) CacheRemove(id int) {
-	if !sf.opt.enableCache {
+	if !sf.cfg.enableCache {
 		return
 	}
 	sf.msgCache.Delete(strconv.Itoa(id))

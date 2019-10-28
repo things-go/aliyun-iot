@@ -21,7 +21,7 @@ const (
 	deviceSecret  = "CsC7Gmb6EvDLOm8V40HLOQwFPdc3KCHT"
 )
 
-var manage *model.Manager
+var manage *aliIOT.Client
 
 func main() {
 	signs, err := sign.NewMQTTSign().

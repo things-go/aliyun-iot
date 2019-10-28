@@ -10,7 +10,6 @@ type Conn interface {
 	Publish(topic string, qos byte, payload interface{}) error
 	UnderlyingClient() interface{}
 	Subscribe(topic string, streamFunc ProcDownStreamFunc) error
-	ContainerOf() *Manager
 	// 目志调试
 	LogProvider() clog.LogProvider
 	LogMode(enable bool)

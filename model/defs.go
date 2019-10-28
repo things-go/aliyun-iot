@@ -7,7 +7,7 @@ const (
 
 // method 定义
 const (
-	methodModelUpRaw            = "thing.model.up_raw"
+	//methodModelUpRaw            = "thing.model.up_raw"
 	methodEventPropertyPost     = "thing.event.property.post"
 	methodEventFormatPost       = "thing.event.%s.post"
 	methodDeviceInfoUpdate      = "thing.deviceinfo.update"
@@ -19,10 +19,10 @@ const (
 	methodConfigGet             = "thing.config.get"
 
 	methodSubDevRegister = "thing.sub.register"
-	methodSubDevDisable  = "thing.disable"
-	methodSubDevEnable   = "thing.enable"
-	methodSubDevDelete   = "thing.delete"
-	methodTopoAdd        = "thing.topo.add"
-	methodTopoDelete     = "thing.topo.delete"
-	methodTopoGet        = "thing.topo.get"
+	//methodSubDevDisable  = "thing.disable"
+	//methodSubDevEnable   = "thing.enable"
+	//methodSubDevDelete   = "thing.delete"
+	methodTopoAdd = "thing.topo.add"
+	//methodTopoDelete = "thing.topo.delete"
+	methodTopoGet = "thing.topo.get"
 )

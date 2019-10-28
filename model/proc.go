@@ -11,17 +11,17 @@ type ProcDownStreamFunc func(m *Manager, rawURI string, payload []byte) error
 // ProcThingModelUpRawReply 处理透传上行的应答
 func ProcThingModelUpRawReply(m *Manager, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (m.opt.uriOffset + 6) {
+	if len(uris) < (m.cfg.uriOffset + 6) {
 		return ErrInvalidURI
 	}
 	m.debug("downstream thing <model>: up raw reply")
-	return m.devUserProc.DownstreamThingModelUpRawReply(m, uris[m.opt.uriOffset+1], uris[m.opt.uriOffset+2], payload)
+	return m.devUserProc.DownstreamThingModelUpRawReply(m, uris[m.cfg.uriOffset+1], uris[m.cfg.uriOffset+2], payload)
 }
 
 // ProcThingEventPost 处理ThingEvent XXX的应答
 func ProcThingEventPostReply(m *Manager, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (m.opt.uriOffset + 7) {
+	if len(uris) < (m.cfg.uriOffset + 7) {
 		return ErrInvalidURI
 	}
 
@@ -31,7 +31,7 @@ func ProcThingEventPostReply(m *Manager, rawURI string, payload []byte) error {
 	}
 
 	m.CacheRemove(rsp.ID)
-	eventID := uris[m.opt.uriOffset+5]
+	eventID := uris[m.cfg.uriOffset+5]
 	m.debug("downstream thing <event>: %s post reply,@%d", eventID, rsp.ID)
 	if eventID == "property" {
 		return m.devUserProc.DownstreamThingEventPropertyPostReply(m, &rsp)
@@ -131,11 +131,11 @@ func ProcExtErrorResponse(m *Manager, rawURI string, payload []byte) error {
 // ProcThingModelDownRaw 处理透传下行
 func ProcThingModelDownRaw(m *Manager, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (m.opt.uriOffset + 6) {
+	if len(uris) < (m.cfg.uriOffset + 6) {
 		return ErrInvalidURI
 	}
 	m.debug("downstream thing <model>: down raw request")
-	return m.devUserProc.DownstreamThingModelDownRaw(m, uris[m.opt.uriOffset+1], uris[m.opt.uriOffset+2], payload)
+	return m.devUserProc.DownstreamThingModelDownRaw(m, uris[m.cfg.uriOffset+1], uris[m.cfg.uriOffset+2], payload)
 }
 
 func ProcThingConfigPush(m *Manager, rawURI string, payload []byte) error {
@@ -155,30 +155,30 @@ func ProcThingConfigPush(m *Manager, rawURI string, payload []byte) error {
 // 主要处理 thing/service/property/set, thing/service/{tsl.event.identifier}
 func ProcThingServiceRequest(m *Manager, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (m.opt.uriOffset + 6) {
+	if len(uris) < (m.cfg.uriOffset + 6) {
 		return ErrInvalidURI
 	}
 
-	serviceID := uris[m.opt.uriOffset+5]
+	serviceID := uris[m.cfg.uriOffset+5]
 	m.debug("downstream thing <service>: %s set requst", serviceID)
 	if serviceID == "property" &&
-		len(uris) >= (m.opt.uriOffset+7) &&
-		uris[m.opt.uriOffset+6] == "set" {
+		len(uris) >= (m.cfg.uriOffset+7) &&
+		uris[m.cfg.uriOffset+6] == "set" {
 		return m.devUserProc.DownstreamThingServicePropertySet(m, rawURI, payload)
 	}
 
-	return m.devUserProc.DownstreamThingServiceRequest(m, uris[m.opt.uriOffset+1], uris[m.opt.uriOffset+2], serviceID, payload)
+	return m.devUserProc.DownstreamThingServiceRequest(m, uris[m.cfg.uriOffset+1], uris[m.cfg.uriOffset+2], serviceID, payload)
 }
 
 func ProcRRPCRequest(m *Manager, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (m.opt.uriOffset + 6) {
+	if len(uris) < (m.cfg.uriOffset + 6) {
 		return ErrInvalidURI
 	}
-	messageID := uris[m.opt.uriOffset+5]
+	messageID := uris[m.cfg.uriOffset+5]
 	m.debug("downstream sys <RRPC>: request - messageID: %s", messageID)
 	return m.devUserProc.DownStreamRRPCRequest(m,
-		uris[m.opt.uriOffset+1], uris[m.opt.uriOffset+2], messageID,
+		uris[m.cfg.uriOffset+1], uris[m.cfg.uriOffset+2], messageID,
 		payload)
 }
 

@@ -19,10 +19,6 @@ func (sf *httpClient) UnderlyingClient() interface{} {
 	return sf.c
 }
 
-func (sf *httpClient) ContainerOf() *model.Manager {
-	return sf.containOf
-}
-
 func (sf *httpClient) Subscribe(topic string, streamFunc model.ProcDownStreamFunc) error {
 	return nil
 }
@@ -35,10 +31,18 @@ func (sf *httpClient) LogMode(enable bool) {
 	sf.c.LogMode(enable)
 }
 
-func NewWithHTTP(options *model.Options) *model.Manager {
+func NewWithHTTP(config *model.Config) *Client {
 	client := ahttp.New().
-		SetDeviceMetaInfo(options.EnableHTTP(true).MetaInfo())
+		SetDeviceMetaInfo(config.
+			EnableHTTP(true).
+			MetaInfo())
 
-	sf := model.New(options)
-	return sf.SetConn(&httpClient{c: client, containOf: sf})
+	sf := model.New(config)
+
+	return &Client{
+		sf.SetConn(&httpClient{
+			c:         client,
+			containOf: sf}),
+		config.FeatureOption(),
+	}
 }
