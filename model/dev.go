@@ -191,7 +191,7 @@ func (sf *Manager) UpstreamThingDynamictslGet() error {
 	if err != nil {
 		return err
 	}
-	sf.CacheInsert(id, DevItself, MsgTypeDynamictslGet, methodDynamicTslGet)
+	sf.CacheInsert(id, DevSelf, MsgTypeDynamictslGet, methodDynamicTslGet)
 	sf.debug("upstream thing <dynamic tsl>: get,@%d", id)
 	return nil
 }
@@ -268,7 +268,7 @@ func (sf *Manager) UpstreamThingConfigGet(devID int) error {
 func (sf *Manager) UpstreamExtErrorRequest() error {
 	id := sf.RequestID()
 	// TODO
-	sf.CacheInsert(id, DevItself, MsgTypeExtErrorRequest, "error")
+	sf.CacheInsert(id, DevSelf, MsgTypeExtErrorRequest, "error")
 	sf.debug("downstream ext <Error>: request,@%d", id)
 	return nil
 }

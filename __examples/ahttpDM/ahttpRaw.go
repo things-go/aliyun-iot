@@ -23,7 +23,7 @@ func main() {
 
 	for {
 
-		err := manage.UpstreamThingModelUpRaw(model.DevItself, bPayload)
+		err := manage.UpstreamThingModelUpRaw(model.DevSelf, bPayload)
 		if err != nil {
 			fmt.Println(err)
 		} else {

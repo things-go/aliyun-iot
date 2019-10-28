@@ -7,7 +7,7 @@ import (
 )
 
 // 设备本身, 对于网关,独立设备,就是指代本身
-const DevItself = 0
+const DevSelf = 0
 
 // DevStatus 设备状态
 type DevStatus byte

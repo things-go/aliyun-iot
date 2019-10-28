@@ -85,7 +85,7 @@ func ProcThingDsltemplateGetReply(m *Manager, rawURI string, payload []byte) err
 		return err
 	}
 	m.CacheRemove(rsp.ID)
-	m.debug("downstream thing <dsl template>: get reply,@%d", rsp.ID)
+	m.debug("downstream thing <dsl template>: get reply,@%d - %s", rsp.ID, string(rsp.Data))
 	return m.devUserProc.DownstreamThingDsltemplateGetReply(m, &rsp)
 }
 
@@ -104,7 +104,7 @@ func ProcExtNtpResponse(m *Manager, rawURI string, payload []byte) error {
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
-	m.debug("downstream ext <ntp>: response")
+	m.debug("downstream ext <ntp>: response - %+v", rsp)
 	return m.devUserProc.DownstreamExtNtpResponse(m, &rsp)
 }
 
@@ -114,7 +114,7 @@ func ProcThingConfigGetReply(m *Manager, rawURI string, payload []byte) error {
 		return err
 	}
 	m.CacheRemove(rsp.ID)
-	m.debug("downstream thing <config>: get reply,@%d", rsp.ID)
+	m.debug("downstream thing <config>: get reply,@%d,payload@%+v", rsp.ID, rsp)
 	return m.devUserProc.DownstreamThingConfigGetReply(m, &rsp)
 }
 
@@ -186,6 +186,8 @@ func ProcExtRRPCRequest(m *Manager, rawURI string, payload []byte) error {
 	m.debug("downstream ext <RRPC>: Request - URI: ", rawURI)
 	return m.devUserProc.DownStreamExtRRPCRequest(m, rawURI, payload)
 }
+
+/******************************** gateway ****************************************************************/
 
 func ProcThingSubDevRegisterReply(m *Manager, rawURI string, payload []byte) error {
 	rsp := GwSubDevRegisterResponse{}

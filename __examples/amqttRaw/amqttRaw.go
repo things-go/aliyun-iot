@@ -53,15 +53,12 @@ func main() {
 	client.Connect().Wait()
 	manage.LogMode(true)
 	_ = manage.Subscribe(manage.URIServiceSelf(model.URISysPrefix, model.URIThingModelUpRawReply), model.ProcThingModelUpRawReply)
+	_ = manage.Subscribe(manage.URIServiceSelf(model.URISysPrefix, model.URIThingModelDownRaw), model.ProcThingModelDownRaw)
 
-	//b, _ := hex.DecodeString(payload)
-	//log.Printf("%#v", b)
 	for {
-		err = manage.UpstreamThingModelUpRaw(model.DevItself, bPayload)
+		err = manage.UpstreamThingModelUpRaw(model.DevSelf, bPayload)
 		if err != nil {
 			log.Printf("error: %#v", err)
-		} else {
-			log.Printf("success")
 		}
 		time.Sleep(time.Second * 10)
 	}
