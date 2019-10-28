@@ -19,6 +19,12 @@ const (
 	fixedTimestamp = "2524608000000"
 )
 
+// sign method MQTT设备签名只支持以下签名方法
+const (
+	signMethodSHA256 = "hmacsha256"
+	signMethodSHA1   = "hmacsha1"
+)
+
 // all secure mode define
 const (
 	modeTLSGuider      = "-1"
@@ -87,14 +93,14 @@ type MQTTSign struct {
 }
 
 // NewMQTTSign 新建一个签名,默认不支持PreAUTH也不支持TLS(即安全模式为SecureModeTcpDirectPlain)
-// 支持物模型,默认hmacsha256签名加密
+// 默认支持物模型,默认hmacsha256签名加密
 func NewMQTTSign() *MQTTSign {
 	return &MQTTSign{
 		deviceModel: true,
 		clientIDkv: map[string]string{
 			"timestamp":  fixedTimestamp,
 			"securemode": modeTCPDirectPlain,
-			"signmethod": "hmacsha256",
+			"signmethod": signMethodSHA256,
 			"lan":        "Golang",
 			"v":          alinkVersion,
 		},
@@ -104,11 +110,11 @@ func NewMQTTSign() *MQTTSign {
 
 // SetSignMethod 设置签名方法,目前只支持hmacsha1,hmacsha256, see package infra
 func (sf *MQTTSign) SetSignMethod(method string) *MQTTSign {
-	if method == "hmacsha1" {
-		sf.clientIDkv["signmethod"] = "hmacsha1"
+	if method == signMethodSHA1 {
+		sf.clientIDkv["signmethod"] = signMethodSHA1
 		sf.hfc = sha1.New
 	} else {
-		sf.clientIDkv["signmethod"] = "hmacsha256"
+		sf.clientIDkv["signmethod"] = signMethodSHA256
 		sf.hfc = sha256.New
 	}
 	return sf

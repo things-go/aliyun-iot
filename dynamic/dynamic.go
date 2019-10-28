@@ -16,6 +16,13 @@ import (
 	"time"
 )
 
+// sign method 动态注册只支持以下签名方法
+const (
+	signMethodSHA256 = "hmacsha256"
+	signMethodSHA1   = "hmacsha1"
+	signMethodMD5    = "hmacmd5"
+)
+
 // HTTPCloudDomain http 域名
 var HTTPCloudDomain = []string{
 	"iot-auth.cn-shanghai.aliyuncs.com",    /* Shanghai */
@@ -36,13 +43,6 @@ const (
 	CloudRegionAmerica
 	CloudRegionGermany
 	CloudRegionCustom
-)
-
-// sign method 签名方法
-const (
-	signMethodSHA256 = "hmacsha256"
-	signMethodSHA1   = "hmacsha1"
-	signMethodMD5    = "hmacmd5"
 )
 
 // MetaInfo 产品与设备三元组
