@@ -17,7 +17,12 @@ func (sf *Manager) UpstreamThingModelUpRaw(devID int, payload interface{}) error
 		return err
 	}
 
-	return sf.Publish(sf.URIService(URISysPrefix, URIThingModelUpRaw, node.ProductKey, node.DeviceName), 1, payload)
+	err = sf.Publish(sf.URIService(URISysPrefix, URIThingModelUpRaw, node.ProductKey, node.DeviceName), 1, payload)
+	if err != nil {
+		return err
+	}
+	sf.debug("upstream thing <model>: up raw")
+	return nil
 }
 
 // UpstreamThingPropertyPost 上传属性数据
@@ -39,11 +44,12 @@ func (sf *Manager) UpstreamThingEventPropertyPost(devID int, params interface{})
 	}
 
 	sf.CacheInsert(id, devID, MsgTypeEventPropertyPost, "property")
+	sf.debug("upstream thing <event>: property post,@%d", id)
 	return nil
 }
 
 // UpstreamThingEventPost 事件上传
-func (sf *Manager) UpstreamThingEventPost(devID int, EventID string, params interface{}) error {
+func (sf *Manager) UpstreamThingEventPost(devID int, eventID string, params interface{}) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
@@ -53,13 +59,14 @@ func (sf *Manager) UpstreamThingEventPost(devID int, EventID string, params inte
 		return err
 	}
 	id := sf.RequestID()
-	method := fmt.Sprintf(methodEventFormatPost, EventID)
-	err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingEventPost, node.ProductKey, node.DeviceName, EventID),
+	method := fmt.Sprintf(methodEventFormatPost, eventID)
+	err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingEventPost, node.ProductKey, node.DeviceName, eventID),
 		id, method, params)
 	if err != nil {
 		return err
 	}
 	sf.CacheInsert(id, devID, MsgTypeEventPost, method)
+	sf.debug("upstream thing <event>: %s post,@%d", eventID, id)
 	return nil
 }
 
@@ -82,6 +89,7 @@ func (sf *Manager) UpstreamThingDeviceInfoUpdate(devID int, params interface{}) 
 	}
 
 	sf.CacheInsert(id, devID, MsgTypeDeviceInfoUpdate, methodDeviceInfoUpdate)
+	sf.debug("upstream thing <deviceInfo>: update,@%d", id)
 	return nil
 }
 
@@ -103,6 +111,7 @@ func (sf *Manager) UpstreamThingDeviceInfoDelete(devID int, params interface{}) 
 		return err
 	}
 	sf.CacheInsert(id, devID, MsgTypeDeviceInfoDelete, methodDeviceInfoDelete)
+	sf.debug("upstream thing <deviceInfo>: delete,@%d", id)
 	return nil
 }
 
@@ -124,6 +133,7 @@ func (sf *Manager) UpstreamThingDesiredPropertyGet(devID int, params interface{}
 		return err
 	}
 	sf.CacheInsert(id, devID, MsgTypeDesiredPropertyGet, methodDesiredPropertyGet)
+	sf.debug("upstream thing <desired>: property get,@%d", id)
 	return nil
 }
 
@@ -145,6 +155,7 @@ func (sf *Manager) UpstreamThingDesiredPropertyDelete(devID int, params interfac
 		return err
 	}
 	sf.CacheInsert(id, devID, MsgTypeDesiredPropertyDelete, methodDesiredPropertyDelete)
+	sf.debug("upstream thing <desired>: property delete,@%d", id)
 	return nil
 }
 
@@ -167,14 +178,22 @@ func (sf *Manager) UpstreamThingDsltemplateGet(devID int) error {
 	}
 
 	sf.CacheInsert(id, devID, MsgTypeDsltemplateGet, methodDslTemplateGet)
+	sf.debug("upstream thing <dsl template>: get,@%d", id)
 	return nil
 }
 
 // UpstreamThingDynamictslGet 获取
 func (sf *Manager) UpstreamThingDynamictslGet() error {
+
 	// TODO: 需要确定.未来审核
-	uri := sf.URIServiceSelf(URISysPrefix, URIThingDynamicTslGet)
-	return sf.SendRequest(uri, sf.RequestID(), methodDynamicTslGet, `{"nodes\":["type","identifier"],"addDefault":false}`)
+	id := sf.RequestID()
+	err := sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingDynamicTslGet), id, methodDynamicTslGet, `{"nodes\":["type","identifier"],"addDefault":false}`)
+	if err != nil {
+		return err
+	}
+	sf.CacheInsert(id, DevItself, MsgTypeDynamictslGet, methodDynamicTslGet)
+	sf.debug("upstream thing <dynamic tsl>: get,@%d", id)
+	return nil
 }
 
 // NtpResponsePayload ntp回复payload
@@ -188,8 +207,13 @@ type NtpResponsePayload struct {
 // 发送一条Qos = 0的消息,并带上设备当前的时间戳,平台将回复 设备的发送时间,平台的接收时间, 平台的发送时间.
 // 设备计算当前精确时间 = (平台接收时间 + 平台发送时间 + 设备接收时间 - 设备发送时间) / 2
 func (sf *Manager) UpstreamExtNtpRequest() error {
-	return sf.Publish(sf.URIServiceSelf(URIExtNtpPrefix, URINtpRequest),
+	err := sf.Publish(sf.URIServiceSelf(URIExtNtpPrefix, URINtpRequest),
 		0, fmt.Sprintf(`{"deviceSendTime":"%d"}`, time.Now().Unix()))
+	if err != nil {
+		return err
+	}
+	sf.debug("upstream ext <ntp>: request")
+	return nil
 }
 
 // ConfigGetParams 配置参数
@@ -237,5 +261,14 @@ func (sf *Manager) UpstreamThingConfigGet(devID int) error {
 		return err
 	}
 	sf.CacheInsert(id, devID, MsgTypeConfigGet, methodConfigGet)
+	sf.debug("upstream thing <config>: get,@%d", id)
+	return nil
+}
+
+func (sf *Manager) UpstreamExtErrorRequest() error {
+	id := sf.RequestID()
+	// TODO
+	sf.CacheInsert(id, DevItself, MsgTypeExtErrorRequest, "error")
+	sf.debug("downstream ext <Error>: request,@%d", id)
 	return nil
 }

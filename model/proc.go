@@ -14,7 +14,7 @@ func ProcThingModelUpRawReply(m *Manager, rawURI string, payload []byte) error {
 	if len(uris) < (m.opt.uriOffset + 6) {
 		return ErrInvalidURI
 	}
-
+	m.debug("downstream thing <model>: up raw reply")
 	return m.devUserProc.DownstreamThingModelUpRawReply(m, uris[m.opt.uriOffset+1], uris[m.opt.uriOffset+2], payload)
 }
 
@@ -24,7 +24,6 @@ func ProcThingEventPostReply(m *Manager, rawURI string, payload []byte) error {
 	if len(uris) < (m.opt.uriOffset + 7) {
 		return ErrInvalidURI
 	}
-	EventID := uris[m.opt.uriOffset+5]
 
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
@@ -32,10 +31,12 @@ func ProcThingEventPostReply(m *Manager, rawURI string, payload []byte) error {
 	}
 
 	m.CacheRemove(rsp.ID)
-	if EventID == "property" {
+	eventID := uris[m.opt.uriOffset+5]
+	m.debug("downstream thing <event>: %s post reply,@%d", eventID, rsp.ID)
+	if eventID == "property" {
 		return m.devUserProc.DownstreamThingEventPropertyPostReply(m, &rsp)
 	}
-	return m.devUserProc.DownstreamThingEventPostReply(m, EventID, &rsp)
+	return m.devUserProc.DownstreamThingEventPostReply(m, eventID, &rsp)
 }
 
 func ProcThingDeviceInfoUpdateReply(m *Manager, rawURI string, payload []byte) error {
@@ -44,6 +45,7 @@ func ProcThingDeviceInfoUpdateReply(m *Manager, rawURI string, payload []byte) e
 		return err
 	}
 	m.CacheRemove(rsp.ID)
+	m.debug("downstream thing <deviceInfo>: update reply,@%d", rsp.ID)
 	return m.devUserProc.DownstreamThingDeviceInfoUpdateReply(m, &rsp)
 }
 
@@ -53,6 +55,7 @@ func ProcThingDeviceInfoDeleteReply(m *Manager, rawURI string, payload []byte) e
 		return err
 	}
 	m.CacheRemove(rsp.ID)
+	m.debug("downstream thing <deviceInfo>: delete reply,@%d", rsp.ID)
 	return m.devUserProc.DownstreamThingDeviceInfoDeleteReply(m, &rsp)
 }
 
@@ -62,6 +65,7 @@ func ProcThingDesiredPropertyGetReply(m *Manager, rawURI string, payload []byte)
 		return err
 	}
 	m.CacheRemove(rsp.ID)
+	m.debug("downstream thing <desired>: property get reply,@%d", rsp.ID)
 	return m.devUserProc.DownstreamThingDesiredPropertyGetReply(m, &rsp)
 }
 
@@ -71,6 +75,7 @@ func ProcThingDesiredPropertyDeleteReply(m *Manager, rawURI string, payload []by
 		return err
 	}
 	m.CacheRemove(rsp.ID)
+	m.debug("downstream thing <desired>: property delete reply,@%d", rsp.ID)
 	return m.devUserProc.DownstreamThingDesiredPropertyDeleteReply(m, &rsp)
 }
 
@@ -80,6 +85,7 @@ func ProcThingDsltemplateGetReply(m *Manager, rawURI string, payload []byte) err
 		return err
 	}
 	m.CacheRemove(rsp.ID)
+	m.debug("downstream thing <dsl template>: get reply,@%d", rsp.ID)
 	return m.devUserProc.DownstreamThingDsltemplateGetReply(m, &rsp)
 }
 
@@ -89,7 +95,7 @@ func ProcThingDynamictslGetReply(m *Manager, rawURI string, payload []byte) erro
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
-
+	m.debug("downstream thing <dynamic tsl>: get reply,@%d", rsp.ID)
 	return m.devUserProc.DownstreamThingDynamictslGetReply(m, &rsp)
 }
 
@@ -98,6 +104,7 @@ func ProcExtNtpResponse(m *Manager, rawURI string, payload []byte) error {
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
+	m.debug("downstream ext <ntp>: response")
 	return m.devUserProc.DownstreamExtNtpResponse(m, &rsp)
 }
 
@@ -107,6 +114,7 @@ func ProcThingConfigGetReply(m *Manager, rawURI string, payload []byte) error {
 		return err
 	}
 	m.CacheRemove(rsp.ID)
+	m.debug("downstream thing <config>: get reply,@%d", rsp.ID)
 	return m.devUserProc.DownstreamThingConfigGetReply(m, &rsp)
 }
 
@@ -116,6 +124,7 @@ func ProcExtErrorResponse(m *Manager, rawURI string, payload []byte) error {
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
+	m.debug("downstream ext <Error>: response,@%d", rsp.ID)
 	return m.devUserProc.DownstreamExtErrorResponse(m, &rsp)
 }
 
@@ -125,6 +134,7 @@ func ProcThingModelDownRaw(m *Manager, rawURI string, payload []byte) error {
 	if len(uris) < (m.opt.uriOffset + 6) {
 		return ErrInvalidURI
 	}
+	m.debug("downstream thing <model>: down raw request")
 	return m.devUserProc.DownstreamThingModelDownRaw(m, uris[m.opt.uriOffset+1], uris[m.opt.uriOffset+2], payload)
 }
 
@@ -133,6 +143,7 @@ func ProcThingConfigPush(m *Manager, rawURI string, payload []byte) error {
 	if err := json.Unmarshal(payload, &req); err != nil {
 		return err
 	}
+	m.debug("downstream thing <config>: push request")
 	if err := m.SendResponse(URIServiceReplyWithRequestURI(rawURI),
 		req.ID, infra.CodeSuccess, "{}"); err != nil {
 		return err
@@ -149,6 +160,7 @@ func ProcThingServiceRequest(m *Manager, rawURI string, payload []byte) error {
 	}
 
 	serviceID := uris[m.opt.uriOffset+5]
+	m.debug("downstream thing <service>: %s set requst", serviceID)
 	if serviceID == "property" &&
 		len(uris) >= (m.opt.uriOffset+7) &&
 		uris[m.opt.uriOffset+6] == "set" {
@@ -163,13 +175,15 @@ func ProcRRPCRequest(m *Manager, rawURI string, payload []byte) error {
 	if len(uris) < (m.opt.uriOffset + 6) {
 		return ErrInvalidURI
 	}
-
+	messageID := uris[m.opt.uriOffset+5]
+	m.debug("downstream sys <RRPC>: request - messageID: %s", messageID)
 	return m.devUserProc.DownStreamRRPCRequest(m,
-		uris[m.opt.uriOffset+1], uris[m.opt.uriOffset+2], uris[m.opt.uriOffset+5],
+		uris[m.opt.uriOffset+1], uris[m.opt.uriOffset+2], messageID,
 		payload)
 }
 
 func ProcExtRRPCRequest(m *Manager, rawURI string, payload []byte) error {
+	m.debug("downstream ext <RRPC>: Request - URI: ", rawURI)
 	return m.devUserProc.DownStreamExtRRPCRequest(m, rawURI, payload)
 }
 

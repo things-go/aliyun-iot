@@ -19,7 +19,10 @@ const (
 	MsgTypeDesiredPropertyGet                   //!< get a device's desired property
 	MsgTypeDesiredPropertyDelete                //!< delete a device's desired property
 	MsgTypeDsltemplateGet                       //<! get a device's dsltemplate
+	MsgTypeDynamictslGet
 	MsgTypeConfigGet
+	MsgTypeExtErrorRequest
+
 	MsgTypeSubDevLogin                 //!< only for slave device, send login request to cloud
 	MsgTypeSubDevLogout                //!< only for slave device, send logout request to cloud
 	MsgTypeSubDevDeleteTopo            //!< only for slave device, send delete topo request to cloud
