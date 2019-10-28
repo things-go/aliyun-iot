@@ -12,11 +12,11 @@ type DevType byte
 
 const (
 	DevTypeSingle = 1 << iota
-	DevTypeSubdev
+	DevTypeSubDev
 	DevTypeGateway
 
-	DevTypeMain = DevTypeSingle | DevTypeSubdev
-	DevTypeALl
+	//DevTypeMain = DevTypeSingle | DevTypeSubDev
+	//DevTypeALl
 )
 
 // DevStatus 设备状态
@@ -48,7 +48,7 @@ type devMgr struct {
 	nodes       map[int]*DevNode
 }
 
-// 设备节点
+// DevNode 设备节点
 type DevNode struct {
 	id           int
 	types        DevType
@@ -67,7 +67,7 @@ func newDevMgr() *devMgr {
 }
 
 // 下一个设备id
-func (sf *devMgr) nestDevID() int {
+func (sf *devMgr) nextDevID() int {
 	id := sf.globalDevID
 	sf.globalDevID++
 	return id
@@ -85,32 +85,34 @@ func (sf *devMgr) Create(types DevType, productKey, deviceName, deviceSecret str
 	if productKey == "" ||
 		deviceName == "" ||
 		deviceSecret == "" {
-		return 0, errors.New("invalid parameter")
+		return 0, ErrInvalidParameter
 	}
+
 	sf.rw.Lock()
 	defer sf.rw.Unlock()
 
 	node, err := sf.searchByPkDn(productKey, deviceName)
-	if err == nil {
-		return node.id, nil
+	if err != nil {
+		id := sf.nextDevID()
+		sf.nodes[id] = &DevNode{
+			id:           id,
+			types:        types,
+			ProductKey:   productKey,
+			DeviceName:   deviceName,
+			DeviceSecret: deviceSecret,
+		}
+		return id, nil
 	}
 
-	id := sf.nestDevID()
-	sf.nodes[id] = &DevNode{
-		id:           id,
-		types:        types,
-		ProductKey:   productKey,
-		DeviceName:   deviceName,
-		DeviceSecret: deviceSecret,
-	}
-	return id, nil
+	return node.id, nil
+
 }
 
 func (sf *devMgr) insert(devID int, types DevType, productKey, deviceName, deviceSecret string) error {
 	if productKey == "" ||
 		deviceName == "" ||
 		deviceSecret == "" {
-		return errors.New("invalid parameter")
+		return ErrInvalidParameter
 	}
 
 	sf.rw.Lock()
@@ -131,10 +133,6 @@ func (sf *devMgr) insert(devID int, types DevType, productKey, deviceName, devic
 
 // DeleteByID 删除一个设备
 func (sf *devMgr) DeleteByID(devID int) {
-	if devID < 0 {
-		return
-	}
-
 	sf.rw.Lock()
 	delete(sf.nodes, devID)
 	sf.rw.Unlock()
@@ -186,7 +184,6 @@ func (sf *devMgr) searchByPkDn(productKey, deviceName string) (*DevNode, error) 
 			return node, nil
 		}
 	}
-
 	return nil, ErrNotFound
 }
 
