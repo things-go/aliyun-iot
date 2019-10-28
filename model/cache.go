@@ -3,7 +3,7 @@ package model
 import (
 	"strconv"
 
-	"github.com/thinkgos/go-cache"
+	"github.com/thinkgos/cache-go"
 )
 
 type messageCacheEntry struct {
@@ -22,6 +22,7 @@ func (sf *Manager) CacheInit() {
 	sf.msgCache = cache.New(sf.opt.expiration, sf.opt.cleanupInterval)
 	sf.msgCache.OnEvicted(func(s string, v interface{}) { // 超时处理
 		sf.pool.Put(v)
+		sf.debug("cache timeout - %s", s)
 	})
 }
 
@@ -35,6 +36,7 @@ func (sf *Manager) CacheInsert(id, devID int, msgType MsgType, data string) {
 	entry.msgType = msgType
 	entry.data = data
 	sf.msgCache.SetDefault(strconv.Itoa(id), entry)
+	sf.debug("cache insert - %d", id)
 }
 
 func (sf *Manager) CacheRemove(id int) {
@@ -42,4 +44,5 @@ func (sf *Manager) CacheRemove(id int) {
 		return
 	}
 	sf.msgCache.Delete(strconv.Itoa(id))
+	sf.debug("cache remove - %d", id)
 }

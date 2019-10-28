@@ -46,8 +46,11 @@ func main() {
 		})
 	client := mqtt.NewClient(opts)
 
-	dmopt := model.NewOption(productKey, deviceName, deviceSecret).Valid()
+	dmopt := model.NewOption(productKey, deviceName, deviceSecret).
+		SetEnableCache(true).
+		Valid()
 	manage := aliIOT.NewWithMQTT(dmopt, client)
+	manage.LogMode(true)
 
 	client.Connect().Wait()
 

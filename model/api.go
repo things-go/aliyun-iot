@@ -5,7 +5,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/thinkgos/go-cache"
+	"github.com/thinkgos/cache-go"
 )
 
 type MsgType byte
