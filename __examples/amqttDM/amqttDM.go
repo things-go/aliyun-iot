@@ -56,23 +56,18 @@ func main() {
 	manage.LogMode(true)
 
 	client.Connect().Wait()
-
-	//_ = manage.Subscribe(manage.URIServiceSelf(model.URISysPrefix, model.URIThingServiceRequestMultiWildcard2),
-	//	model.ProcThingServiceRequest)
-	//_ = manage.Subscribe(manage.URIServiceSelf(model.URISysPrefix, model.URIRRPCRequestSingleWildcard),
-	//	model.ProcRRPCRequest)
+	if err = manage.Connect(); err != nil {
+		panic(err)
+	}
 
 	//go DslTemplateTest()
 	//go ConfigTest()
 	//go DeviceInfoTest()
-	go NTPTest()
+	//go NTPTest()
 	EventPostTest()
 }
 
 func EventPostTest() {
-	_ = manage.Subscribe(manage.URIServiceSelf(model.URISysPrefix, model.URIThingEventPostReplySingleWildcard),
-		model.ProcThingEventPostReply)
-
 	go func() {
 		for {
 			err := manage.UpstreamThingEventPost(model.DevLocal, "tempAlarm", map[string]interface{}{
@@ -100,12 +95,6 @@ func EventPostTest() {
 }
 
 func DeviceInfoTest() {
-	// 设备标签
-	_ = manage.Subscribe(manage.URIServiceSelf(model.URISysPrefix, model.URIThingDeviceInfoUpdateReply),
-		model.ProcThingDeviceInfoUpdateReply)
-	_ = manage.Subscribe(manage.URIServiceSelf(model.URISysPrefix, model.URIThingDeviceInfoDeleteReply),
-		model.ProcThingDeviceInfoDeleteReply)
-
 	if err := manage.UpstreamThingDeviceInfoUpdate(model.DevLocal,
 		[]dm.DevInfoLabelUpdate{
 			{AttrKey: "attrKey", AttrValue: "attrValue"},
@@ -125,12 +114,6 @@ func DeviceInfoTest() {
 }
 
 func ConfigTest() {
-	// 设备配置
-	_ = manage.Subscribe(manage.URIServiceSelf(model.URISysPrefix, model.URIThingConfigGetReply),
-		model.ProcThingConfigGetReply)
-	_ = manage.Subscribe(manage.URIServiceSelf(model.URISysPrefix, model.URIThingConfigPush),
-		model.ProcThingConfigPush)
-
 	err := manage.UpstreamThingConfigGet(model.DevLocal)
 	if err != nil {
 		log.Println(err)
@@ -139,8 +122,6 @@ func ConfigTest() {
 }
 
 func DslTemplateTest() {
-	_ = manage.Subscribe(manage.URIServiceSelf(model.URISysPrefix, model.URIThingDslTemplateGetReply),
-		model.ProcThingDsltemplateGetReply)
 	err := manage.UpstreamThingDsltemplateGet(model.DevLocal)
 	if err != nil {
 		log.Println(err)
@@ -149,9 +130,6 @@ func DslTemplateTest() {
 }
 
 func NTPTest() {
-	_ = manage.Subscribe(manage.URIServiceSelf(model.URIExtNtpPrefix, model.URINtpResponse),
-		model.ProcExtNtpResponse)
-
 	err := manage.UpstreamExtNtpRequest()
 	if err != nil {
 		log.Println(err)

@@ -47,13 +47,17 @@ func main() {
 			log.Println("mqtt client connection lost, ", err)
 		})
 	client := mqtt.NewClient(opts)
-	dmopt := model.NewOption(productKey, deviceName, deviceSecret).Valid()
+	dmopt := model.NewOption(productKey, deviceName, deviceSecret).
+		EnableModelRaw().
+		Valid()
 	manage := aliIOT.NewWithMQTT(dmopt, client)
+	manage.LogMode(true)
 
 	client.Connect().Wait()
-	manage.LogMode(true)
-	_ = manage.Subscribe(manage.URIServiceSelf(model.URISysPrefix, model.URIThingModelUpRawReply), model.ProcThingModelUpRawReply)
-	_ = manage.Subscribe(manage.URIServiceSelf(model.URISysPrefix, model.URIThingModelDownRaw), model.ProcThingModelDownRaw)
+
+	if err = manage.Connect(); err != nil {
+		panic(err)
+	}
 
 	for {
 		err = manage.UpstreamThingModelUpRaw(model.DevLocal, bPayload)

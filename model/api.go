@@ -27,7 +27,7 @@ const (
 	MsgTypeSubDevLogin                 //!< only for slave device, send login request to cloud
 	MsgTypeSubDevLogout                //!< only for slave device, send logout request to cloud
 	MsgTypeSubDevDeleteTopo            //!< only for slave device, send delete topo request to cloud
-	MsgTypeQueryTimestamp              //!< query ntp time from cloud
+	MsgTypeExtNtpRequest               //!< query ntp time from cloud
 	MsgTypeQueryTopoList               //!< only for master device, query topo list
 	MsgTypeQueryFOTAData               //!< only for master device, qurey firmware ota data
 	MsgTypeQueryCOTAData               //!< only for master device, qurey config ota data
@@ -82,11 +82,12 @@ func New(opt *Config) *Manager {
 	sf.CacheInit()
 	err := sf.insert(DevLocal, DevTypeSingle, opt.productKey, opt.deviceName, opt.deviceSecret)
 	if err != nil {
-		panic(fmt.Sprintf("device local duplicate,cause: ", err))
+		panic(fmt.Sprintf("device local duplicate,cause: %+v", err))
 	}
 	return sf
 }
 
+// Connect 将订阅所有相关主题,主题有config配置
 func (sf *Manager) Connect() error {
 	var devType DevType
 	if sf.cfg.hasGateway {
@@ -163,14 +164,31 @@ func (sf *Manager) SendResponse(uriService string, id int, code int, data interf
 
 func (sf *Manager) AlinkReport(msgType MsgType, devID int, payload interface{}) error {
 	switch msgType {
+	case MsgTypeModelUpRaw:
+		if !sf.cfg.hasRawModel {
+			return ErrNotSupportFeature
+		}
+		return sf.UpstreamThingModelUpRaw(devID, payload)
 	case MsgTypeEventPropertyPost:
+		if sf.cfg.hasRawModel {
+			return ErrNotSupportFeature
+		}
 		return sf.UpstreamThingEventPropertyPost(devID, payload)
+	case MsgTypeDesiredPropertyGet:
+		if !sf.cfg.hasDesired {
+			return ErrNotSupportFeature
+		}
+		return sf.UpstreamThingDesiredPropertyGet(devID, payload)
+	case MsgTypeDesiredPropertyDelete:
+		if !sf.cfg.hasDesired {
+			return ErrNotSupportFeature
+		}
+		return sf.UpstreamThingDesiredPropertyDelete(devID, payload)
 	case MsgTypeDeviceInfoUpdate:
 		return sf.UpstreamThingDeviceInfoUpdate(devID, payload)
 	case MsgTypeDeviceInfoDelete:
 		return sf.UpstreamThingDeviceInfoDelete(devID, payload)
-	case MsgTypeModelUpRaw:
-		return sf.UpstreamThingModelUpRaw(devID, payload)
+
 	case MsgTypeSubDevLogin:
 		// TODO
 	case MsgTypeSubDevLogout:
@@ -179,20 +197,24 @@ func (sf *Manager) AlinkReport(msgType MsgType, devID int, payload interface{}) 
 		// todo
 	case MsgTypeReportSubDevFirmwareVersion:
 		// TODO
-	case MsgTypeDesiredPropertyGet:
-		// TODO
-	case MsgTypeDesiredPropertyDelete:
-		// TODO
-
 	}
 	return ErrNotSupportMsgType
 }
 
 func (sf *Manager) AlinkQuery(msgType MsgType, devID int, payload interface{}) error {
 	switch msgType {
-	case MsgTypeQueryTimestamp:
+	case MsgTypeExtNtpRequest:
+		if !sf.cfg.hasNTP {
+			return ErrNotSupportFeature
+		}
 		return sf.UpstreamExtNtpRequest()
+	case MsgTypeDsltemplateGet:
+		return sf.UpstreamThingDsltemplateGet(devID)
+	case MsgTypeExtErrorRequest:
+		return sf.UpstreamExtErrorRequest()
+
 	case MsgTypeQueryTopoList:
+		// todo
 	case MsgTypeQueryCOTAData:
 	case MsgTypeQueryFOTAData:
 	case MsgTypeRequestCOTA:

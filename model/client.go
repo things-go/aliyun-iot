@@ -1,12 +1,6 @@
 package model
 
-type dm_client_uri_map_t struct {
-	devType   int
-	uriPrefix string
-	uriName   string
-	proc      ProcDownStreamFunc
-}
-
+// 对某个设备类型订阅相关所有主题
 func (sf *Manager) SubscribeAllTopic(devType DevType, productKey, deviceName string) error {
 	var err error
 
@@ -20,7 +14,7 @@ func (sf *Manager) SubscribeAllTopic(devType DevType, productKey, deviceName str
 			ProcThingModelUpRawReply); err != nil {
 			sf.warn(err.Error())
 		}
-		if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingModelDownRawReply, productKey, deviceName),
+		if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingModelDownRaw, productKey, deviceName),
 			ProcThingModelDownRaw); err != nil {
 			sf.warn(err.Error())
 		}
@@ -63,15 +57,15 @@ func (sf *Manager) SubscribeAllTopic(devType DevType, productKey, deviceName str
 		sf.warn(err.Error())
 	}
 
-	// dystemplate 订阅
+	// dsltemplate 订阅
 	if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingDslTemplateGetReply, productKey, deviceName),
-		ProcThingDeviceInfoDeleteReply); err != nil {
+		ProcThingDsltemplateGetReply); err != nil {
 		sf.warn(err.Error())
 	}
 
 	// RRPC
 	if err = sf.Subscribe(sf.URIService(URISysPrefix, URIRRPCRequestSingleWildcard, productKey, deviceName),
-		ProcThingDeviceInfoDeleteReply); err != nil {
+		ProcRRPCRequest); err != nil {
 		sf.warn(err.Error())
 	}
 
@@ -89,13 +83,14 @@ func (sf *Manager) SubscribeAllTopic(devType DevType, productKey, deviceName str
 		sf.warn(err.Error())
 	}
 
-	if sf.cfg.hasGateway {
-		//TODO
-	}
+	//if sf.cfg.hasGateway {
+	//TODO
+	//}
 
 	return nil
 }
 
+// UnSubscribeSubDevAllTopic 取消子设备相关所有主题
 func (sf *Manager) UnSubscribeSubDevAllTopic(productKey, deviceName string) error {
 	var topicList []string
 
