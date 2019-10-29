@@ -48,8 +48,6 @@ type GatewayUserProc interface {
 	DownstreamGwExtSubDevRegisterReply(m *Client, rsp *GwSubDevRegisterResponse) error
 	DownstreamGwExtSubDevCombineLoginReply(m *Client, rsp *Response) error
 	DownstreamGwExtSubDevCombineLogoutReply(m *Client, rsp *Response) error
-	DownstreamGwSubDevThingDisable(m *Client, productKey, deviceName string) error
-	DownstreamGwSubDevThingEnable(m *Client, productKey, deviceName string) error
 	DownstreamGwSubDevThingDelete(m *Client, productKey, deviceName string) error
 	DownstreamGwThingTopoAddReply(m *Client, rsp *Response) error
 	DownstreamGwThingTopoDeleteReply(m *Client, rsp *Response) error

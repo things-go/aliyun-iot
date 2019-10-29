@@ -214,14 +214,30 @@ func (sf *devMgr) SearchNodeByPkDn(productKey, deviceName string) (DevNode, erro
 	return *node, nil
 }
 
-// SetDevAvail 设置avail
-func (sf *devMgr) SetDevAvail(devID int, enable bool) error {
+// SetDevAvailByID 设置avail
+func (sf *devMgr) SetDevAvailByID(devID int, enable bool) error {
 	sf.rw.Lock()
 	defer sf.rw.Unlock()
 
 	node, exist := sf.nodes[devID]
 	if !exist {
 		return ErrNotFound
+	}
+	if enable {
+		node.avail = DevAvailEnable
+	} else {
+		node.avail = DevAvailDisable
+	}
+	return nil
+}
+
+func (sf *devMgr) SetDevAvailByPkDN(productKey, deviceName string, enable bool) error {
+	sf.rw.Lock()
+	defer sf.rw.Unlock()
+
+	node, err := sf.searchByPkDn(productKey, deviceName)
+	if err != nil {
+		return err
 	}
 	if enable {
 		node.avail = DevAvailEnable

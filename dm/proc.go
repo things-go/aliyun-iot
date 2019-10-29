@@ -325,58 +325,58 @@ func ProcExtSubDevCombineLogoutReply(c *Client, rawURI string, payload []byte) e
 
 // ProcThingDisable 禁用子设备
 func ProcThingDisable(c *Client, rawURI string, payload []byte) error {
+	var err error
+
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) != 5 {
 		return ErrInvalidURI
 	}
+	c.debug("downstream <thing>: disable @%s - %s", uris[1], uris[2])
 
 	req := Request{}
-	if err := json.Unmarshal(payload, &req); err != nil {
+	if err = json.Unmarshal(payload, &req); err != nil {
 		return err
+	}
+	if err = c.SetDevAvailByPkDN(uris[1], uris[2], false); err != nil {
+		c.warn("<thing> disable failed, %+v", err)
 	}
 
-	if err := c.SendResponse(URIServiceReplyWithRequestURI(rawURI),
-		req.ID, CodeSuccess, "{}"); err != nil {
-		return err
-	}
-	c.debug("downstream <thing>: disable @%s - %s", uris[1], uris[2])
-	return c.gwUserProc.DownstreamGwSubDevThingDisable(c, uris[1], uris[2])
+	return c.SendResponse(URIServiceReplyWithRequestURI(rawURI),
+		req.ID, CodeSuccess, "{}")
 }
 
 // ProcThingEnable 启用子设备
 func ProcThingEnable(c *Client, rawURI string, payload []byte) error {
+	var err error
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) != 5 {
 		return ErrInvalidURI
 	}
+	c.debug("downstream <thing>: enable @%s - %s", uris[1], uris[2])
 
 	req := Request{}
-	if err := json.Unmarshal(payload, &req); err != nil {
+	if err = json.Unmarshal(payload, &req); err != nil {
 		return err
+	}
+	if err = c.SetDevAvailByPkDN(uris[1], uris[2], true); err != nil {
+		c.warn("<thing> enable failed, %+v", err)
 	}
 
-	if err := c.SendResponse(URIServiceReplyWithRequestURI(rawURI),
-		req.ID, CodeSuccess, "{}"); err != nil {
-		return err
-	}
-	c.debug("downstream <thing>: enable @%s - %s", uris[1], uris[2])
-	return c.gwUserProc.DownstreamGwSubDevThingDisable(c, uris[1], uris[2])
+	return c.SendResponse(URIServiceReplyWithRequestURI(rawURI),
+		req.ID, CodeSuccess, "{}")
 }
 func ProcThingDelete(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) != 5 {
 		return ErrInvalidURI
 	}
+	c.debug("downstream <thing>: delete @%s - %s", uris[1], uris[2])
 
 	req := Request{}
 	if err := json.Unmarshal(payload, &req); err != nil {
 		return err
 	}
-
-	if err := c.SendResponse(URIServiceReplyWithRequestURI(rawURI),
-		req.ID, CodeSuccess, "{}"); err != nil {
-		return err
-	}
-	c.debug("downstream <thing>: delete @%s - %s", uris[1], uris[2])
-	return c.gwUserProc.DownstreamGwSubDevThingDisable(c, uris[1], uris[2])
+	c.DeleteByPkDn(uris[1], uris[2])
+	return c.SendResponse(URIServiceReplyWithRequestURI(rawURI),
+		req.ID, CodeSuccess, "{}")
 }
