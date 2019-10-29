@@ -21,7 +21,7 @@ const (
 	deviceSecret  = "CsC7Gmb6EvDLOm8V40HLOQwFPdc3KCHT"
 )
 
-var manage *aliIOT.MQTTClient
+var dmClient *aliIOT.MQTTClient
 
 func main() {
 	signs, err := sign.NewMQTTSign().
@@ -52,11 +52,11 @@ func main() {
 	dmopt := dm.NewConfig(productKey, deviceName, deviceSecret).
 		SetEnableCache(true).
 		Valid()
-	manage = aliIOT.NewWithMQTT(dmopt, client)
-	manage.LogMode(true)
+	dmClient = aliIOT.NewWithMQTT(dmopt, client)
+	dmClient.LogMode(true)
 
 	client.Connect().Wait()
-	if err = manage.Connect(); err != nil {
+	if err = dmClient.Connect(); err != nil {
 		panic(err)
 	}
 
@@ -70,7 +70,7 @@ func main() {
 func EventPostTest() {
 	go func() {
 		for {
-			err := manage.UpstreamThingEventPost(dm.DevLocal, "tempAlarm", map[string]interface{}{
+			err := dmClient.AlinkTriggerEvent(dm.DevLocal, "tempAlarm", map[string]interface{}{
 				"high": 1,
 			})
 			if err != nil {
@@ -82,7 +82,7 @@ func EventPostTest() {
 	}()
 
 	for {
-		err := manage.UpstreamThingEventPropertyPost(dm.DevLocal, map[string]interface{}{
+		err := dmClient.AlinkReport(dm.MsgTypeEventPropertyPost, dm.DevLocal, map[string]interface{}{
 			"Temp":         rand.Intn(200),
 			"Humi":         rand.Intn(100),
 			"switchStatus": rand.Intn(1),
@@ -95,7 +95,7 @@ func EventPostTest() {
 }
 
 func DeviceInfoTest() {
-	if err := manage.UpstreamThingDeviceInfoUpdate(dm.DevLocal,
+	if err := dmClient.AlinkReport(dm.MsgTypeDeviceInfoUpdate, dm.DevLocal,
 		[]dmd.DevInfoLabelUpdate{
 			{AttrKey: "attrKey", AttrValue: "attrValue"},
 		}); err != nil {
@@ -103,7 +103,7 @@ func DeviceInfoTest() {
 		return
 	}
 	time.Sleep(time.Minute * 1)
-	if err := manage.UpstreamThingDeviceInfoDelete(dm.DevLocal,
+	if err := dmClient.AlinkReport(dm.MsgTypeDeviceInfoDelete, dm.DevLocal,
 		[]dmd.DevInfoLabelDelete{
 			{AttrKey: "attrKey"},
 		}); err != nil {
@@ -114,7 +114,7 @@ func DeviceInfoTest() {
 }
 
 func ConfigTest() {
-	err := manage.UpstreamThingConfigGet(dm.DevLocal)
+	err := dmClient.AlinkQuery(dm.MsgTypeConfigGet, dm.DevLocal)
 	if err != nil {
 		log.Println(err)
 		return
@@ -122,7 +122,7 @@ func ConfigTest() {
 }
 
 func DslTemplateTest() {
-	err := manage.UpstreamThingDsltemplateGet(dm.DevLocal)
+	err := dmClient.AlinkQuery(dm.MsgTypeDsltemplateGet, dm.DevLocal)
 	if err != nil {
 		log.Println(err)
 		return
@@ -130,7 +130,7 @@ func DslTemplateTest() {
 }
 
 func NTPTest() {
-	err := manage.UpstreamExtNtpRequest()
+	err := dmClient.AlinkQuery(dm.MsgTypeExtNtpRequest, dm.DevLocal)
 	if err != nil {
 		log.Println(err)
 		return

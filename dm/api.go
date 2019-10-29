@@ -9,8 +9,10 @@ import (
 	"github.com/thinkgos/cache-go"
 )
 
+// MsgType 消息类型
 type MsgType byte
 
+// 消息类型定义
 const (
 	MsgTypeModelUpRaw            MsgType = iota //!< post raw data to cloud
 	MsgTypeEventPropertyPost                    //!< post property value to cloud
@@ -52,7 +54,7 @@ type Response struct {
 	Message string          `json:"message,omitempty"`
 }
 
-// Client 管理
+// Client 客户端
 type Client struct {
 	requestID int32
 
@@ -66,7 +68,7 @@ type Client struct {
 	devUserProc DevUserProc
 }
 
-// New 创建一个物管理
+// New 创建一个物管理客户端
 func New(cfg *Config) *Client {
 	sf := &Client{
 		cfg:         *cfg,
@@ -222,7 +224,7 @@ func (sf *Client) AlinkReport(msgType MsgType, devID int, payload interface{}) e
 //  - MsgTypeExtNtpRequest
 //  - MsgTypeDsltemplateGet
 //  - MsgTypeConfigGet
-func (sf *Client) AlinkQuery(msgType MsgType, devID int, payload interface{}) error {
+func (sf *Client) AlinkQuery(msgType MsgType, devID int, payload ...interface{}) error {
 	switch msgType {
 	case MsgTypeDsltemplateGet:
 		return sf.UpstreamThingDsltemplateGet(devID)

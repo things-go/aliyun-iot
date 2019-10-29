@@ -38,7 +38,7 @@ func (sf *HTTPClient) UnderlyingClient() interface{} {
 func NewWithHTTP(config *dm.Config) *HTTPClient {
 	client := ahttp.New().
 		SetDeviceMetaInfo(config.
-			EnableHTTP(true).
+			EnableHTTP().
 			MetaInfo())
 
 	sf := dm.New(config)
