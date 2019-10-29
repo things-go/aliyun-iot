@@ -107,6 +107,10 @@ const (
 	URIThingTopoDeleteReply = "thing/topo/delete_reply"
 	URIThingTopoGet         = "thing/topo/get"
 	URIThingTopoGetReply    = "thing/topo/get_reply"
+	URIThingListFound       = "thing/list/found"
+	URIThingListFoundReply  = "thing/list/found_reply"
+	URIThingTopoAddNotify   = "thing/topo/add/notify"
+	URIThingTopoChange      = "thing/topo/change"
 )
 
 // URIService 生成URI, inName的作用是有一些需要格式化到name里.

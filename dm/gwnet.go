@@ -16,44 +16,71 @@ type SubDevTopoAddParams struct {
 	Sign       string `json:"sign"`
 }
 
-func (sf *Client) UpstreamGwThingTopoAdd(metas ...*MetaInfo) error {
-	var clientID string
-	var sign string
-	var err error
+// UpstreamGwThingTopoAdd 添加设备拓扑关系
+// 子设备身份注册后,需网关上报与子设备的关系,然后才进行子设备上线
+func (sf *Client) UpstreamGwThingTopoAdd(devID int) error {
 
-	sublist := make([]SubDevTopoAddParams, 0, len(metas))
-
-	timestamp := time.Now().Unix()
-	for _, v := range metas {
-		clientID = fmt.Sprintf("%s.%s|_v=%s|", v.ProductKey, v.DeviceName, infra.IOTSDKVersion)
-		sign, err = generateSign(v.ProductKey, v.DeviceName, v.DeviceSecret, clientID, timestamp)
-		if err != nil {
-			return err
-		}
-		sublist = append(sublist, SubDevTopoAddParams{
-			v.ProductKey,
-			v.DeviceSecret,
-			clientID,
-			timestamp,
-			infra.SignMethodHMACSHA1,
-			sign,
-		})
-	}
-
-	return sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingTopoAdd),
-		sf.RequestID(), methodTopoAdd, sublist)
-}
-
-func (sf *Client) UpstreamGwThingTopoDelete(devID int) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
-	_, err := sf.SearchNodeByID(devID)
+
+	node, err := sf.SearchNodeByID(devID)
 	if err != nil {
 		return err
 	}
 
-	// TODO
+	timestamp := time.Now().Unix()
+	clientID := fmt.Sprintf("%s.%s|_v=%s|", node.ProductKey, node.DeviceName, infra.IOTSDKVersion)
+	sign, err := generateSign(node.ProductKey, node.DeviceName, node.DeviceSecret, clientID, timestamp)
+	if err != nil {
+		return err
+	}
+	id := sf.RequestID()
+	err = sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingTopoAdd),
+		id, methodTopoAdd, []SubDevTopoAddParams{
+			{
+				node.ProductKey,
+				node.DeviceName,
+				clientID,
+				timestamp,
+				infra.SignMethodHMACSHA1,
+				sign,
+			},
+		})
+	if err != nil {
+		return err
+	}
+	sf.CacheInsert(id, devID, MsgTypeTopoAdd, methodTopoAdd)
+	sf.debug("upstream GW thing <topo>: add @%d", id)
+	return nil
+}
+
+type GwTopoDeleteParams struct {
+	ProductKey string `json:"productKey"`
+	DeviceName string `json:"deviceName"`
+}
+
+// UpstreamGwThingTopoDelete 删除与子设备的关系
+func (sf *Client) UpstreamGwThingTopoDelete(devID int) error {
+	if devID < 0 {
+		return ErrInvalidParameter
+	}
+	node, err := sf.SearchNodeByID(devID)
+	if err != nil {
+		return err
+	}
+	id := sf.RequestID()
+	if err = sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingTopoDelete),
+		id, methodTopoDelete, []GwTopoDeleteParams{
+			{
+				node.ProductKey,
+				node.DeviceName,
+			},
+		}); err != nil {
+		return err
+	}
+	sf.CacheInsert(id, devID, MsgTypeTopoDelete, methodTopoDelete)
+	sf.debug("upstream GW thing <topo>: delete @%d", id)
 	return nil
 }
 
@@ -67,7 +94,40 @@ type GwTopoGetResponse struct {
 	Data []GwTopoGetData `json:"data"`
 }
 
+// UpstreamGwThingTopoGet 获取该网关和子设备的拓扑关系
 func (sf *Client) UpstreamGwThingTopoGet() error {
-	return sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingTopoGet),
-		sf.RequestID(), methodTopoGet, "{}")
+	id := sf.RequestID()
+
+	if err := sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingTopoGet),
+		id, methodTopoGet, "{}"); err != nil {
+		return err
+	}
+	sf.CacheInsert(id, DevLocal, MsgTypeTopoGet, methodTopoGet)
+	sf.debug("upstream GW thing <topo>: Get @%d", id)
+	return nil
+}
+
+type GwDevListFoundParams struct {
+	ProductKey string `json:"productKey"`
+	DeviceName string `json:"deviceName"`
+}
+
+func (sf *Client) UpstreamGwThingListFound(devID int) error {
+	if devID < 0 {
+		return ErrInvalidParameter
+	}
+	node, err := sf.SearchNodeByID(devID)
+	if err != nil {
+		return err
+	}
+	id := sf.RequestID()
+	if err = sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingListFound),
+		id, methodListFound, []GwDevListFoundParams{{
+			node.ProductKey,
+			node.DeviceName}}); err != nil {
+		return err
+	}
+	sf.CacheInsert(id, DevLocal, MsgTypeDevListFound, methodListFound)
+	sf.debug("upstream GW thing <list>: found @%d", id)
+	return nil
 }

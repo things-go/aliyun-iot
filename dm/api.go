@@ -26,10 +26,13 @@ const (
 	MsgTypeExtNtpRequest                        //!< query ntp time from cloud
 	MsgTypeConfigGet                            //!< 获取配置
 
+	MsgTypeTopoAdd                     //!< 网关,添加设备拓扑关系
+	MsgTypeTopoDelete                  //!< 网关,删除设备拓扑关系
+	MsgTypeTopoGet                     //!< 网关,查询设备拓扑关系
+	MsgTypeDevListFound                //!< 网关,设备发现链表上报
 	MsgTypeSubDevLogin                 //!< only for slave device, send login request to cloud
 	MsgTypeSubDevLogout                //!< only for slave device, send logout request to cloud
 	MsgTypeSubDevDeleteTopo            //!< only for slave device, send delete topo request to cloud
-	MsgTypeQueryTopoList               //!< only for master device, query topo list
 	MsgTypeQueryFOTAData               //!< only for master device, qurey firmware ota data
 	MsgTypeQueryCOTAData               //!< only for master device, qurey config ota data
 	MsgTypeRequestCOTA                 //!< only for master device, request config ota data from cloud
@@ -237,7 +240,7 @@ func (sf *Client) AlinkQuery(msgType MsgType, devID int, payload ...interface{})
 		return sf.UpstreamExtNtpRequest()
 	case MsgTypeConfigGet:
 		return sf.UpstreamThingConfigGet(devID)
-	case MsgTypeQueryTopoList:
+	case MsgTypeTopoGet:
 		// TODO
 	case MsgTypeQueryCOTAData:
 	case MsgTypeQueryFOTAData:

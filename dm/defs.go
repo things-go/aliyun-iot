@@ -22,7 +22,8 @@ const (
 	//methodSubDevDisable  = "thing.disable"
 	//methodSubDevEnable   = "thing.enable"
 	//methodSubDevDelete   = "thing.delete"
-	methodTopoAdd = "thing.topo.add"
-	//methodTopoDelete = "thing.topo.delete"
-	methodTopoGet = "thing.topo.get"
+	methodTopoAdd    = "thing.topo.add"
+	methodTopoDelete = "thing.topo.delete"
+	methodTopoGet    = "thing.topo.get"
+	methodListFound  = "thing.list.found"
 )
