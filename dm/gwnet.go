@@ -30,8 +30,8 @@ func (sf *Client) UpstreamGwThingTopoAdd(devID int) error {
 	}
 
 	timestamp := time.Now().Unix()
-	clientID := fmt.Sprintf("%s.%s|_v=%s|", node.ProductKey, node.DeviceName, infra.IOTSDKVersion)
-	sign, err := generateSign(node.ProductKey, node.DeviceName, node.DeviceSecret, clientID, timestamp)
+	clientID := fmt.Sprintf("%s.%s|_v=%s|", node.productKey, node.deviceName, infra.IOTSDKVersion)
+	sign, err := generateSign(node.productKey, node.deviceName, node.deviceSecret, clientID, timestamp)
 	if err != nil {
 		return err
 	}
@@ -39,8 +39,8 @@ func (sf *Client) UpstreamGwThingTopoAdd(devID int) error {
 	err = sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingTopoAdd),
 		id, methodTopoAdd, []SubDevTopoAddParams{
 			{
-				node.ProductKey,
-				node.DeviceName,
+				node.productKey,
+				node.deviceName,
 				clientID,
 				timestamp,
 				infra.SignMethodHMACSHA1,
@@ -73,8 +73,8 @@ func (sf *Client) UpstreamGwThingTopoDelete(devID int) error {
 	if err = sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingTopoDelete),
 		id, methodTopoDelete, []GwTopoDeleteParams{
 			{
-				node.ProductKey,
-				node.DeviceName,
+				node.productKey,
+				node.deviceName,
 			},
 		}); err != nil {
 		return err
@@ -123,8 +123,8 @@ func (sf *Client) UpstreamGwThingListFound(devID int) error {
 	id := sf.RequestID()
 	if err = sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingListFound),
 		id, methodListFound, []GwDevListFoundParams{{
-			node.ProductKey,
-			node.DeviceName}}); err != nil {
+			node.productKey,
+			node.deviceName}}); err != nil {
 		return err
 	}
 	sf.CacheInsert(id, DevLocal, MsgTypeDevListFound, methodListFound)

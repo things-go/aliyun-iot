@@ -63,7 +63,7 @@ type Client struct {
 
 	cfg Config
 
-	*devMgr
+	*DevMgr
 	msgCache *cache.Cache
 	pool     *pool
 	Conn
@@ -75,7 +75,7 @@ type Client struct {
 func New(cfg *Config) *Client {
 	sf := &Client{
 		cfg:         *cfg,
-		devMgr:      newDevMgr(),
+		DevMgr:      NewDevMgr(),
 		gwUserProc:  GwNopUserProc{},
 		devUserProc: DevNopUserProc{},
 	}
@@ -107,7 +107,7 @@ func (sf *Client) Connect() error {
 //	if !sf.cfg.hasGateway {
 //		return 0, ErrFeatureNotSupport
 //	}
-//	return sf.Create(DevTypeSubDev, info.ProductKey, info.DeviceName, info.DeviceSecret)
+//	return sf.Create(DevTypeSubDev, info.productKey, info.deviceName, info.deviceSecret)
 //}
 //
 //func (sf *Client) SubDeviceConnect(id int) {

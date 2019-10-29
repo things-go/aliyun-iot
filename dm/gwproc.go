@@ -18,21 +18,6 @@ func (GwNopUserProc) DownstreamGwExtSubDevCombineLogoutReply(m *Client, rsp *Res
 	return nil
 }
 
-// DownstreamGwSubDevThingDisable see interface GatewayUserProc
-func (GwNopUserProc) DownstreamGwSubDevThingDisable(m *Client, productKey, deviceName string) error {
-	return nil
-}
-
-// DownstreamGwSubDevThingEnable see interface GatewayUserProc
-func (GwNopUserProc) DownstreamGwSubDevThingEnable(m *Client, productKey, deviceName string) error {
-	return nil
-}
-
-// DownstreamGwSubDevThingDelete see interface GatewayUserProc
-func (GwNopUserProc) DownstreamGwSubDevThingDelete(m *Client, productKey, deviceName string) error {
-	return nil
-}
-
 // DownstreamGwThingTopoAddReply see interface GatewayUserProc
 func (GwNopUserProc) DownstreamGwThingTopoAddReply(m *Client, rsp *Response) error {
 	return nil
