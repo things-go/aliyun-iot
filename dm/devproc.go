@@ -2,8 +2,6 @@ package dm
 
 import (
 	"encoding/json"
-
-	"github.com/thinkgos/aliIOT/infra"
 )
 
 // DevNopUserProc 实现DevUserProc接口的空实现
@@ -85,7 +83,7 @@ func (DevNopUserProc) DownstreamThingServicePropertySet(c *Client, topic string,
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return nil
 	}
-	return c.SendResponse(URIServiceReplyWithRequestURI(topic), rsp.ID, infra.CodeSuccess, "{}")
+	return c.SendResponse(URIServiceReplyWithRequestURI(topic), rsp.ID, CodeSuccess, "{}")
 }
 
 // DownstreamThingServiceRequest see interface DevUserProc
@@ -96,7 +94,7 @@ func (DevNopUserProc) DownstreamThingServiceRequest(c *Client, productKey, devic
 	}
 
 	return c.SendResponse(c.URIService(URISysPrefix, URIThingServiceRequest, productKey, deviceName, srvID),
-		rsp.ID, infra.CodeSuccess, "{}")
+		rsp.ID, CodeSuccess, "{}")
 }
 
 // DownStreamRRPCRequest see interface DevUserProc

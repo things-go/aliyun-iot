@@ -185,26 +185,26 @@ func (sf *Client) AlinkReport(msgType MsgType, devID int, payload interface{}) e
 		if !sf.cfg.hasRawModel {
 			return ErrNotSupportFeature
 		}
-		return sf.upstreamThingModelUpRaw(devID, payload)
+		return sf.UpstreamThingModelUpRaw(devID, payload)
 	case MsgTypeEventPropertyPost:
 		if sf.cfg.hasRawModel {
 			return ErrNotSupportFeature
 		}
-		return sf.upstreamThingEventPropertyPost(devID, payload)
+		return sf.UpstreamThingEventPropertyPost(devID, payload)
 	case MsgTypeDesiredPropertyGet:
 		if !sf.cfg.hasDesired {
 			return ErrNotSupportFeature
 		}
-		return sf.upstreamThingDesiredPropertyGet(devID, payload)
+		return sf.UpstreamThingDesiredPropertyGet(devID, payload)
 	case MsgTypeDesiredPropertyDelete:
 		if !sf.cfg.hasDesired {
 			return ErrNotSupportFeature
 		}
-		return sf.upstreamThingDesiredPropertyDelete(devID, payload)
+		return sf.UpstreamThingDesiredPropertyDelete(devID, payload)
 	case MsgTypeDeviceInfoUpdate:
-		return sf.upstreamThingDeviceInfoUpdate(devID, payload)
+		return sf.UpstreamThingDeviceInfoUpdate(devID, payload)
 	case MsgTypeDeviceInfoDelete:
-		return sf.upstreamThingDeviceInfoDelete(devID, payload)
+		return sf.UpstreamThingDeviceInfoDelete(devID, payload)
 
 	case MsgTypeSubDevLogin:
 		// TODO
@@ -226,17 +226,17 @@ func (sf *Client) AlinkReport(msgType MsgType, devID int, payload interface{}) e
 func (sf *Client) AlinkQuery(msgType MsgType, devID int, payload ...interface{}) error {
 	switch msgType {
 	case MsgTypeDsltemplateGet:
-		return sf.upstreamThingDsltemplateGet(devID)
+		return sf.UpstreamThingDsltemplateGet(devID)
 		// TODO: BUG
 	case MsgTypeDynamictslGet:
-		return sf.upstreamThingDynamictslGet()
+		return sf.UpstreamThingDynamictslGet()
 	case MsgTypeExtNtpRequest:
 		if !sf.cfg.hasNTP || sf.cfg.hasRawModel {
 			return ErrNotSupportFeature
 		}
-		return sf.upstreamExtNtpRequest()
+		return sf.UpstreamExtNtpRequest()
 	case MsgTypeConfigGet:
-		return sf.upstreamThingConfigGet(devID)
+		return sf.UpstreamThingConfigGet(devID)
 	case MsgTypeQueryTopoList:
 		// TODO
 	case MsgTypeQueryCOTAData:
@@ -249,5 +249,5 @@ func (sf *Client) AlinkQuery(msgType MsgType, devID int, payload ...interface{})
 
 // AlinkTriggerEvent 事件上报
 func (sf *Client) AlinkTriggerEvent(devID int, eventID string, payload interface{}) error {
-	return sf.upstreamThingEventPost(devID, eventID, payload)
+	return sf.UpstreamThingEventPost(devID, eventID, payload)
 }

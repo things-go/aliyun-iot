@@ -2,15 +2,13 @@ package dm
 
 import (
 	"encoding/json"
-
-	"github.com/thinkgos/aliIOT/infra"
 )
 
 // ProcDownStreamFunc 处理下行数据
 type ProcDownStreamFunc func(m *Client, rawURI string, payload []byte) error
 
-// procThingModelUpRawReply 处理透传上行的应答
-func procThingModelUpRawReply(m *Client, rawURI string, payload []byte) error {
+// ProcThingModelUpRawReply 处理透传上行的应答
+func ProcThingModelUpRawReply(m *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (m.cfg.uriOffset + 6) {
 		return ErrInvalidURI
@@ -19,8 +17,8 @@ func procThingModelUpRawReply(m *Client, rawURI string, payload []byte) error {
 	return m.devUserProc.DownstreamThingModelUpRawReply(m, uris[m.cfg.uriOffset+1], uris[m.cfg.uriOffset+2], payload)
 }
 
-// procThingEventPostReply 处理ThingEvent XXX上行的应答
-func procThingEventPostReply(m *Client, rawURI string, payload []byte) error {
+// ProcThingEventPostReply 处理ThingEvent XXX上行的应答
+func ProcThingEventPostReply(m *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (m.cfg.uriOffset + 7) {
 		return ErrInvalidURI
@@ -40,8 +38,8 @@ func procThingEventPostReply(m *Client, rawURI string, payload []byte) error {
 	return m.devUserProc.DownstreamThingEventPostReply(m, eventID, &rsp)
 }
 
-// procThingDeviceInfoUpdateReply 处理设备信息更新应答
-func procThingDeviceInfoUpdateReply(m *Client, rawURI string, payload []byte) error {
+// ProcThingDeviceInfoUpdateReply 处理设备信息更新应答
+func ProcThingDeviceInfoUpdateReply(m *Client, rawURI string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
@@ -51,8 +49,8 @@ func procThingDeviceInfoUpdateReply(m *Client, rawURI string, payload []byte) er
 	return m.devUserProc.DownstreamThingDeviceInfoUpdateReply(m, &rsp)
 }
 
-// procThingDeviceInfoDeleteReply 处理设备信息删除的应答
-func procThingDeviceInfoDeleteReply(m *Client, rawURI string, payload []byte) error {
+// ProcThingDeviceInfoDeleteReply 处理设备信息删除的应答
+func ProcThingDeviceInfoDeleteReply(m *Client, rawURI string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
@@ -62,8 +60,8 @@ func procThingDeviceInfoDeleteReply(m *Client, rawURI string, payload []byte) er
 	return m.devUserProc.DownstreamThingDeviceInfoDeleteReply(m, &rsp)
 }
 
-// procThingDesiredPropertyGetReply 处理期望属性获取的应答
-func procThingDesiredPropertyGetReply(m *Client, rawURI string, payload []byte) error {
+// ProcThingDesiredPropertyGetReply 处理期望属性获取的应答
+func ProcThingDesiredPropertyGetReply(m *Client, rawURI string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
@@ -73,8 +71,8 @@ func procThingDesiredPropertyGetReply(m *Client, rawURI string, payload []byte) 
 	return m.devUserProc.DownstreamThingDesiredPropertyGetReply(m, &rsp)
 }
 
-// procThingDesiredPropertyDeleteReply 处理期望属性删除的应答
-func procThingDesiredPropertyDeleteReply(m *Client, rawURI string, payload []byte) error {
+// ProcThingDesiredPropertyDeleteReply 处理期望属性删除的应答
+func ProcThingDesiredPropertyDeleteReply(m *Client, rawURI string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
@@ -84,8 +82,8 @@ func procThingDesiredPropertyDeleteReply(m *Client, rawURI string, payload []byt
 	return m.devUserProc.DownstreamThingDesiredPropertyDeleteReply(m, &rsp)
 }
 
-// procThingDsltemplateGetReply 处理dsltemplate获取的应答
-func procThingDsltemplateGetReply(m *Client, rawURI string, payload []byte) error {
+// ProcThingDsltemplateGetReply 处理dsltemplate获取的应答
+func ProcThingDsltemplateGetReply(m *Client, rawURI string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
@@ -96,7 +94,7 @@ func procThingDsltemplateGetReply(m *Client, rawURI string, payload []byte) erro
 }
 
 // TODO: 不使用??
-func procThingDynamictslGetReply(m *Client, rawURI string, payload []byte) error {
+func ProcThingDynamictslGetReply(m *Client, rawURI string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
@@ -105,8 +103,8 @@ func procThingDynamictslGetReply(m *Client, rawURI string, payload []byte) error
 	return m.devUserProc.DownstreamThingDynamictslGetReply(m, &rsp)
 }
 
-// procExtNtpResponse 处理ntp请求的应答
-func procExtNtpResponse(m *Client, rawURI string, payload []byte) error {
+// ProcExtNtpResponse 处理ntp请求的应答
+func ProcExtNtpResponse(m *Client, rawURI string, payload []byte) error {
 	rsp := NtpResponsePayload{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
@@ -115,8 +113,8 @@ func procExtNtpResponse(m *Client, rawURI string, payload []byte) error {
 	return m.devUserProc.DownstreamExtNtpResponse(m, &rsp)
 }
 
-// procThingConfigGetReply 处理获取配置的应答
-func procThingConfigGetReply(m *Client, rawURI string, payload []byte) error {
+// ProcThingConfigGetReply 处理获取配置的应答
+func ProcThingConfigGetReply(m *Client, rawURI string, payload []byte) error {
 	rsp := ConfigGetResponse{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
@@ -126,8 +124,8 @@ func procThingConfigGetReply(m *Client, rawURI string, payload []byte) error {
 	return m.devUserProc.DownstreamThingConfigGetReply(m, &rsp)
 }
 
-// procExtErrorResponse 处理错误的回复
-func procExtErrorResponse(m *Client, rawURI string, payload []byte) error {
+// ProcExtErrorResponse 处理错误的回复
+func ProcExtErrorResponse(m *Client, rawURI string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
@@ -138,8 +136,8 @@ func procExtErrorResponse(m *Client, rawURI string, payload []byte) error {
 	return m.devUserProc.DownstreamExtErrorResponse(m, &rsp)
 }
 
-// procThingModelDownRaw 处理透传下行数据
-func procThingModelDownRaw(m *Client, rawURI string, payload []byte) error {
+// ProcThingModelDownRaw 处理透传下行数据
+func ProcThingModelDownRaw(m *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (m.cfg.uriOffset + 6) {
 		return ErrInvalidURI
@@ -148,23 +146,23 @@ func procThingModelDownRaw(m *Client, rawURI string, payload []byte) error {
 	return m.devUserProc.DownstreamThingModelDownRaw(m, uris[m.cfg.uriOffset+1], uris[m.cfg.uriOffset+2], payload)
 }
 
-// procThingConfigPush 处理配置推送
-func procThingConfigPush(m *Client, rawURI string, payload []byte) error {
+// ProcThingConfigPush 处理配置推送
+func ProcThingConfigPush(m *Client, rawURI string, payload []byte) error {
 	req := ConfigPushRequest{}
 	if err := json.Unmarshal(payload, &req); err != nil {
 		return err
 	}
 	m.debug("downstream thing <config>: push request")
 	if err := m.SendResponse(URIServiceReplyWithRequestURI(rawURI),
-		req.ID, infra.CodeSuccess, "{}"); err != nil {
+		req.ID, CodeSuccess, "{}"); err != nil {
 		return err
 	}
 	return m.devUserProc.DownstreamThingConfigPush(m, &req)
 }
 
-// procThingServicePropertySet 处理属性设置
+// ProcThingServicePropertySet 处理属性设置
 // 处理 thing/service/property/set
-func procThingServicePropertySet(m *Client, rawURI string, payload []byte) error {
+func ProcThingServicePropertySet(m *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (m.cfg.uriOffset + 7) {
 		return ErrInvalidURI
@@ -173,9 +171,9 @@ func procThingServicePropertySet(m *Client, rawURI string, payload []byte) error
 	return m.devUserProc.DownstreamThingServicePropertySet(m, rawURI, payload)
 }
 
-// procThingServiceRequest 处理服务调用
+// ProcThingServiceRequest 处理服务调用
 // 处理 thing/service/{tsl.event.identifier}
-func procThingServiceRequest(m *Client, rawURI string, payload []byte) error {
+func ProcThingServiceRequest(m *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (m.cfg.uriOffset + 6) {
 		return ErrInvalidURI
@@ -185,8 +183,8 @@ func procThingServiceRequest(m *Client, rawURI string, payload []byte) error {
 	return m.devUserProc.DownstreamThingServiceRequest(m, uris[m.cfg.uriOffset+1], uris[m.cfg.uriOffset+2], serviceID, payload)
 }
 
-// procRRPCRequest 处理RRPC请求
-func procRRPCRequest(m *Client, rawURI string, payload []byte) error {
+// ProcRRPCRequest 处理RRPC请求
+func ProcRRPCRequest(m *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (m.cfg.uriOffset + 6) {
 		return ErrInvalidURI
@@ -265,7 +263,7 @@ func ProcThingDisable(m *Client, rawURI string, payload []byte) error {
 		return err
 	}
 
-	if err := m.SendResponse(URIServiceReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}"); err != nil {
+	if err := m.SendResponse(URIServiceReplyWithRequestURI(rawURI), req.ID, CodeSuccess, "{}"); err != nil {
 		return err
 	}
 	return m.gwUserProc.DownstreamGwSubDevThingDisable(m, uris[1], uris[2])
@@ -281,7 +279,7 @@ func ProcThingEnable(m *Client, rawURI string, payload []byte) error {
 		return err
 	}
 
-	if err := m.SendResponse(URIServiceReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}"); err != nil {
+	if err := m.SendResponse(URIServiceReplyWithRequestURI(rawURI), req.ID, CodeSuccess, "{}"); err != nil {
 		return err
 	}
 	return m.gwUserProc.DownstreamGwSubDevThingDisable(m, "", "")
@@ -297,7 +295,7 @@ func ProcThingDelete(m *Client, rawURI string, payload []byte) error {
 		return err
 	}
 
-	if err := m.SendResponse(URIServiceReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}"); err != nil {
+	if err := m.SendResponse(URIServiceReplyWithRequestURI(rawURI), req.ID, CodeSuccess, "{}"); err != nil {
 		return err
 	}
 	return m.gwUserProc.DownstreamGwSubDevThingDisable(m, "", "")
