@@ -53,7 +53,7 @@ func (sf *MQTTClient) UnderlyingClient() mqtt.Client {
 // NewWithMQTT 新建MQTTClient
 func NewWithMQTT(config *dm.Config, c mqtt.Client) *MQTTClient {
 	m := dm.New(config)
-	mqttCli := &MQTTClient{c, m, clog.NewWithPrefix("mqtt --> ")}
-	m.SetConn(mqttCli)
-	return mqttCli
+	cli := &MQTTClient{c, m, clog.NewWithPrefix("mqtt --> ")}
+	m.SetConn(cli)
+	return cli
 }

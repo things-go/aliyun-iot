@@ -50,7 +50,7 @@ func NewWithHTTP(config *dm.Config) *HTTPClient {
 			MetaInfo())
 
 	sf := dm.New(config)
-	httpClient := &HTTPClient{c: client, Client: sf}
-	sf.SetConn(httpClient)
-	return httpClient
+	cli := &HTTPClient{c: client, Client: sf}
+	sf.SetConn(cli)
+	return cli
 }
