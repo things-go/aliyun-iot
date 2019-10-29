@@ -270,6 +270,7 @@ func (sf *Client) publish(uri string, payload interface{}) (int64, error) {
 	return 0, err
 }
 
+// Publish 数据推送
 func (sf *Client) Publish(uri string, payload interface{}) error {
 	_, err := sf.publish(uri, payload)
 	if err != nil {

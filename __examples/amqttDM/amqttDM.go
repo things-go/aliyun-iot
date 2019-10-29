@@ -66,6 +66,7 @@ func main() {
 	//go NTPTest()
 
 	EventPostTest()
+
 }
 
 func EventPostTest() {
@@ -131,7 +132,7 @@ func DslTemplateTest() {
 }
 
 func dynamictslTest() {
-	err := dmClient.UpstreamThingDynamictslGet()
+	err := dmClient.upstreamThingDynamictslGet()
 	if err != nil {
 		panic(err)
 	}

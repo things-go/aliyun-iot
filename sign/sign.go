@@ -155,7 +155,7 @@ func (sf *MQTTSign) SetSupportDeviceModel(enable bool) *MQTTSign {
 	return sf
 }
 
-// 支持扩展RRPC 仅物模型下支持
+// SetSupportExtRRPC 支持扩展RRPC 仅物模型下支持
 func (sf *MQTTSign) SetSupportExtRRPC() *MQTTSign {
 	if _, ok := sf.clientIDkv["v"]; ok {
 		sf.clientIDkv["ext"] = "1"
@@ -164,6 +164,7 @@ func (sf *MQTTSign) SetSupportExtRRPC() *MQTTSign {
 	return sf
 }
 
+// SetSDKVersion 设备SDK版本
 func (sf *MQTTSign) SetSDKVersion(ver string) *MQTTSign {
 	sf.clientIDkv["_v"] = ver
 	return sf

@@ -6,35 +6,43 @@ import (
 	"github.com/thinkgos/aliIOT/dm"
 )
 
+// HTTPClient HTTP客户端
 type HTTPClient struct {
 	c *ahttp.Client
 	*dm.Client
 }
 
-func (sf *HTTPClient) Publish(topic string, qos byte, payload interface{}) error {
+// Publish 实现dm.Conn接口
+func (sf *HTTPClient) Publish(topic string, _ byte, payload interface{}) error {
 	return sf.c.Publish(topic, payload)
 }
 
-func (sf *HTTPClient) Subscribe(topic string, streamFunc dm.ProcDownStreamFunc) error {
+// Subscribe 实现dm.Conn接口
+func (sf *HTTPClient) Subscribe(_ string, _ dm.ProcDownStreamFunc) error {
 	return nil
 }
 
-func (sf *HTTPClient) UnSubscribe(topic ...string) error {
+// UnSubscribe 实现dm.Conn接口
+func (sf *HTTPClient) UnSubscribe(_ ...string) error {
 	return nil
 }
 
+// LogProvider 实现dm.Conn接口
 func (sf *HTTPClient) LogProvider() clog.LogProvider {
 	return sf.c.Clog
 }
 
+// LogMode 实现dm.Conn接口
 func (sf *HTTPClient) LogMode(enable bool) {
 	sf.c.LogMode(enable)
 }
 
-func (sf *HTTPClient) UnderlyingClient() interface{} {
+// UnderlyingClient 底层客户端
+func (sf *HTTPClient) UnderlyingClient() *ahttp.Client {
 	return sf.c
 }
 
+// NewWithHTTP 新建HTTP客户端
 func NewWithHTTP(config *dm.Config) *HTTPClient {
 	client := ahttp.New().
 		SetDeviceMetaInfo(config.

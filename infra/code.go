@@ -3,14 +3,29 @@ package infra
 // 通用公共错误
 // see https://help.aliyun.com/document_detail/120329.html?spm=a2c4g.11186623.6.677.efd1a684yZutHX
 const (
-	CodeSuccess                = 200 // 请求成功
-	CodeRequestError           = 400 // 请求错误
-	CodeRequestParamsError     = 460 // 请求参数错误,主要设备上报的数据为空，或参数格式错误、参数的数量超过限制等原因
-	CodeRequestTooMany         = 429 // 请求过于频繁,触发系统限流
-	CodeSystemUnknownException = 500 // 系统发生未知异常。
+	CodeSuccess                       = 200  // 请求成功
+	CodeRequestError                  = 400  // 请求错误
+	CodeRequestParamsError            = 460  // 请求参数错误,主要设备上报的数据为空，或参数格式错误、参数的数量超过限制等原因
+	CodeRequestTooMany                = 429  // 请求过于频繁,触发系统限流
+	CodeSystemUnknownException        = 500  // 系统发生未知异常。
+	CodeQueryProductInfoFailed        = 5005 // 查询产品信息失败。
+	CodeQueryProductInfoFailed1       = 6250 // 查询产品信息失败。
+	CodeQueryLoRaWANProductInfoFailed = 5244 // 查询LoRaWAN类型产品的元信息失败。
+	CodeDeviceNotFound                = 6100 // 查询设备信息时,未查询到指定设备信息. 子设备不存在
+	CodeParseTopicFailed              = 6203 // 解析Topic时失败。
+	CodeDeviceDisabled                = 6204 // 设备已被禁用，不能对设备进行操作。
+	CodeRawModelMissMethod            = 6450 // 自定义/透传格式数据经过脚本解析为Alink标准格式数据后，无method。
+	CodeSystemException               = 6760 // 系统异常。
+	CodeTimeout                       = 100000
+)
 
-	CodeDeviceNotFound = 6100 // 查询设备信息时,未查询到指定设备信息. 子设备不存在
-	CodeTimeout        = 100000
+// 数据解析公共错误码
+const (
+	CodeDpScriptEmpty          = 26001 // 执行数据解析时，获取的脚本内容为空
+	CodeDpScriptIssue          = 26002 // 脚本执行正常，但脚本内容有问题，如脚本中语法错误
+	CodeDpScriptFailed         = 26006 // 脚本执行正常，脚本内容有误.脚本中，要求有protocolToRawData和rawDataToProtocol这两个服务。如果缺失，会报错。
+	CodeDpScriptFailed1        = 26007 // 脚本执行正常，但返回结果不符合格式要求
+	CodeDpScriptRequestTooMuch = 26010 // 请求过于频繁，导致被限流。
 )
 
 // 设备身份注册相关错误码

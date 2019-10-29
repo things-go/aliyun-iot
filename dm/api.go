@@ -79,7 +79,7 @@ func New(cfg *Config) *Client {
 		sf.pool = newPool()
 		sf.msgCache = cache.New(time.Second*10, time.Second*30)
 	}
-	sf.CacheInit()
+	sf.cacheInit()
 	err := sf.insert(DevLocal, DevTypeSingle, cfg.productKey, cfg.deviceName, cfg.deviceSecret)
 	if err != nil {
 		panic(fmt.Sprintf("device local duplicate,cause: %+v", err))
@@ -185,26 +185,26 @@ func (sf *Client) AlinkReport(msgType MsgType, devID int, payload interface{}) e
 		if !sf.cfg.hasRawModel {
 			return ErrNotSupportFeature
 		}
-		return sf.UpstreamThingModelUpRaw(devID, payload)
+		return sf.upstreamThingModelUpRaw(devID, payload)
 	case MsgTypeEventPropertyPost:
 		if sf.cfg.hasRawModel {
 			return ErrNotSupportFeature
 		}
-		return sf.UpstreamThingEventPropertyPost(devID, payload)
+		return sf.upstreamThingEventPropertyPost(devID, payload)
 	case MsgTypeDesiredPropertyGet:
 		if !sf.cfg.hasDesired {
 			return ErrNotSupportFeature
 		}
-		return sf.UpstreamThingDesiredPropertyGet(devID, payload)
+		return sf.upstreamThingDesiredPropertyGet(devID, payload)
 	case MsgTypeDesiredPropertyDelete:
 		if !sf.cfg.hasDesired {
 			return ErrNotSupportFeature
 		}
-		return sf.UpstreamThingDesiredPropertyDelete(devID, payload)
+		return sf.upstreamThingDesiredPropertyDelete(devID, payload)
 	case MsgTypeDeviceInfoUpdate:
-		return sf.UpstreamThingDeviceInfoUpdate(devID, payload)
+		return sf.upstreamThingDeviceInfoUpdate(devID, payload)
 	case MsgTypeDeviceInfoDelete:
-		return sf.UpstreamThingDeviceInfoDelete(devID, payload)
+		return sf.upstreamThingDeviceInfoDelete(devID, payload)
 
 	case MsgTypeSubDevLogin:
 		// TODO
@@ -226,17 +226,17 @@ func (sf *Client) AlinkReport(msgType MsgType, devID int, payload interface{}) e
 func (sf *Client) AlinkQuery(msgType MsgType, devID int, payload ...interface{}) error {
 	switch msgType {
 	case MsgTypeDsltemplateGet:
-		return sf.UpstreamThingDsltemplateGet(devID)
+		return sf.upstreamThingDsltemplateGet(devID)
 		// TODO: 不使用??
 	//case MsgTypeDynamictslGet:
-	//	return sf.UpstreamThingDynamictslGet()
+	//	return sf.upstreamThingDynamictslGet()
 	case MsgTypeExtNtpRequest:
 		if !sf.cfg.hasNTP || sf.cfg.hasRawModel {
 			return ErrNotSupportFeature
 		}
-		return sf.UpstreamExtNtpRequest()
+		return sf.upstreamExtNtpRequest()
 	case MsgTypeConfigGet:
-		return sf.UpstreamThingConfigGet(devID)
+		return sf.upstreamThingConfigGet(devID)
 	case MsgTypeQueryTopoList:
 		// TODO
 	case MsgTypeQueryCOTAData:
@@ -249,5 +249,5 @@ func (sf *Client) AlinkQuery(msgType MsgType, devID int, payload ...interface{})
 
 // AlinkTriggerEvent 事件上报
 func (sf *Client) AlinkTriggerEvent(devID int, eventID string, payload interface{}) error {
-	return sf.UpstreamThingEventPost(devID, eventID, payload)
+	return sf.upstreamThingEventPost(devID, eventID, payload)
 }

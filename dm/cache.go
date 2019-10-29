@@ -13,8 +13,8 @@ type messageCacheEntry struct {
 	data    string
 }
 
-// 缓存使能
-func (sf *Client) CacheInit() {
+// cacheInit 缓存初始化
+func (sf *Client) cacheInit() {
 	if !sf.cfg.hasCache {
 		return
 	}

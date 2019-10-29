@@ -109,7 +109,7 @@ const (
 	URIThingTopoGetReply    = "thing/topo/get_reply"
 )
 
-// URIServiceSelf 生成URI, inName的作用是有一些需要格式化到name里.
+// URIService 生成URI, inName的作用是有一些需要格式化到name里.
 func URIService(prefix, name, productKey, deviceName string, inName ...string) string {
 	str := strings.Builder{}
 	str.Grow(len(prefix) + len(name) + len(productKey) + len(deviceName))

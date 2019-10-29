@@ -6,8 +6,8 @@ import (
 	"time"
 )
 
-// UpstreamThingModelUpRaw 上传透传数据
-func (sf *Client) UpstreamThingModelUpRaw(devID int, payload interface{}) error {
+// upstreamThingModelUpRaw 上传透传数据
+func (sf *Client) upstreamThingModelUpRaw(devID int, payload interface{}) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
@@ -25,8 +25,8 @@ func (sf *Client) UpstreamThingModelUpRaw(devID int, payload interface{}) error 
 	return nil
 }
 
-// UpstreamThingPropertyPost 上传属性数据
-func (sf *Client) UpstreamThingEventPropertyPost(devID int, params interface{}) error {
+// upstreamThingEventPropertyPost 上传属性数据
+func (sf *Client) upstreamThingEventPropertyPost(devID int, params interface{}) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
@@ -48,8 +48,8 @@ func (sf *Client) UpstreamThingEventPropertyPost(devID int, params interface{}) 
 	return nil
 }
 
-// UpstreamThingEventPost 事件上传
-func (sf *Client) UpstreamThingEventPost(devID int, eventID string, params interface{}) error {
+// upstreamThingEventPost 事件上传
+func (sf *Client) upstreamThingEventPost(devID int, eventID string, params interface{}) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
@@ -70,8 +70,8 @@ func (sf *Client) UpstreamThingEventPost(devID int, eventID string, params inter
 	return nil
 }
 
-// UpstreamThingDeviceInfoUpdate 设备信息上传
-func (sf *Client) UpstreamThingDeviceInfoUpdate(devID int, params interface{}) error {
+// upstreamThingDeviceInfoUpdate 设备信息上传
+func (sf *Client) upstreamThingDeviceInfoUpdate(devID int, params interface{}) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
@@ -93,8 +93,8 @@ func (sf *Client) UpstreamThingDeviceInfoUpdate(devID int, params interface{}) e
 	return nil
 }
 
-// UpstreamThingDeviceInfoDelete 设备信息删除
-func (sf *Client) UpstreamThingDeviceInfoDelete(devID int, params interface{}) error {
+// upstreamThingDeviceInfoDelete 设备信息删除
+func (sf *Client) upstreamThingDeviceInfoDelete(devID int, params interface{}) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
@@ -115,8 +115,8 @@ func (sf *Client) UpstreamThingDeviceInfoDelete(devID int, params interface{}) e
 	return nil
 }
 
-// UpstreamThingDesiredPropertyGet 获取期望值
-func (sf *Client) UpstreamThingDesiredPropertyGet(devID int, params interface{}) error {
+// upstreamThingDesiredPropertyGet 获取期望值
+func (sf *Client) upstreamThingDesiredPropertyGet(devID int, params interface{}) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
@@ -137,8 +137,8 @@ func (sf *Client) UpstreamThingDesiredPropertyGet(devID int, params interface{})
 	return nil
 }
 
-// UpstreamThingDesiredPropertyDelete 清空期望值
-func (sf *Client) UpstreamThingDesiredPropertyDelete(devID int, params interface{}) error {
+// upstreamThingDesiredPropertyDelete 清空期望值
+func (sf *Client) upstreamThingDesiredPropertyDelete(devID int, params interface{}) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
@@ -159,9 +159,9 @@ func (sf *Client) UpstreamThingDesiredPropertyDelete(devID int, params interface
 	return nil
 }
 
-// UpstreamThingDsltemplateGet 设备可以通过上行请求获取设备的TSL模板（包含属性、服务和事件的定义）
+// upstreamThingDsltemplateGet 设备可以通过上行请求获取设备的TSL模板（包含属性、服务和事件的定义）
 // see https://help.aliyun.com/document_detail/89305.html?spm=a2c4g.11186623.6.672.5d3d70374hpPcx
-func (sf *Client) UpstreamThingDsltemplateGet(devID int) error {
+func (sf *Client) upstreamThingDsltemplateGet(devID int) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
@@ -182,9 +182,9 @@ func (sf *Client) UpstreamThingDsltemplateGet(devID int) error {
 	return nil
 }
 
-// UpstreamThingDynamictslGet 获取
+// upstreamThingDynamictslGet 获取
 // TODO: 不使用??
-func (sf *Client) UpstreamThingDynamictslGet() error {
+func (sf *Client) upstreamThingDynamictslGet() error {
 	id := sf.RequestID()
 	err := sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingDynamicTslGet), id,
 		methodDynamicTslGet, `{"nodes":["type","identifier"],"addDefault":false}`)
@@ -203,10 +203,10 @@ type NtpResponsePayload struct {
 	ServerSendTime int64 `json:"serverSendTime,string"`
 }
 
-// UpstreamExtNtpRequest ntp请求
+// upstreamExtNtpRequest ntp请求
 // 发送一条Qos = 0的消息,并带上设备当前的时间戳,平台将回复 设备的发送时间,平台的接收时间, 平台的发送时间.
 // 设备计算当前精确时间 = (平台接收时间 + 平台发送时间 + 设备接收时间 - 设备发送时间) / 2
-func (sf *Client) UpstreamExtNtpRequest() error {
+func (sf *Client) upstreamExtNtpRequest() error {
 	err := sf.Publish(sf.URIServiceSelf(URIExtNtpPrefix, URINtpRequest),
 		0, fmt.Sprintf(`{"deviceSendTime":"%d"}`, time.Now().Unix()))
 	if err != nil {
@@ -244,8 +244,8 @@ type ConfigPushRequest struct {
 	Params ConfigParamsAndData `json:"params"`
 }
 
-// UpstreamThingConfigGet 获取配置参数
-func (sf *Client) UpstreamThingConfigGet(devID int) error {
+// upstreamThingConfigGet 获取配置参数
+func (sf *Client) upstreamThingConfigGet(devID int) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}

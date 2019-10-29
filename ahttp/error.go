@@ -18,6 +18,7 @@ const (
 	CodeRequestTooMany       = 40000
 )
 
+// 错误定义
 var (
 	ErrUnknown              = fmt.Errorf("code<%d>: unknown error", CodeUnknown)
 	ErrParamException       = fmt.Errorf("code<%d>: param exception", CodeParamException)

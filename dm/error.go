@@ -10,5 +10,5 @@ var (
 	ErrNotFound          = errors.New("not found")
 	ErrInvalidParameter  = errors.New("invalid parameter")
 	ErrNotSupportMsgType = errors.New("not support message type")
-	ErrNotSupportFeature = errors.New(" not support feature")
+	ErrNotSupportFeature = errors.New("not support feature")
 )
