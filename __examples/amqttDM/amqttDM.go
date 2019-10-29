@@ -132,7 +132,7 @@ func DslTemplateTest() {
 }
 
 func dynamictslTest() {
-	err := dmClient.upstreamThingDynamictslGet()
+	err := dmClient.AlinkQuery(dm.MsgTypeDynamictslGet, dm.DevLocal)
 	if err != nil {
 		panic(err)
 	}
