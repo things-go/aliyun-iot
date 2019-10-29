@@ -40,7 +40,7 @@ func (sf *Client) UpstreamThingGwSubDevRegister(devID int) error {
 	id := sf.RequestID()
 	if err = sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingSubDevRegister),
 		id, methodSubDevRegister, []GwSubDevRegisterParams{
-			{node.productKey, node.deviceName},
+			{node.ProductKey(), node.DeviceName()},
 		}); err != nil {
 		return err
 	}
@@ -79,10 +79,10 @@ func (sf *Client) UpstreamGwSubDevCombineLogin(devID int) error {
 		return err
 	}
 
-	clientID := fmt.Sprintf("%s.%s|_v=%s|", node.productKey, node.deviceName, infra.IOTSDKVersion)
+	clientID := fmt.Sprintf("%s.%s|_v=%s|", node.ProductKey(), node.DeviceName(), infra.IOTSDKVersion)
 	timestamp := time.Now().Unix()
 	sign, err := generateSign(
-		node.productKey, node.deviceName, node.deviceSecret,
+		node.ProductKey(), node.DeviceName(), node.DeviceSecret(),
 		clientID, timestamp)
 	if err != nil {
 		return err
@@ -91,8 +91,8 @@ func (sf *Client) UpstreamGwSubDevCombineLogin(devID int) error {
 	req, err := json.Marshal(&GwSubDevCombineLoginRequest{
 		id,
 		GwSubDevCombineLoginParams{
-			ProductKey:   node.productKey,
-			DeviceName:   node.deviceName,
+			ProductKey:   node.ProductKey(),
+			DeviceName:   node.DeviceName(),
 			ClientID:     clientID,
 			Timestamp:    timestamp,
 			SignMethod:   infra.SignMethodHMACSHA1,
@@ -142,8 +142,8 @@ func (sf *Client) UpstreamExtGwSubDevCombineLogout(devID int) error {
 	req, err := json.Marshal(&GwSubDevCombineLogoutRequest{
 		id,
 		GwSubDevCombineLogoutParams{
-			ProductKey: node.productKey,
-			DeviceName: node.deviceName,
+			ProductKey: node.ProductKey(),
+			DeviceName: node.DeviceName(),
 		},
 	})
 	if err != nil {
