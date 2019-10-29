@@ -1,4 +1,4 @@
-package dm
+package dmd
 
 const DevInfoLabelCoordinateKey = "coordinate" // 地理位置标签
 

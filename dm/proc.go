@@ -1,4 +1,4 @@
-package model
+package dm
 
 import (
 	"encoding/json"
@@ -6,10 +6,10 @@ import (
 	"github.com/thinkgos/aliIOT/infra"
 )
 
-type ProcDownStreamFunc func(m *Manager, rawURI string, payload []byte) error
+type ProcDownStreamFunc func(m *Client, rawURI string, payload []byte) error
 
 // ProcThingModelUpRawReply 处理透传上行的应答
-func ProcThingModelUpRawReply(m *Manager, rawURI string, payload []byte) error {
+func ProcThingModelUpRawReply(m *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (m.cfg.uriOffset + 6) {
 		return ErrInvalidURI
@@ -19,7 +19,7 @@ func ProcThingModelUpRawReply(m *Manager, rawURI string, payload []byte) error {
 }
 
 // ProcThingEventPost 处理ThingEvent XXX的应答
-func ProcThingEventPostReply(m *Manager, rawURI string, payload []byte) error {
+func ProcThingEventPostReply(m *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (m.cfg.uriOffset + 7) {
 		return ErrInvalidURI
@@ -39,7 +39,7 @@ func ProcThingEventPostReply(m *Manager, rawURI string, payload []byte) error {
 	return m.devUserProc.DownstreamThingEventPostReply(m, eventID, &rsp)
 }
 
-func ProcThingDeviceInfoUpdateReply(m *Manager, rawURI string, payload []byte) error {
+func ProcThingDeviceInfoUpdateReply(m *Client, rawURI string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
@@ -49,7 +49,7 @@ func ProcThingDeviceInfoUpdateReply(m *Manager, rawURI string, payload []byte) e
 	return m.devUserProc.DownstreamThingDeviceInfoUpdateReply(m, &rsp)
 }
 
-func ProcThingDeviceInfoDeleteReply(m *Manager, rawURI string, payload []byte) error {
+func ProcThingDeviceInfoDeleteReply(m *Client, rawURI string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
@@ -59,7 +59,7 @@ func ProcThingDeviceInfoDeleteReply(m *Manager, rawURI string, payload []byte) e
 	return m.devUserProc.DownstreamThingDeviceInfoDeleteReply(m, &rsp)
 }
 
-func ProcThingDesiredPropertyGetReply(m *Manager, rawURI string, payload []byte) error {
+func ProcThingDesiredPropertyGetReply(m *Client, rawURI string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
@@ -69,7 +69,7 @@ func ProcThingDesiredPropertyGetReply(m *Manager, rawURI string, payload []byte)
 	return m.devUserProc.DownstreamThingDesiredPropertyGetReply(m, &rsp)
 }
 
-func ProcThingDesiredPropertyDeleteReply(m *Manager, rawURI string, payload []byte) error {
+func ProcThingDesiredPropertyDeleteReply(m *Client, rawURI string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
@@ -79,7 +79,7 @@ func ProcThingDesiredPropertyDeleteReply(m *Manager, rawURI string, payload []by
 	return m.devUserProc.DownstreamThingDesiredPropertyDeleteReply(m, &rsp)
 }
 
-func ProcThingDsltemplateGetReply(m *Manager, rawURI string, payload []byte) error {
+func ProcThingDsltemplateGetReply(m *Client, rawURI string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
@@ -90,7 +90,7 @@ func ProcThingDsltemplateGetReply(m *Manager, rawURI string, payload []byte) err
 }
 
 // TODO: 需确认
-func ProcThingDynamictslGetReply(m *Manager, rawURI string, payload []byte) error {
+func ProcThingDynamictslGetReply(m *Client, rawURI string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
@@ -99,7 +99,7 @@ func ProcThingDynamictslGetReply(m *Manager, rawURI string, payload []byte) erro
 	return m.devUserProc.DownstreamThingDynamictslGetReply(m, &rsp)
 }
 
-func ProcExtNtpResponse(m *Manager, rawURI string, payload []byte) error {
+func ProcExtNtpResponse(m *Client, rawURI string, payload []byte) error {
 	rsp := NtpResponsePayload{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
@@ -108,7 +108,7 @@ func ProcExtNtpResponse(m *Manager, rawURI string, payload []byte) error {
 	return m.devUserProc.DownstreamExtNtpResponse(m, &rsp)
 }
 
-func ProcThingConfigGetReply(m *Manager, rawURI string, payload []byte) error {
+func ProcThingConfigGetReply(m *Client, rawURI string, payload []byte) error {
 	rsp := ConfigGetResponse{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
@@ -119,7 +119,7 @@ func ProcThingConfigGetReply(m *Manager, rawURI string, payload []byte) error {
 }
 
 // TODO: deprecated
-func ProcExtErrorResponse(m *Manager, rawURI string, payload []byte) error {
+func ProcExtErrorResponse(m *Client, rawURI string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
@@ -129,7 +129,7 @@ func ProcExtErrorResponse(m *Manager, rawURI string, payload []byte) error {
 }
 
 // ProcThingModelDownRaw 处理透传下行
-func ProcThingModelDownRaw(m *Manager, rawURI string, payload []byte) error {
+func ProcThingModelDownRaw(m *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (m.cfg.uriOffset + 6) {
 		return ErrInvalidURI
@@ -138,7 +138,7 @@ func ProcThingModelDownRaw(m *Manager, rawURI string, payload []byte) error {
 	return m.devUserProc.DownstreamThingModelDownRaw(m, uris[m.cfg.uriOffset+1], uris[m.cfg.uriOffset+2], payload)
 }
 
-func ProcThingConfigPush(m *Manager, rawURI string, payload []byte) error {
+func ProcThingConfigPush(m *Client, rawURI string, payload []byte) error {
 	req := ConfigPushRequest{}
 	if err := json.Unmarshal(payload, &req); err != nil {
 		return err
@@ -153,7 +153,7 @@ func ProcThingConfigPush(m *Manager, rawURI string, payload []byte) error {
 
 // ProcThingServicePropertySet 属性设置调用
 // 处理 thing/service/property/set
-func ProcThingServicePropertySet(m *Manager, rawURI string, payload []byte) error {
+func ProcThingServicePropertySet(m *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (m.cfg.uriOffset + 7) {
 		return ErrInvalidURI
@@ -164,7 +164,7 @@ func ProcThingServicePropertySet(m *Manager, rawURI string, payload []byte) erro
 
 // ProcThingServiceRequest 服务调用
 // 处理 thing/service/{tsl.event.identifier}
-func ProcThingServiceRequest(m *Manager, rawURI string, payload []byte) error {
+func ProcThingServiceRequest(m *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (m.cfg.uriOffset + 6) {
 		return ErrInvalidURI
@@ -174,7 +174,7 @@ func ProcThingServiceRequest(m *Manager, rawURI string, payload []byte) error {
 	return m.devUserProc.DownstreamThingServiceRequest(m, uris[m.cfg.uriOffset+1], uris[m.cfg.uriOffset+2], serviceID, payload)
 }
 
-func ProcRRPCRequest(m *Manager, rawURI string, payload []byte) error {
+func ProcRRPCRequest(m *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (m.cfg.uriOffset + 6) {
 		return ErrInvalidURI
@@ -186,14 +186,14 @@ func ProcRRPCRequest(m *Manager, rawURI string, payload []byte) error {
 		payload)
 }
 
-func ProcExtRRPCRequest(m *Manager, rawURI string, payload []byte) error {
+func ProcExtRRPCRequest(m *Client, rawURI string, payload []byte) error {
 	m.debug("downstream ext <RRPC>: Request - URI: ", rawURI)
 	return m.devUserProc.DownStreamExtRRPCRequest(m, rawURI, payload)
 }
 
 /******************************** gateway ****************************************************************/
 
-func ProcThingSubDevRegisterReply(m *Manager, rawURI string, payload []byte) error {
+func ProcThingSubDevRegisterReply(m *Client, rawURI string, payload []byte) error {
 	rsp := GwSubDevRegisterResponse{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
@@ -201,7 +201,7 @@ func ProcThingSubDevRegisterReply(m *Manager, rawURI string, payload []byte) err
 	return m.gwUserProc.DownstreamGwExtSubDevRegisterReply(m, &rsp)
 }
 
-func ProcExtSubDevCombineLoginReply(m *Manager, rawURI string, payload []byte) error {
+func ProcExtSubDevCombineLoginReply(m *Client, rawURI string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
@@ -209,7 +209,7 @@ func ProcExtSubDevCombineLoginReply(m *Manager, rawURI string, payload []byte) e
 	return m.gwUserProc.DownstreamGwExtSubDevCombineLoginReply(m, &rsp)
 }
 
-func ProcExtSubDevCombineLogoutReply(m *Manager, rawURI string, payload []byte) error {
+func ProcExtSubDevCombineLogoutReply(m *Client, rawURI string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
@@ -217,7 +217,7 @@ func ProcExtSubDevCombineLogoutReply(m *Manager, rawURI string, payload []byte) 
 	return m.gwUserProc.DownstreamGwExtSubDevCombineLogoutReply(m, &rsp)
 }
 
-func ProcThingTopoAddReply(m *Manager, rawURI string, payload []byte) error {
+func ProcThingTopoAddReply(m *Client, rawURI string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
@@ -225,7 +225,7 @@ func ProcThingTopoAddReply(m *Manager, rawURI string, payload []byte) error {
 	return m.gwUserProc.DownstreamGwThingTopoAddReply(m, &rsp)
 }
 
-func ProcThingTopoDeleteReply(m *Manager, rawURI string, payload []byte) error {
+func ProcThingTopoDeleteReply(m *Client, rawURI string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
@@ -233,7 +233,7 @@ func ProcThingTopoDeleteReply(m *Manager, rawURI string, payload []byte) error {
 	return m.gwUserProc.DownstreamGwThingTopoDeleteReply(m, &rsp)
 }
 
-func ProcThingTopoGetReply(m *Manager, rawURI string, payload []byte) error {
+func ProcThingTopoGetReply(m *Client, rawURI string, payload []byte) error {
 	rsp := GwTopoGetResponse{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
@@ -241,7 +241,7 @@ func ProcThingTopoGetReply(m *Manager, rawURI string, payload []byte) error {
 	return m.gwUserProc.DownstreamGwThingTopoGetReply(m, &rsp)
 }
 
-func ProcThingDisable(m *Manager, rawURI string, payload []byte) error {
+func ProcThingDisable(m *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) != 5 {
 		return ErrInvalidURI
@@ -257,7 +257,7 @@ func ProcThingDisable(m *Manager, rawURI string, payload []byte) error {
 	}
 	return m.gwUserProc.DownstreamGwSubDevThingDisable(m, uris[1], uris[2])
 }
-func ProcThingEnable(m *Manager, rawURI string, payload []byte) error {
+func ProcThingEnable(m *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) != 5 {
 		return ErrInvalidURI
@@ -273,7 +273,7 @@ func ProcThingEnable(m *Manager, rawURI string, payload []byte) error {
 	}
 	return m.gwUserProc.DownstreamGwSubDevThingDisable(m, "", "")
 }
-func ProcThingDelete(m *Manager, rawURI string, payload []byte) error {
+func ProcThingDelete(m *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) != 5 {
 		return ErrInvalidURI

@@ -1,4 +1,4 @@
-package model
+package dm
 
 import (
 	"encoding/json"
@@ -53,8 +53,8 @@ type Response struct {
 	Message string          `json:"message,omitempty"`
 }
 
-// Manager 管理
-type Manager struct {
+// Client 管理
+type Client struct {
 	requestID int32
 
 	cfg Config
@@ -68,19 +68,19 @@ type Manager struct {
 }
 
 // New 创建一个物管理
-func New(opt *Config) *Manager {
-	sf := &Manager{
-		cfg:         *opt,
+func New(cfg *Config) *Client {
+	sf := &Client{
+		cfg:         *cfg,
 		devMgr:      newDevMgr(),
 		gwUserProc:  GwNopUserProc{},
 		devUserProc: DevNopUserProc{},
 	}
-	if opt.enableCache {
+	if cfg.hasCache {
 		sf.pool = newPool()
 		sf.msgCache = cache.New(time.Second*10, time.Second*30)
 	}
 	sf.CacheInit()
-	err := sf.insert(DevLocal, DevTypeSingle, opt.productKey, opt.deviceName, opt.deviceSecret)
+	err := sf.insert(DevLocal, DevTypeSingle, cfg.productKey, cfg.deviceName, cfg.deviceSecret)
 	if err != nil {
 		panic(fmt.Sprintf("device local duplicate,cause: %+v", err))
 	}
@@ -88,7 +88,7 @@ func New(opt *Config) *Manager {
 }
 
 // Connect 将订阅所有相关主题,主题有config配置
-func (sf *Manager) Connect() error {
+func (sf *Client) Connect() error {
 	var devType DevType
 	if sf.cfg.hasGateway {
 		devType = DevTypeGateway
@@ -99,35 +99,35 @@ func (sf *Manager) Connect() error {
 }
 
 //
-//func (sf *Manager) NewSubDevice(devType int, info *MetaInfo) (int, error) {
+//func (sf *Client) NewSubDevice(devType int, info *MetaInfo) (int, error) {
 //	if !sf.cfg.hasGateway {
 //		return 0, ErrFeatureNotSupport
 //	}
 //	return sf.Create(DevTypeSubDev, info.ProductKey, info.DeviceName, info.DeviceSecret)
 //}
 //
-//func (sf *Manager) SubDeviceConnect(id int) {
+//func (sf *Client) SubDeviceConnect(id int) {
 //
 //}
 
 // SetConn 设置连接接口
-func (sf *Manager) SetConn(conn Conn) *Manager {
+func (sf *Client) SetConn(conn Conn) *Client {
 	sf.Conn = conn
 	return sf
 }
 
-func (sf *Manager) SetGwUserProc(proc GatewayUserProc) *Manager {
+func (sf *Client) SetGwUserProc(proc GatewayUserProc) *Client {
 	sf.gwUserProc = proc
 	return sf
 }
 
-func (sf *Manager) SetDevUserProc(proc DevUserProc) *Manager {
+func (sf *Client) SetDevUserProc(proc DevUserProc) *Client {
 	sf.devUserProc = proc
 	return sf
 }
 
 // RequestID 获得下一个requestID
-func (sf *Manager) RequestID() int {
+func (sf *Client) RequestID() int {
 	return int(atomic.AddInt32(&sf.requestID, 1))
 }
 
@@ -137,7 +137,7 @@ func (sf *Manager) RequestID() int {
 // method: 方法
 // params: 消息体
 // API内部已实现json序列化
-func (sf *Manager) SendRequest(uriService string, requestID int, method string, params interface{}) error {
+func (sf *Client) SendRequest(uriService string, requestID int, method string, params interface{}) error {
 	out, err := json.Marshal(&Request{requestID, Version, params, method})
 	if err != nil {
 		return err
@@ -145,7 +145,7 @@ func (sf *Manager) SendRequest(uriService string, requestID int, method string, 
 	return sf.Publish(uriService, 1, out)
 }
 
-func (sf *Manager) SendResponse(uriService string, id int, code int, data interface{}) error {
+func (sf *Client) SendResponse(uriService string, id int, code int, data interface{}) error {
 	out, err := json.Marshal(struct {
 		*Response
 		Data interface{} `json:"data"`
@@ -162,7 +162,7 @@ func (sf *Manager) SendResponse(uriService string, id int, code int, data interf
 	return sf.Publish(uriService, 1, out)
 }
 
-func (sf *Manager) AlinkReport(msgType MsgType, devID int, payload interface{}) error {
+func (sf *Client) AlinkReport(msgType MsgType, devID int, payload interface{}) error {
 	switch msgType {
 	case MsgTypeModelUpRaw:
 		if !sf.cfg.hasRawModel {
@@ -201,7 +201,7 @@ func (sf *Manager) AlinkReport(msgType MsgType, devID int, payload interface{}) 
 	return ErrNotSupportMsgType
 }
 
-func (sf *Manager) AlinkQuery(msgType MsgType, devID int, payload interface{}) error {
+func (sf *Client) AlinkQuery(msgType MsgType, devID int, payload interface{}) error {
 	switch msgType {
 	case MsgTypeExtNtpRequest:
 		if !sf.cfg.hasNTP {
@@ -214,7 +214,7 @@ func (sf *Manager) AlinkQuery(msgType MsgType, devID int, payload interface{}) e
 		return sf.UpstreamExtErrorRequest()
 
 	case MsgTypeQueryTopoList:
-		// todo
+		// TODO
 	case MsgTypeQueryCOTAData:
 	case MsgTypeQueryFOTAData:
 	case MsgTypeRequestCOTA:
@@ -223,6 +223,7 @@ func (sf *Manager) AlinkQuery(msgType MsgType, devID int, payload interface{}) e
 	return ErrNotSupportMsgType
 }
 
-func (sf *Manager) AlinkTriggerEvent(devID int, eventID string, payload interface{}) error {
+// AlinkTriggerEvent
+func (sf *Client) AlinkTriggerEvent(devID int, eventID string, payload interface{}) error {
 	return sf.UpstreamThingEventPost(devID, eventID, payload)
 }

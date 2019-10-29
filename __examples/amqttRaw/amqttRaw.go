@@ -7,8 +7,8 @@ import (
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/thinkgos/aliIOT"
+	"github.com/thinkgos/aliIOT/dm"
 	"github.com/thinkgos/aliIOT/infra"
-	"github.com/thinkgos/aliIOT/model"
 	"github.com/thinkgos/aliIOT/sign"
 )
 
@@ -47,7 +47,7 @@ func main() {
 			log.Println("mqtt client connection lost, ", err)
 		})
 	client := mqtt.NewClient(opts)
-	dmopt := model.NewOption(productKey, deviceName, deviceSecret).
+	dmopt := dm.NewConfig(productKey, deviceName, deviceSecret).
 		EnableModelRaw().
 		Valid()
 	manage := aliIOT.NewWithMQTT(dmopt, client)
@@ -60,7 +60,7 @@ func main() {
 	}
 
 	for {
-		err = manage.UpstreamThingModelUpRaw(model.DevLocal, bPayload)
+		err = manage.UpstreamThingModelUpRaw(dm.DevLocal, bPayload)
 		if err != nil {
 			log.Printf("error: %#v", err)
 		}

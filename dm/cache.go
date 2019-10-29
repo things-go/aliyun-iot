@@ -1,4 +1,4 @@
-package model
+package dm
 
 import (
 	"strconv"
@@ -13,8 +13,8 @@ type messageCacheEntry struct {
 	data    string
 }
 
-func (sf *Manager) CacheInit() {
-	if !sf.cfg.enableCache {
+func (sf *Client) CacheInit() {
+	if !sf.cfg.hasCache {
 		return
 	}
 	sf.pool = newPool()
@@ -25,8 +25,8 @@ func (sf *Manager) CacheInit() {
 	})
 }
 
-func (sf *Manager) CacheInsert(id, devID int, msgType MsgType, data string) {
-	if !sf.cfg.enableCache {
+func (sf *Client) CacheInsert(id, devID int, msgType MsgType, data string) {
+	if !sf.cfg.hasCache {
 		return
 	}
 	entry := sf.pool.Get()
@@ -38,8 +38,8 @@ func (sf *Manager) CacheInsert(id, devID int, msgType MsgType, data string) {
 	sf.debug("cache insert - %d", id)
 }
 
-func (sf *Manager) CacheRemove(id int) {
-	if !sf.cfg.enableCache {
+func (sf *Client) CacheRemove(id int) {
+	if !sf.cfg.hasCache {
 		return
 	}
 	sf.msgCache.Delete(strconv.Itoa(id))

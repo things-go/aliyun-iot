@@ -1,7 +1,7 @@
-package model
+package dm
 
 // 对某个设备类型订阅相关所有主题
-func (sf *Manager) SubscribeAllTopic(devType DevType, productKey, deviceName string) error {
+func (sf *Client) SubscribeAllTopic(devType DevType, productKey, deviceName string) error {
 	var err error
 
 	if sf.cfg.workOnWho == workOnHTTP {
@@ -71,15 +71,15 @@ func (sf *Manager) SubscribeAllTopic(devType DevType, productKey, deviceName str
 
 	// ntp订阅, 只有网关和独立设备支持ntp
 	if sf.cfg.hasNTP && !(devType == DevTypeSubDev) {
-		if err = sf.Subscribe(sf.URIService(URIExtNtpPrefix, URINtpRequest, productKey, deviceName),
-			ProcThingDeviceInfoDeleteReply); err != nil {
+		if err = sf.Subscribe(sf.URIService(URIExtNtpPrefix, URINtpResponse, productKey, deviceName),
+			ProcExtNtpResponse); err != nil {
 			sf.warn(err.Error())
 		}
 	}
 
 	// error 订阅
 	if err = sf.Subscribe(sf.URIService(URIExtErrorPrefix, "", productKey, deviceName),
-		ProcThingDeviceInfoDeleteReply); err != nil {
+		ProcExtErrorResponse); err != nil {
 		sf.warn(err.Error())
 	}
 
@@ -91,7 +91,7 @@ func (sf *Manager) SubscribeAllTopic(devType DevType, productKey, deviceName str
 }
 
 // UnSubscribeSubDevAllTopic 取消子设备相关所有主题
-func (sf *Manager) UnSubscribeSubDevAllTopic(productKey, deviceName string) error {
+func (sf *Client) UnSubscribeSubDevAllTopic(productKey, deviceName string) error {
 	var topicList []string
 
 	if !sf.cfg.hasGateway || sf.cfg.workOnWho == workOnHTTP {

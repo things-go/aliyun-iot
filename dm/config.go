@@ -1,13 +1,13 @@
-package model
+package dm
 
 import (
 	"time"
 )
 
-// 默认值
+// 缓存默认值
 const (
-	DefaultExpiration      = time.Second * 10
-	DefaultCleanupInterval = time.Second * 30
+	DefaultCacheExpiration      = time.Second * 10
+	DefaultCacheCleanupInterval = time.Second * 30
 )
 
 // 当前的工作方式
@@ -28,7 +28,7 @@ type Config struct {
 
 	cacheExpiration      time.Duration
 	cacheCleanupInterval time.Duration
-	enableCache          bool
+	hasCache             bool
 
 	hasNTP      bool
 	hasRawModel bool
@@ -37,19 +37,22 @@ type Config struct {
 	hasGateway  bool
 }
 
-// NewOption 创建选项
-func NewOption(productKey, deviceName, deviceSecret string) *Config {
+// NewConfig 创建新配置
+func NewConfig(productKey, deviceName, deviceSecret string) *Config {
 	return &Config{
 		productKey:   productKey,
 		deviceName:   deviceName,
 		deviceSecret: deviceSecret,
 
-		cacheExpiration:      DefaultExpiration,
-		cacheCleanupInterval: DefaultCleanupInterval,
+		uriOffset: 0,
+		workOnWho: workOnMQTT,
+
+		cacheExpiration:      DefaultCacheExpiration,
+		cacheCleanupInterval: DefaultCacheCleanupInterval,
 	}
 }
 
-// Valid 校验消息有效,无效采用相应默认值
+// Valid 校验配置有效,无效条目将采用相应默认值
 func (sf *Config) Valid() *Config {
 	return sf
 }
@@ -61,7 +64,7 @@ func (sf *Config) MetaInfo() (productKey, deviceName, deviceSecret string) {
 
 // SetEnableCache 使能消息缓存
 func (sf *Config) SetEnableCache(enable bool) *Config {
-	sf.enableCache = enable
+	sf.hasCache = enable
 	return sf
 }
 
@@ -73,26 +76,16 @@ func (sf *Config) SetCacheTimeout(expiration, cleanupInterval time.Duration) *Co
 }
 
 // EnableCOAP 采用COAP
-func (sf *Config) EnableCOAP(enable bool) *Config {
-	if enable {
-		sf.workOnWho = workOnCOAP
-		sf.uriOffset = 1
-	} else {
-		sf.workOnWho = workOnMQTT
-		sf.uriOffset = 0
-	}
+func (sf *Config) EnableCOAP() *Config {
+	sf.workOnWho = workOnCOAP
+	sf.uriOffset = 1
 	return sf
 }
 
 // EnableCOAP 采用HTTP
-func (sf *Config) EnableHTTP(enable bool) *Config {
-	if enable {
-		sf.workOnWho = workOnHTTP
-		sf.uriOffset = 1
-	} else {
-		sf.workOnWho = workOnHTTP
-		sf.uriOffset = 0
-	}
+func (sf *Config) EnableHTTP() *Config {
+	sf.workOnWho = workOnHTTP
+	sf.uriOffset = 1
 	return sf
 }
 

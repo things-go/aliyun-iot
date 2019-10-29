@@ -1,4 +1,4 @@
-package model
+package dm
 
 import (
 	"fmt"
@@ -16,7 +16,7 @@ type SubDevTopoAddParams struct {
 	Sign       string `json:"sign"`
 }
 
-func (sf *Manager) UpstreamGwThingTopoAdd(metas ...*MetaInfo) error {
+func (sf *Client) UpstreamGwThingTopoAdd(metas ...*MetaInfo) error {
 	var clientID string
 	var sign string
 	var err error
@@ -44,7 +44,7 @@ func (sf *Manager) UpstreamGwThingTopoAdd(metas ...*MetaInfo) error {
 		sf.RequestID(), methodTopoAdd, sublist)
 }
 
-func (sf *Manager) UpstreamGwThingTopoDelete(devID int) error {
+func (sf *Client) UpstreamGwThingTopoDelete(devID int) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
@@ -67,7 +67,7 @@ type GwTopoGetResponse struct {
 	Data []GwTopoGetData `json:"data"`
 }
 
-func (sf *Manager) UpstreamGwThingTopoGet() error {
+func (sf *Client) UpstreamGwThingTopoGet() error {
 	return sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingTopoGet),
 		sf.RequestID(), methodTopoGet, "{}")
 }

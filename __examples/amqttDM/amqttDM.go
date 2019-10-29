@@ -9,8 +9,8 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/thinkgos/aliIOT"
 	"github.com/thinkgos/aliIOT/dm"
+	"github.com/thinkgos/aliIOT/dmd"
 	"github.com/thinkgos/aliIOT/infra"
-	"github.com/thinkgos/aliIOT/model"
 	"github.com/thinkgos/aliIOT/sign"
 )
 
@@ -49,7 +49,7 @@ func main() {
 		})
 	client := mqtt.NewClient(opts)
 
-	dmopt := model.NewOption(productKey, deviceName, deviceSecret).
+	dmopt := dm.NewConfig(productKey, deviceName, deviceSecret).
 		SetEnableCache(true).
 		Valid()
 	manage = aliIOT.NewWithMQTT(dmopt, client)
@@ -70,7 +70,7 @@ func main() {
 func EventPostTest() {
 	go func() {
 		for {
-			err := manage.UpstreamThingEventPost(model.DevLocal, "tempAlarm", map[string]interface{}{
+			err := manage.UpstreamThingEventPost(dm.DevLocal, "tempAlarm", map[string]interface{}{
 				"high": 1,
 			})
 			if err != nil {
@@ -82,7 +82,7 @@ func EventPostTest() {
 	}()
 
 	for {
-		err := manage.UpstreamThingEventPropertyPost(model.DevLocal, map[string]interface{}{
+		err := manage.UpstreamThingEventPropertyPost(dm.DevLocal, map[string]interface{}{
 			"Temp":         rand.Intn(200),
 			"Humi":         rand.Intn(100),
 			"switchStatus": rand.Intn(1),
@@ -95,16 +95,16 @@ func EventPostTest() {
 }
 
 func DeviceInfoTest() {
-	if err := manage.UpstreamThingDeviceInfoUpdate(model.DevLocal,
-		[]dm.DevInfoLabelUpdate{
+	if err := manage.UpstreamThingDeviceInfoUpdate(dm.DevLocal,
+		[]dmd.DevInfoLabelUpdate{
 			{AttrKey: "attrKey", AttrValue: "attrValue"},
 		}); err != nil {
 		log.Println(err)
 		return
 	}
 	time.Sleep(time.Minute * 1)
-	if err := manage.UpstreamThingDeviceInfoDelete(model.DevLocal,
-		[]dm.DevInfoLabelDelete{
+	if err := manage.UpstreamThingDeviceInfoDelete(dm.DevLocal,
+		[]dmd.DevInfoLabelDelete{
 			{AttrKey: "attrKey"},
 		}); err != nil {
 		log.Println(err)
@@ -114,7 +114,7 @@ func DeviceInfoTest() {
 }
 
 func ConfigTest() {
-	err := manage.UpstreamThingConfigGet(model.DevLocal)
+	err := manage.UpstreamThingConfigGet(dm.DevLocal)
 	if err != nil {
 		log.Println(err)
 		return
@@ -122,7 +122,7 @@ func ConfigTest() {
 }
 
 func DslTemplateTest() {
-	err := manage.UpstreamThingDsltemplateGet(model.DevLocal)
+	err := manage.UpstreamThingDsltemplateGet(dm.DevLocal)
 	if err != nil {
 		log.Println(err)
 		return

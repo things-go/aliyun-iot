@@ -1,4 +1,4 @@
-package model
+package dm
 
 // 平台通信版本
 const (

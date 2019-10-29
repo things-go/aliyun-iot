@@ -1,5 +1,5 @@
 // Package model 实现阿里去物模型
-package model
+package dm
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 )
 
 // UpstreamThingModelUpRaw 上传透传数据
-func (sf *Manager) UpstreamThingModelUpRaw(devID int, payload interface{}) error {
+func (sf *Client) UpstreamThingModelUpRaw(devID int, payload interface{}) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
@@ -26,7 +26,7 @@ func (sf *Manager) UpstreamThingModelUpRaw(devID int, payload interface{}) error
 }
 
 // UpstreamThingPropertyPost 上传属性数据
-func (sf *Manager) UpstreamThingEventPropertyPost(devID int, params interface{}) error {
+func (sf *Client) UpstreamThingEventPropertyPost(devID int, params interface{}) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
@@ -49,7 +49,7 @@ func (sf *Manager) UpstreamThingEventPropertyPost(devID int, params interface{})
 }
 
 // UpstreamThingEventPost 事件上传
-func (sf *Manager) UpstreamThingEventPost(devID int, eventID string, params interface{}) error {
+func (sf *Client) UpstreamThingEventPost(devID int, eventID string, params interface{}) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
@@ -71,7 +71,7 @@ func (sf *Manager) UpstreamThingEventPost(devID int, eventID string, params inte
 }
 
 // UpstreamThingDeviceInfoUpdate 设备信息上传
-func (sf *Manager) UpstreamThingDeviceInfoUpdate(devID int, params interface{}) error {
+func (sf *Client) UpstreamThingDeviceInfoUpdate(devID int, params interface{}) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
@@ -94,7 +94,7 @@ func (sf *Manager) UpstreamThingDeviceInfoUpdate(devID int, params interface{}) 
 }
 
 // UpstreamThingDeviceInfoDelete 设备信息删除
-func (sf *Manager) UpstreamThingDeviceInfoDelete(devID int, params interface{}) error {
+func (sf *Client) UpstreamThingDeviceInfoDelete(devID int, params interface{}) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
@@ -116,7 +116,7 @@ func (sf *Manager) UpstreamThingDeviceInfoDelete(devID int, params interface{}) 
 }
 
 // UpstreamThingDesiredPropertyGet 获取期望值
-func (sf *Manager) UpstreamThingDesiredPropertyGet(devID int, params interface{}) error {
+func (sf *Client) UpstreamThingDesiredPropertyGet(devID int, params interface{}) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
@@ -138,7 +138,7 @@ func (sf *Manager) UpstreamThingDesiredPropertyGet(devID int, params interface{}
 }
 
 // UpstreamThingPropertyDesiredDelete 清空期望值
-func (sf *Manager) UpstreamThingDesiredPropertyDelete(devID int, params interface{}) error {
+func (sf *Client) UpstreamThingDesiredPropertyDelete(devID int, params interface{}) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
@@ -161,7 +161,7 @@ func (sf *Manager) UpstreamThingDesiredPropertyDelete(devID int, params interfac
 
 // UpstreamThingDsltemplateGet 设备可以通过上行请求获取设备的TSL模板（包含属性、服务和事件的定义）
 // see https://help.aliyun.com/document_detail/89305.html?spm=a2c4g.11186623.6.672.5d3d70374hpPcx
-func (sf *Manager) UpstreamThingDsltemplateGet(devID int) error {
+func (sf *Client) UpstreamThingDsltemplateGet(devID int) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
@@ -183,7 +183,7 @@ func (sf *Manager) UpstreamThingDsltemplateGet(devID int) error {
 }
 
 // UpstreamThingDynamictslGet 获取
-func (sf *Manager) UpstreamThingDynamictslGet() error {
+func (sf *Client) UpstreamThingDynamictslGet() error {
 
 	// TODO: 需要确定.未来审核
 	id := sf.RequestID()
@@ -206,7 +206,7 @@ type NtpResponsePayload struct {
 // UpstreamExtNtpRequest ntp请求
 // 发送一条Qos = 0的消息,并带上设备当前的时间戳,平台将回复 设备的发送时间,平台的接收时间, 平台的发送时间.
 // 设备计算当前精确时间 = (平台接收时间 + 平台发送时间 + 设备接收时间 - 设备发送时间) / 2
-func (sf *Manager) UpstreamExtNtpRequest() error {
+func (sf *Client) UpstreamExtNtpRequest() error {
 	err := sf.Publish(sf.URIServiceSelf(URIExtNtpPrefix, URINtpRequest),
 		0, fmt.Sprintf(`{"deviceSendTime":"%d"}`, time.Now().Unix()))
 	if err != nil {
@@ -245,7 +245,7 @@ type ConfigPushRequest struct {
 }
 
 // UpstreamThingConfigGet 获取配置参数
-func (sf *Manager) UpstreamThingConfigGet(devID int) error {
+func (sf *Client) UpstreamThingConfigGet(devID int) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
@@ -265,7 +265,7 @@ func (sf *Manager) UpstreamThingConfigGet(devID int) error {
 	return nil
 }
 
-func (sf *Manager) UpstreamExtErrorRequest() error {
+func (sf *Client) UpstreamExtErrorRequest() error {
 	id := sf.RequestID()
 	// TODO
 	sf.CacheInsert(id, DevLocal, MsgTypeExtErrorRequest, "error")

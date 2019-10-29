@@ -1,4 +1,4 @@
-package model
+package dm
 
 import (
 	"encoding/json"
@@ -36,7 +36,7 @@ type GwSubDevRegisterResponse struct {
 }
 
 // UpstreamGwSubDevRegister 子设备动态注册
-func (sf *Manager) UpstreamGwSubDevRegister(meta ...*MetaInfo) error {
+func (sf *Client) UpstreamGwSubDevRegister(meta ...*MetaInfo) error {
 	sublist := make([]GwSubDevRegisterParams, 0, len(meta))
 
 	for _, v := range meta {
@@ -65,7 +65,7 @@ type GwSubDevCombineLoginRequest struct {
 
 // UpstreamGwExtSubDevCombineLogin 子设备上线
 // 子设备上下线只支持Qos = 0.
-func (sf *Manager) UpstreamGwExtSubDevCombineLogin(devID int) error {
+func (sf *Client) UpstreamGwExtSubDevCombineLogin(devID int) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
@@ -116,7 +116,7 @@ type GwSubDevCombineLogoutRequest struct {
 
 // UpstreamGwExtSubDevCombineLogout 子设备下线
 // 子设备上下线只支持Qos = 0.
-func (sf *Manager) UpstreamGwExtSubDevCombineLogout(devID int) error {
+func (sf *Client) UpstreamGwExtSubDevCombineLogout(devID int) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
