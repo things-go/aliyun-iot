@@ -77,6 +77,16 @@ func (sf *Client) SubscribeAllTopic(devType DevType, productKey, deviceName stri
 		}
 	}
 
+	// config 主题订阅
+	if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingConfigGetReply, productKey, deviceName),
+		ProcThingConfigGetReply); err != nil {
+		sf.warn(err.Error())
+	}
+	if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingConfigPush, productKey, deviceName),
+		ProcThingConfigPush); err != nil {
+		sf.warn(err.Error())
+	}
+
 	// error 订阅
 	if err = sf.Subscribe(sf.URIService(URIExtErrorPrefix, "", productKey, deviceName),
 		ProcExtErrorResponse); err != nil {
@@ -115,19 +125,21 @@ func (sf *Client) UnSubscribeSubDevAllTopic(productKey, deviceName string) error
 			sf.URIService(URISysPrefix, URIThingDesiredPropertyGetReply, productKey, deviceName),
 			sf.URIService(URISysPrefix, URIThingDesiredPropertyDelete, productKey, deviceName))
 	}
-
-	// deviceInfo 主题取消订阅
 	topicList = append(topicList,
+		// deviceInfo
 		sf.URIService(URISysPrefix, URIThingDeviceInfoUpdateReply, productKey, deviceName),
 		sf.URIService(URISysPrefix, URIThingDeviceInfoDeleteReply, productKey, deviceName),
-		// 服务调用
+		// service
 		sf.URIService(URISysPrefix, URIThingServicePropertySet, productKey, deviceName),
 		sf.URIService(URISysPrefix, URIThingServiceRequestSingleWildcard, productKey, deviceName),
-		// dystemplate 订阅
+		// dystemplate
 		sf.URIService(URISysPrefix, URIThingDslTemplateGetReply, productKey, deviceName),
 		// RRPC
 		sf.URIService(URISysPrefix, URIRRPCRequestSingleWildcard, productKey, deviceName),
-		// error 订阅
+		// config
+		sf.URIService(URISysPrefix, URIThingConfigGetReply, productKey, deviceName),
+		sf.URIService(URISysPrefix, URIThingConfigPush, productKey, deviceName),
+		// error
 		sf.URIService(URIExtErrorPrefix, "", productKey, deviceName))
 	return sf.UnSubscribe(topicList...)
 }

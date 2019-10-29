@@ -112,6 +112,7 @@ func (sf *Config) EnableExtRRPC() *Config {
 	return sf
 }
 
+// EnableGateway 使能网关功能
 func (sf *Config) EnableGateway() *Config {
 	sf.hasGateway = true
 	return sf
