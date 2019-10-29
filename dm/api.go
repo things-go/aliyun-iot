@@ -25,7 +25,6 @@ const (
 	MsgTypeDynamictslGet                        //!< ??
 	MsgTypeExtNtpRequest                        //!< query ntp time from cloud
 	MsgTypeConfigGet                            //!< 获取配置
-	MsgTypeExtErrorRequest
 
 	MsgTypeSubDevLogin                 //!< only for slave device, send login request to cloud
 	MsgTypeSubDevLogout                //!< only for slave device, send logout request to cloud
@@ -229,14 +228,12 @@ func (sf *Client) AlinkQuery(msgType MsgType, devID int, payload ...interface{})
 	case MsgTypeDsltemplateGet:
 		return sf.UpstreamThingDsltemplateGet(devID)
 	case MsgTypeExtNtpRequest:
-		if !sf.cfg.hasNTP {
+		if !sf.cfg.hasNTP || sf.cfg.hasRawModel {
 			return ErrNotSupportFeature
 		}
 		return sf.UpstreamExtNtpRequest()
 	case MsgTypeConfigGet:
 		return sf.UpstreamThingConfigGet(devID)
-	case MsgTypeExtErrorRequest:
-		return sf.UpstreamExtErrorRequest()
 	case MsgTypeQueryTopoList:
 		// TODO
 	case MsgTypeQueryCOTAData:

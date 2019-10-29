@@ -264,11 +264,3 @@ func (sf *Client) UpstreamThingConfigGet(devID int) error {
 	sf.debug("upstream thing <config>: get,@%d", id)
 	return nil
 }
-
-func (sf *Client) UpstreamExtErrorRequest() error {
-	id := sf.RequestID()
-	// TODO
-	sf.CacheInsert(id, DevLocal, MsgTypeExtErrorRequest, "error")
-	sf.debug("downstream ext <Error>: request,@%d", id)
-	return nil
-}

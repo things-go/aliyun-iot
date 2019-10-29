@@ -64,7 +64,6 @@ func (DevNopUserProc) DownstreamThingConfigGetReply(c *Client, rsp *ConfigGetRes
 	return nil
 }
 
-// TODO: deprecated
 // DownstreamExtErrorResponse see interface DevUserProc
 func (DevNopUserProc) DownstreamExtErrorResponse(c *Client, rsp *Response) error {
 	return nil
