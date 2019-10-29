@@ -10,7 +10,6 @@ const (
 	productKey   = "a1QR3GD1Db3"
 	deviceName   = "MPA19GT010070140"
 	deviceSecret = "CsC7Gmb6EvDLOm8V40HLOQwFPdc3KCHT"
-	customRegion = "http"
 )
 
 func TestMQTTSign(t *testing.T) {

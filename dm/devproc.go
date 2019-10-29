@@ -6,87 +6,107 @@ import (
 	"github.com/thinkgos/aliIOT/infra"
 )
 
+// DevNopUserProc 实现DevUserProc接口的空实现
 type DevNopUserProc struct{}
 
-func (DevNopUserProc) DownstreamThingModelUpRawReply(m *Client, productKey, deviceName string, payload []byte) error {
+// DownstreamThingModelUpRawReply see interface DevUserProc
+func (DevNopUserProc) DownstreamThingModelUpRawReply(c *Client, productKey, deviceName string, payload []byte) error {
 	return nil
 }
 
-func (DevNopUserProc) DownstreamThingEventPropertyPostReply(m *Client, rsp *Response) error {
+// DownstreamThingEventPropertyPostReply see interface DevUserProc
+func (DevNopUserProc) DownstreamThingEventPropertyPostReply(c *Client, rsp *Response) error {
 	return nil
 }
 
-func (DevNopUserProc) DownstreamThingEventPostReply(m *Client, eventID string, rsp *Response) error {
+// DownstreamThingEventPostReply see interface DevUserProc
+func (DevNopUserProc) DownstreamThingEventPostReply(c *Client, eventID string, rsp *Response) error {
 	return nil
 }
 
-func (DevNopUserProc) DownstreamThingDeviceInfoUpdateReply(m *Client, rsp *Response) error {
-	return nil
-}
-func (DevNopUserProc) DownstreamThingDeviceInfoDeleteReply(m *Client, rsp *Response) error {
-	return nil
-}
-
-func (DevNopUserProc) DownstreamThingDesiredPropertyGetReply(m *Client, rsp *Response) error {
+// DownstreamThingDeviceInfoUpdateReply see interface DevUserProc
+func (DevNopUserProc) DownstreamThingDeviceInfoUpdateReply(c *Client, rsp *Response) error {
 	return nil
 }
 
-func (DevNopUserProc) DownstreamThingDesiredPropertyDeleteReply(m *Client, rsp *Response) error {
-	return nil
-}
-func (DevNopUserProc) DownstreamThingDsltemplateGetReply(m *Client, rsp *Response) error {
-	return nil
-}
-
-func (DevNopUserProc) DownstreamThingDynamictslGetReply(m *Client, rsp *Response) error {
-	return nil
-}
-func (DevNopUserProc) DownstreamExtNtpResponse(m *Client, rsp *NtpResponsePayload) error {
+// DownstreamThingDeviceInfoDeleteReply see interface DevUserProc
+func (DevNopUserProc) DownstreamThingDeviceInfoDeleteReply(c *Client, rsp *Response) error {
 	return nil
 }
 
-func (DevNopUserProc) DownstreamThingConfigGetReply(m *Client, rsp *ConfigGetResponse) error {
+// DownstreamThingDesiredPropertyGetReply see interface DevUserProc
+func (DevNopUserProc) DownstreamThingDesiredPropertyGetReply(c *Client, rsp *Response) error {
+	return nil
+}
+
+// DownstreamThingDesiredPropertyDeleteReply see interface DevUserProc
+func (DevNopUserProc) DownstreamThingDesiredPropertyDeleteReply(c *Client, rsp *Response) error {
+	return nil
+}
+
+// DownstreamThingDsltemplateGetReply see interface DevUserProc
+func (DevNopUserProc) DownstreamThingDsltemplateGetReply(c *Client, rsp *Response) error {
+	return nil
+}
+
+// DownstreamThingDynamictslGetReply see interface DevUserProc
+func (DevNopUserProc) DownstreamThingDynamictslGetReply(c *Client, rsp *Response) error {
+	return nil
+}
+
+// DownstreamExtNtpResponse see interface DevUserProc
+func (DevNopUserProc) DownstreamExtNtpResponse(c *Client, rsp *NtpResponsePayload) error {
+	return nil
+}
+
+// DownstreamThingConfigGetReply see interface DevUserProc
+func (DevNopUserProc) DownstreamThingConfigGetReply(c *Client, rsp *ConfigGetResponse) error {
 	return nil
 }
 
 // TODO: deprecated
-func (DevNopUserProc) DownstreamExtErrorResponse(m *Client, rsp *Response) error {
+// DownstreamExtErrorResponse see interface DevUserProc
+func (DevNopUserProc) DownstreamExtErrorResponse(c *Client, rsp *Response) error {
 	return nil
 }
 
-func (DevNopUserProc) DownstreamThingModelDownRaw(m *Client, productKey, deviceName string, payload []byte) error {
+// DownstreamThingModelDownRaw see interface DevUserProc
+func (DevNopUserProc) DownstreamThingModelDownRaw(c *Client, productKey, deviceName string, payload []byte) error {
 	return nil
 }
 
-func (DevNopUserProc) DownstreamThingConfigPush(m *Client, rsp *ConfigPushRequest) error {
+// DownstreamThingConfigPush see interface DevUserProc
+func (DevNopUserProc) DownstreamThingConfigPush(c *Client, rsp *ConfigPushRequest) error {
 	return nil
 }
 
-// DownstreamThingServicePropertySet 设置设备属性
-func (DevNopUserProc) DownstreamThingServicePropertySet(m *Client, topic string, payload []byte) error {
+// DownstreamThingServicePropertySet see interface DevUserProc
+func (DevNopUserProc) DownstreamThingServicePropertySet(c *Client, topic string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return nil
 	}
-	return m.SendResponse(URIServiceReplyWithRequestURI(topic), rsp.ID, infra.CodeSuccess, "{}")
+	return c.SendResponse(URIServiceReplyWithRequestURI(topic), rsp.ID, infra.CodeSuccess, "{}")
 }
 
-// DownstreamThingServiceRequest 设备服务调用请求
-func (DevNopUserProc) DownstreamThingServiceRequest(m *Client, productKey, deviceName, srvID string, payload []byte) error {
+// DownstreamThingServiceRequest see interface DevUserProc
+func (DevNopUserProc) DownstreamThingServiceRequest(c *Client, productKey, deviceName, srvID string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return nil
 	}
 
-	return m.SendResponse(m.URIService(URISysPrefix, URIThingServiceRequest, productKey, deviceName, srvID),
+	return c.SendResponse(c.URIService(URISysPrefix, URIThingServiceRequest, productKey, deviceName, srvID),
 		rsp.ID, infra.CodeSuccess, "{}")
 }
 
-func (DevNopUserProc) DownStreamRRPCRequest(m *Client, productKey, deviceName, messageID string, payload []byte) error {
-	return m.Publish(m.URIService(URISysPrefix, URIRRPCResponse, productKey, deviceName, messageID),
+// DownStreamRRPCRequest see interface DevUserProc
+func (DevNopUserProc) DownStreamRRPCRequest(c *Client, productKey, deviceName, messageID string, payload []byte) error {
+	return c.Publish(c.URIService(URISysPrefix, URIRRPCResponse, productKey, deviceName, messageID),
 		0, `{"note":"default system RRPC implementation"}`)
 }
 
-func (DevNopUserProc) DownStreamExtRRPCRequest(m *Client, rawURI string, payload []byte) error {
-	return m.Publish(rawURI, 0, "default ext RRPC implementation")
+// DownStreamExtRRPCRequest see interface DevUserProc
+func (DevNopUserProc) DownStreamExtRRPCRequest(c *Client, rawURI string, payload []byte) error {
+	return c.Publish(rawURI, 0, "default ext RRPC implementation")
 }

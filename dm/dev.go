@@ -1,4 +1,4 @@
-// Package model 实现阿里去物模型
+// Package dm 实现阿里去物模型
 package dm
 
 import (
@@ -137,7 +137,7 @@ func (sf *Client) UpstreamThingDesiredPropertyGet(devID int, params interface{})
 	return nil
 }
 
-// UpstreamThingPropertyDesiredDelete 清空期望值
+// UpstreamThingDesiredPropertyDelete 清空期望值
 func (sf *Client) UpstreamThingDesiredPropertyDelete(devID int, params interface{}) error {
 	if devID < 0 {
 		return ErrInvalidParameter
@@ -224,7 +224,7 @@ type ConfigGetParams struct {
 
 // ConfigParamsAndData 配置获取参数域,或推送数据域
 type ConfigParamsAndData struct {
-	ConfigId   string `json:"configId"`
+	ConfigID   string `json:"configId"`
 	ConfigSize int64  `json:"configSize"`
 	Sign       string `json:"sign"`
 	SignMethod string `json:"signMethod"`

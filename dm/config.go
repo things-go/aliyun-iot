@@ -82,19 +82,20 @@ func (sf *Config) EnableCOAP() *Config {
 	return sf
 }
 
-// EnableCOAP 采用HTTP
+// EnableHTTP 采用HTTP
 func (sf *Config) EnableHTTP() *Config {
 	sf.workOnWho = workOnHTTP
 	sf.uriOffset = 1
 	return sf
 }
 
+// EnableNTP 使能NTP
 func (sf *Config) EnableNTP() *Config {
 	sf.hasNTP = true
 	return sf
 }
 
-// 使能透传 EnableModelRaw
+// EnableModelRaw 使能透传
 func (sf *Config) EnableModelRaw() *Config {
 	sf.hasRawModel = true
 	return sf

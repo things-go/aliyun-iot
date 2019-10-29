@@ -13,6 +13,7 @@ type messageCacheEntry struct {
 	data    string
 }
 
+// 缓存使能
 func (sf *Client) CacheInit() {
 	if !sf.cfg.hasCache {
 		return
@@ -23,8 +24,12 @@ func (sf *Client) CacheInit() {
 		sf.pool.Put(v)
 		sf.debug("cache timeout - %s", s)
 	})
+	sf.msgCache.OnDeleted(func(s string, v interface{}) {
+		sf.pool.Put(v)
+	})
 }
 
+// CacheInsert 缓存插入指定ID
 func (sf *Client) CacheInsert(id, devID int, msgType MsgType, data string) {
 	if !sf.cfg.hasCache {
 		return
@@ -38,6 +43,7 @@ func (sf *Client) CacheInsert(id, devID int, msgType MsgType, data string) {
 	sf.debug("cache insert - %d", id)
 }
 
+// CacheRemove 缓存删存指定ID
 func (sf *Client) CacheRemove(id int) {
 	if !sf.cfg.hasCache {
 		return

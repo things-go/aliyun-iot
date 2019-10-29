@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// 分隔符定义
 const (
 	SEP = "/"
 )
@@ -22,6 +23,7 @@ const (
 	URIReplySuffix = "reply"
 )
 
+// RRPC URI定义
 const (
 	//  系统RRPC调用
 	URIRRPCRequestSingleWildcard = "rrpc/request/+"
@@ -32,7 +34,7 @@ const (
 	URIExtRRPCSingleWildcard = "/ext/rrpc/+/"
 )
 
-// URI thing定义
+// 设备URI 定义
 const (
 	// 透传数据上行,下行云端
 	URIThingModelDownRaw      = "thing/model/down_raw"
@@ -79,12 +81,14 @@ const (
 	URINtpRequest  = "request"
 	URINtpResponse = "response"
 
-	//! config
+	// config
 	URIThingConfigGet       = "thing/config/get"
 	URIThingConfigGetReply  = "thing/config/get_reply"
 	URIThingConfigPush      = "thing/config/push"
 	URIThingConfigPushReply = "thing/config/push_reply"
 )
+
+// 网关URI定义
 const (
 	// 子设备动态注册
 	URIThingSubDevRegister      = "thing/sub/register"
@@ -127,6 +131,7 @@ func URIServiceReplyWithRequestURI(uri string) string {
 	return uri + "_" + URIReplySuffix
 }
 
+// URIServiceSpilt 分隔URI,会去除左边的SEP分隔符
 func URIServiceSpilt(uri string) []string {
 	return strings.Split(strings.TrimLeft(uri, SEP), SEP)
 }

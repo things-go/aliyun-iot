@@ -5,11 +5,13 @@ import (
 	"sync"
 )
 
-// 设备本身, 对于网关,独立设备,就是指代本身
+// DevLocal 设备本身, 对于网关,独立设备,就是指代本身
 const DevLocal = 0
 
+// DevType 设备类型
 type DevType byte
 
+// 设备类型定义
 const (
 	DevTypeSingle = 1 << iota
 	DevTypeSubDev
@@ -32,7 +34,7 @@ const (
 	DevStatusOnline                        // After All Topic Subscribed
 )
 
-// 设备有效
+// DevAvail 设备有效
 type DevAvail byte
 
 // 设备有效
@@ -279,7 +281,7 @@ func (sf *devMgr) SetDeviceSecret(devID int, deviceSecret string) error {
 	return nil
 }
 
-// 获得设备类型
+// DevTypes 获得设备类型
 func (sf *devMgr) DevTypes(devID int) (DevType, error) {
 	sf.rw.RLock()
 	defer sf.rw.RUnlock()
@@ -296,17 +298,17 @@ func (sf *DevNode) ID() int {
 	return sf.id
 }
 
-// ID 返回设备状态
+// Status 返回设备状态
 func (sf *DevNode) Status() DevStatus {
 	return sf.status
 }
 
-// ID 返回设备avail
+// Avail 返回设备avail
 func (sf *DevNode) Avail() DevAvail {
 	return sf.avail
 }
 
-// ID 返回设备类型
+// Types 返回设备类型
 func (sf *DevNode) Types() DevType {
 	return sf.types
 }

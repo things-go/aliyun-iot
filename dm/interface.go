@@ -15,18 +15,7 @@ type Conn interface {
 	LogMode(enable bool)
 }
 
-type GatewayUserProc interface {
-	DownstreamGwExtSubDevRegisterReply(m *Client, rsp *GwSubDevRegisterResponse) error
-	DownstreamGwExtSubDevCombineLoginReply(m *Client, rsp *Response) error
-	DownstreamGwExtSubDevCombineLogoutReply(m *Client, rsp *Response) error
-	DownstreamGwSubDevThingDisable(m *Client, productKey, deviceName string) error
-	DownstreamGwSubDevThingEnable(m *Client, productKey, deviceName string) error
-	DownstreamGwSubDevThingDelete(m *Client, productKey, deviceName string) error
-	DownstreamGwThingTopoAddReply(m *Client, rsp *Response) error
-	DownstreamGwThingTopoDeleteReply(m *Client, rsp *Response) error
-	DownstreamGwThingTopoGetReply(m *Client, rsp *GwTopoGetResponse) error
-}
-
+// DevUserProc 设备用户回调
 type DevUserProc interface {
 	DownstreamThingModelUpRawReply(m *Client, productKey, deviceName string, payload []byte) error
 	DownstreamThingEventPropertyPostReply(m *Client, rsp *Response) error
@@ -52,4 +41,17 @@ type DevUserProc interface {
 	DownStreamRRPCRequest(m *Client, productKey, deviceName, messageID string, payload []byte) error
 	// 自定义RRPC调用,仅支持设备端Qos = 0的回复, 已做默认回复,覆盖本接口覆盖默认回复,需用户自行做回复
 	DownStreamExtRRPCRequest(m *Client, rawURI string, payload []byte) error
+}
+
+// GatewayUserProc 网关用户处理回调
+type GatewayUserProc interface {
+	DownstreamGwExtSubDevRegisterReply(m *Client, rsp *GwSubDevRegisterResponse) error
+	DownstreamGwExtSubDevCombineLoginReply(m *Client, rsp *Response) error
+	DownstreamGwExtSubDevCombineLogoutReply(m *Client, rsp *Response) error
+	DownstreamGwSubDevThingDisable(m *Client, productKey, deviceName string) error
+	DownstreamGwSubDevThingEnable(m *Client, productKey, deviceName string) error
+	DownstreamGwSubDevThingDelete(m *Client, productKey, deviceName string) error
+	DownstreamGwThingTopoAddReply(m *Client, rsp *Response) error
+	DownstreamGwThingTopoDeleteReply(m *Client, rsp *Response) error
+	DownstreamGwThingTopoGetReply(m *Client, rsp *GwTopoGetResponse) error
 }

@@ -148,7 +148,7 @@ func (sf *Client) SendRequest(uriService string, requestID int, method string, p
 	return sf.Publish(uriService, 1, out)
 }
 
-// SendResponse
+// SendResponse 发送回复
 // uriService 唯一定位服务器或(topic)
 // responseID: 回复ID
 // code: 回复code
@@ -247,7 +247,7 @@ func (sf *Client) AlinkQuery(msgType MsgType, devID int, payload ...interface{})
 	return ErrNotSupportMsgType
 }
 
-// AlinkTriggerEvent
+// AlinkTriggerEvent 事件上报
 func (sf *Client) AlinkTriggerEvent(devID int, eventID string, payload interface{}) error {
 	return sf.UpstreamThingEventPost(devID, eventID, payload)
 }
