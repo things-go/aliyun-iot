@@ -227,6 +227,9 @@ func (sf *Client) AlinkQuery(msgType MsgType, devID int, payload ...interface{})
 	switch msgType {
 	case MsgTypeDsltemplateGet:
 		return sf.UpstreamThingDsltemplateGet(devID)
+		// TODO: 不使用??
+	//case MsgTypeDynamictslGet:
+	//	return sf.UpstreamThingDynamictslGet()
 	case MsgTypeExtNtpRequest:
 		if !sf.cfg.hasNTP || sf.cfg.hasRawModel {
 			return ErrNotSupportFeature

@@ -183,11 +183,11 @@ func (sf *Client) UpstreamThingDsltemplateGet(devID int) error {
 }
 
 // UpstreamThingDynamictslGet 获取
+// TODO: 不使用??
 func (sf *Client) UpstreamThingDynamictslGet() error {
-
-	// TODO: 需要确定.未来审核
 	id := sf.RequestID()
-	err := sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingDynamicTslGet), id, methodDynamicTslGet, `{"nodes\":["type","identifier"],"addDefault":false}`)
+	err := sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingDynamicTslGet), id,
+		methodDynamicTslGet, `{"nodes":["type","identifier"],"addDefault":false}`)
 	if err != nil {
 		return err
 	}

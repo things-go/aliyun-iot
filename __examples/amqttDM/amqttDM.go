@@ -64,6 +64,7 @@ func main() {
 	//go ConfigTest()
 	//go DeviceInfoTest()
 	//go NTPTest()
+
 	EventPostTest()
 }
 
@@ -126,6 +127,13 @@ func DslTemplateTest() {
 	if err != nil {
 		log.Println(err)
 		return
+	}
+}
+
+func dynamictslTest() {
+	err := dmClient.UpstreamThingDynamictslGet()
+	if err != nil {
+		panic(err)
 	}
 }
 

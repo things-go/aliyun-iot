@@ -89,13 +89,13 @@ func ProcThingDsltemplateGetReply(m *Client, rawURI string, payload []byte) erro
 	return m.devUserProc.DownstreamThingDsltemplateGetReply(m, &rsp)
 }
 
-// TODO: 需确认
+// TODO: 不使用??
 func ProcThingDynamictslGetReply(m *Client, rawURI string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
-	m.debug("downstream thing <dynamic tsl>: get reply,@%d", rsp.ID)
+	m.debug("downstream thing <dynamic tsl>: get reply,@%d - %+v", rsp.ID, rsp)
 	return m.devUserProc.DownstreamThingDynamictslGetReply(m, &rsp)
 }
 
@@ -124,6 +124,7 @@ func ProcExtErrorResponse(m *Client, rawURI string, payload []byte) error {
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
+	// TODO: 处理这个ERROR
 	m.CacheRemove(rsp.ID)
 	m.debug("downstream ext <Error>: response,@%d", rsp.ID)
 	return m.devUserProc.DownstreamExtErrorResponse(m, &rsp)
