@@ -1,4 +1,4 @@
-package infra
+package dm
 
 // 通用公共错误
 // see https://help.aliyun.com/document_detail/120329.html?spm=a2c4g.11186623.6.677.efd1a684yZutHX

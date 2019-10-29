@@ -229,7 +229,7 @@ func (sf *Client) publish(uri string, payload interface{}) (int64, error) {
 	case []byte:
 		buf = bytes.NewBuffer(v)
 	default:
-		return 0, errors.New("Unknown payload type")
+		return 0, errors.New("Unknown payload type, must be string or []byte")
 	}
 
 	request, err := http.NewRequest(http.MethodPost, sf.host+uri, buf)
