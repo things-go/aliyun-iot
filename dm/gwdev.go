@@ -8,14 +8,6 @@ import (
 	"github.com/thinkgos/aliIOT/infra"
 )
 
-// MetaInfo 产品与设备三元组
-type MetaInfo struct {
-	ProductKey    string
-	ProductSecret string
-	DeviceName    string
-	DeviceSecret  string
-}
-
 // GwSubDevRegisterParams 子设备注册参数域
 type GwSubDevRegisterParams struct {
 	ProductKey string `json:"productKey"`
@@ -35,15 +27,27 @@ type GwSubDevRegisterResponse struct {
 	Data []GwSubDevRegisterData `json:"data"`
 }
 
-// UpstreamGwSubDevRegister 子设备动态注册
-func (sf *Client) UpstreamGwSubDevRegister(meta ...*MetaInfo) error {
-	sublist := make([]GwSubDevRegisterParams, 0, len(meta))
-
-	for _, v := range meta {
-		sublist = append(sublist, GwSubDevRegisterParams{v.ProductKey, v.DeviceName})
+// UpstreamThingGwSubDevRegister 子设备动态注册
+func (sf *Client) UpstreamThingGwSubDevRegister(devID int) error {
+	if devID < 0 {
+		return ErrInvalidParameter
 	}
 
-	return sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingSubDevRegister), sf.RequestID(), methodSubDevRegister, sublist)
+	node, err := sf.SearchNodeByID(devID)
+	if err != nil {
+		return err
+	}
+	id := sf.RequestID()
+	if err = sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingSubDevRegister),
+		id, methodSubDevRegister, []GwSubDevRegisterParams{
+			{node.ProductKey, node.DeviceName},
+		}); err != nil {
+		return err
+	}
+
+	sf.CacheInsert(id, devID, MsgTypeSubDevRegister, methodSubDevRegister)
+	sf.debug("upstream thing GW <sub>: register @%d", id)
+	return nil
 }
 
 // GwSubDevCombineLoginParams 子设备上线参数域
@@ -63,9 +67,9 @@ type GwSubDevCombineLoginRequest struct {
 	Params GwSubDevCombineLoginParams `json:"params"`
 }
 
-// UpstreamGwExtSubDevCombineLogin 子设备上线
+// UpstreamGwSubDevCombineLogin 子设备上线
 // 子设备上下线只支持Qos = 0.
-func (sf *Client) UpstreamGwExtSubDevCombineLogin(devID int) error {
+func (sf *Client) UpstreamGwSubDevCombineLogin(devID int) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
@@ -83,9 +87,10 @@ func (sf *Client) UpstreamGwExtSubDevCombineLogin(devID int) error {
 	if err != nil {
 		return err
 	}
+	id := sf.RequestID()
 	req, err := json.Marshal(&GwSubDevCombineLoginRequest{
-		ID: sf.RequestID(),
-		Params: GwSubDevCombineLoginParams{
+		id,
+		GwSubDevCombineLoginParams{
 			ProductKey:   node.ProductKey,
 			DeviceName:   node.DeviceName,
 			ClientID:     clientID,
@@ -99,7 +104,14 @@ func (sf *Client) UpstreamGwExtSubDevCombineLogin(devID int) error {
 		return err
 	}
 	// NOTE: 子设备登陆,要用网关的productKey和deviceName
-	return sf.Publish(sf.URIServiceSelf(URIExtSessionPrefix, URISubDevCombineLogin), 0, req)
+	if err = sf.Publish(sf.URIServiceSelf(URIExtSessionPrefix, URISubDevCombineLogin),
+		0, req); err != nil {
+		return err
+	}
+
+	sf.CacheInsert(id, devID, MsgTypeSubDevLogin, methodSubDevLogin)
+	sf.debug("upstream Ext GW <sub>: login @%d", id)
+	return nil
 }
 
 // GwSubDevCombineLogoutParams 子设备下线参数域
@@ -114,9 +126,9 @@ type GwSubDevCombineLogoutRequest struct {
 	Params GwSubDevCombineLogoutParams `json:"params"`
 }
 
-// UpstreamGwExtSubDevCombineLogout 子设备下线
+// UpstreamExtGwSubDevCombineLogout 子设备下线
 // 子设备上下线只支持Qos = 0.
-func (sf *Client) UpstreamGwExtSubDevCombineLogout(devID int) error {
+func (sf *Client) UpstreamExtGwSubDevCombineLogout(devID int) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
@@ -126,8 +138,9 @@ func (sf *Client) UpstreamGwExtSubDevCombineLogout(devID int) error {
 		return err
 	}
 
+	id := sf.RequestID()
 	req, err := json.Marshal(&GwSubDevCombineLogoutRequest{
-		sf.RequestID(),
+		id,
 		GwSubDevCombineLogoutParams{
 			ProductKey: node.ProductKey,
 			DeviceName: node.DeviceName,
@@ -138,5 +151,11 @@ func (sf *Client) UpstreamGwExtSubDevCombineLogout(devID int) error {
 	}
 
 	// NOTE: 子设备下线,要用网关的productKey和deviceName
-	return sf.Publish(sf.URIServiceSelf(URIExtSessionPrefix, URISubDevCombineLogout), 0, req)
+	if err = sf.Publish(sf.URIServiceSelf(URIExtSessionPrefix, URISubDevCombineLogout),
+		0, req); err != nil {
+		return err
+	}
+	sf.CacheInsert(id, devID, MsgTypeSubDevLogin, methodSubDevLogin)
+	sf.debug("upstream Ext GW <sub>: logout @%d", id)
+	return nil
 }

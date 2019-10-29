@@ -204,30 +204,6 @@ func ProcExtRRPCRequest(c *Client, rawURI string, payload []byte) error {
 
 /******************************** gateway ****************************************************************/
 
-func ProcThingSubDevRegisterReply(c *Client, rawURI string, payload []byte) error {
-	rsp := GwSubDevRegisterResponse{}
-	if err := json.Unmarshal(payload, &rsp); err != nil {
-		return err
-	}
-	return c.gwUserProc.DownstreamGwExtSubDevRegisterReply(c, &rsp)
-}
-
-func ProcExtSubDevCombineLoginReply(c *Client, rawURI string, payload []byte) error {
-	rsp := Response{}
-	if err := json.Unmarshal(payload, &rsp); err != nil {
-		return err
-	}
-	return c.gwUserProc.DownstreamGwExtSubDevCombineLoginReply(c, &rsp)
-}
-
-func ProcExtSubDevCombineLogoutReply(c *Client, rawURI string, payload []byte) error {
-	rsp := Response{}
-	if err := json.Unmarshal(payload, &rsp); err != nil {
-		return err
-	}
-	return c.gwUserProc.DownstreamGwExtSubDevCombineLogoutReply(c, &rsp)
-}
-
 func ProcThingTopoAddReply(c *Client, rawURI string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
@@ -285,6 +261,7 @@ func ProcThingTopoAddNotify(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 	// TODO: 处理通知的
+	c.debug("upstream GW thing <topo>: notify @%d")
 	return c.SendResponse(URIServiceReplyWithRequestURI(rawURI),
 		req.ID, CodeSuccess, "{}")
 }
@@ -311,10 +288,42 @@ func ProcThingTopoChange(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 	// TODO: 处理拓扑关系变更
+	c.debug("upstream GW thing <topo>: change @%d")
 	return c.SendResponse(URIServiceReplyWithRequestURI(rawURI),
 		req.ID, CodeSuccess, "{}")
 }
 
+func ProcThingSubDevRegisterReply(c *Client, rawURI string, payload []byte) error {
+	rsp := GwSubDevRegisterResponse{}
+	if err := json.Unmarshal(payload, &rsp); err != nil {
+		return err
+	}
+	c.CacheRemove(rsp.ID)
+	c.debug("upstream GW thing <sub>: register reply @%d", rsp.ID)
+	// TODO
+	return c.gwUserProc.DownstreamGwExtSubDevRegisterReply(c, &rsp)
+}
+
+func ProcExtSubDevCombineLoginReply(c *Client, rawURI string, payload []byte) error {
+	rsp := Response{}
+	if err := json.Unmarshal(payload, &rsp); err != nil {
+		return err
+	}
+	c.CacheRemove(rsp.ID)
+	c.debug("upstream Ext GW <sub>: login reply @%d", rsp.ID)
+	return c.gwUserProc.DownstreamGwExtSubDevCombineLoginReply(c, &rsp)
+}
+
+func ProcExtSubDevCombineLogoutReply(c *Client, rawURI string, payload []byte) error {
+	rsp := Response{}
+	if err := json.Unmarshal(payload, &rsp); err != nil {
+		return err
+	}
+	c.debug("upstream Ext GW <sub>: logout reply @%d", rsp.ID)
+	return c.gwUserProc.DownstreamGwExtSubDevCombineLogoutReply(c, &rsp)
+}
+
+// ProcThingDisable 禁用子设备
 func ProcThingDisable(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) != 5 {
@@ -326,11 +335,15 @@ func ProcThingDisable(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 
-	if err := c.SendResponse(URIServiceReplyWithRequestURI(rawURI), req.ID, CodeSuccess, "{}"); err != nil {
+	if err := c.SendResponse(URIServiceReplyWithRequestURI(rawURI),
+		req.ID, CodeSuccess, "{}"); err != nil {
 		return err
 	}
+	c.debug("downstream <thing>: disable @%s - %s", uris[1], uris[2])
 	return c.gwUserProc.DownstreamGwSubDevThingDisable(c, uris[1], uris[2])
 }
+
+// ProcThingEnable 启用子设备
 func ProcThingEnable(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) != 5 {
@@ -342,10 +355,12 @@ func ProcThingEnable(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 
-	if err := c.SendResponse(URIServiceReplyWithRequestURI(rawURI), req.ID, CodeSuccess, "{}"); err != nil {
+	if err := c.SendResponse(URIServiceReplyWithRequestURI(rawURI),
+		req.ID, CodeSuccess, "{}"); err != nil {
 		return err
 	}
-	return c.gwUserProc.DownstreamGwSubDevThingDisable(c, "", "")
+	c.debug("downstream <thing>: enable @%s - %s", uris[1], uris[2])
+	return c.gwUserProc.DownstreamGwSubDevThingDisable(c, uris[1], uris[2])
 }
 func ProcThingDelete(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
@@ -358,8 +373,10 @@ func ProcThingDelete(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 
-	if err := c.SendResponse(URIServiceReplyWithRequestURI(rawURI), req.ID, CodeSuccess, "{}"); err != nil {
+	if err := c.SendResponse(URIServiceReplyWithRequestURI(rawURI),
+		req.ID, CodeSuccess, "{}"); err != nil {
 		return err
 	}
-	return c.gwUserProc.DownstreamGwSubDevThingDisable(c, "", "")
+	c.debug("downstream <thing>: delete @%s - %s", uris[1], uris[2])
+	return c.gwUserProc.DownstreamGwSubDevThingDisable(c, uris[1], uris[2])
 }

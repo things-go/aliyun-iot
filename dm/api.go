@@ -30,6 +30,7 @@ const (
 	MsgTypeTopoDelete                  //!< 网关,删除设备拓扑关系
 	MsgTypeTopoGet                     //!< 网关,查询设备拓扑关系
 	MsgTypeDevListFound                //!< 网关,设备发现链表上报
+	MsgTypeSubDevRegister              //!< 子设备,动态注册
 	MsgTypeSubDevLogin                 //!< only for slave device, send login request to cloud
 	MsgTypeSubDevLogout                //!< only for slave device, send logout request to cloud
 	MsgTypeSubDevDeleteTopo            //!< only for slave device, send delete topo request to cloud

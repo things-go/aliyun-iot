@@ -19,6 +19,8 @@ const (
 	methodConfigGet             = "thing.config.get"
 
 	methodSubDevRegister = "thing.sub.register"
+	methodSubDevLogin    = "thing.sub.login"
+	methodSubDevLogout   = "thing.sub.logout"
 	//methodSubDevDisable  = "thing.disable"
 	//methodSubDevEnable   = "thing.enable"
 	//methodSubDevDelete   = "thing.delete"
