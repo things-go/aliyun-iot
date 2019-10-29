@@ -118,12 +118,13 @@ func ProcThingConfigGetReply(m *Client, rawURI string, payload []byte) error {
 	return m.devUserProc.DownstreamThingConfigGetReply(m, &rsp)
 }
 
-// TODO: deprecated
+// ProcExtErrorResponse 处理错误的回复
 func ProcExtErrorResponse(m *Client, rawURI string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
+	m.CacheRemove(rsp.ID)
 	m.debug("downstream ext <Error>: response,@%d", rsp.ID)
 	return m.devUserProc.DownstreamExtErrorResponse(m, &rsp)
 }
