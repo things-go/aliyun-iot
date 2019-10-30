@@ -101,10 +101,50 @@ func (sf *Client) SubscribeAllTopic(devType DevType, productKey, deviceName stri
 	}
 
 	if sf.cfg.hasGateway {
-
-		// 子设备上线,下线,topic需要用网关的productKey,deviceName,
-		// 使用的是网关的通道,所以子设备不注册相关主题
 		if devType == DevTypeGateway {
+			// 获取该网关和子设备的拓扑关系
+			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingTopoAddReply, productKey, deviceName),
+				ProcThingTopoAddReply); err != nil {
+				sf.warn(err.Error())
+			}
+
+			// 删除该网关和子设备的拓扑关系
+			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingTopoDeleteReply, productKey, deviceName),
+				ProcThingTopoDeleteReply); err != nil {
+				sf.warn(err.Error())
+			}
+
+			// 获取该网关和子设备的拓扑关系
+			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingTopoGetReply, productKey, deviceName),
+				ProcThingTopoGetReply); err != nil {
+				sf.warn(err.Error())
+			}
+
+			// 发现设备列表上报
+			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingListFoundReply, productKey, deviceName),
+				ProcThingListFoundReply); err != nil {
+				sf.warn(err.Error())
+			}
+
+			// 添加设备拓扑关系通知,topic需要用网关的productKey,deviceName
+			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingTopoAddNotify, productKey, deviceName),
+				ProcThingTopoAddNotify); err != nil {
+				sf.warn(err.Error())
+			}
+
+			// 网关网络拓扑关系变化通知,topic需要用网关的productKey,deviceName
+			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingTopoChange, productKey, deviceName),
+				ProcThingTopoChange); err != nil {
+				sf.warn(err.Error())
+			}
+
+			// 子设备动态注册,topic需要用网关的productKey,deviceName
+			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingSubDevRegisterReply, productKey, deviceName),
+				ProcThingSubDevRegisterReply); err != nil {
+				sf.warn(err.Error())
+			}
+			// 子设备上线,下线,topic需要用网关的productKey,deviceName,
+			// 使用的是网关的通道,所以子设备不注册相关主题
 			if err = sf.Subscribe(sf.URIService(URIExtSessionPrefix, URISubDevCombineLoginReply, productKey, deviceName),
 				ProcExtSubDevCombineLoginReply); err != nil {
 				sf.warn(err.Error())

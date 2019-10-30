@@ -22,12 +22,14 @@ type GwSubDevRegisterData struct {
 	DeviceSecret string `json:"deviceSecret"`
 }
 
+// GwSubDevRegisterResponse 子设备注册应答
 type GwSubDevRegisterResponse struct {
 	Response
 	Data []GwSubDevRegisterData `json:"data"`
 }
 
 // UpstreamThingGwSubDevRegister 子设备动态注册
+// 子设备注册使用网关topic通道
 func (sf *Client) UpstreamThingGwSubDevRegister(devID int) error {
 	if devID < 0 {
 		return ErrInvalidParameter
@@ -40,7 +42,10 @@ func (sf *Client) UpstreamThingGwSubDevRegister(devID int) error {
 	id := sf.RequestID()
 	if err = sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingSubDevRegister),
 		id, methodSubDevRegister, []GwSubDevRegisterParams{
-			{node.ProductKey(), node.DeviceName()},
+			{
+				node.ProductKey(),
+				node.DeviceName(),
+			},
 		}); err != nil {
 		return err
 	}

@@ -224,6 +224,7 @@ func ProcThingTopoDeleteReply(c *Client, rawURI string, payload []byte) error {
 	return c.gwUserProc.DownstreamGwThingTopoDeleteReply(c, &rsp)
 }
 
+// ProcThingTopoGetReply 处理获取该网关和子设备的拓扑关系
 func ProcThingTopoGetReply(c *Client, rawURI string, payload []byte) error {
 	rsp := GwTopoGetResponse{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
@@ -234,7 +235,8 @@ func ProcThingTopoGetReply(c *Client, rawURI string, payload []byte) error {
 	return c.gwUserProc.DownstreamGwThingTopoGetReply(c, &rsp)
 }
 
-func ProcThingListFoundReply(c *Client, rawURI string, payload []byte) error {
+// ProcThingListFoundReply 处理发现设备列表上报
+func ProcThingListFoundReply(c *Client, _ string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
@@ -245,10 +247,13 @@ func ProcThingListFoundReply(c *Client, rawURI string, payload []byte) error {
 	return nil
 }
 
+// GwTopoAddNotifyParams 添加设备拓扑关系通知参数域
 type GwTopoAddNotifyParams struct {
 	ProductKey string `json:"productKey"`
 	DeviceName string `json:"deviceName"`
 }
+
+// GwTopoAddNotifyRequest 添加设备拓扑关系通知请求
 type GwTopoAddNotifyRequest struct {
 	Request
 	Params []GwTopoAddNotifyParams `json:"params"`
@@ -260,51 +265,58 @@ func ProcThingTopoAddNotify(c *Client, rawURI string, payload []byte) error {
 	if err := json.Unmarshal(payload, &req); err != nil {
 		return err
 	}
-	// TODO: 处理通知的
-	c.debug("downstream GW thing <topo>: notify @%d")
+	// TODO: 处理添加设备拓扑关系通知请求
+	c.debug("downstream GW thing <topo>: add notify")
 	return c.SendResponse(URIServiceReplyWithRequestURI(rawURI),
 		req.ID, CodeSuccess, "{}")
 }
 
+// GwTopoChangeDev 网络拓扑关系变化请求参数域 设备结构
 type GwTopoChangeDev struct {
 	ProductKey string `json:"productKey"`
 	DeviceName string `json:"deviceName"`
 }
 
+// GwTopoChangeParams 网络拓扑关系变化请求参数域
 type GwTopoChangeParams struct {
-	Status  int               `json:"status"` // 0: 创建 1:删除 2: 解除禁用(启用) 8: 禁用
+	Status  int               `json:"status"` // 0: 创建 1:删除 2: 启用 8: 禁用
 	SubList []GwTopoChangeDev `json:"subList"`
 }
 
+// GwTopoChangeRequest 网络拓扑关系变化请求
 type GwTopoChangeRequest struct {
 	Request
 	Params GwTopoChangeParams `json:"params"`
 }
 
-// 通知网关拓扑关系变化
+// ProcThingTopoChange 通知网关拓扑关系变化
 func ProcThingTopoChange(c *Client, rawURI string, payload []byte) error {
 	req := GwTopoChangeRequest{}
 	if err := json.Unmarshal(payload, &req); err != nil {
 		return err
 	}
-	// TODO: 处理拓扑关系变更
-	c.debug("downstream GW thing <topo>: change @%d")
+	// TODO: 处理通知网关拓扑关系变化
+	c.debug("downstream GW thing <topo>: change")
 	return c.SendResponse(URIServiceReplyWithRequestURI(rawURI),
 		req.ID, CodeSuccess, "{}")
 }
 
-func ProcThingSubDevRegisterReply(c *Client, rawURI string, payload []byte) error {
+/*************************************** 子设备相关处理 *************************************************************/
+
+// ProcThingSubDevRegisterReply 子设备动态注册处理
+func ProcThingSubDevRegisterReply(c *Client, _ string, payload []byte) error {
 	rsp := GwSubDevRegisterResponse{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
 	c.CacheRemove(rsp.ID)
 	c.debug("downstream GW thing <sub>: register reply @%d", rsp.ID)
-	// TODO
+	// TODO: 子设备动态注册处理
 	return c.gwUserProc.DownstreamGwExtSubDevRegisterReply(c, &rsp)
 }
 
-func ProcExtSubDevCombineLoginReply(c *Client, rawURI string, payload []byte) error {
+// ProcExtSubDevCombineLoginReply 子设备上线应答处理
+func ProcExtSubDevCombineLoginReply(c *Client, _ string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
@@ -314,7 +326,8 @@ func ProcExtSubDevCombineLoginReply(c *Client, rawURI string, payload []byte) er
 	return c.gwUserProc.DownstreamGwExtSubDevCombineLoginReply(c, &rsp)
 }
 
-func ProcExtSubDevCombineLogoutReply(c *Client, rawURI string, payload []byte) error {
+// ProcExtSubDevCombineLogoutReply 子设备下线应答处理
+func ProcExtSubDevCombineLogoutReply(c *Client, _ string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
