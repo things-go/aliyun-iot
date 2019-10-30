@@ -17,23 +17,23 @@ type SubDevTopoAddParams struct {
 	Sign       string `json:"sign"`
 }
 
-// UpstreamGwThingTopoAdd 添加设备拓扑关系
+// upstreamGwThingTopoAdd 添加设备拓扑关系
 // 子设备身份注册后,需网关上报与子设备的关系,然后才进行子设备上线
-func (sf *Client) UpstreamGwThingTopoAdd(devID int) error {
+func (sf *Client) upstreamGwThingTopoAdd(devID int) (int, error) {
 	if devID < 0 {
-		return ErrInvalidParameter
+		return 0, ErrInvalidParameter
 	}
 
 	node, err := sf.SearchNodeByID(devID)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	timestamp := time.Now().Unix()
 	clientID := fmt.Sprintf("%s.%s|_v=%s|", node.ProductKey(), node.DeviceName(), infra.IOTSDKVersion)
 	sign, err := generateSign(node.ProductKey(), node.DeviceName(), node.deviceSecret, clientID, timestamp)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	id := sf.RequestID()
 	err = sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingTopoAdd),
@@ -48,11 +48,11 @@ func (sf *Client) UpstreamGwThingTopoAdd(devID int) error {
 			},
 		})
 	if err != nil {
-		return err
+		return 0, err
 	}
 	sf.CacheInsert(id, devID, MsgTypeTopoAdd, methodTopoAdd)
 	sf.debug("upstream GW thing <topo>: add @%d", id)
-	return nil
+	return id, nil
 }
 
 // GwTopoDeleteParams
@@ -61,14 +61,14 @@ type GwTopoDeleteParams struct {
 	DeviceName string `json:"deviceName"`
 }
 
-// UpstreamGwThingTopoDelete 删除网关与子设备的拓扑关系
-func (sf *Client) UpstreamGwThingTopoDelete(devID int) error {
+// upstreamGwThingTopoDelete 删除网关与子设备的拓扑关系
+func (sf *Client) upstreamGwThingTopoDelete(devID int) (int, error) {
 	if devID < 0 {
-		return ErrInvalidParameter
+		return 0, ErrInvalidParameter
 	}
 	node, err := sf.SearchNodeByID(devID)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	id := sf.RequestID()
 	if err = sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingTopoDelete),
@@ -78,11 +78,11 @@ func (sf *Client) UpstreamGwThingTopoDelete(devID int) error {
 				node.DeviceName(),
 			},
 		}); err != nil {
-		return err
+		return 0, err
 	}
 	sf.CacheInsert(id, devID, MsgTypeTopoDelete, methodTopoDelete)
 	sf.debug("upstream GW thing <topo>: delete @%d", id)
-	return nil
+	return id, nil
 }
 
 // GwTopoGetData 获取网关和子设备的拓扑关系应答的数据域
@@ -97,8 +97,8 @@ type GwTopoGetResponse struct {
 	Data []GwTopoGetData `json:"data"`
 }
 
-// UpstreamGwThingTopoGet 获取该网关和子设备的拓扑关系
-func (sf *Client) UpstreamGwThingTopoGet() error {
+// upstreamGwThingTopoGet 获取该网关和子设备的拓扑关系
+func (sf *Client) upstreamGwThingTopoGet() error {
 	id := sf.RequestID()
 	if err := sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingTopoGet),
 		id, methodTopoGet, "{}"); err != nil {

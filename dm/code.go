@@ -1,5 +1,9 @@
 package dm
 
+import (
+	"fmt"
+)
+
 // 通用公共错误
 // see https://help.aliyun.com/document_detail/120329.html?spm=a2c4g.11186623.6.677.efd1a684yZutHX
 const (
@@ -165,3 +169,16 @@ const (
 	CodeRemoteConfigServiceDisabled = 6713 // 远程配置服务不可用。该产品的远程配置开关未打开。
 	CodeNotFindRemoteConfig         = 6710 // 未查询到远程配置信息
 )
+
+type CodeError struct {
+	code    int
+	message string
+}
+
+func NewCodeError(code int, message string) error {
+	return &CodeError{code, message}
+}
+
+func (sf *CodeError) Error() string {
+	return fmt.Sprintf("code: %d - message: %s", sf.code, sf.message)
+}

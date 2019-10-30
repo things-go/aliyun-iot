@@ -70,8 +70,8 @@ func (sf *Client) UpstreamThingEventPost(devID int, eventID string, params inter
 	return nil
 }
 
-// UpstreamThingDeviceInfoUpdate 设备信息上传
-func (sf *Client) UpstreamThingDeviceInfoUpdate(devID int, params interface{}) error {
+// upstreamThingDeviceInfoUpdate 设备信息上传
+func (sf *Client) upstreamThingDeviceInfoUpdate(devID int, params interface{}) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
@@ -93,8 +93,8 @@ func (sf *Client) UpstreamThingDeviceInfoUpdate(devID int, params interface{}) e
 	return nil
 }
 
-// UpstreamThingDeviceInfoDelete 设备信息删除
-func (sf *Client) UpstreamThingDeviceInfoDelete(devID int, params interface{}) error {
+// upstreamThingDeviceInfoDelete 设备信息删除
+func (sf *Client) upstreamThingDeviceInfoDelete(devID int, params interface{}) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
@@ -137,8 +137,8 @@ func (sf *Client) UpstreamThingDesiredPropertyGet(devID int, params interface{})
 	return nil
 }
 
-// UpstreamThingDesiredPropertyDelete 清空期望值
-func (sf *Client) UpstreamThingDesiredPropertyDelete(devID int, params interface{}) error {
+// upstreamThingDesiredPropertyDelete 清空期望值
+func (sf *Client) upstreamThingDesiredPropertyDelete(devID int, params interface{}) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
@@ -203,10 +203,10 @@ type NtpResponsePayload struct {
 	ServerSendTime int64 `json:"serverSendTime,string"`
 }
 
-// UpstreamExtNtpRequest ntp请求
+// upstreamExtNtpRequest ntp请求
 // 发送一条Qos = 0的消息,并带上设备当前的时间戳,平台将回复 设备的发送时间,平台的接收时间, 平台的发送时间.
 // 设备计算当前精确时间 = (平台接收时间 + 平台发送时间 + 设备接收时间 - 设备发送时间) / 2
-func (sf *Client) UpstreamExtNtpRequest() error {
+func (sf *Client) upstreamExtNtpRequest() error {
 	err := sf.Publish(sf.URIServiceSelf(URIExtNtpPrefix, URINtpRequest),
 		0, fmt.Sprintf(`{"deviceSendTime":"%d"}`, time.Now().Unix()))
 	if err != nil {
@@ -244,8 +244,8 @@ type ConfigPushRequest struct {
 	Params ConfigParamsAndData `json:"params"`
 }
 
-// UpstreamThingConfigGet 获取配置参数
-func (sf *Client) UpstreamThingConfigGet(devID int) error {
+// upstreamThingConfigGet 获取配置参数
+func (sf *Client) upstreamThingConfigGet(devID int) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}

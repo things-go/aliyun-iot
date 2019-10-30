@@ -42,13 +42,3 @@ type DevUserProc interface {
 	// 自定义RRPC调用,仅支持设备端Qos = 0的回复, 已做默认回复,覆盖本接口覆盖默认回复,需用户自行做回复
 	DownStreamExtRRPCRequest(m *Client, rawURI string, payload []byte) error
 }
-
-// GatewayUserProc 网关用户处理回调
-type GatewayUserProc interface {
-	DownstreamGwExtSubDevRegisterReply(m *Client, rsp *GwSubDevRegisterResponse) error
-	DownstreamGwExtSubDevCombineLoginReply(m *Client, rsp *Response) error
-	DownstreamGwExtSubDevCombineLogoutReply(m *Client, rsp *Response) error
-	DownstreamGwThingTopoAddReply(m *Client, rsp *Response) error
-	DownstreamGwThingTopoDeleteReply(m *Client, rsp *Response) error
-	DownstreamGwThingTopoGetReply(m *Client, rsp *GwTopoGetResponse) error
-}

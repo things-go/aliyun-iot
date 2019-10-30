@@ -216,3 +216,46 @@ func (sf *Client) UnSubscribeSubDevAllTopic(productKey, deviceName string) error
 		sf.URIService(URIExtErrorPrefix, "", productKey, deviceName))
 	return sf.UnSubscribe(topicList...)
 }
+
+func (sf *Client) linKitGwSubDevRegister(devID int) error {
+	id, err := sf.upstreamThingGwSubDevRegister(devID)
+	if err != nil {
+		return err
+	}
+	return sf.syncHub.Wait(id)
+}
+
+func (sf *Client) linkKitGwSubDevTopoAdd(devID int) error {
+	id, err := sf.upstreamGwThingTopoAdd(devID)
+	if err != nil {
+		return err
+	}
+
+	return sf.syncHub.Wait(id)
+}
+
+// linkKitGwSubDevTopoDelete 删除网关与子设备的拓扑关系
+func (sf *Client) linkKitGwSubDevTopoDelete(devID int) error {
+	id, err := sf.upstreamGwThingTopoDelete(devID)
+	if err != nil {
+		return err
+	}
+
+	return sf.syncHub.Wait(id)
+}
+
+func (sf *Client) linkKitGwSubDevCombineLogin(devID int) error {
+	id, err := sf.upstreamExtGwSubDevCombineLogin(devID)
+	if err != nil {
+		return err
+	}
+	return sf.syncHub.Wait(id)
+}
+
+func (sf *Client) linkKitGwSubDevCombineLogout(devID int) error {
+	id, err := sf.upstreamExtGwSubDevCombineLogout(devID)
+	if err != nil {
+		return err
+	}
+	return sf.syncHub.Wait(id)
+}

@@ -71,6 +71,7 @@ type Client struct {
 	cfg Config
 
 	*DevMgr
+	syncHub  *SyncHub
 	msgCache *cache.Cache
 	pool     *pool
 	Conn
@@ -83,6 +84,7 @@ func New(cfg *Config) *Client {
 	sf := &Client{
 		cfg:         *cfg,
 		DevMgr:      NewDevMgr(),
+		syncHub:     NewSyncHub(),
 		gwUserProc:  GwNopUserProc{},
 		devUserProc: DevNopUserProc{},
 	}
@@ -187,16 +189,13 @@ func (sf *Client) AlinkSubDeviceConnect(devID int) error {
 	}
 	if node.DeviceSecret() == "" { // 需要注册
 		// 子设备注册
-		if err = sf.UpstreamThingGwSubDevRegister(devID); err != nil {
+		if err := sf.linKitGwSubDevRegister(devID); err != nil {
 			return err
 		}
 	}
 
 	// 子设备添加到拓扑
-	if err = sf.UpstreamGwThingTopoAdd(devID); err != nil {
-		return err
-	}
-	return nil
+	return sf.linkKitGwSubDevTopoAdd(devID)
 }
 
 // AlinkReport 上报消息
@@ -231,18 +230,27 @@ func (sf *Client) AlinkReport(msgType MsgType, devID int, payload interface{}) e
 		if !sf.cfg.hasDesired {
 			return ErrNotSupportFeature
 		}
-		return sf.UpstreamThingDesiredPropertyDelete(devID, payload)
+		return sf.upstreamThingDesiredPropertyDelete(devID, payload)
 	case MsgTypeDeviceInfoUpdate:
-		return sf.UpstreamThingDeviceInfoUpdate(devID, payload)
+		return sf.upstreamThingDeviceInfoUpdate(devID, payload)
 	case MsgTypeDeviceInfoDelete:
-		return sf.UpstreamThingDeviceInfoDelete(devID, payload)
+		return sf.upstreamThingDeviceInfoDelete(devID, payload)
 
 	case MsgTypeSubDevLogin:
-		// TODO
+		if !sf.cfg.hasGateway {
+			return ErrNotSupportFeature
+		}
+		return sf.linkKitGwSubDevCombineLogin(devID)
 	case MsgTypeSubDevLogout:
-		//TODO
+		if !sf.cfg.hasGateway {
+			return ErrNotSupportFeature
+		}
+		return sf.linkKitGwSubDevCombineLogout(devID)
 	case MsgTypeSubDevDeleteTopo:
-		// todo
+		if !sf.cfg.hasGateway {
+			return ErrNotSupportFeature
+		}
+		return sf.linkKitGwSubDevTopoDelete(devID)
 	case MsgTypeReportSubDevFirmwareVersion:
 		// TODO
 	}
@@ -258,18 +266,24 @@ func (sf *Client) AlinkQuery(msgType MsgType, devID int, payload ...interface{})
 	switch msgType {
 	case MsgTypeDsltemplateGet:
 		return sf.UpstreamThingDsltemplateGet(devID)
-		// TODO: BUG
 	case MsgTypeDynamictslGet:
+		// TODO: BUG
 		return sf.UpstreamThingDynamictslGet()
 	case MsgTypeExtNtpRequest:
 		if !sf.cfg.hasNTP || sf.cfg.hasRawModel {
 			return ErrNotSupportFeature
 		}
-		return sf.UpstreamExtNtpRequest()
+		return sf.upstreamExtNtpRequest()
 	case MsgTypeConfigGet:
-		return sf.UpstreamThingConfigGet(devID)
+		if !sf.cfg.hasGateway {
+			return ErrNotSupportFeature
+		}
+		return sf.upstreamThingConfigGet(devID)
 	case MsgTypeTopoGet:
-		// TODO
+		if !sf.cfg.hasGateway {
+			return ErrNotSupportFeature
+		}
+		return sf.upstreamGwThingTopoGet()
 	case MsgTypeQueryCOTAData:
 	case MsgTypeQueryFOTAData:
 	case MsgTypeRequestCOTA:
