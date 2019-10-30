@@ -41,6 +41,13 @@ const (
 	MsgTypeReportSubDevFirmwareVersion //!< report subdev's firmware version
 )
 
+type Meta struct {
+	ProductKey    string
+	ProductSecret string
+	DeviceName    string
+	DeviceSecret  string
+}
+
 // Request 请求
 type Request struct {
 	ID      int         `json:"id,string"`
@@ -91,28 +98,12 @@ func New(cfg *Config) *Client {
 	return sf
 }
 
-// Connect 将订阅所有相关主题,主题有config配置
-func (sf *Client) Connect() error {
-	var devType DevType
-	if sf.cfg.hasGateway {
-		devType = DevTypeGateway
-	} else {
-		devType = DevTypeSingle
+func (sf *Client) NewSubDevice(devType int, meta Meta) (int, error) {
+	if !sf.cfg.hasGateway {
+		return 0, ErrNotSupportFeature
 	}
-	return sf.SubscribeAllTopic(devType, sf.cfg.productKey, sf.cfg.deviceName)
+	return sf.Create(DevTypeSubDev, meta.ProductKey, meta.DeviceName, meta.DeviceSecret)
 }
-
-//
-//func (sf *Client) NewSubDevice(devType int, info *MetaInfo) (int, error) {
-//	if !sf.cfg.hasGateway {
-//		return 0, ErrFeatureNotSupport
-//	}
-//	return sf.Create(DevTypeSubDev, info.productKey, info.deviceName, info.deviceSecret)
-//}
-//
-//func (sf *Client) SubDeviceConnect(id int) {
-//
-//}
 
 // SetConn 设置连接接口
 func (sf *Client) SetConn(conn Conn) *Client {
@@ -170,6 +161,42 @@ func (sf *Client) SendResponse(uriService string, responseID int, code int, data
 		return err
 	}
 	return sf.Publish(uriService, 1, out)
+}
+
+// AlinkConnect 将订阅所有相关主题,主题有config配置
+func (sf *Client) AlinkConnect() error {
+	var devType DevType
+
+	if sf.cfg.hasGateway {
+		devType = DevTypeGateway
+	} else {
+		devType = DevTypeSingle
+	}
+	return sf.SubscribeAllTopic(devType, sf.cfg.productKey, sf.cfg.deviceName)
+}
+
+// AlinkSubDeviceConnect 子设备连接注册并添加到网关拓扑关系
+func (sf *Client) AlinkSubDeviceConnect(devID int) error {
+	if devID < 0 {
+		return ErrInvalidParameter
+	}
+
+	node, err := sf.SearchNodeByID(devID)
+	if err != nil {
+		return err
+	}
+	if node.DeviceSecret() == "" { // 需要注册
+		// 子设备注册
+		if err = sf.UpstreamThingGwSubDevRegister(devID); err != nil {
+			return err
+		}
+	}
+
+	// 子设备添加到拓扑
+	if err = sf.UpstreamGwThingTopoAdd(devID); err != nil {
+		return err
+	}
+	return nil
 }
 
 // AlinkReport 上报消息

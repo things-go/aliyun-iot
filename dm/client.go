@@ -102,7 +102,7 @@ func (sf *Client) SubscribeAllTopic(devType DevType, productKey, deviceName stri
 
 	if sf.cfg.hasGateway {
 		if devType == DevTypeGateway {
-			// 获取该网关和子设备的拓扑关系
+			// 添加该网关和子设备的拓扑关系
 			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingTopoAddReply, productKey, deviceName),
 				ProcThingTopoAddReply); err != nil {
 				sf.warn(err.Error())

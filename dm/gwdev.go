@@ -39,6 +39,7 @@ func (sf *Client) UpstreamThingGwSubDevRegister(devID int) error {
 	if err != nil {
 		return err
 	}
+
 	id := sf.RequestID()
 	if err = sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingSubDevRegister),
 		id, methodSubDevRegister, []GwSubDevRegisterParams{

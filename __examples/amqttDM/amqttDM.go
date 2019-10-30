@@ -56,7 +56,7 @@ func main() {
 	dmClient.LogMode(true)
 
 	client.Connect().Wait()
-	if err = dmClient.Connect(); err != nil {
+	if err = dmClient.AlinkConnect(); err != nil {
 		panic(err)
 	}
 

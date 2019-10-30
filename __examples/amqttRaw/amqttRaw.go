@@ -55,7 +55,7 @@ func main() {
 
 	client.Connect().Wait()
 
-	if err = dmClient.Connect(); err != nil {
+	if err = dmClient.AlinkConnect(); err != nil {
 		panic(err)
 	}
 
