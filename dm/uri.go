@@ -95,10 +95,10 @@ const (
 	URIThingSubDevRegisterReply = "thing/sub/register_reply"
 
 	// 子设备登录
-	URISubDevCombineLogin      = "combine/login"
-	URISubDevCombineLoginReply = "combine/login_reply"
-	URISubDevCombineLogout     = "combine/logout"
-	SubDevCombineLogoutReply   = "combine/logout_reply"
+	URISubDevCombineLogin       = "combine/login"
+	URISubDevCombineLoginReply  = "combine/login_reply"
+	URISubDevCombineLogout      = "combine/logout"
+	URISubDevCombineLogoutReply = "combine/logout_reply"
 
 	// 网关网络拓扑
 	URIThingTopoAdd         = "thing/topo/add"
@@ -111,6 +111,12 @@ const (
 	URIThingListFoundReply  = "thing/list/found_reply"
 	URIThingTopoAddNotify   = "thing/topo/add/notify"
 	URIThingTopoChange      = "thing/topo/change"
+	URIThingDisable         = "thing/disable"
+	URIThingDisableReply    = "thing/disable_reply"
+	URIThingEnable          = "thing/enable"
+	URIThingEnableReply     = "thing/enable_reply"
+	URIThingDelete          = "thing/delete"
+	URIThingDeleteReply     = "thing/delete_reply"
 )
 
 // URIService 生成URI, inName的作用是有一些需要格式化到name里.

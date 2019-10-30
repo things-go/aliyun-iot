@@ -100,9 +100,33 @@ func (sf *Client) SubscribeAllTopic(devType DevType, productKey, deviceName stri
 		sf.warn(err.Error())
 	}
 
-	//if sf.cfg.hasGateway {
-	//TODO
-	//}
+	if sf.cfg.hasGateway {
+
+		// 子设备上线,下线,topic需要用网关的productKey,deviceName,
+		// 使用的是网关的通道,所以子设备不注册相关主题
+		if devType == DevTypeGateway {
+			if err = sf.Subscribe(sf.URIService(URIExtSessionPrefix, URISubDevCombineLoginReply, productKey, deviceName),
+				ProcExtSubDevCombineLoginReply); err != nil {
+				sf.warn(err.Error())
+			}
+			if err = sf.Subscribe(sf.URIService(URIExtSessionPrefix, URISubDevCombineLogoutReply, productKey, deviceName),
+				ProcExtSubDevCombineLogoutReply); err != nil {
+				sf.warn(err.Error())
+			}
+		}
+		if devType == DevTypeSubDev {
+			// 子设备禁用,启用,删除
+			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingDisable, productKey, deviceName), ProcThingDisable); err != nil {
+				sf.warn(err.Error())
+			}
+			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingEnable, productKey, deviceName), ProcThingEnable); err != nil {
+				sf.warn(err.Error())
+			}
+			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingDelete, productKey, deviceName), ProcThingDelete); err != nil {
+				sf.warn(err.Error())
+			}
+		}
+	}
 
 	return nil
 }

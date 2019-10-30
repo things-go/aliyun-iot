@@ -191,7 +191,7 @@ func (sf *Client) UpstreamThingDynamictslGet() error {
 	if err != nil {
 		return err
 	}
-	sf.CacheInsert(id, DevLocal, MsgTypeDynamictslGet, methodDynamicTslGet)
+	sf.CacheInsert(id, DevNodeLocal, MsgTypeDynamictslGet, methodDynamicTslGet)
 	sf.debug("upstream thing <dynamic tsl>: get,@%d", id)
 	return nil
 }

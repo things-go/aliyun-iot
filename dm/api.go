@@ -84,7 +84,7 @@ func New(cfg *Config) *Client {
 		sf.msgCache = cache.New(time.Second*10, time.Second*30)
 	}
 	sf.cacheInit()
-	err := sf.insert(DevLocal, DevTypeSingle, cfg.productKey, cfg.deviceName, cfg.deviceSecret)
+	err := sf.insert(DevNodeLocal, DevTypeSingle, cfg.productKey, cfg.deviceName, cfg.deviceSecret)
 	if err != nil {
 		panic(fmt.Sprintf("device local duplicate,cause: %+v", err))
 	}

@@ -81,9 +81,7 @@ func (sf *Client) UpstreamGwSubDevCombineLogin(devID int) error {
 
 	clientID := fmt.Sprintf("%s.%s|_v=%s|", node.ProductKey(), node.DeviceName(), infra.IOTSDKVersion)
 	timestamp := time.Now().Unix()
-	sign, err := generateSign(
-		node.ProductKey(), node.DeviceName(), node.DeviceSecret(),
-		clientID, timestamp)
+	sign, err := generateSign(node.ProductKey(), node.DeviceName(), node.DeviceSecret(), clientID, timestamp)
 	if err != nil {
 		return err
 	}
@@ -91,19 +89,19 @@ func (sf *Client) UpstreamGwSubDevCombineLogin(devID int) error {
 	req, err := json.Marshal(&GwSubDevCombineLoginRequest{
 		id,
 		GwSubDevCombineLoginParams{
-			ProductKey:   node.ProductKey(),
-			DeviceName:   node.DeviceName(),
-			ClientID:     clientID,
-			Timestamp:    timestamp,
-			SignMethod:   infra.SignMethodHMACSHA1,
-			Sign:         sign,
-			CleanSession: true,
+			node.ProductKey(),
+			node.DeviceName(),
+			clientID,
+			timestamp,
+			infra.SignMethodHMACSHA1,
+			sign,
+			true,
 		},
 	})
 	if err != nil {
 		return err
 	}
-	// NOTE: 子设备登陆,要用网关的productKey和deviceName
+	// NOTE: 子设备上线,使用网关的productKey和deviceName,且只支持qos = 0
 	if err = sf.Publish(sf.URIServiceSelf(URIExtSessionPrefix, URISubDevCombineLogin),
 		0, req); err != nil {
 		return err
@@ -142,8 +140,8 @@ func (sf *Client) UpstreamExtGwSubDevCombineLogout(devID int) error {
 	req, err := json.Marshal(&GwSubDevCombineLogoutRequest{
 		id,
 		GwSubDevCombineLogoutParams{
-			ProductKey: node.ProductKey(),
-			DeviceName: node.DeviceName(),
+			node.ProductKey(),
+			node.DeviceName(),
 		},
 	})
 	if err != nil {

@@ -102,7 +102,7 @@ func (sf *Client) UpstreamGwThingTopoGet() error {
 		id, methodTopoGet, "{}"); err != nil {
 		return err
 	}
-	sf.CacheInsert(id, DevLocal, MsgTypeTopoGet, methodTopoGet)
+	sf.CacheInsert(id, DevNodeLocal, MsgTypeTopoGet, methodTopoGet)
 	sf.debug("upstream GW thing <topo>: Get @%d", id)
 	return nil
 }
@@ -127,7 +127,7 @@ func (sf *Client) UpstreamGwThingListFound(devID int) error {
 			node.deviceName}}); err != nil {
 		return err
 	}
-	sf.CacheInsert(id, DevLocal, MsgTypeDevListFound, methodListFound)
+	sf.CacheInsert(id, DevNodeLocal, MsgTypeDevListFound, methodListFound)
 	sf.debug("upstream GW thing <list>: found @%d", id)
 	return nil
 }

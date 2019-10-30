@@ -72,7 +72,7 @@ func main() {
 func EventPostTest() {
 	go func() {
 		for {
-			err := dmClient.AlinkTriggerEvent(dm.DevLocal, "tempAlarm", map[string]interface{}{
+			err := dmClient.AlinkTriggerEvent(dm.DevNodeLocal, "tempAlarm", map[string]interface{}{
 				"high": 1,
 			})
 			if err != nil {
@@ -84,7 +84,7 @@ func EventPostTest() {
 	}()
 
 	for {
-		err := dmClient.AlinkReport(dm.MsgTypeEventPropertyPost, dm.DevLocal, map[string]interface{}{
+		err := dmClient.AlinkReport(dm.MsgTypeEventPropertyPost, dm.DevNodeLocal, map[string]interface{}{
 			"Temp":         rand.Intn(200),
 			"Humi":         rand.Intn(100),
 			"switchStatus": rand.Intn(1),
@@ -97,7 +97,7 @@ func EventPostTest() {
 }
 
 func DeviceInfoTest() {
-	if err := dmClient.AlinkReport(dm.MsgTypeDeviceInfoUpdate, dm.DevLocal,
+	if err := dmClient.AlinkReport(dm.MsgTypeDeviceInfoUpdate, dm.DevNodeLocal,
 		[]dmd.DevInfoLabelUpdate{
 			{AttrKey: "attrKey", AttrValue: "attrValue"},
 		}); err != nil {
@@ -105,7 +105,7 @@ func DeviceInfoTest() {
 		return
 	}
 	time.Sleep(time.Minute * 1)
-	if err := dmClient.AlinkReport(dm.MsgTypeDeviceInfoDelete, dm.DevLocal,
+	if err := dmClient.AlinkReport(dm.MsgTypeDeviceInfoDelete, dm.DevNodeLocal,
 		[]dmd.DevInfoLabelDelete{
 			{AttrKey: "attrKey"},
 		}); err != nil {
@@ -116,7 +116,7 @@ func DeviceInfoTest() {
 }
 
 func ConfigTest() {
-	err := dmClient.AlinkQuery(dm.MsgTypeConfigGet, dm.DevLocal)
+	err := dmClient.AlinkQuery(dm.MsgTypeConfigGet, dm.DevNodeLocal)
 	if err != nil {
 		log.Println(err)
 		return
@@ -124,7 +124,7 @@ func ConfigTest() {
 }
 
 func DslTemplateTest() {
-	err := dmClient.AlinkQuery(dm.MsgTypeDsltemplateGet, dm.DevLocal)
+	err := dmClient.AlinkQuery(dm.MsgTypeDsltemplateGet, dm.DevNodeLocal)
 	if err != nil {
 		log.Println(err)
 		return
@@ -132,14 +132,14 @@ func DslTemplateTest() {
 }
 
 func dynamictslTest() {
-	err := dmClient.AlinkQuery(dm.MsgTypeDynamictslGet, dm.DevLocal)
+	err := dmClient.AlinkQuery(dm.MsgTypeDynamictslGet, dm.DevNodeLocal)
 	if err != nil {
 		panic(err)
 	}
 }
 
 func NTPTest() {
-	err := dmClient.AlinkQuery(dm.MsgTypeExtNtpRequest, dm.DevLocal)
+	err := dmClient.AlinkQuery(dm.MsgTypeExtNtpRequest, dm.DevNodeLocal)
 	if err != nil {
 		log.Println(err)
 		return

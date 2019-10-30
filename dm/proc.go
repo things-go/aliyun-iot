@@ -210,7 +210,7 @@ func ProcThingTopoAddReply(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 	c.CacheRemove(rsp.ID)
-	c.debug("upstream GW thing <topo>: add reply @%d", rsp.ID)
+	c.debug("downstream GW thing <topo>: add reply @%d", rsp.ID)
 	return c.gwUserProc.DownstreamGwThingTopoAddReply(c, &rsp)
 }
 
@@ -220,7 +220,7 @@ func ProcThingTopoDeleteReply(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 	c.CacheRemove(rsp.ID)
-	c.debug("upstream GW thing <topo>: delete reply @%d", rsp.ID)
+	c.debug("downstream GW thing <topo>: delete reply @%d", rsp.ID)
 	return c.gwUserProc.DownstreamGwThingTopoDeleteReply(c, &rsp)
 }
 
@@ -230,7 +230,7 @@ func ProcThingTopoGetReply(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 	c.CacheRemove(rsp.ID)
-	c.debug("upstream GW thing <topo>: get reply @%d", rsp.ID)
+	c.debug("downstream GW thing <topo>: get reply @%d", rsp.ID)
 	return c.gwUserProc.DownstreamGwThingTopoGetReply(c, &rsp)
 }
 
@@ -241,7 +241,7 @@ func ProcThingListFoundReply(c *Client, rawURI string, payload []byte) error {
 	}
 
 	c.CacheRemove(rsp.ID)
-	c.debug("upstream GW thing <list>: found reply @%d", rsp.ID)
+	c.debug("downstream GW thing <list>: found reply @%d", rsp.ID)
 	return nil
 }
 
@@ -261,7 +261,7 @@ func ProcThingTopoAddNotify(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 	// TODO: 处理通知的
-	c.debug("upstream GW thing <topo>: notify @%d")
+	c.debug("downstream GW thing <topo>: notify @%d")
 	return c.SendResponse(URIServiceReplyWithRequestURI(rawURI),
 		req.ID, CodeSuccess, "{}")
 }
@@ -288,7 +288,7 @@ func ProcThingTopoChange(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 	// TODO: 处理拓扑关系变更
-	c.debug("upstream GW thing <topo>: change @%d")
+	c.debug("downstream GW thing <topo>: change @%d")
 	return c.SendResponse(URIServiceReplyWithRequestURI(rawURI),
 		req.ID, CodeSuccess, "{}")
 }
@@ -299,7 +299,7 @@ func ProcThingSubDevRegisterReply(c *Client, rawURI string, payload []byte) erro
 		return err
 	}
 	c.CacheRemove(rsp.ID)
-	c.debug("upstream GW thing <sub>: register reply @%d", rsp.ID)
+	c.debug("downstream GW thing <sub>: register reply @%d", rsp.ID)
 	// TODO
 	return c.gwUserProc.DownstreamGwExtSubDevRegisterReply(c, &rsp)
 }
@@ -310,7 +310,7 @@ func ProcExtSubDevCombineLoginReply(c *Client, rawURI string, payload []byte) er
 		return err
 	}
 	c.CacheRemove(rsp.ID)
-	c.debug("upstream Ext GW <sub>: login reply @%d", rsp.ID)
+	c.debug("downstream Ext GW <sub>: login reply @%d", rsp.ID)
 	return c.gwUserProc.DownstreamGwExtSubDevCombineLoginReply(c, &rsp)
 }
 
@@ -319,7 +319,8 @@ func ProcExtSubDevCombineLogoutReply(c *Client, rawURI string, payload []byte) e
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
-	c.debug("upstream Ext GW <sub>: logout reply @%d", rsp.ID)
+	c.CacheRemove(rsp.ID)
+	c.debug("downstream Ext GW <sub>: logout reply @%d", rsp.ID)
 	return c.gwUserProc.DownstreamGwExtSubDevCombineLogoutReply(c, &rsp)
 }
 
@@ -331,7 +332,7 @@ func ProcThingDisable(c *Client, rawURI string, payload []byte) error {
 	if len(uris) != 5 {
 		return ErrInvalidURI
 	}
-	c.debug("downstream <thing>: disable @%s - %s", uris[1], uris[2])
+	c.debug("downstream <thing>: disable >> %s - %s", uris[1], uris[2])
 
 	req := Request{}
 	if err = json.Unmarshal(payload, &req); err != nil {
@@ -352,7 +353,7 @@ func ProcThingEnable(c *Client, rawURI string, payload []byte) error {
 	if len(uris) != 5 {
 		return ErrInvalidURI
 	}
-	c.debug("downstream <thing>: enable @%s - %s", uris[1], uris[2])
+	c.debug("downstream <thing>: enable >> %s - %s", uris[1], uris[2])
 
 	req := Request{}
 	if err = json.Unmarshal(payload, &req); err != nil {
@@ -365,18 +366,21 @@ func ProcThingEnable(c *Client, rawURI string, payload []byte) error {
 	return c.SendResponse(URIServiceReplyWithRequestURI(rawURI),
 		req.ID, CodeSuccess, "{}")
 }
+
+// ProcThingDelete 子设备删除
 func ProcThingDelete(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) != 5 {
 		return ErrInvalidURI
 	}
-	c.debug("downstream <thing>: delete @%s - %s", uris[1], uris[2])
+	c.debug("downstream <thing>: delete >> %s - %s", uris[1], uris[2])
 
 	req := Request{}
 	if err := json.Unmarshal(payload, &req); err != nil {
 		return err
 	}
 	c.DeleteByPkDn(uris[1], uris[2])
+
 	return c.SendResponse(URIServiceReplyWithRequestURI(rawURI),
 		req.ID, CodeSuccess, "{}")
 }

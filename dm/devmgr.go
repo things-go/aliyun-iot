@@ -5,8 +5,8 @@ import (
 	"sync"
 )
 
-// DevLocal 设备本身, 对于网关,独立设备,就是指代本身
-const DevLocal = 0
+// DevNodeLocal 设备本身, 对于网关,独立设备,就是指代本身
+const DevNodeLocal = 0
 
 // DevType 设备类型
 type DevType byte
@@ -134,9 +134,9 @@ func (sf *DevMgr) insert(devID int, types DevType, productKey, deviceName, devic
 	return nil
 }
 
-// DeleteByID 删除一个设备
+// DeleteByID 删除一个设备, DevSelf不可删除
 func (sf *DevMgr) DeleteByID(devID int) {
-	if devID < 0 {
+	if devID < 0 || devID == DevNodeLocal {
 		return
 	}
 	sf.rw.Lock()
@@ -144,7 +144,7 @@ func (sf *DevMgr) DeleteByID(devID int) {
 	sf.rw.Unlock()
 }
 
-// DeleteByPkDn 删除一个子设备
+// DeleteByPkDn 删除一个子设备, DevSelf不可删除
 func (sf *DevMgr) DeleteByPkDn(productKey, deviceName string) {
 	sf.rw.Lock()
 	defer sf.rw.Unlock()
@@ -152,7 +152,9 @@ func (sf *DevMgr) DeleteByPkDn(productKey, deviceName string) {
 	for id, node := range sf.nodes {
 		if node.productKey == productKey &&
 			node.deviceName == deviceName {
-			delete(sf.nodes, id)
+			if id != DevNodeLocal {
+				delete(sf.nodes, id)
+			}
 			return
 		}
 	}
