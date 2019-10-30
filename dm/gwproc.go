@@ -148,8 +148,13 @@ func ProcExtSubDevCombineLoginReply(c *Client, _ string, payload []byte) error {
 		return err
 	}
 	c.CacheRemove(rsp.ID)
+	if rsp.Code != CodeSuccess {
+		c.syncHub.Done(rsp.ID, NewCodeError(rsp.Code, rsp.Message))
+	} else {
+		c.syncHub.Done(rsp.ID, nil)
+	}
 	c.debug("downstream Ext GW <sub>: login reply @%d", rsp.ID)
-	return c.gwUserProc.DownstreamGwExtSubDevCombineLoginReply(c, &rsp)
+	return nil
 }
 
 // ProcExtSubDevCombineLogoutReply 子设备下线应答处理
@@ -159,8 +164,13 @@ func ProcExtSubDevCombineLogoutReply(c *Client, _ string, payload []byte) error 
 		return err
 	}
 	c.CacheRemove(rsp.ID)
+	if rsp.Code != CodeSuccess {
+		c.syncHub.Done(rsp.ID, NewCodeError(rsp.Code, rsp.Message))
+	} else {
+		c.syncHub.Done(rsp.ID, nil)
+	}
 	c.debug("downstream Ext GW <sub>: logout reply @%d", rsp.ID)
-	return c.gwUserProc.DownstreamGwExtSubDevCombineLogoutReply(c, &rsp)
+	return nil
 }
 
 // ProcThingDisable 禁用子设备

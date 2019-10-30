@@ -6,8 +6,8 @@ import (
 	"time"
 )
 
-// UpstreamThingModelUpRaw 上传透传数据
-func (sf *Client) UpstreamThingModelUpRaw(devID int, payload interface{}) error {
+// upstreamThingModelUpRaw 上传透传数据
+func (sf *Client) upstreamThingModelUpRaw(devID int, payload interface{}) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
@@ -25,8 +25,8 @@ func (sf *Client) UpstreamThingModelUpRaw(devID int, payload interface{}) error 
 	return nil
 }
 
-// UpstreamThingEventPropertyPost 上传属性数据
-func (sf *Client) UpstreamThingEventPropertyPost(devID int, params interface{}) error {
+// upstreamThingEventPropertyPost 上传属性数据
+func (sf *Client) upstreamThingEventPropertyPost(devID int, params interface{}) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
@@ -115,8 +115,8 @@ func (sf *Client) upstreamThingDeviceInfoDelete(devID int, params interface{}) e
 	return nil
 }
 
-// UpstreamThingDesiredPropertyGet 获取期望值
-func (sf *Client) UpstreamThingDesiredPropertyGet(devID int, params interface{}) error {
+// upstreamThingDesiredPropertyGet 获取期望值
+func (sf *Client) upstreamThingDesiredPropertyGet(devID int, params interface{}) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}

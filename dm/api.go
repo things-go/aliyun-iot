@@ -75,7 +75,6 @@ type Client struct {
 	msgCache *cache.Cache
 	pool     *pool
 	Conn
-	gwUserProc  GatewayUserProc
 	devUserProc DevUserProc
 }
 
@@ -85,7 +84,6 @@ func New(cfg *Config) *Client {
 		cfg:         *cfg,
 		DevMgr:      NewDevMgr(),
 		syncHub:     NewSyncHub(),
-		gwUserProc:  GwNopUserProc{},
 		devUserProc: DevNopUserProc{},
 	}
 	if cfg.hasCache {
@@ -116,12 +114,6 @@ func (sf *Client) SetConn(conn Conn) *Client {
 // SetDevUserProc 设置设备用户处理回调
 func (sf *Client) SetDevUserProc(proc DevUserProc) *Client {
 	sf.devUserProc = proc
-	return sf
-}
-
-// SetGwUserProc 设置网关处理回调
-func (sf *Client) SetGwUserProc(proc GatewayUserProc) *Client {
-	sf.gwUserProc = proc
 	return sf
 }
 
@@ -210,22 +202,25 @@ func (sf *Client) AlinkSubDeviceConnect(devID int) error {
 //  - MsgTypeDeviceInfoDelete
 // devID 设备ID,独立设备或网关发送使用DevLocal
 func (sf *Client) AlinkReport(msgType MsgType, devID int, payload interface{}) error {
+	if devID < 0 {
+		return ErrInvalidParameter
+	}
 	switch msgType {
 	case MsgTypeModelUpRaw:
 		if !sf.cfg.hasRawModel {
 			return ErrNotSupportFeature
 		}
-		return sf.UpstreamThingModelUpRaw(devID, payload)
+		return sf.upstreamThingModelUpRaw(devID, payload)
 	case MsgTypeEventPropertyPost:
 		if sf.cfg.hasRawModel {
 			return ErrNotSupportFeature
 		}
-		return sf.UpstreamThingEventPropertyPost(devID, payload)
+		return sf.upstreamThingEventPropertyPost(devID, payload)
 	case MsgTypeDesiredPropertyGet:
 		if !sf.cfg.hasDesired {
 			return ErrNotSupportFeature
 		}
-		return sf.UpstreamThingDesiredPropertyGet(devID, payload)
+		return sf.upstreamThingDesiredPropertyGet(devID, payload)
 	case MsgTypeDesiredPropertyDelete:
 		if !sf.cfg.hasDesired {
 			return ErrNotSupportFeature
@@ -236,6 +231,22 @@ func (sf *Client) AlinkReport(msgType MsgType, devID int, payload interface{}) e
 	case MsgTypeDeviceInfoDelete:
 		return sf.upstreamThingDeviceInfoDelete(devID, payload)
 
+	case MsgTypeReportSubDevFirmwareVersion:
+		// TODO
+	}
+	return ErrNotSupportMsgType
+}
+
+// AlinkRequest 同步请求
+// msgType 消息类型,支持:
+//  MsgTypeSubDevLogin
+//  MsgTypeSubDevLogout
+//  MsgTypeSubDevDeleteTopo
+func (sf *Client) AlinkRequest(msgType MsgType, devID int) error {
+	if devID < 0 {
+		return ErrInvalidParameter
+	}
+	switch msgType {
 	case MsgTypeSubDevLogin:
 		if !sf.cfg.hasGateway {
 			return ErrNotSupportFeature
@@ -251,8 +262,6 @@ func (sf *Client) AlinkReport(msgType MsgType, devID int, payload interface{}) e
 			return ErrNotSupportFeature
 		}
 		return sf.linkKitGwSubDevTopoDelete(devID)
-	case MsgTypeReportSubDevFirmwareVersion:
-		// TODO
 	}
 	return ErrNotSupportMsgType
 }
