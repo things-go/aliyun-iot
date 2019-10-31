@@ -148,5 +148,5 @@ func NTPTest() {
 
 //
 //type UserProc struct {
-//	model.DevUserProc
+//	model.EventProc
 //}

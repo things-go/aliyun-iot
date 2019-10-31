@@ -1,6 +1,8 @@
 package dm
 
 import (
+	"encoding/json"
+
 	"github.com/thinkgos/aliIOT/clog"
 )
 
@@ -15,19 +17,19 @@ type Conn interface {
 	LogMode(enable bool)
 }
 
-// DevUserProc 设备用户回调
-type DevUserProc interface {
-	DownstreamThingModelUpRawReply(m *Client, productKey, deviceName string, payload []byte) error
-	DownstreamThingEventPropertyPostReply(m *Client, rsp *Response) error
-	DownstreamThingEventPostReply(m *Client, eventID string, rsp *Response) error
-	DownstreamThingDeviceInfoUpdateReply(m *Client, rsp *Response) error
-	DownstreamThingDeviceInfoDeleteReply(m *Client, rsp *Response) error
-	DownstreamThingDesiredPropertyGetReply(m *Client, rsp *Response) error
-	DownstreamThingDesiredPropertyDeleteReply(m *Client, rsp *Response) error
-	DownstreamThingDsltemplateGetReply(m *Client, rsp *Response) error
-	DownstreamThingDynamictslGetReply(m *Client, rsp *Response) error
-	DownstreamExtNtpResponse(m *Client, rsp *NtpResponsePayload) error
-	DownstreamThingConfigGetReply(m *Client, rsp *ConfigGetResponse) error
+// EventProc 事件回调接口
+type EventProc interface {
+	EvtThingModelUpRawReply(m *Client, productKey, deviceName string, payload []byte) error
+	EvtThingEventPropertyPostReply(m *Client, err error, productKey, deviceName string) error
+	EvtThingEventPostReply(m *Client, err error, eventID, productKey, deviceName string) error
+	EvtThingDeviceInfoUpdateReply(m *Client, err error, productKey, deviceName string) error
+	EvtThingDeviceInfoDeleteReply(m *Client, err error, productKey, deviceName string) error
+	EvtThingDesiredPropertyGetReply(m *Client, err error, productKey, deviceName string, data json.RawMessage) error
+	EvtThingDesiredPropertyDeleteReply(m *Client, err error, productKey, deviceName string) error
+	EvtThingDsltemplateGetReply(m *Client, err error, productKey, deviceName string, data json.RawMessage) error
+	EvtThingDynamictslGetReply(m *Client, err error, productKey, deviceName string, data json.RawMessage) error
+	EvtExtNtpResponse(m *Client, productKey, deviceName string, payload NtpResponsePayload) error
+	EvtThingConfigGetReply(m *Client, err error, productKey, deviceName string, data ConfigParamsAndData) error
 	DownstreamExtErrorResponse(m *Client, rsp *Response) error
 	// 透传请求
 	DownstreamThingModelDownRaw(m *Client, productKey, deviceName string, payload []byte) error
