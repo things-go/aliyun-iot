@@ -15,8 +15,8 @@ import (
 const (
 	productKey    = "a1iJcssSlPC"
 	productSecret = "lw3QzKHNfh7XvOxO"
-	deviceName    = "dyncreg"
-	deviceSecret  = "irqurH8zaIg1ChoeaBjLHiqBXEZnlVq8"
+	deviceName    = "rawtest"
+	deviceSecret  = "m9PbcqYf8JgKuUx3AJIg26UcR7zXKibC"
 )
 
 func main() {
@@ -47,6 +47,7 @@ func main() {
 			log.Println("mqtt client connection lost, ", err)
 		})
 	client := mqtt.NewClient(opts)
+
 	dmConfig := dm.NewConfig(productKey, deviceName, deviceSecret).
 		EnableModelRaw().
 		Valid()
@@ -54,7 +55,6 @@ func main() {
 	dmClient.LogMode(true)
 
 	client.Connect().Wait()
-
 	if err = dmClient.AlinkConnect(); err != nil {
 		panic(err)
 	}

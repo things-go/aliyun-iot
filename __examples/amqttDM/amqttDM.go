@@ -30,7 +30,8 @@ func main() {
 			ProductKey:    productKey,
 			ProductSecret: productSecret,
 			DeviceName:    deviceName,
-			DeviceSecret:  deviceSecret}, sign.CloudRegionShangHai)
+			DeviceSecret:  deviceSecret,
+		}, sign.CloudRegionShangHai)
 	if err != nil {
 		panic(err)
 	}
@@ -66,7 +67,6 @@ func main() {
 	//go NTPTest()
 
 	EventPostTest()
-
 }
 
 func EventPostTest() {
