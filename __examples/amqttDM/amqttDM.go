@@ -145,8 +145,3 @@ func NTPTest() {
 		return
 	}
 }
-
-//
-//type UserProc struct {
-//	model.EventProc
-//}
