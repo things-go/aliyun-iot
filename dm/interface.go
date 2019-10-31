@@ -20,30 +20,37 @@ type Conn interface {
 // EventProc 事件回调接口
 type EventProc interface {
 	// 上行应答
-	EvtThingModelUpRawReply(m *Client, productKey, deviceName string, payload []byte) error
-	EvtThingEventPropertyPostReply(m *Client, err error, productKey, deviceName string) error
-	EvtThingEventPostReply(m *Client, err error, eventID, productKey, deviceName string) error
-	EvtThingEventPropertyPackPostReply(m *Client, err error, productKey, deviceName string) error
-	EvtThingDeviceInfoUpdateReply(m *Client, err error, productKey, deviceName string) error
-	EvtThingDeviceInfoDeleteReply(m *Client, err error, productKey, deviceName string) error
-	EvtThingDesiredPropertyGetReply(m *Client, err error, productKey, deviceName string, data json.RawMessage) error
-	EvtThingDesiredPropertyDeleteReply(m *Client, err error, productKey, deviceName string) error
-	EvtThingDsltemplateGetReply(m *Client, err error, productKey, deviceName string, data json.RawMessage) error
-	EvtThingDynamictslGetReply(m *Client, err error, productKey, deviceName string, data json.RawMessage) error
-	EvtExtNtpResponse(m *Client, productKey, deviceName string, payload NtpResponsePayload) error
-	EvtThingConfigGetReply(m *Client, err error, productKey, deviceName string, data ConfigParamsAndData) error
-	EvtExtErrorResponse(m *Client, rsp *Response) error
+	EvtThingModelUpRawReply(c *Client, productKey, deviceName string, payload []byte) error
+	EvtThingEventPropertyPostReply(c *Client, err error, productKey, deviceName string) error
+	EvtThingEventPostReply(c *Client, err error, eventID, productKey, deviceName string) error
+	EvtThingEventPropertyPackPostReply(c *Client, err error, productKey, deviceName string) error
+	EvtThingDeviceInfoUpdateReply(c *Client, err error, productKey, deviceName string) error
+	EvtThingDeviceInfoDeleteReply(c *Client, err error, productKey, deviceName string) error
+	EvtThingDesiredPropertyGetReply(c *Client, err error, productKey, deviceName string, data json.RawMessage) error
+	EvtThingDesiredPropertyDeleteReply(c *Client, err error, productKey, deviceName string) error
+	EvtThingDsltemplateGetReply(c *Client, err error, productKey, deviceName string, data json.RawMessage) error
+	EvtThingDynamictslGetReply(c *Client, err error, productKey, deviceName string, data json.RawMessage) error
+	EvtExtNtpResponse(c *Client, productKey, deviceName string, payload NtpResponsePayload) error
+	EvtThingConfigGetReply(c *Client, err error, productKey, deviceName string, data ConfigParamsAndData) error
+	EvtExtErrorResponse(c *Client, rsp *Response) error
 	// 下行
 	// 透传请求,需要用户自己处理及应答
-	EvtThingModelDownRaw(m *Client, productKey, deviceName string, payload []byte) error
+	EvtThingModelDownRaw(c *Client, productKey, deviceName string, payload []byte) error
 	// 配置推送,已做默认回复
-	EvtThingConfigPush(m *Client, productKey, deviceName string, params ConfigParamsAndData) error
+	EvtThingConfigPush(c *Client, productKey, deviceName string, params ConfigParamsAndData) error
 	// 设置设备属性, 需用户自行做回复
-	EvtThingServicePropertySet(m *Client, productKey, deviceName string, payload []byte) error
+	EvtThingServicePropertySet(c *Client, productKey, deviceName string, payload []byte) error
 	// 设备服务调用,需用户自行做回复
-	EvtThingServiceRequest(m *Client, srvID, productKey, deviceName string, payload []byte) error
+	EvtThingServiceRequest(c *Client, srvID, productKey, deviceName string, payload []byte) error
 	// 系统RRPC调用, 仅支持设备端Qos = 0的回复,需用户自行做回复
-	EvtRRPCRequest(m *Client, messageID, productKey, deviceName string, payload []byte) error
+	EvtRRPCRequest(c *Client, messageID, productKey, deviceName string, payload []byte) error
 	// 自定义RRPC调用,仅支持设备端Qos = 0的回复, 需用户自行做回复
-	EvtExtRRPCRequest(m *Client, messageID, topic string, payload []byte) error
+	EvtExtRRPCRequest(c *Client, messageID, topic string, payload []byte) error
+}
+
+type EventGwProc interface {
+	EvtThingTopoGetReply(c *Client, err error, params []GwTopoGetData) error
+	EvtThingListFoundReply(c *Client, err error) error
+	EvtThingTopoAddNotify(c *Client, params []GwTopoAddNotifyParams) error
+	EvtThingTopoChange(c *Client, params GwTopoChangeParams) error
 }

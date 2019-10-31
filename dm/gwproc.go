@@ -7,16 +7,27 @@ import (
 // ProcThingTopoAddReply 处理网络拓扑添加
 func ProcThingTopoAddReply(c *Client, rawURI string, payload []byte) error {
 	rsp := Response{}
-	if err := json.Unmarshal(payload, &rsp); err != nil {
+	err := json.Unmarshal(payload, &rsp)
+	if err != nil {
 		return err
 	}
+
+	entry, ok := c.CacheGet(rsp.ID)
+	if !ok {
+		return ErrNotFound
+	}
+
 	c.CacheRemove(rsp.ID)
 	if rsp.Code != CodeSuccess {
 		c.syncHub.Done(rsp.ID, NewCodeError(rsp.Code, rsp.Message))
 	} else {
+		if err := c.SetDevStatusByID(entry.DevID(), DevStatusAttached); err != nil {
+			c.error("set device status failed, %+v", err)
+		}
 		c.syncHub.Done(rsp.ID, nil)
 	}
 	c.debug("downstream GW thing <topo>: add reply @%d", rsp.ID)
+
 	return nil
 }
 
@@ -26,10 +37,18 @@ func ProcThingTopoDeleteReply(c *Client, rawURI string, payload []byte) error {
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
+	entry, ok := c.CacheGet(rsp.ID)
+	if !ok {
+		return ErrNotFound
+	}
+
 	c.CacheRemove(rsp.ID)
 	if rsp.Code != CodeSuccess {
 		c.syncHub.Done(rsp.ID, NewCodeError(rsp.Code, rsp.Message))
 	} else {
+		if err := c.SetDevStatusByID(entry.DevID(), DevStatusUnauthorized); err != nil {
+			c.error("set device status failed, %+v", err)
+		}
 		c.syncHub.Done(rsp.ID, nil)
 	}
 	c.debug("downstream GW thing <topo>: delete reply @%d", rsp.ID)
@@ -39,25 +58,39 @@ func ProcThingTopoDeleteReply(c *Client, rawURI string, payload []byte) error {
 // ProcThingTopoGetReply 处理获取该网关和子设备的拓扑关系
 func ProcThingTopoGetReply(c *Client, rawURI string, payload []byte) error {
 	rsp := GwTopoGetResponse{}
-	if err := json.Unmarshal(payload, &rsp); err != nil {
+	err := json.Unmarshal(payload, &rsp)
+	if err != nil {
 		return err
 	}
 	c.CacheRemove(rsp.ID)
+	if rsp.Code != CodeSuccess {
+		err = NewCodeError(rsp.Code, rsp.Message)
+	}
 	c.debug("downstream GW thing <topo>: get reply @%d", rsp.ID)
-	// TODO: 处理网关与子设备的拓扑关系
-	return nil
+	return c.ipcSendMessage(&ipcMessage{
+		err:     err,
+		evt:     ipcEvtTopoGetReply,
+		payload: rsp.Data,
+	})
 }
 
 // ProcThingListFoundReply 处理发现设备列表上报
 func ProcThingListFoundReply(c *Client, _ string, payload []byte) error {
 	rsp := Response{}
-	if err := json.Unmarshal(payload, &rsp); err != nil {
+	err := json.Unmarshal(payload, &rsp)
+	if err != nil {
 		return err
 	}
 
 	c.CacheRemove(rsp.ID)
+	if rsp.Code != CodeSuccess {
+		err = NewCodeError(rsp.Code, rsp.Message)
+	}
 	c.debug("downstream GW thing <list>: found reply @%d", rsp.ID)
-	return nil
+	return c.ipcSendMessage(&ipcMessage{
+		err: err,
+		evt: ipcEvtListFoundReply,
+	})
 }
 
 // GwTopoAddNotifyParams 添加设备拓扑关系通知参数域
@@ -78,10 +111,16 @@ func ProcThingTopoAddNotify(c *Client, rawURI string, payload []byte) error {
 	if err := json.Unmarshal(payload, &req); err != nil {
 		return err
 	}
-	// TODO: 处理添加设备拓扑关系通知请求
 	c.debug("downstream GW thing <topo>: add notify")
+	if err := c.ipcSendMessage(&ipcMessage{
+		evt:     ipcEvtTopoAddNotify,
+		payload: req.Params,
+	}); err != nil {
+		c.warn("ipc send message failed, %+v", err)
+	}
 	return c.SendResponse(uriServiceReplyWithRequestURI(rawURI),
 		req.ID, CodeSuccess, "{}")
+
 }
 
 // GwTopoChangeDev 网络拓扑关系变化请求参数域 设备结构
@@ -108,8 +147,13 @@ func ProcThingTopoChange(c *Client, rawURI string, payload []byte) error {
 	if err := json.Unmarshal(payload, &req); err != nil {
 		return err
 	}
-	// TODO: 处理通知网关拓扑关系变化
 	c.debug("downstream GW thing <topo>: change")
+	if err := c.ipcSendMessage(&ipcMessage{
+		evt:     ipcTopoChange,
+		payload: req.Params,
+	}); err != nil {
+		c.warn("ipc send message failed, %+v", err)
+	}
 	return c.SendResponse(uriServiceReplyWithRequestURI(rawURI),
 		req.ID, CodeSuccess, "{}")
 }

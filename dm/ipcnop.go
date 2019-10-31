@@ -5,7 +5,7 @@ import (
 	"log"
 )
 
-// NopEvt 实现DevUserProc接口的空实现
+// NopEvt 实现EventProc接口的空实现
 type NopEvt struct{}
 
 // EvtThingModelUpRawReply see interface EventProc
@@ -104,5 +104,26 @@ func (NopEvt) EvtRRPCRequest(*Client, string, string, string, []byte) error {
 // EvtExtRRPCRequest see interface EventProc
 func (NopEvt) EvtExtRRPCRequest(*Client, string, string, []byte) error {
 	log.Println("EvtRRPCRequest is not implementation")
+	return nil
+}
+
+/******************************** event gateway proc ************************************************************/
+// NopGwEvt 实现EventGwProc接口的空实现
+type NopGwEvt struct{}
+
+// EvtThingTopoGetReply see interface EventGwProc
+func (NopGwEvt) EvtThingTopoGetReply(c *Client, err error, list []GwTopoGetData) error {
+	return nil
+}
+
+func (NopGwEvt) EvtThingListFoundReply(c *Client, err error) error {
+	return nil
+}
+
+func (NopGwEvt) EvtThingTopoAddNotify(c *Client, list []GwTopoAddNotifyParams) error {
+	return nil
+}
+
+func (NopGwEvt) EvtThingTopoChange(c *Client, params GwTopoChangeParams) error {
 	return nil
 }

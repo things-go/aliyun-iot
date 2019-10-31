@@ -11,13 +11,13 @@ type pool struct {
 func newPool() *pool {
 	return &pool{
 		sync.Pool{
-			New: func() interface{} { return new(messageCacheEntry) },
+			New: func() interface{} { return new(MsgCacheEntry) },
 		},
 	}
 }
 
-func (sf *pool) Get() *messageCacheEntry {
-	return sf.pl.Get().(*messageCacheEntry)
+func (sf *pool) Get() *MsgCacheEntry {
+	return sf.pl.Get().(*MsgCacheEntry)
 }
 
 func (sf *pool) Put(entry interface{}) {

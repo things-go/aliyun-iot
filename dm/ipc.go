@@ -11,6 +11,7 @@ type ipcEvtType byte
 
 // ipc 事件类型定义
 const (
+	// 上行应答
 	ipcEvtUpRawReply ipcEvtType = iota
 	ipcEvtEventPropertyPostReply
 	ipcEvtEventPostReply
@@ -25,12 +26,21 @@ const (
 	ipcEvtConfigGetReply
 	ipcEvtErrorResponse
 
+	// 下行
 	ipcEvtDownRaw
 	ipcEvtConfigPush
 	ipcEvtServicePropertySet
 	ipcEvtServiceRequest
 	ipcEvtRRPCRequest
 	ipcEvtExtRRPCRequest
+
+	// gateway
+	// 上行应答
+	ipcEvtTopoGetReply
+	ipcEvtListFoundReply
+	// 下行
+	ipcEvtTopoAddNotify
+	ipcTopoChange
 )
 
 type ipcMessage struct {
@@ -121,6 +131,17 @@ func (sf *Client) ipcEventProc(msg *ipcMessage) error {
 	case ipcEvtExtRRPCRequest:
 		ext := strings.SplitN(msg.extend, SEP, 2)
 		return sf.eventProc.EvtExtRRPCRequest(sf, ext[0], ext[1], msg.payload.([]byte))
+
+		// 上行应答
+	case ipcEvtTopoGetReply:
+		return sf.eventGwProc.EvtThingTopoGetReply(sf, msg.err, msg.payload.([]GwTopoGetData))
+	case ipcEvtListFoundReply:
+		return sf.eventGwProc.EvtThingListFoundReply(sf, msg.err)
+		// 下行
+	case ipcEvtTopoAddNotify:
+		return sf.eventGwProc.EvtThingTopoAddNotify(sf, msg.payload.([]GwTopoAddNotifyParams))
+	case ipcTopoChange:
+		return sf.eventGwProc.EvtThingTopoChange(sf, msg.payload.(GwTopoChangeParams))
 	}
 
 	return errors.New("not support ipc event type")

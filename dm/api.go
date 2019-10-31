@@ -77,18 +77,20 @@ type Client struct {
 	msgCache *cache.Cache
 	pool     *pool
 	Conn
-	ipc       chan *ipcMessage
-	eventProc EventProc
+	ipc         chan *ipcMessage
+	eventProc   EventProc
+	eventGwProc EventGwProc
 }
 
 // New 创建一个物管理客户端
 func New(cfg *Config) *Client {
 	sf := &Client{
-		cfg:       *cfg,
-		DevMgr:    NewDevMgr(),
-		syncHub:   NewSyncHub(),
-		ipc:       make(chan *ipcMessage, 1024),
-		eventProc: NopEvt{},
+		cfg:         *cfg,
+		DevMgr:      NewDevMgr(),
+		syncHub:     NewSyncHub(),
+		ipc:         make(chan *ipcMessage, 1024),
+		eventProc:   NopEvt{},
+		eventGwProc: NopGwEvt{},
 	}
 	if cfg.hasCache {
 		sf.pool = newPool()
@@ -117,9 +119,14 @@ func (sf *Client) SetConn(conn Conn) *Client {
 	return sf
 }
 
-// SetDevUserProc 设置设备用户处理回调
-func (sf *Client) SetDevUserProc(proc EventProc) *Client {
+// SetEventProc 设置设备用户处理回调
+func (sf *Client) SetEventProc(proc EventProc) *Client {
 	sf.eventProc = proc
+	return sf
+}
+
+func (sf *Client) SetEventGwProc(proc EventGwProc) *Client {
+	sf.eventGwProc = proc
 	return sf
 }
 

@@ -6,11 +6,17 @@ import (
 	"github.com/thinkgos/cache-go"
 )
 
-type messageCacheEntry struct {
+// MsgCacheEntry 消息缓存条目
+type MsgCacheEntry struct {
 	msgType MsgType // 消息类型
 	id      int
 	devID   int // 设备id
 	data    string
+}
+
+// DevID 获得devID
+func (sf *MsgCacheEntry) DevID() int {
+	return sf.devID
 }
 
 // cacheInit 缓存初始化
@@ -40,7 +46,16 @@ func (sf *Client) CacheInsert(id, devID int, msgType MsgType, data string) {
 	entry.msgType = msgType
 	entry.data = data
 	sf.msgCache.SetDefault(strconv.Itoa(id), entry)
-	sf.debug("cache insert - %d", id)
+	sf.debug("cache insert - @%d", id)
+}
+
+// CacheGet 获取缓存消息
+func (sf *Client) CacheGet(id int) (MsgCacheEntry, bool) {
+	v, ok := sf.msgCache.Get(strconv.Itoa(id))
+	if ok {
+		return *(v.(*MsgCacheEntry)), true
+	}
+	return MsgCacheEntry{}, false
 }
 
 // CacheRemove 缓存删存指定ID
@@ -49,5 +64,5 @@ func (sf *Client) CacheRemove(id int) {
 		return
 	}
 	sf.msgCache.Delete(strconv.Itoa(id))
-	sf.debug("cache remove - %d", id)
+	sf.debug("cache remove - @%d", id)
 }
