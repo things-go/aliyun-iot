@@ -4,8 +4,7 @@ import (
 	"encoding/json"
 )
 
-/******************************** gateway ****************************************************************/
-
+// ProcThingTopoAddReply 处理网络拓扑添加
 func ProcThingTopoAddReply(c *Client, rawURI string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
@@ -21,6 +20,7 @@ func ProcThingTopoAddReply(c *Client, rawURI string, payload []byte) error {
 	return nil
 }
 
+// ProcThingTopoDeleteReply 处理删除网络拓扑
 func ProcThingTopoDeleteReply(c *Client, rawURI string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
@@ -72,7 +72,7 @@ type GwTopoAddNotifyRequest struct {
 	Params []GwTopoAddNotifyParams `json:"params"`
 }
 
-// 通知网关添加设备拓扑关系
+// ProcThingTopoAddNotify 通知网关添加设备拓扑关系
 func ProcThingTopoAddNotify(c *Client, rawURI string, payload []byte) error {
 	req := GwTopoAddNotifyRequest{}
 	if err := json.Unmarshal(payload, &req); err != nil {
@@ -80,7 +80,7 @@ func ProcThingTopoAddNotify(c *Client, rawURI string, payload []byte) error {
 	}
 	// TODO: 处理添加设备拓扑关系通知请求
 	c.debug("downstream GW thing <topo>: add notify")
-	return c.SendResponse(URIServiceReplyWithRequestURI(rawURI),
+	return c.SendResponse(uriServiceReplyWithRequestURI(rawURI),
 		req.ID, CodeSuccess, "{}")
 }
 
@@ -110,7 +110,7 @@ func ProcThingTopoChange(c *Client, rawURI string, payload []byte) error {
 	}
 	// TODO: 处理通知网关拓扑关系变化
 	c.debug("downstream GW thing <topo>: change")
-	return c.SendResponse(URIServiceReplyWithRequestURI(rawURI),
+	return c.SendResponse(uriServiceReplyWithRequestURI(rawURI),
 		req.ID, CodeSuccess, "{}")
 }
 
@@ -191,7 +191,7 @@ func ProcThingDisable(c *Client, rawURI string, payload []byte) error {
 		c.warn("<thing> disable failed, %+v", err)
 	}
 
-	return c.SendResponse(URIServiceReplyWithRequestURI(rawURI),
+	return c.SendResponse(uriServiceReplyWithRequestURI(rawURI),
 		req.ID, CodeSuccess, "{}")
 }
 
@@ -212,7 +212,7 @@ func ProcThingEnable(c *Client, rawURI string, payload []byte) error {
 		c.warn("<thing> enable failed, %+v", err)
 	}
 
-	return c.SendResponse(URIServiceReplyWithRequestURI(rawURI),
+	return c.SendResponse(uriServiceReplyWithRequestURI(rawURI),
 		req.ID, CodeSuccess, "{}")
 }
 
@@ -230,6 +230,6 @@ func ProcThingDelete(c *Client, rawURI string, payload []byte) error {
 	}
 	c.DeleteByPkDn(uris[1], uris[2])
 
-	return c.SendResponse(URIServiceReplyWithRequestURI(rawURI),
+	return c.SendResponse(uriServiceReplyWithRequestURI(rawURI),
 		req.ID, CodeSuccess, "{}")
 }

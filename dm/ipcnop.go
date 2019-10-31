@@ -2,115 +2,107 @@ package dm
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 )
 
 // NopEvt 实现DevUserProc接口的空实现
 type NopEvt struct{}
 
 // EvtThingModelUpRawReply see interface EventProc
-func (NopEvt) EvtThingModelUpRawReply(c *Client, productKey, deviceName string, payload []byte) error {
+func (NopEvt) EvtThingModelUpRawReply(*Client, string, string, []byte) error {
 	return nil
 }
 
 // EvtThingEventPropertyPostReply see interface EventProc
-func (NopEvt) EvtThingEventPropertyPostReply(c *Client, err error, productKey, deviceName string) error {
+func (NopEvt) EvtThingEventPropertyPostReply(*Client, error, string, string) error {
 	return nil
 }
 
 // EvtThingEventPostReply see interface EventProc
-func (NopEvt) EvtThingEventPostReply(c *Client, err error, eventID, productKey, deviceName string) error {
+func (NopEvt) EvtThingEventPostReply(*Client, error, string, string, string) error {
 	return nil
 }
 
-func (NopEvt) EvtThingEventPropertyPackPostReply(m *Client, err error, productKey, deviceName string) error {
+// EvtThingEventPropertyPackPostReply see interface EventProc
+func (NopEvt) EvtThingEventPropertyPackPostReply(*Client, error, string, string) error {
 	return nil
 }
 
 // EvtThingDeviceInfoUpdateReply see interface EventProc
-func (NopEvt) EvtThingDeviceInfoUpdateReply(c *Client, err error, productKey, deviceName string) error {
+func (NopEvt) EvtThingDeviceInfoUpdateReply(*Client, error, string, string) error {
 	return nil
 }
 
 // EvtThingDeviceInfoDeleteReply see interface EventProc
-func (NopEvt) EvtThingDeviceInfoDeleteReply(c *Client, err error, productKey, deviceName string) error {
+func (NopEvt) EvtThingDeviceInfoDeleteReply(*Client, error, string, string) error {
 	return nil
 }
 
 // EvtThingDesiredPropertyGetReply see interface EventProc
-func (NopEvt) EvtThingDesiredPropertyGetReply(c *Client, err error, productKey, deviceName string, data json.RawMessage) error {
+func (NopEvt) EvtThingDesiredPropertyGetReply(*Client, error, string, string, json.RawMessage) error {
 	return nil
 }
 
 // EvtThingDesiredPropertyDeleteReply see interface EventProc
-func (NopEvt) EvtThingDesiredPropertyDeleteReply(c *Client, err error, productKey, deviceName string) error {
+func (NopEvt) EvtThingDesiredPropertyDeleteReply(*Client, error, string, string) error {
 	return nil
 }
 
 // EvtThingDsltemplateGetReply see interface EventProc
-func (NopEvt) EvtThingDsltemplateGetReply(c *Client, err error, productKey, deviceName string, data json.RawMessage) error {
+func (NopEvt) EvtThingDsltemplateGetReply(*Client, error, string, string, json.RawMessage) error {
 	return nil
 }
 
 // EvtThingDynamictslGetReply see interface EventProc
-func (NopEvt) EvtThingDynamictslGetReply(c *Client, err error, productKey, deviceName string, data json.RawMessage) error {
+func (NopEvt) EvtThingDynamictslGetReply(*Client, error, string, string, json.RawMessage) error {
 	return nil
 }
 
 // EvtExtNtpResponse see interface EventProc
-func (NopEvt) EvtExtNtpResponse(c *Client, productKey, deviceName string, rsp NtpResponsePayload) error {
+func (NopEvt) EvtExtNtpResponse(*Client, string, string, NtpResponsePayload) error {
 	return nil
 }
 
 // EvtThingConfigGetReply see interface EventProc
-func (NopEvt) EvtThingConfigGetReply(c *Client, err error, productKey, deviceName string, data ConfigParamsAndData) error {
+func (NopEvt) EvtThingConfigGetReply(*Client, error, string, string, ConfigParamsAndData) error {
 	return nil
 }
 
 // EvtExtErrorResponse see interface EventProc
-func (NopEvt) EvtExtErrorResponse(c *Client, rsp *Response) error {
+func (NopEvt) EvtExtErrorResponse(*Client, *Response) error {
 	return nil
 }
 
 // EvtThingModelDownRaw see interface EventProc
-func (NopEvt) EvtThingModelDownRaw(c *Client, productKey, deviceName string, payload []byte) error {
+func (NopEvt) EvtThingModelDownRaw(*Client, string, string, []byte) error {
 	return nil
 }
 
 // EvtThingConfigPush see interface EventProc
-func (NopEvt) EvtThingConfigPush(c *Client, productKey, deviceName string, data ConfigParamsAndData) error {
+func (NopEvt) EvtThingConfigPush(*Client, string, string, ConfigParamsAndData) error {
 	return nil
 }
 
 // EvtThingServicePropertySet see interface EventProc
-func (NopEvt) EvtThingServicePropertySet(c *Client, productKey, deviceName string, payload []byte) error {
-	rsp := Response{}
-	if err := json.Unmarshal(payload, &rsp); err != nil {
-		return nil
-	}
-	return c.SendResponse(c.URIService(URISysPrefix, URIThingServicePropertySet, productKey, deviceName),
-		rsp.ID, CodeSuccess, "{}")
+func (NopEvt) EvtThingServicePropertySet(*Client, string, string, []byte) error {
+	log.Println("EvtThingServicePropertySet is not implementation")
+	return nil
 }
 
 // EvtThingServiceRequest see interface EventProc
-func (NopEvt) EvtThingServiceRequest(c *Client, srvID, productKey, deviceName string, payload []byte) error {
-	rsp := Response{}
-	if err := json.Unmarshal(payload, &rsp); err != nil {
-		return nil
-	}
-
-	return c.SendResponse(c.URIService(URISysPrefix, URIThingServiceRequest, productKey, deviceName, srvID),
-		rsp.ID, CodeSuccess, "{}")
+func (NopEvt) EvtThingServiceRequest(*Client, string, string, string, []byte) error {
+	log.Println("EvtThingServiceRequest is not implementation")
+	return nil
 }
 
 // EvtRRPCRequest see interface EventProc
-func (NopEvt) EvtRRPCRequest(c *Client, messageID, productKey, deviceName string, payload []byte) error {
-	return c.Publish(c.URIService(URISysPrefix, URIRRPCResponse, productKey, deviceName, messageID),
-		0, `{"note":"default system RRPC implementation"}`)
+func (NopEvt) EvtRRPCRequest(*Client, string, string, string, []byte) error {
+	log.Println("EvtRRPCRequest is not implementation")
+	return nil
 }
 
 // EvtExtRRPCRequest see interface EventProc
-func (NopEvt) EvtExtRRPCRequest(c *Client, messageID, topic string, payload []byte) error {
-	// TODO: uri fix
-	return c.Publish(fmt.Sprintf(URIExtRRPCPrefix, messageID)+topic, 0, "default ext RRPC implementation")
+func (NopEvt) EvtExtRRPCRequest(*Client, string, string, []byte) error {
+	log.Println("EvtRRPCRequest is not implementation")
+	return nil
 }

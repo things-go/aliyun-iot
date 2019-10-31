@@ -170,15 +170,18 @@ const (
 	CodeNotFindRemoteConfig         = 6710 // 未查询到远程配置信息
 )
 
+// CodeError code 错误
 type CodeError struct {
 	code    int
 	message string
 }
 
+// NewCodeError 生成code错误
 func NewCodeError(code int, message string) error {
 	return &CodeError{code, message}
 }
 
+// Error 实现error接口
 func (sf *CodeError) Error() string {
 	return fmt.Sprintf("code: %d - message: %s", sf.code, sf.message)
 }

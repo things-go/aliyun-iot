@@ -65,7 +65,7 @@ func (sf *Client) SubscribeAllTopic(devType DevType, productKey, deviceName stri
 
 	//// TODO: 不使用??
 	// dynamictsl
-	//if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingDynamicTslGetReply, productKey, deviceName),
+	//if err = sf.Subscribe(sf.uriService(URISysPrefix, URIThingDynamicTslGetReply, productKey, deviceName),
 	//	ProcThingDynamictslGetReply); err != nil {
 	//	sf.warn(err.Error())
 	//}
@@ -103,7 +103,7 @@ func (sf *Client) SubscribeAllTopic(devType DevType, productKey, deviceName stri
 	if sf.cfg.hasGateway {
 		if devType == DevTypeGateway {
 			// 网关批量上报数据
-			if err = sf.Subscribe(sf.URIServiceSelf(URISysPrefix, URIThingEventPropertyPostReply),
+			if err = sf.Subscribe(sf.URIServiceSelf(URISysPrefix, URIThingEventPropertyPackPostReply),
 				ProcThingEventPropertyPackPostReply); err != nil {
 				sf.warn(err.Error())
 			}
@@ -212,7 +212,7 @@ func (sf *Client) UnSubscribeSubDevAllTopic(productKey, deviceName string) error
 		// dystemplate
 		sf.URIService(URISysPrefix, URIThingDslTemplateGetReply, productKey, deviceName),
 		// dynamictsl 不使用??
-		//sf.URIService(URISysPrefix, URIThingDynamicTslGetReply, productKey, deviceName),
+		//sf.uriService(URISysPrefix, URIThingDynamicTslGetReply, productKey, deviceName),
 		// RRPC
 		sf.URIService(URISysPrefix, URIRRPCRequestSingleWildcard, productKey, deviceName),
 		// config

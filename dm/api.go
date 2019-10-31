@@ -103,6 +103,7 @@ func New(cfg *Config) *Client {
 	return sf
 }
 
+// NewSubDevice 创建一个子设备
 func (sf *Client) NewSubDevice(devType int, meta Meta) (int, error) {
 	if !sf.cfg.hasGateway {
 		return 0, ErrNotSupportFeature
@@ -282,7 +283,7 @@ func (sf *Client) AlinkRequest(msgType MsgType, devID int) error {
 //  - MsgTypeExtNtpRequest
 //  - MsgTypeDsltemplateGet
 //  - MsgTypeConfigGet
-func (sf *Client) AlinkQuery(msgType MsgType, devID int, payload ...interface{}) error {
+func (sf *Client) AlinkQuery(msgType MsgType, devID int, _ ...interface{}) error {
 	switch msgType {
 	case MsgTypeDsltemplateGet:
 		return sf.UpstreamThingDsltemplateGet(devID)

@@ -34,7 +34,7 @@ const (
 	DevStatusOnline                        // After All Topic Subscribed
 )
 
-// DevAvailByPkDn 设备有效
+// DevAvail 设备有效
 type DevAvail byte
 
 // 设备有效
@@ -233,6 +233,7 @@ func (sf *DevMgr) SetDevAvailByPkDN(productKey, deviceName string, enable bool) 
 	return nil
 }
 
+// DevAvailByID 获取devAvail
 func (sf *DevMgr) DevAvailByID(devID int) (DevAvail, error) {
 	if devID < 0 {
 		return 0, ErrInvalidParameter
@@ -257,7 +258,7 @@ func (sf *DevMgr) DevAvailByPkDn(productKey, deviceName string) (DevAvail, error
 	return node.avail, nil
 }
 
-// SetDevStatusByID 设置设备的状态
+// SetDevStatusByID 设置设备的status
 func (sf *DevMgr) SetDevStatusByID(devID int, status DevStatus) error {
 	if devID < 0 {
 		return ErrInvalidParameter
@@ -273,7 +274,7 @@ func (sf *DevMgr) SetDevStatusByID(devID int, status DevStatus) error {
 	return nil
 }
 
-// SetDevStatusByID 设置设备的状态
+// SetDevStatusByPkDn 设置设备的状态
 func (sf *DevMgr) SetDevStatusByPkDn(productKey, deviceName string, status DevStatus) error {
 	sf.rw.Lock()
 	defer sf.rw.Unlock()
@@ -286,7 +287,7 @@ func (sf *DevMgr) SetDevStatusByPkDn(productKey, deviceName string, status DevSt
 	return nil
 }
 
-// SetDeviceSecret 设置设备密钥
+// SetDeviceSecretByID 设置设备密钥
 func (sf *DevMgr) SetDeviceSecretByID(devID int, deviceSecret string) error {
 	if devID < 0 {
 		return ErrInvalidParameter

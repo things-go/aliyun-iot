@@ -17,7 +17,7 @@ const (
 	workOnHTTP
 )
 
-// Config
+// Config 配置信息
 type Config struct {
 	productKey   string
 	deviceName   string

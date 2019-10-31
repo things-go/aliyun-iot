@@ -72,7 +72,7 @@ func (sf *Client) UpstreamThingEventPost(devID int, eventID string, params inter
 
 func (sf *Client) upstreamThingEventPropertyPackPost(params interface{}) error {
 	id := sf.RequestID()
-	err := sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingEventPropertyPost),
+	err := sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingEventPropertyPackPost),
 		id, methodEventPropertyPackPost, params)
 	if err != nil {
 		return err

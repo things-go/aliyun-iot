@@ -243,6 +243,7 @@ func ProcThingDsltemplateGetReply(c *Client, rawURI string, payload []byte) erro
 	})
 }
 
+// ProcThingDynamictslGetReply 处理
 // TODO: 不使用??
 func ProcThingDynamictslGetReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
@@ -321,8 +322,7 @@ func ProcThingConfigGetReply(c *Client, rawURI string, payload []byte) error {
 }
 
 // ProcExtErrorResponse 处理错误的回复
-
-func ProcExtErrorResponse(c *Client, rawURI string, payload []byte) error {
+func ProcExtErrorResponse(c *Client, _ string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
@@ -371,7 +371,7 @@ func ProcThingConfigPush(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 	c.debug("downstream thing <config>: push request")
-	if err := c.SendResponse(URIServiceReplyWithRequestURI(rawURI),
+	if err := c.SendResponse(uriServiceReplyWithRequestURI(rawURI),
 		req.ID, CodeSuccess, "{}"); err != nil {
 		return err
 	}

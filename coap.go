@@ -17,8 +17,9 @@ type COAPClient struct {
 }
 
 // Publish 实现dm.Conn接口
-func (sf *COAPClient) Publish(topic string, qos byte, payload interface{}) error {
+func (sf *COAPClient) Publish(topic string, _ byte, payload interface{}) error {
 	var buf *bytes.Buffer
+
 	switch v := payload.(type) {
 	case string:
 		buf = bytes.NewBufferString(v)
@@ -39,7 +40,7 @@ func (sf *COAPClient) Subscribe(topic string, streamFunc dm.ProcDownStreamFunc) 
 }
 
 // UnSubscribe 实现dm.Conn接口
-func (sf *COAPClient) UnSubscribe(topic ...string) error {
+func (sf *COAPClient) UnSubscribe(...string) error {
 	return nil
 }
 
@@ -58,7 +59,7 @@ func (sf *COAPClient) UnderlyingClient() *coap.ClientConn {
 	return sf.c
 }
 
-// NewWithMQTT 新建MQTTClient
+// NewWithCOAP 新建MQTTClient
 func NewWithCOAP(config *dm.Config, c *coap.ClientConn) *COAPClient {
 	m := dm.New(config)
 	cli := &COAPClient{c, m, clog.NewWithPrefix("mqtt --> ")}

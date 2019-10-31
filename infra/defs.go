@@ -1,5 +1,6 @@
 package infra
 
+// alink相关定义
 const (
 	IOTAlinkVersion = "20"
 	IOTSDKVersion   = "sdk-golang-v0.1.0"

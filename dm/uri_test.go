@@ -61,8 +61,8 @@ func TestURIService(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := URIService(tt.args.prefix, tt.args.name, tt.args.productKey, tt.args.deviceName); got != tt.want {
-				t.Errorf("URIService() = %v, want %v", got, tt.want)
+			if got := uriService(tt.args.prefix, tt.args.name, tt.args.productKey, tt.args.deviceName); got != tt.want {
+				t.Errorf("uriService() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -85,8 +85,8 @@ func TestURIServiceReplyWithRequestURI(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := URIServiceReplyWithRequestURI(tt.args.uri); got != tt.want {
-				t.Errorf("URIServiceReplyWithRequestURI() = %v, want %v", got, tt.want)
+			if got := uriServiceReplyWithRequestURI(tt.args.uri); got != tt.want {
+				t.Errorf("uriServiceReplyWithRequestURI() = %v, want %v", got, tt.want)
 			}
 		})
 	}

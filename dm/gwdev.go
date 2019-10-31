@@ -14,7 +14,7 @@ type GwSubDevRegisterParams struct {
 	DeviceName string `json:"deviceName"`
 }
 
-// SubDevRegisterDataReply 子设备注册应答数据域
+// GwSubDevRegisterData 子设备注册应答数据域
 type GwSubDevRegisterData struct {
 	IotID        int64  `json:"iotId,string"`
 	ProductKey   string `json:"productKey"`

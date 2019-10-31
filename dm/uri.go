@@ -90,8 +90,8 @@ const (
 
 // 网关URI定义
 const (
-	URIThingEventPropertyPost      = "thing/event/property/pack/post"
-	URIThingEventPropertyPostReply = "thing/event/property/pack/post_reply"
+	URIThingEventPropertyPackPost      = "thing/event/property/pack/post"
+	URIThingEventPropertyPackPostReply = "thing/event/property/pack/post_reply"
 	// 子设备动态注册
 	URIThingSubDevRegister      = "thing/sub/register"
 	URIThingSubDevRegisterReply = "thing/sub/register_reply"
@@ -121,8 +121,8 @@ const (
 	URIThingDeleteReply     = "thing/delete_reply"
 )
 
-// URIService 生成URI, inName的作用是有一些需要格式化到name里.
-func URIService(prefix, name, productKey, deviceName string, inName ...string) string {
+// uriService 生成URI, inName的作用是有一些需要格式化到name里.
+func uriService(prefix, name, productKey, deviceName string, inName ...string) string {
 	str := strings.Builder{}
 	str.Grow(len(prefix) + len(name) + len(productKey) + len(deviceName))
 	if prefix != "" {
@@ -138,8 +138,8 @@ func URIService(prefix, name, productKey, deviceName string, inName ...string) s
 	return str.String()
 }
 
-// URIServiceReplyWithRequestURI 根据请求的URI生成应答的URI
-func URIServiceReplyWithRequestURI(uri string) string {
+// uriServiceReplyWithRequestURI 根据请求的URI生成应答的URI
+func uriServiceReplyWithRequestURI(uri string) string {
 	return uri + "_" + URIReplySuffix
 }
 

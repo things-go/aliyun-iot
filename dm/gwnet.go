@@ -55,7 +55,7 @@ func (sf *Client) upstreamGwThingTopoAdd(devID int) (int, error) {
 	return id, nil
 }
 
-// GwTopoDeleteParams
+// GwTopoDeleteParams 删除网关与子设备的拓扑关系参数域
 type GwTopoDeleteParams struct {
 	ProductKey string `json:"productKey"`
 	DeviceName string `json:"deviceName"`

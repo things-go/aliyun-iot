@@ -1,8 +1,9 @@
 package dmd
 
-const DevInfoLabelCoordinateKey = "coordinate" // 地理位置标签
+// DevInfoLabelCoordinateKey 地理位置标签
+const DevInfoLabelCoordinateKey = "coordinate" //
 
-// DevInfoLabel 更新设备标签的键值对
+// DevInfoLabelUpdate 更新设备标签的键值对
 type DevInfoLabelUpdate struct {
 	AttrKey   string `json:"attrKey"`
 	AttrValue string `json:"attrValue"`
