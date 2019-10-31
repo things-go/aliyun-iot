@@ -144,7 +144,7 @@ func (sf *DevMgr) DeleteByID(devID int) {
 	sf.rw.Unlock()
 }
 
-// DeleteByPkDn 删除一个子设备, DevSelf不可删除
+// DeleteByPkDn 删除一个子设备, DevNodeLocal不可删除
 func (sf *DevMgr) DeleteByPkDn(productKey, deviceName string) {
 	sf.rw.Lock()
 	defer sf.rw.Unlock()

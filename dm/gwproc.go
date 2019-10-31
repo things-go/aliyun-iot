@@ -5,58 +5,66 @@ import (
 )
 
 // ProcThingTopoAddReply 处理网络拓扑添加
+// 上行
+// request:  /sys/{productKey}/{deviceName}/thing/topo/add
+// response:  /sys/{productKey}/{deviceName}/thing/topo/add_reply
+// subscribe: /sys/{productKey}/{deviceName}/thing/topo/add_reply
 func ProcThingTopoAddReply(c *Client, rawURI string, payload []byte) error {
+	uris := URIServiceSpilt(rawURI)
+	if len(uris) < (c.cfg.uriOffset + 6) {
+		return ErrInvalidURI
+	}
+
 	rsp := Response{}
 	err := json.Unmarshal(payload, &rsp)
 	if err != nil {
 		return err
 	}
 
-	entry, ok := c.CacheGet(rsp.ID)
-	if !ok {
-		return ErrNotFound
-	}
-
 	c.CacheRemove(rsp.ID)
 	if rsp.Code != CodeSuccess {
-		c.syncHub.Done(rsp.ID, NewCodeError(rsp.Code, rsp.Message))
-	} else {
-		if err := c.SetDevStatusByID(entry.DevID(), DevStatusAttached); err != nil {
-			c.error("set device status failed, %+v", err)
-		}
-		c.syncHub.Done(rsp.ID, nil)
+		err = NewCodeError(rsp.Code, rsp.Message)
 	}
+	c.syncHub.Done(rsp.ID, err)
 	c.debug("downstream GW thing <topo>: add reply @%d", rsp.ID)
-
 	return nil
 }
 
 // ProcThingTopoDeleteReply 处理删除网络拓扑
+// 上行
+// request:  /sys/{productKey}/{deviceName}/thing/topo/delete
+// response:  /sys/{productKey}/{deviceName}/thing/topo/delete_reply
+// subscribe: /sys/{productKey}/{deviceName}/thing/topo/delete_reply
 func ProcThingTopoDeleteReply(c *Client, rawURI string, payload []byte) error {
-	rsp := Response{}
-	if err := json.Unmarshal(payload, &rsp); err != nil {
-		return err
+	uris := URIServiceSpilt(rawURI)
+	if len(uris) < (c.cfg.uriOffset + 6) {
+		return ErrInvalidURI
 	}
-	entry, ok := c.CacheGet(rsp.ID)
-	if !ok {
-		return ErrNotFound
+	rsp := Response{}
+	err := json.Unmarshal(payload, &rsp)
+	if err != nil {
+		return err
 	}
 
 	c.CacheRemove(rsp.ID)
 	if rsp.Code != CodeSuccess {
-		c.syncHub.Done(rsp.ID, NewCodeError(rsp.Code, rsp.Message))
-	} else {
-		if err := c.SetDevStatusByID(entry.DevID(), DevStatusUnauthorized); err != nil {
-			c.error("set device status failed, %+v", err)
-		}
-		c.syncHub.Done(rsp.ID, nil)
+		err = NewCodeError(rsp.Code, rsp.Message)
 	}
+	c.syncHub.Done(rsp.ID, err)
 	c.debug("downstream GW thing <topo>: delete reply @%d", rsp.ID)
 	return nil
 }
 
 // ProcThingTopoGetReply 处理获取该网关和子设备的拓扑关系
+// 上行
+// request:  /sys/{productKey}/{deviceName}/thing/topo/get
+// response:  /sys/{productKey}/{deviceName}/thing/topo/get_reply
+// subscribe: /sys/{productKey}/{deviceName}/thing/topo/get_reply
 func ProcThingTopoGetReply(c *Client, rawURI string, payload []byte) error {
+	uris := URIServiceSpilt(rawURI)
+	if len(uris) < (c.cfg.uriOffset + 6) {
+		return ErrInvalidURI
+	}
 	rsp := GwTopoGetResponse{}
 	err := json.Unmarshal(payload, &rsp)
 	if err != nil {
@@ -74,8 +82,17 @@ func ProcThingTopoGetReply(c *Client, rawURI string, payload []byte) error {
 	})
 }
 
-// ProcThingListFoundReply 处理发现设备列表上报
-func ProcThingListFoundReply(c *Client, _ string, payload []byte) error {
+// ProcThingListFoundReply 处理发现设备列表上报应答
+// 上行
+// request:  /sys/{productKey}/{deviceName}/thing/list/found
+// response:  /sys/{productKey}/{deviceName}/thing/list/found_reply
+// subscribe: /sys/{productKey}/{deviceName}/thing/list/found_reply
+func ProcThingListFoundReply(c *Client, rawURI string, payload []byte) error {
+	uris := URIServiceSpilt(rawURI)
+	if len(uris) < (c.cfg.uriOffset + 6) {
+		return ErrInvalidURI
+	}
+
 	rsp := Response{}
 	err := json.Unmarshal(payload, &rsp)
 	if err != nil {
@@ -106,12 +123,22 @@ type GwTopoAddNotifyRequest struct {
 }
 
 // ProcThingTopoAddNotify 通知网关添加设备拓扑关系
+// 下行
+// request:  /sys/{productKey}/{deviceName}/thing/topo/add/notify
+// response:  /sys/{productKey}/{deviceName}/thing/topo/add/notify_reply
+// subscribe: /sys/{productKey}/{deviceName}/thing/topo/add/notify
 func ProcThingTopoAddNotify(c *Client, rawURI string, payload []byte) error {
+	uris := URIServiceSpilt(rawURI)
+	if len(uris) < (c.cfg.uriOffset + 7) {
+		return ErrInvalidURI
+	}
+	c.debug("downstream GW thing <topo>: add notify")
+
 	req := GwTopoAddNotifyRequest{}
 	if err := json.Unmarshal(payload, &req); err != nil {
 		return err
 	}
-	c.debug("downstream GW thing <topo>: add notify")
+
 	if err := c.ipcSendMessage(&ipcMessage{
 		evt:     ipcEvtTopoAddNotify,
 		payload: req.Params,
@@ -142,12 +169,22 @@ type GwTopoChangeRequest struct {
 }
 
 // ProcThingTopoChange 通知网关拓扑关系变化
+// 下行
+// request:  /sys/{productKey}/{deviceName}/thing/topo/change
+// response:  /sys/{productKey}/{deviceName}/thing/topo/change_reply
+// subscribe:  /sys/{productKey}/{deviceName}/thing/topo/change
 func ProcThingTopoChange(c *Client, rawURI string, payload []byte) error {
+	uris := URIServiceSpilt(rawURI)
+	if len(uris) < (c.cfg.uriOffset + 6) {
+		return ErrInvalidURI
+	}
+	c.debug("downstream GW thing <topo>: change")
+
 	req := GwTopoChangeRequest{}
 	if err := json.Unmarshal(payload, &req); err != nil {
 		return err
 	}
-	c.debug("downstream GW thing <topo>: change")
+
 	if err := c.ipcSendMessage(&ipcMessage{
 		evt:     ipcTopoChange,
 		payload: req.Params,
@@ -161,7 +198,15 @@ func ProcThingTopoChange(c *Client, rawURI string, payload []byte) error {
 /*************************************** 子设备相关处理 *************************************************************/
 
 // ProcThingSubDevRegisterReply 子设备动态注册处理
-func ProcThingSubDevRegisterReply(c *Client, _ string, payload []byte) error {
+// 上行
+// request: /sys/{productKey}/{deviceName}/thing/sub/register
+// response: /sys/{productKey}/{deviceName}/thing/sub/register_reply
+// subscribe: /sys/{productKey}/{deviceName}/thing/sub/register_reply
+func ProcThingSubDevRegisterReply(c *Client, rawURI string, payload []byte) error {
+	uris := URIServiceSpilt(rawURI)
+	if len(uris) < (c.cfg.uriOffset + 6) {
+		return ErrInvalidURI
+	}
 	rsp := GwSubDevRegisterResponse{}
 	err := json.Unmarshal(payload, &rsp)
 	if err != nil {
@@ -181,12 +226,20 @@ func ProcThingSubDevRegisterReply(c *Client, _ string, payload []byte) error {
 	}
 	c.syncHub.Done(rsp.ID, err)
 	c.debug("downstream GW thing <sub>: register reply @%d", rsp.ID)
-
 	return nil
 }
 
 // ProcExtSubDevCombineLoginReply 子设备上线应答处理
-func ProcExtSubDevCombineLoginReply(c *Client, _ string, payload []byte) error {
+// 上行
+// request: /ext/session/{productKey}/{deviceName}/combine/login
+// response: /ext/session/{productKey}/{deviceName}/combine/login_reply
+// subscribe: /ext/session/{productKey}/{deviceName}/combine/login_reply
+func ProcExtSubDevCombineLoginReply(c *Client, rawURI string, payload []byte) error {
+	uris := URIServiceSpilt(rawURI)
+	if len(uris) < (c.cfg.uriOffset + 6) {
+		return ErrInvalidURI
+	}
+
 	rsp := Response{}
 	err := json.Unmarshal(payload, &rsp)
 	if err != nil {
@@ -197,39 +250,51 @@ func ProcExtSubDevCombineLoginReply(c *Client, _ string, payload []byte) error {
 	if rsp.Code != CodeSuccess {
 		err = NewCodeError(rsp.Code, rsp.Message)
 	}
-	c.syncHub.Done(rsp.ID, nil)
+	c.syncHub.Done(rsp.ID, err)
 	c.debug("downstream Ext GW <sub>: login reply @%d", rsp.ID)
 	return nil
 }
 
 // ProcExtSubDevCombineLogoutReply 子设备下线应答处理
-func ProcExtSubDevCombineLogoutReply(c *Client, _ string, payload []byte) error {
+// 上行
+// request: /ext/session/{productKey}/{deviceName}/combine/logout
+// response: /ext/session/{productKey}/{deviceName}/combine/logout_reply
+// subscribe: /ext/session/{productKey}/{deviceName}/combine/logout_reply
+func ProcExtSubDevCombineLogoutReply(c *Client, rawURI string, payload []byte) error {
+	uris := URIServiceSpilt(rawURI)
+	if len(uris) < (c.cfg.uriOffset + 6) {
+		return ErrInvalidURI
+	}
+
 	rsp := Response{}
-	if err := json.Unmarshal(payload, &rsp); err != nil {
+	err := json.Unmarshal(payload, &rsp)
+	if err != nil {
 		return err
 	}
 	c.CacheRemove(rsp.ID)
 	if rsp.Code != CodeSuccess {
-		c.syncHub.Done(rsp.ID, NewCodeError(rsp.Code, rsp.Message))
-	} else {
-		c.syncHub.Done(rsp.ID, nil)
+		err = NewCodeError(rsp.Code, rsp.Message)
 	}
+	c.syncHub.Done(rsp.ID, err)
 	c.debug("downstream Ext GW <sub>: logout reply @%d", rsp.ID)
 	return nil
 }
 
 // ProcThingDisable 禁用子设备
+// 下行
+// request: /sys/{productKey}/{deviceName}/thing/disable
+// response: /sys/{productKey}/{deviceName}/thing/disable_reply
+// subscribe: /sys/{productKey}/{deviceName}/thing/disable
 func ProcThingDisable(c *Client, rawURI string, payload []byte) error {
-	var err error
-
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) != 5 {
+	if len(uris) < (c.cfg.uriOffset + 5) {
 		return ErrInvalidURI
 	}
 	c.debug("downstream <thing>: disable >> %s - %s", uris[1], uris[2])
 
 	req := Request{}
-	if err = json.Unmarshal(payload, &req); err != nil {
+	err := json.Unmarshal(payload, &req)
+	if err != nil {
 		return err
 	}
 	if err = c.SetDevAvailByPkDN(uris[1], uris[2], false); err != nil {
@@ -247,16 +312,20 @@ func ProcThingDisable(c *Client, rawURI string, payload []byte) error {
 }
 
 // ProcThingEnable 启用子设备
+// 下行
+// request: /sys/{productKey}/{deviceName}/thing/enable
+// response: /sys/{productKey}/{deviceName}/thing/enable_reply
+// subscribe: /sys/{productKey}/{deviceName}/thing/enable
 func ProcThingEnable(c *Client, rawURI string, payload []byte) error {
-	var err error
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) != 5 {
+	if len(uris) < (c.cfg.uriOffset + 5) {
 		return ErrInvalidURI
 	}
 	c.debug("downstream <thing>: enable >> %s - %s", uris[1], uris[2])
 
 	req := Request{}
-	if err = json.Unmarshal(payload, &req); err != nil {
+	err := json.Unmarshal(payload, &req)
+	if err != nil {
 		return err
 	}
 	if err = c.SetDevAvailByPkDN(uris[1], uris[2], true); err != nil {
@@ -273,13 +342,18 @@ func ProcThingEnable(c *Client, rawURI string, payload []byte) error {
 		req.ID, CodeSuccess, "{}")
 }
 
-// ProcThingDelete 子设备删除
+// ProcThingDelete 子设备删除,网关类型设备
+// 下行
+// request: /sys/{productKey}/{deviceName}/thing/delete
+// response: /sys/{productKey}/{deviceName}/thing/delete_reply
+// subscribe: /sys/{productKey}/{deviceName}/thing/delete
 func ProcThingDelete(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) != 5 {
+	if len(uris) < (c.cfg.uriOffset + 5) {
 		return ErrInvalidURI
 	}
 	c.debug("downstream <thing>: delete >> %s - %s", uris[1], uris[2])
+
 	req := Request{}
 	if err := json.Unmarshal(payload, &req); err != nil {
 		return err

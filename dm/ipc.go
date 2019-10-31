@@ -47,11 +47,11 @@ const (
 )
 
 type ipcMessage struct {
-	err        error
 	evt        ipcEvtType
-	extend     string
+	err        error
 	productKey string
 	deviceName string
+	extend     string
 	payload    interface{}
 }
 

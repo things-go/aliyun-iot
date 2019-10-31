@@ -162,13 +162,16 @@ func (sf *Client) SubscribeAllTopic(devType DevType, productKey, deviceName stri
 		}
 		if devType == DevTypeSubDev {
 			// 子设备禁用,启用,删除
-			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingDisable, productKey, deviceName), ProcThingDisable); err != nil {
+			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingDisable, productKey, deviceName),
+				ProcThingDisable); err != nil {
 				sf.warn(err.Error())
 			}
-			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingEnable, productKey, deviceName), ProcThingEnable); err != nil {
+			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingEnable, productKey, deviceName),
+				ProcThingEnable); err != nil {
 				sf.warn(err.Error())
 			}
-			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingDelete, productKey, deviceName), ProcThingDelete); err != nil {
+			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingDelete, productKey, deviceName),
+				ProcThingDelete); err != nil {
 				sf.warn(err.Error())
 			}
 		}
@@ -228,7 +231,11 @@ func (sf *Client) linKitGwSubDevRegister(devID int) error {
 	if err != nil {
 		return err
 	}
-	return sf.syncHub.Wait(id)
+	if err = sf.syncHub.Wait(id); err != nil {
+		return err
+	}
+	_ = sf.SetDevStatusByID(devID, DevStatusRegistered)
+	return nil
 }
 
 func (sf *Client) linkKitGwSubDevTopoAdd(devID int) error {
@@ -236,8 +243,11 @@ func (sf *Client) linkKitGwSubDevTopoAdd(devID int) error {
 	if err != nil {
 		return err
 	}
-
-	return sf.syncHub.Wait(id)
+	if err = sf.syncHub.Wait(id); err != nil {
+		return err
+	}
+	_ = sf.SetDevStatusByID(devID, DevStatusAttached)
+	return nil
 }
 
 // linkKitGwSubDevTopoDelete 删除网关与子设备的拓扑关系
@@ -247,7 +257,11 @@ func (sf *Client) linkKitGwSubDevTopoDelete(devID int) error {
 		return err
 	}
 
-	return sf.syncHub.Wait(id)
+	if err = sf.syncHub.Wait(id); err != nil {
+		return err
+	}
+	_ = sf.SetDevStatusByID(devID, DevStatusRegistered)
+	return nil
 }
 
 func (sf *Client) linkKitGwSubDevCombineLogin(devID int) error {
@@ -255,7 +269,12 @@ func (sf *Client) linkKitGwSubDevCombineLogin(devID int) error {
 	if err != nil {
 		return err
 	}
-	return sf.syncHub.Wait(id)
+
+	if err = sf.syncHub.Wait(id); err != nil {
+		return err
+	}
+	_ = sf.SetDevStatusByID(devID, DevStatusLogined)
+	return nil
 }
 
 func (sf *Client) linkKitGwSubDevCombineLogout(devID int) error {
@@ -263,5 +282,9 @@ func (sf *Client) linkKitGwSubDevCombineLogout(devID int) error {
 	if err != nil {
 		return err
 	}
-	return sf.syncHub.Wait(id)
+	if err = sf.syncHub.Wait(id); err != nil {
+		return err
+	}
+	_ = sf.SetDevStatusByID(devID, DevStatusAttached)
+	return nil
 }
