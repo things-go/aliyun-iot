@@ -17,6 +17,7 @@ const (
 	MsgTypeModelUpRaw            MsgType = iota //!< post raw data to cloud
 	MsgTypeEventPropertyPost                    //!< post property value to cloud
 	MsgTypeEventPost                            //!< post event identifies value to cloud
+	MsgTypeEventPropertyPackPost                //!<
 	MsgTypeDesiredPropertyGet                   //!< get a device's desired property
 	MsgTypeDesiredPropertyDelete                //!< delete a device's desired property
 	MsgTypeDeviceInfoUpdate                     //!< post device info update message to cloud
@@ -41,6 +42,7 @@ const (
 	MsgTypeReportSubDevFirmwareVersion //!< report subdev's firmware version
 )
 
+// Meta meta 信息
 type Meta struct {
 	ProductKey    string
 	ProductSecret string
@@ -197,6 +199,7 @@ func (sf *Client) AlinkSubDeviceConnect(devID int) error {
 // msgType 消息类型,支持:
 //	- MsgTypeModelUpRaw
 //  - MsgTypeEventPropertyPost
+//  - MsgTypeEventPropertyPackPost
 //  - MsgTypeDesiredPropertyGet
 //  - MsgTypeDesiredPropertyDelete
 //  - MsgTypeEventPropertyPost
@@ -219,6 +222,11 @@ func (sf *Client) AlinkReport(msgType MsgType, devID int, payload interface{}) e
 			return ErrNotSupportFeature
 		}
 		return sf.upstreamThingEventPropertyPost(devID, payload)
+	case MsgTypeEventPropertyPackPost:
+		if !sf.cfg.hasGateway {
+			return ErrNotSupportFeature
+		}
+		return sf.upstreamThingEventPropertyPackPost(payload)
 	case MsgTypeDesiredPropertyGet:
 		if !sf.cfg.hasDesired {
 			return ErrNotSupportFeature

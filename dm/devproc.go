@@ -2,12 +2,17 @@ package dm
 
 import (
 	"encoding/json"
+	"strings"
 )
 
 // ProcDownStreamFunc 处理下行数据
 type ProcDownStreamFunc func(c *Client, rawURI string, payload []byte) error
 
 // ProcThingModelUpRawReply 处理透传上行的应答
+// 上行
+// request: /sys/{productKey}/{deviceName}/thing/model/up_raw
+// response: /sys/{productKey}/{deviceName}/thing/model/up_raw_reply
+// subscribe: /sys/{productKey}/{deviceName}/thing/model/up_raw_reply
 func ProcThingModelUpRawReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (c.cfg.uriOffset + 6) {
@@ -24,6 +29,10 @@ func ProcThingModelUpRawReply(c *Client, rawURI string, payload []byte) error {
 }
 
 // ProcThingEventPostReply 处理ThingEvent XXX上行的应答
+// 上行
+// request: /sys/{productKey}/{deviceName}/thing/event/[{tsl.event.identifier},property]/post
+// response: /sys/{productKey}/{deviceName}/thing/event/[{tsl.event.identifier},property]/post_reply
+// subscribe: /sys/{productKey}/{deviceName}/thing/event/+/post_reply
 func ProcThingEventPostReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (c.cfg.uriOffset + 7) {
@@ -48,9 +57,7 @@ func ProcThingEventPostReply(c *Client, rawURI string, payload []byte) error {
 			err:        err,
 			evt:        ipcEvtEventPropertyPostReply,
 			productKey: uris[c.cfg.uriOffset+1],
-			deviceName: uris[c.cfg.uriOffset+2],
-			payload:    nil,
-		})
+			deviceName: uris[c.cfg.uriOffset+2]})
 	}
 
 	return c.ipcSendMessage(&ipcMessage{
@@ -58,12 +65,43 @@ func ProcThingEventPostReply(c *Client, rawURI string, payload []byte) error {
 		evt:        ipcEvtEventPostReply,
 		productKey: uris[c.cfg.uriOffset+1],
 		deviceName: uris[c.cfg.uriOffset+2],
-		payload:    nil,
-		ext:        eventID,
+		extend:     eventID,
 	})
 }
 
+// ProcThingEventPropertyPackPostReply 网关批量上报数据
+// 上行,仅网关支持
+// request: /sys/{productKey}/{deviceName}/thing/event/property/pack/post
+// response: /sys/{productKey}/{deviceName}/thing/event/property/pack/post_reply
+// subscribe: /sys/{productKey}/{deviceName}/thing/event/property/pack/post_reply
+func ProcThingEventPropertyPackPostReply(c *Client, rawURI string, payload []byte) error {
+	uris := URIServiceSpilt(rawURI)
+	if len(uris) < (c.cfg.uriOffset + 8) {
+		return ErrInvalidURI
+	}
+	rsp := Response{}
+	err := json.Unmarshal(payload, &rsp)
+	if err != nil {
+		return err
+	}
+
+	c.CacheRemove(rsp.ID)
+	c.debug("downstream thing <event>: property pack post reply,@%d", rsp.ID)
+	if rsp.Code != CodeSuccess {
+		err = NewCodeError(rsp.Code, rsp.Message)
+	}
+	return c.ipcSendMessage(&ipcMessage{
+		err:        err,
+		evt:        ipcEvtEventPropertyPostReply,
+		productKey: uris[c.cfg.uriOffset+1],
+		deviceName: uris[c.cfg.uriOffset+2]})
+}
+
 // ProcThingDeviceInfoUpdateReply 处理设备信息更新应答
+// 上行
+// request: /sys/{productKey}/{deviceName}/thing/deviceinfo/update
+// response: /sys/{productKey}/{deviceName}/thing/deviceinfo/update_reply
+// subscribe: /sys/{productKey}/{deviceName}/thing/deviceinfo/update_reply
 func ProcThingDeviceInfoUpdateReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (c.cfg.uriOffset + 6) {
@@ -91,6 +129,10 @@ func ProcThingDeviceInfoUpdateReply(c *Client, rawURI string, payload []byte) er
 }
 
 // ProcThingDeviceInfoDeleteReply 处理设备信息删除的应答
+// 上行
+// request: /sys/{productKey}/{deviceName}/thing/deviceinfo/delete
+// response: /sys/{productKey}/{deviceName}/thing/deviceinfo/delete_reply
+// subscribe: /sys/{productKey}/{deviceName}/thing/deviceinfo/delete_reply
 func ProcThingDeviceInfoDeleteReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (c.cfg.uriOffset + 6) {
@@ -116,6 +158,10 @@ func ProcThingDeviceInfoDeleteReply(c *Client, rawURI string, payload []byte) er
 }
 
 // ProcThingDesiredPropertyGetReply 处理期望属性获取的应答
+// 上行
+// request: /sys/{productKey}/{deviceName}/thing/property/desired/get
+// response: /sys/{productKey}/{deviceName}/thing/property/desired/get_reply
+// subscribe: /sys/{productKey}/{deviceName}/thing/property/desired/get_reply
 func ProcThingDesiredPropertyGetReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (c.cfg.uriOffset + 7) {
@@ -141,6 +187,10 @@ func ProcThingDesiredPropertyGetReply(c *Client, rawURI string, payload []byte) 
 }
 
 // ProcThingDesiredPropertyDeleteReply 处理期望属性删除的应答
+// 上行
+// request: /sys/{productKey}/{deviceName}/thing/property/desired/delete
+// response: /sys/{productKey}/{deviceName}/thing/property/desired/delete_reply
+// subscribe: /sys/{productKey}/{deviceName}/thing/property/desired/delete_reply
 func ProcThingDesiredPropertyDeleteReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (c.cfg.uriOffset + 7) {
@@ -165,6 +215,10 @@ func ProcThingDesiredPropertyDeleteReply(c *Client, rawURI string, payload []byt
 }
 
 // ProcThingDsltemplateGetReply 处理dsltemplate获取的应答
+// 上行
+// request: /sys/{productKey}/{deviceName}/thing/dsltemplate/get
+// response: /sys/{productKey}/{deviceName}/thing/dsltemplate/get_reply
+// subscribe: /sys/{productKey}/{deviceName}/thing/dsltemplate/get_reply
 func ProcThingDsltemplateGetReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (c.cfg.uriOffset + 6) {
@@ -214,6 +268,10 @@ func ProcThingDynamictslGetReply(c *Client, rawURI string, payload []byte) error
 }
 
 // ProcExtNtpResponse 处理ntp请求的应答
+// 上行
+// request: /ext/ntp/${YourProductKey}/${YourDeviceName}/request
+// response: /ext/ntp/${YourProductKey}/${YourDeviceName}/response
+// subscribe: /ext/ntp/${YourProductKey}/${YourDeviceName}/response
 func ProcExtNtpResponse(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (c.cfg.uriOffset + 5) {
@@ -223,7 +281,7 @@ func ProcExtNtpResponse(c *Client, rawURI string, payload []byte) error {
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
-	c.debug("downstream ext <ntp>: response - %+v", rsp)
+	c.debug("downstream extend <ntp>: response - %+v", rsp)
 	return c.ipcSendMessage(&ipcMessage{
 		err:        nil,
 		evt:        ipcEvtExtNtpResponse,
@@ -234,6 +292,10 @@ func ProcExtNtpResponse(c *Client, rawURI string, payload []byte) error {
 }
 
 // ProcThingConfigGetReply 处理获取配置的应答
+// 上行
+// request: /sys/{productKey}/{deviceName}/thing/config/get
+// response: /sys/{productKey}/{deviceName}/thing/config/get_reply
+// subscribe: /sys/{productKey}/{deviceName}/thing/config/get_reply
 func ProcThingConfigGetReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (c.cfg.uriOffset + 6) {
@@ -259,6 +321,7 @@ func ProcThingConfigGetReply(c *Client, rawURI string, payload []byte) error {
 }
 
 // ProcExtErrorResponse 处理错误的回复
+
 func ProcExtErrorResponse(c *Client, rawURI string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
@@ -266,7 +329,7 @@ func ProcExtErrorResponse(c *Client, rawURI string, payload []byte) error {
 	}
 	// TODO: 处理这个ERROR
 	c.CacheRemove(rsp.ID)
-	c.debug("downstream ext <Error>: response,@%d", rsp.ID)
+	c.debug("downstream extend <Error>: response,@%d", rsp.ID)
 	return c.ipcSendMessage(&ipcMessage{
 		err:     nil,
 		evt:     ipcEvtErrorResponse,
@@ -275,6 +338,10 @@ func ProcExtErrorResponse(c *Client, rawURI string, payload []byte) error {
 }
 
 // ProcThingModelDownRaw 处理透传下行数据
+// 下行
+// request: /sys/{productKey}/{deviceName}/thing/model/down_raw
+// response: /sys/{productKey}/{deviceName}/thing/model/down_raw_reply
+// subscribe: /sys/{productKey}/{deviceName}/thing/model/down_raw
 func ProcThingModelDownRaw(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (c.cfg.uriOffset + 6) {
@@ -290,6 +357,10 @@ func ProcThingModelDownRaw(c *Client, rawURI string, payload []byte) error {
 }
 
 // ProcThingConfigPush 处理配置推送
+// 下行
+// request: /sys/{productKey}/{deviceName}/thing/config/push
+// response: /sys/{productKey}/{deviceName}/thing/config/push_reply
+// subscribe: /sys/{productKey}/{deviceName}/thing/config/push
 func ProcThingConfigPush(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (c.cfg.uriOffset + 6) {
@@ -313,7 +384,10 @@ func ProcThingConfigPush(c *Client, rawURI string, payload []byte) error {
 }
 
 // ProcThingServicePropertySet 处理属性设置
-// 处理 thing/service/property/set
+// 下行
+// request: /sys/{productKey}/{deviceName}/thing/service/property/set
+// response: /sys/{productKey}/{deviceName}/thing/service/property/set_reply
+// subscribe: /sys/{productKey}/{deviceName}/thing/service/[+,#]
 func ProcThingServicePropertySet(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (c.cfg.uriOffset + 7) {
@@ -329,7 +403,10 @@ func ProcThingServicePropertySet(c *Client, rawURI string, payload []byte) error
 }
 
 // ProcThingServiceRequest 处理服务调用
-// 处理 thing/service/{tsl.event.identifier}
+// 下行
+// request: /sys/{productKey}/{deviceName}/thing/service/{tsl.service.identifier}
+// response: /sys/{productKey}/{deviceName}/thing/service/{tsl.service.identifier}_reply
+// subscribe: /sys/{productKey}/{deviceName}/thing/service/[+,#]
 func ProcThingServiceRequest(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (c.cfg.uriOffset + 6) {
@@ -337,17 +414,20 @@ func ProcThingServiceRequest(c *Client, rawURI string, payload []byte) error {
 	}
 	serviceID := uris[c.cfg.uriOffset+5]
 	c.debug("downstream thing <service>: %s set request", serviceID)
-
 	return c.ipcSendMessage(&ipcMessage{
 		evt:        ipcEvtServiceRequest,
 		productKey: uris[c.cfg.uriOffset+1],
 		deviceName: uris[c.cfg.uriOffset+2],
 		payload:    payload,
-		ext:        serviceID,
+		extend:     serviceID,
 	})
 }
 
 // ProcRRPCRequest 处理RRPC请求
+// 下行
+// request: /sys/${YourProductKey}/${YourDeviceName}/rrpc/request/${messageId}
+// response: /sys/${YourProductKey}/${YourDeviceName}/rrpc/response/${messageId}
+// subscribe: /sys/${YourProductKey}/${YourDeviceName}/rrpc/request/+
 func ProcRRPCRequest(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (c.cfg.uriOffset + 6) {
@@ -361,16 +441,26 @@ func ProcRRPCRequest(c *Client, rawURI string, payload []byte) error {
 		productKey: uris[c.cfg.uriOffset+1],
 		deviceName: uris[c.cfg.uriOffset+2],
 		payload:    payload,
-		ext:        messageID,
+		extend:     messageID,
 	})
 }
 
 // ProcExtRRPCRequest 处理扩展RRPC请求
+// 下行
+// ${topic} 不为空,设备建立要求clientID传ext = 1
+// request: /ext/rrpc/${messageId}/${topic}
+// response: /ext/rrpc/${messageId}/${topic}
+// subscribe: /ext/rrpc/+/${topic}
 func ProcExtRRPCRequest(c *Client, rawURI string, payload []byte) error {
-	c.debug("downstream ext <RRPC>: Request - URI: ", rawURI)
+	uris := strings.SplitN(strings.TrimLeft(rawURI, SEP), SEP, c.cfg.uriOffset+3)
+	if len(uris) < (c.cfg.uriOffset + 3) {
+		return ErrInvalidParameter
+	}
+
+	c.debug("downstream extend <RRPC>: Request - URI: ", rawURI)
 	return c.ipcSendMessage(&ipcMessage{
 		evt:     ipcEvtExtRRPCRequest,
+		extend:  uris[c.cfg.uriOffset+2], // ${messageId}/${topic}
 		payload: payload,
-		ext:     rawURI,
 	})
 }

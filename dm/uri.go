@@ -90,6 +90,8 @@ const (
 
 // 网关URI定义
 const (
+	URIThingEventPropertyPost      = "thing/event/property/pack/post"
+	URIThingEventPropertyPostReply = "thing/event/property/pack/post_reply"
 	// 子设备动态注册
 	URIThingSubDevRegister      = "thing/sub/register"
 	URIThingSubDevRegisterReply = "thing/sub/register_reply"

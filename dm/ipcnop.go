@@ -2,6 +2,7 @@ package dm
 
 import (
 	"encoding/json"
+	"fmt"
 )
 
 // NopEvt 实现DevUserProc接口的空实现
@@ -19,6 +20,10 @@ func (NopEvt) EvtThingEventPropertyPostReply(c *Client, err error, productKey, d
 
 // EvtThingEventPostReply see interface EventProc
 func (NopEvt) EvtThingEventPostReply(c *Client, err error, eventID, productKey, deviceName string) error {
+	return nil
+}
+
+func (NopEvt) EvtThingEventPropertyPackPostReply(m *Client, err error, productKey, deviceName string) error {
 	return nil
 }
 
@@ -105,6 +110,7 @@ func (NopEvt) EvtRRPCRequest(c *Client, messageID, productKey, deviceName string
 }
 
 // EvtExtRRPCRequest see interface EventProc
-func (NopEvt) EvtExtRRPCRequest(c *Client, rawURI string, payload []byte) error {
-	return c.Publish(rawURI, 0, "default ext RRPC implementation")
+func (NopEvt) EvtExtRRPCRequest(c *Client, messageID, topic string, payload []byte) error {
+	// TODO: uri fix
+	return c.Publish(fmt.Sprintf(URIExtRRPCPrefix, messageID)+topic, 0, "default ext RRPC implementation")
 }

@@ -70,6 +70,19 @@ func (sf *Client) UpstreamThingEventPost(devID int, eventID string, params inter
 	return nil
 }
 
+func (sf *Client) upstreamThingEventPropertyPackPost(params interface{}) error {
+	id := sf.RequestID()
+	err := sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingEventPropertyPost),
+		id, methodEventPropertyPackPost, params)
+	if err != nil {
+		return err
+	}
+
+	sf.CacheInsert(id, DevNodeLocal, MsgTypeEventPropertyPackPost, methodEventPropertyPackPost)
+	sf.debug("upstream thing <deviceInfo>: update,@%d", id)
+	return nil
+}
+
 // upstreamThingDeviceInfoUpdate 设备信息上传
 func (sf *Client) upstreamThingDeviceInfoUpdate(devID int, params interface{}) error {
 	if devID < 0 {

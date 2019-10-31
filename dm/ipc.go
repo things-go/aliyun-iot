@@ -3,14 +3,18 @@ package dm
 import (
 	"encoding/json"
 	"errors"
+	"strings"
 )
 
+// ipc 事件类型
 type ipcEvtType byte
 
+// ipc 事件类型定义
 const (
 	ipcEvtUpRawReply ipcEvtType = iota
 	ipcEvtEventPropertyPostReply
 	ipcEvtEventPostReply
+	ipcEvtPropertyPackPostReply
 	ipcEvtDeviceInfoUpdateReply
 	ipcEvtDeviceInfoDeleteReply
 	ipcEvtDesiredPropertyGetReply
@@ -32,10 +36,10 @@ const (
 type ipcMessage struct {
 	err        error
 	evt        ipcEvtType
+	extend     string
 	productKey string
 	deviceName string
 	payload    interface{}
-	ext        string
 }
 
 func (sf *Client) ipcSendMessage(msg *ipcMessage) error {
@@ -75,12 +79,15 @@ func (sf *Client) ipcEventProc(msg *ipcMessage) error {
 	}()
 
 	switch msg.evt {
+	// 下行应答
 	case ipcEvtUpRawReply:
 		return sf.eventProc.EvtThingModelUpRawReply(sf, msg.productKey, msg.deviceName, msg.payload.([]byte))
 	case ipcEvtEventPropertyPostReply:
 		return sf.eventProc.EvtThingEventPropertyPostReply(sf, msg.err, msg.productKey, msg.deviceName)
 	case ipcEvtEventPostReply:
-		return sf.eventProc.EvtThingEventPostReply(sf, msg.err, msg.ext, msg.productKey, msg.deviceName)
+		return sf.eventProc.EvtThingEventPostReply(sf, msg.err, msg.extend, msg.productKey, msg.deviceName)
+	case ipcEvtPropertyPackPostReply:
+		return sf.eventProc.EvtThingEventPropertyPackPostReply(sf, msg.err, msg.productKey, msg.deviceName)
 	case ipcEvtDeviceInfoUpdateReply:
 		return sf.eventProc.EvtThingDeviceInfoUpdateReply(sf, msg.err, msg.productKey, msg.deviceName)
 	case ipcEvtDeviceInfoDeleteReply:
@@ -100,6 +107,7 @@ func (sf *Client) ipcEventProc(msg *ipcMessage) error {
 	case ipcEvtErrorResponse:
 		return sf.eventProc.EvtExtErrorResponse(sf, msg.payload.(*Response))
 
+		// 下行
 	case ipcEvtDownRaw:
 		return sf.eventProc.EvtThingModelDownRaw(sf, msg.productKey, msg.deviceName, msg.payload.([]byte))
 	case ipcEvtConfigPush:
@@ -107,11 +115,12 @@ func (sf *Client) ipcEventProc(msg *ipcMessage) error {
 	case ipcEvtServicePropertySet:
 		return sf.eventProc.EvtThingServicePropertySet(sf, msg.productKey, msg.deviceName, msg.payload.([]byte))
 	case ipcEvtServiceRequest:
-		return sf.eventProc.EvtThingServiceRequest(sf, msg.ext, msg.productKey, msg.deviceName, msg.payload.([]byte))
+		return sf.eventProc.EvtThingServiceRequest(sf, msg.extend, msg.productKey, msg.deviceName, msg.payload.([]byte))
 	case ipcEvtRRPCRequest:
-		return sf.eventProc.EvtRRPCRequest(sf, msg.ext, msg.productKey, msg.deviceName, msg.payload.([]byte))
+		return sf.eventProc.EvtRRPCRequest(sf, msg.extend, msg.productKey, msg.deviceName, msg.payload.([]byte))
 	case ipcEvtExtRRPCRequest:
-		return sf.eventProc.EvtExtRRPCRequest(sf, msg.ext, msg.payload.([]byte))
+		ext := strings.SplitN(msg.extend, SEP, 2)
+		return sf.eventProc.EvtExtRRPCRequest(sf, ext[0], ext[1], msg.payload.([]byte))
 	}
 
 	return errors.New("not support ipc event type")

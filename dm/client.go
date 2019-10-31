@@ -102,6 +102,12 @@ func (sf *Client) SubscribeAllTopic(devType DevType, productKey, deviceName stri
 
 	if sf.cfg.hasGateway {
 		if devType == DevTypeGateway {
+			// 网关批量上报数据
+			if err = sf.Subscribe(sf.URIServiceSelf(URISysPrefix, URIThingEventPropertyPostReply),
+				ProcThingEventPropertyPackPostReply); err != nil {
+				sf.warn(err.Error())
+			}
+
 			// 添加该网关和子设备的拓扑关系
 			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingTopoAddReply, productKey, deviceName),
 				ProcThingTopoAddReply); err != nil {

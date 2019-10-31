@@ -10,6 +10,7 @@ const (
 	//methodModelUpRaw            = "thing.model.up_raw"
 	methodEventPropertyPost     = "thing.event.property.post"
 	methodEventFormatPost       = "thing.event.%s.post"
+	methodEventPropertyPackPost = "thing.event.property.pack.post"
 	methodDeviceInfoUpdate      = "thing.deviceinfo.update"
 	methodDeviceInfoDelete      = "thing.deviceinfo.delete"
 	methodDesiredPropertyGet    = "thing.property.desired.get"

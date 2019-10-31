@@ -22,6 +22,7 @@ type EventProc interface {
 	EvtThingModelUpRawReply(m *Client, productKey, deviceName string, payload []byte) error
 	EvtThingEventPropertyPostReply(m *Client, err error, productKey, deviceName string) error
 	EvtThingEventPostReply(m *Client, err error, eventID, productKey, deviceName string) error
+	EvtThingEventPropertyPackPostReply(m *Client, err error, productKey, deviceName string) error
 	EvtThingDeviceInfoUpdateReply(m *Client, err error, productKey, deviceName string) error
 	EvtThingDeviceInfoDeleteReply(m *Client, err error, productKey, deviceName string) error
 	EvtThingDesiredPropertyGetReply(m *Client, err error, productKey, deviceName string, data json.RawMessage) error
@@ -31,7 +32,7 @@ type EventProc interface {
 	EvtExtNtpResponse(m *Client, productKey, deviceName string, payload NtpResponsePayload) error
 	EvtThingConfigGetReply(m *Client, err error, productKey, deviceName string, data ConfigParamsAndData) error
 	EvtExtErrorResponse(m *Client, rsp *Response) error
-	// 透传请求
+	// 透传请求,需要用户自己处理
 	EvtThingModelDownRaw(m *Client, productKey, deviceName string, payload []byte) error
 	// 推送,已做默认回复,覆盖本接口并不覆盖默认回复
 	EvtThingConfigPush(m *Client, productKey, deviceName string, params ConfigParamsAndData) error
@@ -42,5 +43,5 @@ type EventProc interface {
 	// 系统RRPC调用, 仅支持设备端Qos = 0的回复. 已做默认回复,覆盖本接口覆盖默认回复,需用户自行做回复
 	EvtRRPCRequest(m *Client, messageID, productKey, deviceName string, payload []byte) error
 	// 自定义RRPC调用,仅支持设备端Qos = 0的回复, 已做默认回复,覆盖本接口覆盖默认回复,需用户自行做回复
-	EvtExtRRPCRequest(m *Client, rawURI string, payload []byte) error
+	EvtExtRRPCRequest(m *Client, messageID, topic string, payload []byte) error
 }
