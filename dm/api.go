@@ -75,6 +75,7 @@ type Client struct {
 	msgCache *cache.Cache
 	pool     *pool
 	Conn
+	ipc         chan *ipcMessage
 	devUserProc DevUserProc
 }
 
@@ -84,6 +85,7 @@ func New(cfg *Config) *Client {
 		cfg:         *cfg,
 		DevMgr:      NewDevMgr(),
 		syncHub:     NewSyncHub(),
+		ipc:         make(chan *ipcMessage, 1024),
 		devUserProc: DevNopUserProc{},
 	}
 	if cfg.hasCache {
@@ -95,6 +97,7 @@ func New(cfg *Config) *Client {
 	if err != nil {
 		panic(fmt.Sprintf("device local duplicate,cause: %+v", err))
 	}
+	go sf.ipcRunMessage()
 	return sf
 }
 

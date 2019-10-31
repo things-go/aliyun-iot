@@ -12,4 +12,5 @@ var (
 	ErrNotSupportMsgType  = errors.New("not support message type")
 	ErrNotSupportFeature  = errors.New("not support feature")
 	ErrWaitMessageTimeout = errors.New("wait message timeout")
+	ErrIPCMessageBuffFull = errors.New("ipc message buff is full")
 )

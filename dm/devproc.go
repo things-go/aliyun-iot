@@ -14,7 +14,13 @@ func ProcThingModelUpRawReply(c *Client, rawURI string, payload []byte) error {
 		return ErrInvalidURI
 	}
 	c.debug("downstream thing <model>: up raw reply")
-	return c.devUserProc.DownstreamThingModelUpRawReply(c, uris[c.cfg.uriOffset+1], uris[c.cfg.uriOffset+2], payload)
+	return c.ipcSendMessage(&ipcMessage{
+		err:        nil,
+		evt:        ipcEvtRawReply,
+		productKey: uris[c.cfg.uriOffset+1],
+		deviceName: uris[c.cfg.uriOffset+2],
+		payload:    payload,
+	})
 }
 
 // ProcThingEventPostReply 处理ThingEvent XXX上行的应答
