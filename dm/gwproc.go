@@ -163,40 +163,41 @@ func ProcThingTopoChange(c *Client, rawURI string, payload []byte) error {
 // ProcThingSubDevRegisterReply 子设备动态注册处理
 func ProcThingSubDevRegisterReply(c *Client, _ string, payload []byte) error {
 	rsp := GwSubDevRegisterResponse{}
-
-	if err := json.Unmarshal(payload, &rsp); err != nil {
+	err := json.Unmarshal(payload, &rsp)
+	if err != nil {
 		return err
 	}
+
 	c.CacheRemove(rsp.ID)
-	c.debug("downstream GW thing <sub>: register reply @%d", rsp.ID)
-
 	if rsp.Code != CodeSuccess {
-		c.syncHub.Done(rsp.ID, NewCodeError(rsp.Code, rsp.Message))
-		return nil
-	}
-
-	for _, v := range rsp.Data {
-		if err := c.SetDeviceSecretByPkDn(v.ProductKey, v.DeviceName, v.DeviceSecret); err != nil {
-			c.warn("downstream GW thing <sub>: register reply, %+v <%s - %s - %s>",
-				err, v.ProductKey, v.DeviceName, v.DeviceSecret)
+		err = NewCodeError(rsp.Code, rsp.Message)
+	} else {
+		for _, v := range rsp.Data {
+			if er := c.SetDeviceSecretByPkDn(v.ProductKey, v.DeviceName, v.DeviceSecret); er != nil {
+				c.warn("downstream GW thing <sub>: register reply, %+v <%s - %s - %s>",
+					er, v.ProductKey, v.DeviceName, v.DeviceSecret)
+			}
 		}
 	}
-	c.syncHub.Done(rsp.ID, nil)
+	c.syncHub.Done(rsp.ID, err)
+	c.debug("downstream GW thing <sub>: register reply @%d", rsp.ID)
+
 	return nil
 }
 
 // ProcExtSubDevCombineLoginReply 子设备上线应答处理
 func ProcExtSubDevCombineLoginReply(c *Client, _ string, payload []byte) error {
 	rsp := Response{}
-	if err := json.Unmarshal(payload, &rsp); err != nil {
+	err := json.Unmarshal(payload, &rsp)
+	if err != nil {
 		return err
 	}
+
 	c.CacheRemove(rsp.ID)
 	if rsp.Code != CodeSuccess {
-		c.syncHub.Done(rsp.ID, NewCodeError(rsp.Code, rsp.Message))
-	} else {
-		c.syncHub.Done(rsp.ID, nil)
+		err = NewCodeError(rsp.Code, rsp.Message)
 	}
+	c.syncHub.Done(rsp.ID, nil)
 	c.debug("downstream Ext GW <sub>: login reply @%d", rsp.ID)
 	return nil
 }
@@ -234,7 +235,13 @@ func ProcThingDisable(c *Client, rawURI string, payload []byte) error {
 	if err = c.SetDevAvailByPkDN(uris[1], uris[2], false); err != nil {
 		c.warn("<thing> disable failed, %+v", err)
 	}
-
+	if err = c.ipcSendMessage(&ipcMessage{
+		evt:        ipcThingDisable,
+		productKey: uris[1],
+		deviceName: uris[2],
+	}); err != nil {
+		c.warn("<thing> disable, ipc send message failed, %+v", err)
+	}
 	return c.SendResponse(uriServiceReplyWithRequestURI(rawURI),
 		req.ID, CodeSuccess, "{}")
 }
@@ -255,7 +262,13 @@ func ProcThingEnable(c *Client, rawURI string, payload []byte) error {
 	if err = c.SetDevAvailByPkDN(uris[1], uris[2], true); err != nil {
 		c.warn("<thing> enable failed, %+v", err)
 	}
-
+	if err = c.ipcSendMessage(&ipcMessage{
+		evt:        ipcThingEnable,
+		productKey: uris[1],
+		deviceName: uris[2],
+	}); err != nil {
+		c.warn("<thing> enable, ipc send message failed, %+v", err)
+	}
 	return c.SendResponse(uriServiceReplyWithRequestURI(rawURI),
 		req.ID, CodeSuccess, "{}")
 }
@@ -267,13 +280,18 @@ func ProcThingDelete(c *Client, rawURI string, payload []byte) error {
 		return ErrInvalidURI
 	}
 	c.debug("downstream <thing>: delete >> %s - %s", uris[1], uris[2])
-
 	req := Request{}
 	if err := json.Unmarshal(payload, &req); err != nil {
 		return err
 	}
 	c.DeleteByPkDn(uris[1], uris[2])
-
+	if err := c.ipcSendMessage(&ipcMessage{
+		evt:        ipcThingDelete,
+		productKey: uris[1],
+		deviceName: uris[2],
+	}); err != nil {
+		c.warn("<thing> delete, ipc send message failed, %+v", err)
+	}
 	return c.SendResponse(uriServiceReplyWithRequestURI(rawURI),
 		req.ID, CodeSuccess, "{}")
 }

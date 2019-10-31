@@ -127,3 +127,13 @@ func (NopGwEvt) EvtThingTopoAddNotify(c *Client, list []GwTopoAddNotifyParams) e
 func (NopGwEvt) EvtThingTopoChange(c *Client, params GwTopoChangeParams) error {
 	return nil
 }
+
+func (NopGwEvt) EvtThingDisable(c *Client, productKey, deviceName string) error {
+	return nil
+}
+func (NopGwEvt) EvtThingEnable(c *Client, productKey, deviceName string) error {
+	return nil
+}
+func (NopGwEvt) EvtThingDelete(c *Client, productKey, deviceName string) error {
+	return nil
+}

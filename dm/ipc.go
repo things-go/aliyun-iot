@@ -41,6 +41,9 @@ const (
 	// 下行
 	ipcEvtTopoAddNotify
 	ipcTopoChange
+	ipcThingDisable
+	ipcThingEnable
+	ipcThingDelete
 )
 
 type ipcMessage struct {
@@ -142,6 +145,13 @@ func (sf *Client) ipcEventProc(msg *ipcMessage) error {
 		return sf.eventGwProc.EvtThingTopoAddNotify(sf, msg.payload.([]GwTopoAddNotifyParams))
 	case ipcTopoChange:
 		return sf.eventGwProc.EvtThingTopoChange(sf, msg.payload.(GwTopoChangeParams))
+	case ipcThingDisable:
+		return sf.eventGwProc.EvtThingDisable(sf, msg.productKey, msg.deviceName)
+	case ipcThingEnable:
+		return sf.eventGwProc.EvtThingEnable(sf, msg.productKey, msg.deviceName)
+	case ipcThingDelete:
+		return sf.eventGwProc.EvtThingDelete(sf, msg.productKey, msg.deviceName)
+
 	}
 
 	return errors.New("not support ipc event type")

@@ -53,4 +53,7 @@ type EventGwProc interface {
 	EvtThingListFoundReply(c *Client, err error) error
 	EvtThingTopoAddNotify(c *Client, params []GwTopoAddNotifyParams) error
 	EvtThingTopoChange(c *Client, params GwTopoChangeParams) error
+	EvtThingDisable(c *Client, productKey, deviceName string) error
+	EvtThingEnable(c *Client, productKey, deviceName string) error
+	EvtThingDelete(c *Client, productKey, deviceName string) error
 }
