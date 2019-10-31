@@ -16,7 +16,7 @@ func ProcThingModelUpRawReply(c *Client, rawURI string, payload []byte) error {
 	c.debug("downstream thing <model>: up raw reply")
 	return c.ipcSendMessage(&ipcMessage{
 		err:        nil,
-		evt:        ipcEvtRawReply,
+		evt:        ipcEvtUpRawReply,
 		productKey: uris[c.cfg.uriOffset+1],
 		deviceName: uris[c.cfg.uriOffset+2],
 		payload:    payload,
@@ -267,7 +267,11 @@ func ProcExtErrorResponse(c *Client, rawURI string, payload []byte) error {
 	// TODO: 处理这个ERROR
 	c.CacheRemove(rsp.ID)
 	c.debug("downstream ext <Error>: response,@%d", rsp.ID)
-	return c.eventProc.DownstreamExtErrorResponse(c, &rsp)
+	return c.ipcSendMessage(&ipcMessage{
+		err:     nil,
+		evt:     ipcEvtErrorResponse,
+		payload: &rsp,
+	})
 }
 
 // ProcThingModelDownRaw 处理透传下行数据
@@ -277,11 +281,20 @@ func ProcThingModelDownRaw(c *Client, rawURI string, payload []byte) error {
 		return ErrInvalidURI
 	}
 	c.debug("downstream thing <model>: down raw request")
-	return c.eventProc.DownstreamThingModelDownRaw(c, uris[c.cfg.uriOffset+1], uris[c.cfg.uriOffset+2], payload)
+	return c.ipcSendMessage(&ipcMessage{
+		evt:        ipcEvtDownRaw,
+		productKey: uris[c.cfg.uriOffset+1],
+		deviceName: uris[c.cfg.uriOffset+2],
+		payload:    payload,
+	})
 }
 
 // ProcThingConfigPush 处理配置推送
 func ProcThingConfigPush(c *Client, rawURI string, payload []byte) error {
+	uris := URIServiceSpilt(rawURI)
+	if len(uris) < (c.cfg.uriOffset + 6) {
+		return ErrInvalidURI
+	}
 	req := ConfigPushRequest{}
 	if err := json.Unmarshal(payload, &req); err != nil {
 		return err
@@ -291,7 +304,12 @@ func ProcThingConfigPush(c *Client, rawURI string, payload []byte) error {
 		req.ID, CodeSuccess, "{}"); err != nil {
 		return err
 	}
-	return c.eventProc.DownstreamThingConfigPush(c, &req)
+	return c.ipcSendMessage(&ipcMessage{
+		evt:        ipcEvtConfigPush,
+		productKey: uris[c.cfg.uriOffset+1],
+		deviceName: uris[c.cfg.uriOffset+2],
+		payload:    req.Params,
+	})
 }
 
 // ProcThingServicePropertySet 处理属性设置
@@ -301,8 +319,13 @@ func ProcThingServicePropertySet(c *Client, rawURI string, payload []byte) error
 	if len(uris) < (c.cfg.uriOffset + 7) {
 		return ErrInvalidURI
 	}
-	c.debug("downstream thing <service>: property set requst")
-	return c.eventProc.DownstreamThingServicePropertySet(c, rawURI, payload)
+	c.debug("downstream thing <service>: property set request")
+	return c.ipcSendMessage(&ipcMessage{
+		evt:        ipcEvtServicePropertySet,
+		productKey: uris[c.cfg.uriOffset+1],
+		deviceName: uris[c.cfg.uriOffset+2],
+		payload:    payload,
+	})
 }
 
 // ProcThingServiceRequest 处理服务调用
@@ -313,8 +336,15 @@ func ProcThingServiceRequest(c *Client, rawURI string, payload []byte) error {
 		return ErrInvalidURI
 	}
 	serviceID := uris[c.cfg.uriOffset+5]
-	c.debug("downstream thing <service>: %s set requst", serviceID)
-	return c.eventProc.DownstreamThingServiceRequest(c, uris[c.cfg.uriOffset+1], uris[c.cfg.uriOffset+2], serviceID, payload)
+	c.debug("downstream thing <service>: %s set request", serviceID)
+
+	return c.ipcSendMessage(&ipcMessage{
+		evt:        ipcEvtServiceRequest,
+		productKey: uris[c.cfg.uriOffset+1],
+		deviceName: uris[c.cfg.uriOffset+2],
+		payload:    payload,
+		ext:        serviceID,
+	})
 }
 
 // ProcRRPCRequest 处理RRPC请求
@@ -325,13 +355,22 @@ func ProcRRPCRequest(c *Client, rawURI string, payload []byte) error {
 	}
 	messageID := uris[c.cfg.uriOffset+5]
 	c.debug("downstream sys <RRPC>: request - messageID: %s", messageID)
-	return c.eventProc.DownStreamRRPCRequest(c,
-		uris[c.cfg.uriOffset+1], uris[c.cfg.uriOffset+2], messageID,
-		payload)
+
+	return c.ipcSendMessage(&ipcMessage{
+		evt:        ipcEvtRRPCRequest,
+		productKey: uris[c.cfg.uriOffset+1],
+		deviceName: uris[c.cfg.uriOffset+2],
+		payload:    payload,
+		ext:        messageID,
+	})
 }
 
 // ProcExtRRPCRequest 处理扩展RRPC请求
 func ProcExtRRPCRequest(c *Client, rawURI string, payload []byte) error {
 	c.debug("downstream ext <RRPC>: Request - URI: ", rawURI)
-	return c.eventProc.DownStreamExtRRPCRequest(c, rawURI, payload)
+	return c.ipcSendMessage(&ipcMessage{
+		evt:     ipcEvtExtRRPCRequest,
+		payload: payload,
+		ext:     rawURI,
+	})
 }

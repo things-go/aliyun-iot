@@ -8,7 +8,7 @@ import (
 type ipcEvtType byte
 
 const (
-	ipcEvtRawReply ipcEvtType = iota
+	ipcEvtUpRawReply ipcEvtType = iota
 	ipcEvtEventPropertyPostReply
 	ipcEvtEventPostReply
 	ipcEvtDeviceInfoUpdateReply
@@ -19,6 +19,14 @@ const (
 	ipcEvtDynamictslGetReply
 	ipcEvtExtNtpResponse
 	ipcEvtConfigGetReply
+	ipcEvtErrorResponse
+
+	ipcEvtDownRaw
+	ipcEvtConfigPush
+	ipcEvtServicePropertySet
+	ipcEvtServiceRequest
+	ipcEvtRRPCRequest
+	ipcEvtExtRRPCRequest
 )
 
 type ipcMessage struct {
@@ -67,7 +75,7 @@ func (sf *Client) ipcEventProc(msg *ipcMessage) error {
 	}()
 
 	switch msg.evt {
-	case ipcEvtRawReply:
+	case ipcEvtUpRawReply:
 		return sf.eventProc.EvtThingModelUpRawReply(sf, msg.productKey, msg.deviceName, msg.payload.([]byte))
 	case ipcEvtEventPropertyPostReply:
 		return sf.eventProc.EvtThingEventPropertyPostReply(sf, msg.err, msg.productKey, msg.deviceName)
@@ -89,6 +97,21 @@ func (sf *Client) ipcEventProc(msg *ipcMessage) error {
 		return sf.eventProc.EvtExtNtpResponse(sf, msg.productKey, msg.deviceName, msg.payload.(NtpResponsePayload))
 	case ipcEvtConfigGetReply:
 		return sf.eventProc.EvtThingConfigGetReply(sf, msg.err, msg.productKey, msg.deviceName, msg.payload.(ConfigParamsAndData))
+	case ipcEvtErrorResponse:
+		return sf.eventProc.EvtExtErrorResponse(sf, msg.payload.(*Response))
+
+	case ipcEvtDownRaw:
+		return sf.eventProc.EvtThingModelDownRaw(sf, msg.productKey, msg.deviceName, msg.payload.([]byte))
+	case ipcEvtConfigPush:
+		return sf.eventProc.EvtThingConfigPush(sf, msg.productKey, msg.deviceName, msg.payload.(ConfigParamsAndData))
+	case ipcEvtServicePropertySet:
+		return sf.eventProc.EvtThingServicePropertySet(sf, msg.productKey, msg.deviceName, msg.payload.([]byte))
+	case ipcEvtServiceRequest:
+		return sf.eventProc.EvtThingServiceRequest(sf, msg.ext, msg.productKey, msg.deviceName, msg.payload.([]byte))
+	case ipcEvtRRPCRequest:
+		return sf.eventProc.EvtRRPCRequest(sf, msg.ext, msg.productKey, msg.deviceName, msg.payload.([]byte))
+	case ipcEvtExtRRPCRequest:
+		return sf.eventProc.EvtExtRRPCRequest(sf, msg.ext, msg.payload.([]byte))
 	}
 
 	return errors.New("not support ipc event type")

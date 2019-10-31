@@ -62,32 +62,33 @@ func (NopEvt) EvtThingConfigGetReply(c *Client, err error, productKey, deviceNam
 	return nil
 }
 
-// DownstreamExtErrorResponse see interface EventProc
-func (NopEvt) DownstreamExtErrorResponse(c *Client, rsp *Response) error {
+// EvtExtErrorResponse see interface EventProc
+func (NopEvt) EvtExtErrorResponse(c *Client, rsp *Response) error {
 	return nil
 }
 
-// DownstreamThingModelDownRaw see interface EventProc
-func (NopEvt) DownstreamThingModelDownRaw(c *Client, productKey, deviceName string, payload []byte) error {
+// EvtThingModelDownRaw see interface EventProc
+func (NopEvt) EvtThingModelDownRaw(c *Client, productKey, deviceName string, payload []byte) error {
 	return nil
 }
 
-// DownstreamThingConfigPush see interface EventProc
-func (NopEvt) DownstreamThingConfigPush(c *Client, rsp *ConfigPushRequest) error {
+// EvtThingConfigPush see interface EventProc
+func (NopEvt) EvtThingConfigPush(c *Client, productKey, deviceName string, data ConfigParamsAndData) error {
 	return nil
 }
 
-// DownstreamThingServicePropertySet see interface EventProc
-func (NopEvt) DownstreamThingServicePropertySet(c *Client, topic string, payload []byte) error {
+// EvtThingServicePropertySet see interface EventProc
+func (NopEvt) EvtThingServicePropertySet(c *Client, productKey, deviceName string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return nil
 	}
-	return c.SendResponse(URIServiceReplyWithRequestURI(topic), rsp.ID, CodeSuccess, "{}")
+	return c.SendResponse(c.URIService(URISysPrefix, URIThingServicePropertySet, productKey, deviceName),
+		rsp.ID, CodeSuccess, "{}")
 }
 
-// DownstreamThingServiceRequest see interface EventProc
-func (NopEvt) DownstreamThingServiceRequest(c *Client, productKey, deviceName, srvID string, payload []byte) error {
+// EvtThingServiceRequest see interface EventProc
+func (NopEvt) EvtThingServiceRequest(c *Client, srvID, productKey, deviceName string, payload []byte) error {
 	rsp := Response{}
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return nil
@@ -97,13 +98,13 @@ func (NopEvt) DownstreamThingServiceRequest(c *Client, productKey, deviceName, s
 		rsp.ID, CodeSuccess, "{}")
 }
 
-// DownStreamRRPCRequest see interface EventProc
-func (NopEvt) DownStreamRRPCRequest(c *Client, productKey, deviceName, messageID string, payload []byte) error {
+// EvtRRPCRequest see interface EventProc
+func (NopEvt) EvtRRPCRequest(c *Client, messageID, productKey, deviceName string, payload []byte) error {
 	return c.Publish(c.URIService(URISysPrefix, URIRRPCResponse, productKey, deviceName, messageID),
 		0, `{"note":"default system RRPC implementation"}`)
 }
 
-// DownStreamExtRRPCRequest see interface EventProc
-func (NopEvt) DownStreamExtRRPCRequest(c *Client, rawURI string, payload []byte) error {
+// EvtExtRRPCRequest see interface EventProc
+func (NopEvt) EvtExtRRPCRequest(c *Client, rawURI string, payload []byte) error {
 	return c.Publish(rawURI, 0, "default ext RRPC implementation")
 }
