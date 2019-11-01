@@ -291,12 +291,15 @@ func (sf *Client) AlinkRequest(msgType MsgType, devID int) error {
 //  - MsgTypeDsltemplateGet
 //  - MsgTypeConfigGet
 func (sf *Client) AlinkQuery(msgType MsgType, devID int, _ ...interface{}) error {
+	if devID < 0 {
+		return ErrInvalidParameter
+	}
+
 	switch msgType {
 	case MsgTypeDsltemplateGet:
 		return sf.UpstreamThingDsltemplateGet(devID)
 	case MsgTypeDynamictslGet:
-		// TODO: BUG
-		return sf.UpstreamThingDynamictslGet()
+		return sf.upstreamThingDynamictslGet(devID)
 	case MsgTypeExtNtpRequest:
 		if !sf.cfg.hasNTP || sf.cfg.hasRawModel {
 			return ErrNotSupportFeature

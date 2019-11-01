@@ -195,13 +195,20 @@ func (sf *Client) UpstreamThingDsltemplateGet(devID int) error {
 	return nil
 }
 
-// UpstreamThingDynamictslGet 获取
-// TODO: 不使用??
-func (sf *Client) UpstreamThingDynamictslGet() error {
-	id := sf.RequestID()
-	err := sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingDynamicTslGet), id,
-		methodDynamicTslGet, `{"nodes":["type","identifier"],"addDefault":false}`)
+// upstreamThingDynamictslGet 获取动态tsl
+func (sf *Client) upstreamThingDynamictslGet(devID int) error {
+	if devID < 0 {
+		return ErrInvalidParameter
+	}
+
+	node, err := sf.SearchNodeByID(devID)
 	if err != nil {
+		return err
+	}
+
+	id := sf.RequestID()
+	if err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingDynamicTslGet, node.ProductKey(), node.DeviceName()), id,
+		methodDynamicTslGet, `{"nodes":["type","identifier"],"addDefault":false}`); err != nil {
 		return err
 	}
 	sf.CacheInsert(id, DevNodeLocal, MsgTypeDynamictslGet, methodDynamicTslGet)

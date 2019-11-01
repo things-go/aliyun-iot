@@ -244,7 +244,10 @@ func ProcThingDsltemplateGetReply(c *Client, rawURI string, payload []byte) erro
 }
 
 // ProcThingDynamictslGetReply 处理
-// TODO: 不使用??
+// 上行
+// request: /sys/${YourProductKey}/${YourDeviceName}/thing/dynamicTsl/get
+// response: /sys/${YourProductKey}/${YourDeviceName}/thing/dynamicTsl/get_reply
+// subscribe: /sys/${YourProductKey}/${YourDeviceName}/thing/dynamicTsl/get_reply
 func ProcThingDynamictslGetReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (c.cfg.uriOffset + 6) {
@@ -255,6 +258,8 @@ func ProcThingDynamictslGetReply(c *Client, rawURI string, payload []byte) error
 	if err != nil {
 		return err
 	}
+
+	c.CacheRemove(rsp.ID)
 	c.debug("downstream thing <dynamic tsl>: get reply,@%d - %+v", rsp.ID, rsp)
 	if rsp.Code != CodeSuccess {
 		err = NewCodeError(rsp.Code, rsp.Message)

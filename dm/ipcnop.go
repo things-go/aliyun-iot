@@ -116,24 +116,32 @@ func (NopGwEvt) EvtThingTopoGetReply(c *Client, err error, list []GwTopoGetData)
 	return nil
 }
 
+// EvtThingListFoundReply see interface EventGwProc
 func (NopGwEvt) EvtThingListFoundReply(c *Client, err error) error {
 	return nil
 }
 
+// EvtThingTopoAddNotify see interface EventGwProc
 func (NopGwEvt) EvtThingTopoAddNotify(c *Client, list []GwTopoAddNotifyParams) error {
 	return nil
 }
 
+// EvtThingTopoChange see interface EventGwProc
 func (NopGwEvt) EvtThingTopoChange(c *Client, params GwTopoChangeParams) error {
 	return nil
 }
 
+// EvtThingDisable see interface EventGwProc
 func (NopGwEvt) EvtThingDisable(c *Client, productKey, deviceName string) error {
 	return nil
 }
+
+// EvtThingEnable see interface EventGwProc
 func (NopGwEvt) EvtThingEnable(c *Client, productKey, deviceName string) error {
 	return nil
 }
+
+// EvtThingDelete see interface EventGwProc
 func (NopGwEvt) EvtThingDelete(c *Client, productKey, deviceName string) error {
 	return nil
 }
