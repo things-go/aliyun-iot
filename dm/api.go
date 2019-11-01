@@ -119,12 +119,13 @@ func (sf *Client) SetConn(conn Conn) *Client {
 	return sf
 }
 
-// SetEventProc 设置设备用户处理回调
+// SetEventProc 设置事件处理接品
 func (sf *Client) SetEventProc(proc EventProc) *Client {
 	sf.eventProc = proc
 	return sf
 }
 
+// SetEventGwProc 设备网关事件接口
 func (sf *Client) SetEventGwProc(proc EventGwProc) *Client {
 	sf.eventGwProc = proc
 	return sf
@@ -297,7 +298,7 @@ func (sf *Client) AlinkQuery(msgType MsgType, devID int, _ ...interface{}) error
 
 	switch msgType {
 	case MsgTypeDsltemplateGet:
-		return sf.UpstreamThingDsltemplateGet(devID)
+		return sf.upstreamThingDsltemplateGet(devID)
 	case MsgTypeDynamictslGet:
 		return sf.upstreamThingDynamictslGet(devID)
 	case MsgTypeExtNtpRequest:
@@ -325,5 +326,5 @@ func (sf *Client) AlinkQuery(msgType MsgType, devID int, _ ...interface{}) error
 
 // AlinkTriggerEvent 事件上报
 func (sf *Client) AlinkTriggerEvent(devID int, eventID string, payload interface{}) error {
-	return sf.UpstreamThingEventPost(devID, eventID, payload)
+	return sf.upstreamThingEventPost(devID, eventID, payload)
 }

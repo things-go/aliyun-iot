@@ -185,3 +185,8 @@ func NewCodeError(code int, message string) error {
 func (sf *CodeError) Error() string {
 	return fmt.Sprintf("code: %d - message: %s", sf.code, sf.message)
 }
+
+// Code unwrap then got code
+func (sf *CodeError) Code() int {
+	return sf.code
+}

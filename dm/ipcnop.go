@@ -68,11 +68,6 @@ func (NopEvt) EvtThingConfigGetReply(*Client, error, string, string, ConfigParam
 	return nil
 }
 
-// EvtExtErrorResponse see interface EventProc
-func (NopEvt) EvtExtErrorResponse(*Client, *Response) error {
-	return nil
-}
-
 // EvtThingModelDownRaw see interface EventProc
 func (NopEvt) EvtThingModelDownRaw(*Client, string, string, []byte) error {
 	return nil
@@ -110,6 +105,11 @@ func (NopEvt) EvtExtRRPCRequest(*Client, string, string, []byte) error {
 /******************************** event gateway proc ************************************************************/
 // NopGwEvt 实现EventGwProc接口的空实现
 type NopGwEvt struct{}
+
+// EvtExtErrorResponse see interface NopGwEvt
+func (NopGwEvt) EvtExtErrorResponse(*Client, error, string, string) error {
+	return nil
+}
 
 // EvtThingTopoGetReply see interface EventGwProc
 func (NopGwEvt) EvtThingTopoGetReply(c *Client, err error, list []GwTopoGetData) error {

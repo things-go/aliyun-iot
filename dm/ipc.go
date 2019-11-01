@@ -118,7 +118,19 @@ func (sf *Client) ipcEventProc(msg *ipcMessage) error {
 	case ipcEvtConfigGetReply:
 		return sf.eventProc.EvtThingConfigGetReply(sf, msg.err, msg.productKey, msg.deviceName, msg.payload.(ConfigParamsAndData))
 	case ipcEvtErrorResponse:
-		return sf.eventProc.EvtExtErrorResponse(sf, msg.payload.(*Response))
+		err := msg.err.(*CodeError)
+		data := msg.payload.(ExtErrorData)
+		sf.debug("ext evt error response, %+v", err)
+
+		code := err.Code()
+		if code == CodeSubDevSessionError {
+			node, err := sf.SearchNodeByPkDn(data.ProductKey, data.DeviceName)
+			if err != nil {
+				return err
+			}
+			_, _ = sf.upstreamExtGwSubDevCombineLogin(node.ID())
+		}
+		return sf.eventGwProc.EvtExtErrorResponse(sf, err, data.ProductKey, data.DeviceName)
 
 		// 下行
 	case ipcEvtDownRaw:

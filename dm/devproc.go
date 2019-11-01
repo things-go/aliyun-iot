@@ -326,22 +326,6 @@ func ProcThingConfigGetReply(c *Client, rawURI string, payload []byte) error {
 	})
 }
 
-// ProcExtErrorResponse 处理错误的回复
-func ProcExtErrorResponse(c *Client, _ string, payload []byte) error {
-	rsp := Response{}
-	if err := json.Unmarshal(payload, &rsp); err != nil {
-		return err
-	}
-	// TODO: 处理这个ERROR
-	c.CacheRemove(rsp.ID)
-	c.debug("downstream extend <Error>: response,@%d", rsp.ID)
-	return c.ipcSendMessage(&ipcMessage{
-		err:     nil,
-		evt:     ipcEvtErrorResponse,
-		payload: &rsp,
-	})
-}
-
 // ProcThingModelDownRaw 处理透传下行数据
 // 下行
 // request: /sys/{productKey}/{deviceName}/thing/model/down_raw

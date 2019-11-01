@@ -48,8 +48,8 @@ func (sf *Client) upstreamThingEventPropertyPost(devID int, params interface{}) 
 	return nil
 }
 
-// UpstreamThingEventPost 事件上传
-func (sf *Client) UpstreamThingEventPost(devID int, eventID string, params interface{}) error {
+// upstreamThingEventPost 事件上传
+func (sf *Client) upstreamThingEventPost(devID int, eventID string, params interface{}) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
@@ -172,9 +172,9 @@ func (sf *Client) upstreamThingDesiredPropertyDelete(devID int, params interface
 	return nil
 }
 
-// UpstreamThingDsltemplateGet 设备可以通过上行请求获取设备的TSL模板（包含属性、服务和事件的定义）
+// upstreamThingDsltemplateGet 设备可以通过上行请求获取设备的TSL模板（包含属性、服务和事件的定义）
 // see https://help.aliyun.com/document_detail/89305.html?spm=a2c4g.11186623.6.672.5d3d70374hpPcx
-func (sf *Client) UpstreamThingDsltemplateGet(devID int) error {
+func (sf *Client) upstreamThingDsltemplateGet(devID int) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}

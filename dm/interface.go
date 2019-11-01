@@ -32,7 +32,6 @@ type EventProc interface {
 	EvtThingDynamictslGetReply(c *Client, err error, productKey, deviceName string, data json.RawMessage) error
 	EvtExtNtpResponse(c *Client, productKey, deviceName string, payload NtpResponsePayload) error
 	EvtThingConfigGetReply(c *Client, err error, productKey, deviceName string, data ConfigParamsAndData) error
-	EvtExtErrorResponse(c *Client, rsp *Response) error
 	// 下行
 	// 透传请求,需要用户自己处理及应答
 	EvtThingModelDownRaw(c *Client, productKey, deviceName string, payload []byte) error
@@ -48,7 +47,10 @@ type EventProc interface {
 	EvtExtRRPCRequest(c *Client, messageID, topic string, payload []byte) error
 }
 
+// EventGwProc 网关事件接口
 type EventGwProc interface {
+	// 520错误已做自动登陆回复
+	EvtExtErrorResponse(c *Client, err error, productKey, deviceName string) error
 	EvtThingTopoGetReply(c *Client, err error, params []GwTopoGetData) error
 	EvtThingListFoundReply(c *Client, err error) error
 	EvtThingTopoAddNotify(c *Client, params []GwTopoAddNotifyParams) error
