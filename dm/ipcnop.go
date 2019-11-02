@@ -8,6 +8,9 @@ import (
 // NopEvt 实现EventProc接口的空实现
 type NopEvt struct{}
 
+// 确保 NopEvt 实现 EventProc 接口
+var _ EventProc = (*NopEvt)(nil)
+
 // EvtThingModelUpRawReply see interface EventProc
 func (NopEvt) EvtThingModelUpRawReply(*Client, string, string, []byte) error {
 	return nil
@@ -106,7 +109,10 @@ func (NopEvt) EvtExtRRPCRequest(*Client, string, string, []byte) error {
 // NopGwEvt 实现EventGwProc接口的空实现
 type NopGwEvt struct{}
 
-// EvtExtErrorResponse see interface NopGwEvt
+// 确保 NopGwEvt 实现 EventGwProc 接口
+var _ EventGwProc = (*NopGwEvt)(nil)
+
+// EvtExtErrorResponse see interface EventGwProc
 func (NopGwEvt) EvtExtErrorResponse(*Client, error, string, string) error {
 	return nil
 }
