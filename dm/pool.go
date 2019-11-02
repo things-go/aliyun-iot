@@ -18,6 +18,11 @@ func newPool() *pool {
 
 func (sf *pool) Get() *MsgCacheEntry {
 	entry := sf.pl.Get().(*MsgCacheEntry)
+	return entry
+}
+
+func (sf *pool) Put(entry *MsgCacheEntry) {
+	// should clean up
 loop:
 	for {
 		select {
@@ -26,10 +31,5 @@ loop:
 			break loop
 		}
 	}
-
-	return entry
-}
-
-func (sf *pool) Put(entry *MsgCacheEntry) {
 	sf.pl.Put(entry)
 }

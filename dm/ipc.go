@@ -3,6 +3,7 @@ package dm
 import (
 	"encoding/json"
 	"errors"
+	"strconv"
 	"strings"
 )
 
@@ -44,6 +45,9 @@ const (
 	ipcThingDisable
 	ipcThingEnable
 	ipcThingDelete
+
+	// 内部,请求超时
+	ipcEvtRequestTimeout
 )
 
 type ipcMessage struct {
@@ -164,6 +168,9 @@ func (sf *Client) ipcEventProc(msg *ipcMessage) error {
 	case ipcThingDelete:
 		return sf.eventGwProc.EvtThingDelete(sf, msg.productKey, msg.deviceName)
 
+	case ipcEvtRequestTimeout:
+		devID, _ := strconv.Atoi(msg.extend)
+		return sf.eventProc.EvtRequestWaitResponseTimeout(sf, msg.payload.(MsgType), devID)
 	}
 
 	return errors.New("not support ipc event type")

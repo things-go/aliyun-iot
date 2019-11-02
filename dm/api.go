@@ -41,6 +41,10 @@ const (
 	MsgTypeReportSubDevFirmwareVersion //!< report subdev's firmware version
 )
 
+func (MsgType) String() string {
+	return ""
+}
+
 // Meta meta 信息
 type Meta struct {
 	ProductKey    string
@@ -85,8 +89,6 @@ func New(cfg *Config) *Client {
 	sf := &Client{
 		cfg:         *cfg,
 		DevMgr:      NewDevMgr(),
-		msgCache:    cache.New(cfg.cacheExpiration, cfg.cacheCleanupInterval),
-		pool:        newPool(),
 		ipc:         make(chan *ipcMessage, 1024),
 		eventProc:   NopEvt{},
 		eventGwProc: NopGwEvt{},

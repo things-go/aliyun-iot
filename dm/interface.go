@@ -45,6 +45,8 @@ type EventProc interface {
 	EvtRRPCRequest(c *Client, messageID, productKey, deviceName string, payload []byte) error
 	// 自定义RRPC调用,仅支持设备端Qos = 0的回复, 需用户自行做回复
 	EvtExtRRPCRequest(c *Client, messageID, topic string, payload []byte) error
+	// 请求等待应答超时
+	EvtRequestWaitResponseTimeout(c *Client, msgType MsgType, devID int) error
 }
 
 // EventGwProc 网关事件接口

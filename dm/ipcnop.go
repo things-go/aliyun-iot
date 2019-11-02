@@ -105,6 +105,11 @@ func (NopEvt) EvtExtRRPCRequest(*Client, string, string, []byte) error {
 	return nil
 }
 
+func (NopEvt) EvtRequestWaitResponseTimeout(c *Client, msgType MsgType, devID int) error {
+	log.Printf("%d - %s request wait response timeout", devID, msgType.String())
+	return nil
+}
+
 /******************************** event gateway proc ************************************************************/
 
 // NopGwEvt 实现EventGwProc接口的空实现

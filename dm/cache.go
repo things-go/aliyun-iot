@@ -4,6 +4,8 @@ import (
 	"strconv"
 	"sync/atomic"
 	"time"
+
+	"github.com/thinkgos/cache-go"
 )
 
 // MsgCacheEntry 消息缓存条目
@@ -17,9 +19,21 @@ type MsgCacheEntry struct {
 
 // cacheInit 缓存初始化
 func (sf *Client) cacheInit() {
+	sf.msgCache = cache.New(sf.cfg.cacheExpiration, sf.cfg.cacheCleanupInterval)
+	sf.pool = newPool()
 	sf.msgCache.OnEvicted(func(s string, v interface{}) { // 超时处理
-		sf.pool.Put(v.(*MsgCacheEntry))
-		sf.debug("cache timeout - %s", s)
+		entry := v.(*MsgCacheEntry)
+		if atomic.LoadUint32(&entry.done) == 0 {
+			if err := sf.ipcSendMessage(&ipcMessage{
+				evt:     ipcEvtRRPCRequest,
+				extend:  strconv.Itoa(entry.devID),
+				payload: entry.msgType,
+			}); err != nil {
+				sf.warn("ipc send message cache timeout failed, %+v", err)
+			}
+		}
+
+		sf.pool.Put(entry)
 	})
 	sf.msgCache.OnDeleted(func(s string, v interface{}) {
 		sf.pool.Put(v.(*MsgCacheEntry))
@@ -32,7 +46,7 @@ func (sf *Client) CacheInsert(id, devID int, msgType MsgType) {
 	entry.id = id
 	entry.devID = devID
 	entry.msgType = msgType
-
+	entry.done = 0
 	sf.msgCache.SetDefault(strconv.Itoa(id), entry)
 	sf.debug("cache insert - @%d", id)
 }
