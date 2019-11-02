@@ -50,7 +50,7 @@ func (sf *Client) upstreamGwThingTopoAdd(devID int) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	sf.CacheInsert(id, devID, MsgTypeTopoAdd, methodTopoAdd)
+	sf.CacheInsert(id, devID, MsgTypeTopoAdd)
 	sf.debug("upstream GW thing <topo>: add @%d", id)
 	return id, nil
 }
@@ -80,7 +80,7 @@ func (sf *Client) upstreamGwThingTopoDelete(devID int) (int, error) {
 		}); err != nil {
 		return 0, err
 	}
-	sf.CacheInsert(id, devID, MsgTypeTopoDelete, methodTopoDelete)
+	sf.CacheInsert(id, devID, MsgTypeTopoDelete)
 	sf.debug("upstream GW thing <topo>: delete @%d", id)
 	return id, nil
 }
@@ -104,7 +104,7 @@ func (sf *Client) upstreamGwThingTopoGet() error {
 		id, methodTopoGet, "{}"); err != nil {
 		return err
 	}
-	sf.CacheInsert(id, DevNodeLocal, MsgTypeTopoGet, methodTopoGet)
+	sf.CacheInsert(id, DevNodeLocal, MsgTypeTopoGet)
 	sf.debug("upstream GW thing <topo>: Get @%d", id)
 	return nil
 }
@@ -136,7 +136,7 @@ func (sf *Client) UpstreamGwThingListFound(devID int) error {
 		}); err != nil {
 		return err
 	}
-	sf.CacheInsert(id, DevNodeLocal, MsgTypeDevListFound, methodListFound)
+	sf.CacheInsert(id, DevNodeLocal, MsgTypeDevListFound)
 	sf.debug("upstream GW thing <list>: found @%d", id)
 	return nil
 }

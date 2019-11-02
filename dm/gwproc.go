@@ -21,11 +21,12 @@ func ProcThingTopoAddReply(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 
-	c.CacheRemove(rsp.ID)
 	if rsp.Code != CodeSuccess {
 		err = NewCodeError(rsp.Code, rsp.Message)
+
 	}
-	c.syncHub.Done(rsp.ID, err)
+
+	c.CacheDone(rsp.ID, err)
 	c.debug("downstream GW thing <topo>: add reply @%d", rsp.ID)
 	return nil
 }
@@ -46,11 +47,12 @@ func ProcThingTopoDeleteReply(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 
-	c.CacheRemove(rsp.ID)
 	if rsp.Code != CodeSuccess {
 		err = NewCodeError(rsp.Code, rsp.Message)
+
 	}
-	c.syncHub.Done(rsp.ID, err)
+
+	c.CacheDone(rsp.ID, err)
 	c.debug("downstream GW thing <topo>: delete reply @%d", rsp.ID)
 	return nil
 }
@@ -70,10 +72,14 @@ func ProcThingTopoGetReply(c *Client, rawURI string, payload []byte) error {
 	if err != nil {
 		return err
 	}
-	c.CacheRemove(rsp.ID)
+
+	var dErr error
 	if rsp.Code != CodeSuccess {
 		err = NewCodeError(rsp.Code, rsp.Message)
+		dErr = NewCodeError(rsp.Code, rsp.Message)
 	}
+
+	c.CacheDone(rsp.ID, dErr)
 	c.debug("downstream GW thing <topo>: get reply @%d", rsp.ID)
 	return c.ipcSendMessage(&ipcMessage{
 		err:     err,
@@ -99,10 +105,13 @@ func ProcThingListFoundReply(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 
-	c.CacheRemove(rsp.ID)
+	var dErr error
 	if rsp.Code != CodeSuccess {
 		err = NewCodeError(rsp.Code, rsp.Message)
+		dErr = NewCodeError(rsp.Code, rsp.Message)
 	}
+
+	c.CacheDone(rsp.ID, dErr)
 	c.debug("downstream GW thing <list>: found reply @%d", rsp.ID)
 	return c.ipcSendMessage(&ipcMessage{
 		err: err,
@@ -213,9 +222,9 @@ func ProcThingSubDevRegisterReply(c *Client, rawURI string, payload []byte) erro
 		return err
 	}
 
-	c.CacheRemove(rsp.ID)
 	if rsp.Code != CodeSuccess {
 		err = NewCodeError(rsp.Code, rsp.Message)
+
 	} else {
 		for _, v := range rsp.Data {
 			if er := c.SetDeviceSecretByPkDn(v.ProductKey, v.DeviceName, v.DeviceSecret); er != nil {
@@ -224,7 +233,8 @@ func ProcThingSubDevRegisterReply(c *Client, rawURI string, payload []byte) erro
 			}
 		}
 	}
-	c.syncHub.Done(rsp.ID, err)
+
+	c.CacheDone(rsp.ID, err)
 	c.debug("downstream GW thing <sub>: register reply @%d", rsp.ID)
 	return nil
 }
@@ -246,11 +256,10 @@ func ProcExtSubDevCombineLoginReply(c *Client, rawURI string, payload []byte) er
 		return err
 	}
 
-	c.CacheRemove(rsp.ID)
 	if rsp.Code != CodeSuccess {
 		err = NewCodeError(rsp.Code, rsp.Message)
 	}
-	c.syncHub.Done(rsp.ID, err)
+	c.CacheDone(rsp.ID, err)
 	c.debug("downstream Ext GW <sub>: login reply @%d", rsp.ID)
 	return nil
 }
@@ -271,11 +280,10 @@ func ProcExtSubDevCombineLogoutReply(c *Client, rawURI string, payload []byte) e
 	if err != nil {
 		return err
 	}
-	c.CacheRemove(rsp.ID)
 	if rsp.Code != CodeSuccess {
 		err = NewCodeError(rsp.Code, rsp.Message)
 	}
-	c.syncHub.Done(rsp.ID, err)
+	c.CacheDone(rsp.ID, err)
 	c.debug("downstream Ext GW <sub>: logout reply @%d", rsp.ID)
 	return nil
 }

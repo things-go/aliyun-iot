@@ -28,7 +28,6 @@ type Config struct {
 
 	cacheExpiration      time.Duration
 	cacheCleanupInterval time.Duration
-	hasCache             bool
 
 	hasNTP      bool
 	hasRawModel bool
@@ -60,12 +59,6 @@ func (sf *Config) Valid() *Config {
 // MetaInfo 获取设备mata info
 func (sf *Config) MetaInfo() (productKey, deviceName, deviceSecret string) {
 	return sf.productKey, sf.deviceName, sf.deviceSecret
-}
-
-// SetEnableCache 使能消息缓存
-func (sf *Config) SetEnableCache(enable bool) *Config {
-	sf.hasCache = enable
-	return sf
 }
 
 // SetCacheTimeout 设备消息缓存超时时间

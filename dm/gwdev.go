@@ -52,7 +52,7 @@ func (sf *Client) upstreamThingGwSubDevRegister(devID int) (int, error) {
 		return 0, err
 	}
 
-	sf.CacheInsert(id, devID, MsgTypeSubDevRegister, methodSubDevRegister)
+	sf.CacheInsert(id, devID, MsgTypeSubDevRegister)
 	sf.debug("upstream thing GW <sub>: register @%d", id)
 	return id, nil
 }
@@ -114,7 +114,7 @@ func (sf *Client) upstreamExtGwSubDevCombineLogin(devID int) (int, error) {
 		return 0, err
 	}
 
-	sf.CacheInsert(id, devID, MsgTypeSubDevLogin, methodSubDevLogin)
+	sf.CacheInsert(id, devID, MsgTypeSubDevLogin)
 	sf.debug("upstream Ext GW <sub>: login @%d", id)
 	return id, nil
 }
@@ -160,7 +160,7 @@ func (sf *Client) upstreamExtGwSubDevCombineLogout(devID int) (int, error) {
 		0, req); err != nil {
 		return 0, err
 	}
-	sf.CacheInsert(id, devID, MsgTypeSubDevLogin, methodSubDevLogout)
+	sf.CacheInsert(id, devID, MsgTypeSubDevLogin)
 	sf.debug("upstream Ext GW <sub>: logout @%d", id)
 	return id, nil
 }
@@ -191,10 +191,12 @@ func ProcExtErrorResponse(c *Client, rawURI string, payload []byte) error {
 	if err != nil {
 		return err
 	}
-	c.CacheRemove(rsp.ID)
+	var dErr error
 	if rsp.Code != CodeSuccess {
 		err = NewCodeError(rsp.Code, rsp.Message)
+		dErr = NewCodeError(rsp.Code, rsp.Message)
 	}
+	c.CacheDone(rsp.ID, dErr)
 	c.debug("downstream extend <Error>: response,@%d", rsp.ID)
 	return c.ipcSendMessage(&ipcMessage{
 		err:     err,

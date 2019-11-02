@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"sync/atomic"
-	"time"
 
 	"github.com/thinkgos/cache-go"
 )
@@ -73,7 +72,6 @@ type Client struct {
 	cfg Config
 
 	*DevMgr
-	syncHub  *SyncHub
 	msgCache *cache.Cache
 	pool     *pool
 	Conn
@@ -87,15 +85,13 @@ func New(cfg *Config) *Client {
 	sf := &Client{
 		cfg:         *cfg,
 		DevMgr:      NewDevMgr(),
-		syncHub:     NewSyncHub(),
+		msgCache:    cache.New(cfg.cacheExpiration, cfg.cacheCleanupInterval),
+		pool:        newPool(),
 		ipc:         make(chan *ipcMessage, 1024),
 		eventProc:   NopEvt{},
 		eventGwProc: NopGwEvt{},
 	}
-	if cfg.hasCache {
-		sf.pool = newPool()
-		sf.msgCache = cache.New(time.Second*10, time.Second*30)
-	}
+
 	sf.cacheInit()
 	err := sf.insert(DevNodeLocal, DevTypeSingle, cfg.productKey, cfg.deviceName, cfg.deviceSecret)
 	if err != nil {

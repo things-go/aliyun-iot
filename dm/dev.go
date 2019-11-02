@@ -43,7 +43,7 @@ func (sf *Client) upstreamThingEventPropertyPost(devID int, params interface{}) 
 		return err
 	}
 
-	sf.CacheInsert(id, devID, MsgTypeEventPropertyPost, "property")
+	sf.CacheInsert(id, devID, MsgTypeEventPropertyPost)
 	sf.debug("upstream thing <event>: property post,@%d", id)
 	return nil
 }
@@ -65,7 +65,7 @@ func (sf *Client) upstreamThingEventPost(devID int, eventID string, params inter
 	if err != nil {
 		return err
 	}
-	sf.CacheInsert(id, devID, MsgTypeEventPost, method)
+	sf.CacheInsert(id, devID, MsgTypeEventPost)
 	sf.debug("upstream thing <event>: %s post,@%d", eventID, id)
 	return nil
 }
@@ -78,7 +78,7 @@ func (sf *Client) upstreamThingEventPropertyPackPost(params interface{}) error {
 		return err
 	}
 
-	sf.CacheInsert(id, DevNodeLocal, MsgTypeEventPropertyPackPost, methodEventPropertyPackPost)
+	sf.CacheInsert(id, DevNodeLocal, MsgTypeEventPropertyPackPost)
 	sf.debug("upstream thing <deviceInfo>: update,@%d", id)
 	return nil
 }
@@ -101,7 +101,7 @@ func (sf *Client) upstreamThingDeviceInfoUpdate(devID int, params interface{}) e
 		return err
 	}
 
-	sf.CacheInsert(id, devID, MsgTypeDeviceInfoUpdate, methodDeviceInfoUpdate)
+	sf.CacheInsert(id, devID, MsgTypeDeviceInfoUpdate)
 	sf.debug("upstream thing <deviceInfo>: update,@%d", id)
 	return nil
 }
@@ -123,7 +123,7 @@ func (sf *Client) upstreamThingDeviceInfoDelete(devID int, params interface{}) e
 	if err != nil {
 		return err
 	}
-	sf.CacheInsert(id, devID, MsgTypeDeviceInfoDelete, methodDeviceInfoDelete)
+	sf.CacheInsert(id, devID, MsgTypeDeviceInfoDelete)
 	sf.debug("upstream thing <deviceInfo>: delete,@%d", id)
 	return nil
 }
@@ -145,7 +145,7 @@ func (sf *Client) upstreamThingDesiredPropertyGet(devID int, params interface{})
 	if err != nil {
 		return err
 	}
-	sf.CacheInsert(id, devID, MsgTypeDesiredPropertyGet, methodDesiredPropertyGet)
+	sf.CacheInsert(id, devID, MsgTypeDesiredPropertyGet)
 	sf.debug("upstream thing <desired>: property get,@%d", id)
 	return nil
 }
@@ -167,7 +167,7 @@ func (sf *Client) upstreamThingDesiredPropertyDelete(devID int, params interface
 	if err != nil {
 		return err
 	}
-	sf.CacheInsert(id, devID, MsgTypeDesiredPropertyDelete, methodDesiredPropertyDelete)
+	sf.CacheInsert(id, devID, MsgTypeDesiredPropertyDelete)
 	sf.debug("upstream thing <desired>: property delete,@%d", id)
 	return nil
 }
@@ -190,7 +190,7 @@ func (sf *Client) upstreamThingDsltemplateGet(devID int) error {
 		return err
 	}
 
-	sf.CacheInsert(id, devID, MsgTypeDsltemplateGet, methodDslTemplateGet)
+	sf.CacheInsert(id, devID, MsgTypeDsltemplateGet)
 	sf.debug("upstream thing <dsl template>: get,@%d", id)
 	return nil
 }
@@ -211,7 +211,7 @@ func (sf *Client) upstreamThingDynamictslGet(devID int) error {
 		methodDynamicTslGet, `{"nodes":["type","identifier"],"addDefault":false}`); err != nil {
 		return err
 	}
-	sf.CacheInsert(id, DevNodeLocal, MsgTypeDynamictslGet, methodDynamicTslGet)
+	sf.CacheInsert(id, DevNodeLocal, MsgTypeDynamictslGet)
 	sf.debug("upstream thing <dynamic tsl>: get,@%d", id)
 	return nil
 }
@@ -280,7 +280,7 @@ func (sf *Client) upstreamThingConfigGet(devID int) error {
 		id, methodConfigGet, `{"configScope":"product","getType":"file"}`); err != nil {
 		return err
 	}
-	sf.CacheInsert(id, devID, MsgTypeConfigGet, methodConfigGet)
+	sf.CacheInsert(id, devID, MsgTypeConfigGet)
 	sf.debug("upstream thing <config>: get,@%d", id)
 	return nil
 }

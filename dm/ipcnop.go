@@ -106,6 +106,7 @@ func (NopEvt) EvtExtRRPCRequest(*Client, string, string, []byte) error {
 }
 
 /******************************** event gateway proc ************************************************************/
+
 // NopGwEvt 实现EventGwProc接口的空实现
 type NopGwEvt struct{}
 

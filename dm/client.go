@@ -231,7 +231,7 @@ func (sf *Client) linKitGwSubDevRegister(devID int) error {
 	if err != nil {
 		return err
 	}
-	if err = sf.syncHub.Wait(id); err != nil {
+	if err = sf.CacheWait(id); err != nil {
 		return err
 	}
 	_ = sf.SetDevStatusByID(devID, DevStatusRegistered)
@@ -243,7 +243,7 @@ func (sf *Client) linkKitGwSubDevTopoAdd(devID int) error {
 	if err != nil {
 		return err
 	}
-	if err = sf.syncHub.Wait(id); err != nil {
+	if err = sf.CacheWait(id); err != nil {
 		return err
 	}
 	_ = sf.SetDevStatusByID(devID, DevStatusAttached)
@@ -257,7 +257,7 @@ func (sf *Client) linkKitGwSubDevTopoDelete(devID int) error {
 		return err
 	}
 
-	if err = sf.syncHub.Wait(id); err != nil {
+	if err = sf.CacheWait(id); err != nil {
 		return err
 	}
 	_ = sf.SetDevStatusByID(devID, DevStatusRegistered)
@@ -270,7 +270,7 @@ func (sf *Client) linkKitGwSubDevCombineLogin(devID int) error {
 		return err
 	}
 
-	if err = sf.syncHub.Wait(id); err != nil {
+	if err = sf.CacheWait(id); err != nil {
 		return err
 	}
 	_ = sf.SetDevStatusByID(devID, DevStatusLogined)
@@ -282,7 +282,7 @@ func (sf *Client) linkKitGwSubDevCombineLogout(devID int) error {
 	if err != nil {
 		return err
 	}
-	if err = sf.syncHub.Wait(id); err != nil {
+	if err = sf.CacheWait(id); err != nil {
 		return err
 	}
 	_ = sf.SetDevStatusByID(devID, DevStatusAttached)
