@@ -10,29 +10,28 @@ import (
 
 // MsgCacheEntry 消息缓存条目
 type MsgCacheEntry struct {
-	msgType MsgType // 消息类型
-	id      int
-	devID   int // 设备id
-	err     chan error
-	done    uint32
+	msgType MsgType    // 消息类型
+	devID   int        // 设备id
+	err     chan error // 用于wait通道
+	done    uint32     // 表示消息接收到应答
 }
 
 // cacheInit 缓存初始化
 func (sf *Client) cacheInit() {
 	sf.msgCache = cache.New(sf.cfg.cacheExpiration, sf.cfg.cacheCleanupInterval)
 	sf.pool = newPool()
-	sf.msgCache.OnEvicted(func(s string, v interface{}) { // 超时处理
+	sf.msgCache.OnEvicted(func(id string, v interface{}) { // 超时处理
 		entry := v.(*MsgCacheEntry)
 		if atomic.LoadUint32(&entry.done) == 0 {
 			if err := sf.ipcSendMessage(&ipcMessage{
-				evt:     ipcEvtRRPCRequest,
+				evt:     ipcEvtRequestTimeout,
 				extend:  strconv.Itoa(entry.devID),
 				payload: entry.msgType,
 			}); err != nil {
 				sf.warn("ipc send message cache timeout failed, %+v", err)
 			}
 		}
-
+		sf.debug("cache evicted - @%s", id)
 		sf.pool.Put(entry)
 	})
 	sf.msgCache.OnDeleted(func(s string, v interface{}) {
@@ -43,7 +42,6 @@ func (sf *Client) cacheInit() {
 // CacheInsert 缓存插入指定ID
 func (sf *Client) CacheInsert(id, devID int, msgType MsgType) {
 	entry := sf.pool.Get()
-	entry.id = id
 	entry.devID = devID
 	entry.msgType = msgType
 	entry.done = 0
@@ -75,6 +73,7 @@ func (sf *Client) CacheWait(id int, t ...time.Duration) error {
 
 	tk := time.NewTicker(tm)
 	defer tk.Stop()
+	sf.debug("cache wait - @%d", id)
 	select {
 	case v := <-entry.err:
 		return v
@@ -89,10 +88,12 @@ func (sf *Client) CacheDone(id int, err error) {
 	if !ok {
 		return
 	}
+
+	sf.debug("cache done - @%d", id)
 	entry := v.(*MsgCacheEntry)
+	atomic.StoreUint32(&entry.done, 1)
 	select {
 	case entry.err <- err:
-		atomic.StoreUint32(&entry.done, 1)
 	default:
 	}
 }

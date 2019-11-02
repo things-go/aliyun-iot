@@ -42,7 +42,7 @@ const (
 )
 
 func (MsgType) String() string {
-	return ""
+	return "TODO: msg type"
 }
 
 // Meta meta 信息
