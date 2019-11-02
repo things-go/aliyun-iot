@@ -47,14 +47,11 @@ func ProcThingEventPostReply(c *Client, rawURI string, payload []byte) error {
 
 	eventID := uris[c.cfg.uriOffset+5]
 	c.debug("downstream thing <event>: %s post reply,@%d", eventID, rsp.ID)
-
-	var dErr error
 	if rsp.Code != CodeSuccess {
 		err = NewCodeError(rsp.Code, rsp.Message)
-		dErr = NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.CacheDone(rsp.ID, dErr)
+	c.CacheDone(rsp.ID, err)
 	if eventID == "property" {
 		return c.ipcSendMessage(&ipcMessage{
 			err:        err,
@@ -89,13 +86,11 @@ func ProcThingEventPropertyPackPostReply(c *Client, rawURI string, payload []byt
 	}
 
 	c.debug("downstream thing <event>: property pack post reply,@%d", rsp.ID)
-	var dErr error
 	if rsp.Code != CodeSuccess {
 		err = NewCodeError(rsp.Code, rsp.Message)
-		dErr = NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.CacheDone(rsp.ID, dErr)
+	c.CacheDone(rsp.ID, err)
 	return c.ipcSendMessage(&ipcMessage{
 		err:        err,
 		evt:        ipcEvtEventPropertyPostReply,
@@ -121,14 +116,11 @@ func ProcThingDeviceInfoUpdateReply(c *Client, rawURI string, payload []byte) er
 	}
 
 	c.debug("downstream thing <deviceInfo>: update reply,@%d", rsp.ID)
-
-	var dErr error
 	if rsp.Code != CodeSuccess {
 		err = NewCodeError(rsp.Code, rsp.Message)
-		dErr = NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.CacheDone(rsp.ID, dErr)
+	c.CacheDone(rsp.ID, err)
 
 	return c.ipcSendMessage(&ipcMessage{
 		err:        err,
@@ -156,13 +148,11 @@ func ProcThingDeviceInfoDeleteReply(c *Client, rawURI string, payload []byte) er
 	}
 
 	c.debug("downstream thing <deviceInfo>: delete reply,@%d", rsp.ID)
-	var dErr error
 	if rsp.Code != CodeSuccess {
 		err = NewCodeError(rsp.Code, rsp.Message)
-		dErr = NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.CacheDone(rsp.ID, dErr)
+	c.CacheDone(rsp.ID, err)
 	return c.ipcSendMessage(&ipcMessage{
 		err:        err,
 		evt:        ipcEvtDeviceInfoUpdateReply,
@@ -188,13 +178,11 @@ func ProcThingDesiredPropertyGetReply(c *Client, rawURI string, payload []byte) 
 	}
 
 	c.debug("downstream thing <desired>: property get reply,@%d", rsp.ID)
-	var dErr error
 	if rsp.Code != CodeSuccess {
 		err = NewCodeError(rsp.Code, rsp.Message)
-		dErr = NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.CacheDone(rsp.ID, dErr)
+	c.CacheDone(rsp.ID, err)
 	return c.ipcSendMessage(&ipcMessage{
 		err:        err,
 		evt:        ipcEvtDesiredPropertyGetReply,
@@ -221,13 +209,11 @@ func ProcThingDesiredPropertyDeleteReply(c *Client, rawURI string, payload []byt
 	}
 
 	c.debug("downstream thing <desired>: property delete reply,@%d", rsp.ID)
-	var dErr error
 	if rsp.Code != CodeSuccess {
 		err = NewCodeError(rsp.Code, rsp.Message)
-		dErr = NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.CacheDone(rsp.ID, dErr)
+	c.CacheDone(rsp.ID, err)
 	return c.ipcSendMessage(&ipcMessage{
 		err:        err,
 		evt:        ipcEvtDesiredPropertyDeleteReply,
@@ -253,13 +239,11 @@ func ProcThingDsltemplateGetReply(c *Client, rawURI string, payload []byte) erro
 	}
 
 	c.debug("downstream thing <dsl template>: get reply,@%d - %s", rsp.ID, string(rsp.Data))
-	var dErr error
 	if rsp.Code != CodeSuccess {
 		err = NewCodeError(rsp.Code, rsp.Message)
-		dErr = NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.CacheDone(rsp.ID, dErr)
+	c.CacheDone(rsp.ID, err)
 	return c.ipcSendMessage(&ipcMessage{
 		err:        err,
 		evt:        ipcEvtDsltemplateGetReply,
@@ -286,13 +270,11 @@ func ProcThingDynamictslGetReply(c *Client, rawURI string, payload []byte) error
 	}
 
 	c.debug("downstream thing <dynamic tsl>: get reply,@%d - %+v", rsp.ID, rsp)
-	var dErr error
 	if rsp.Code != CodeSuccess {
 		err = NewCodeError(rsp.Code, rsp.Message)
-		dErr = NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.CacheDone(rsp.ID, dErr)
+	c.CacheDone(rsp.ID, err)
 	return c.ipcSendMessage(&ipcMessage{
 		err:        err,
 		evt:        ipcEvtDynamictslGetReply,
@@ -343,13 +325,11 @@ func ProcThingConfigGetReply(c *Client, rawURI string, payload []byte) error {
 	}
 
 	c.debug("downstream thing <config>: get reply,@%d,payload@%+v", rsp.ID, rsp)
-	var dErr error
 	if rsp.Code != CodeSuccess {
 		err = NewCodeError(rsp.Code, rsp.Message)
-		dErr = NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.CacheDone(rsp.ID, dErr)
+	c.CacheDone(rsp.ID, err)
 	return c.ipcSendMessage(&ipcMessage{
 		err:        err,
 		evt:        ipcEvtConfigGetReply,

@@ -23,7 +23,10 @@ func ProcThingTopoAddReply(c *Client, rawURI string, payload []byte) error {
 
 	if rsp.Code != CodeSuccess {
 		err = NewCodeError(rsp.Code, rsp.Message)
-
+	} else {
+		if devID, ok := c.CacheGet(rsp.ID); ok {
+			_ = c.SetDevStatusByID(devID, DevStatusAttached)
+		}
 	}
 
 	c.CacheDone(rsp.ID, err)
@@ -49,7 +52,10 @@ func ProcThingTopoDeleteReply(c *Client, rawURI string, payload []byte) error {
 
 	if rsp.Code != CodeSuccess {
 		err = NewCodeError(rsp.Code, rsp.Message)
-
+	} else {
+		if devID, ok := c.CacheGet(rsp.ID); ok {
+			_ = c.SetDevStatusByID(devID, DevStatusRegistered)
+		}
 	}
 
 	c.CacheDone(rsp.ID, err)
@@ -72,14 +78,11 @@ func ProcThingTopoGetReply(c *Client, rawURI string, payload []byte) error {
 	if err != nil {
 		return err
 	}
-
-	var dErr error
 	if rsp.Code != CodeSuccess {
 		err = NewCodeError(rsp.Code, rsp.Message)
-		dErr = NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.CacheDone(rsp.ID, dErr)
+	c.CacheDone(rsp.ID, err)
 	c.debug("downstream GW thing <topo>: get reply @%d", rsp.ID)
 	return c.ipcSendMessage(&ipcMessage{
 		err:     err,
@@ -105,13 +108,11 @@ func ProcThingListFoundReply(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 
-	var dErr error
 	if rsp.Code != CodeSuccess {
 		err = NewCodeError(rsp.Code, rsp.Message)
-		dErr = NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.CacheDone(rsp.ID, dErr)
+	c.CacheDone(rsp.ID, err)
 	c.debug("downstream GW thing <list>: found reply @%d", rsp.ID)
 	return c.ipcSendMessage(&ipcMessage{
 		err: err,
@@ -224,16 +225,18 @@ func ProcThingSubDevRegisterReply(c *Client, rawURI string, payload []byte) erro
 
 	if rsp.Code != CodeSuccess {
 		err = NewCodeError(rsp.Code, rsp.Message)
-
 	} else {
 		for _, v := range rsp.Data {
-			if er := c.SetDeviceSecretByPkDn(v.ProductKey, v.DeviceName, v.DeviceSecret); er != nil {
+			node, er := c.SearchNodeByPkDn(v.ProductKey, v.DeviceName)
+			if er != nil {
 				c.warn("downstream GW thing <sub>: register reply, %+v <%s - %s - %s>",
 					er, v.ProductKey, v.DeviceName, v.DeviceSecret)
+				continue
 			}
+			_ = c.SetDeviceSecretByID(node.ID(), v.DeviceSecret)
+			_ = c.SetDevStatusByID(node.ID(), DevStatusRegistered)
 		}
 	}
-
 	c.CacheDone(rsp.ID, err)
 	c.debug("downstream GW thing <sub>: register reply @%d", rsp.ID)
 	return nil
@@ -258,6 +261,10 @@ func ProcExtSubDevCombineLoginReply(c *Client, rawURI string, payload []byte) er
 
 	if rsp.Code != CodeSuccess {
 		err = NewCodeError(rsp.Code, rsp.Message)
+	} else {
+		if devID, ok := c.CacheGet(rsp.ID); ok {
+			_ = c.SetDevStatusByID(devID, DevStatusLogined)
+		}
 	}
 	c.CacheDone(rsp.ID, err)
 	c.debug("downstream Ext GW <sub>: login reply @%d", rsp.ID)
@@ -282,6 +289,10 @@ func ProcExtSubDevCombineLogoutReply(c *Client, rawURI string, payload []byte) e
 	}
 	if rsp.Code != CodeSuccess {
 		err = NewCodeError(rsp.Code, rsp.Message)
+	} else {
+		if devID, ok := c.CacheGet(rsp.ID); ok {
+			_ = c.SetDevStatusByID(devID, DevStatusAttached)
+		}
 	}
 	c.CacheDone(rsp.ID, err)
 	c.debug("downstream Ext GW <sub>: logout reply @%d", rsp.ID)
@@ -376,4 +387,43 @@ func ProcThingDelete(c *Client, rawURI string, payload []byte) error {
 	}
 	return c.SendResponse(uriServiceReplyWithRequestURI(rawURI),
 		req.ID, CodeSuccess, "{}")
+}
+
+// ExtErrorData 子设备错误回复数据域
+type ExtErrorData struct {
+	ProductKey string `json:"productKey"`
+	DeviceName string `json:"deviceName"`
+}
+
+// ExtErrorResponse 子设备错误回复
+type ExtErrorResponse struct {
+	Response
+	Data ExtErrorData `json:"data"`
+}
+
+// ProcExtErrorResponse 处理错误的回复
+// response: ext/error/{productKey}/{deviceName}
+// subscribe: ext/error/{productKey}/{deviceName}
+func ProcExtErrorResponse(c *Client, rawURI string, payload []byte) error {
+	uris := URIServiceSpilt(rawURI)
+	if len(uris) < (c.cfg.uriOffset + 4) {
+		return ErrInvalidURI
+	}
+
+	rsp := ExtErrorResponse{}
+	err := json.Unmarshal(payload, &rsp)
+	if err != nil {
+		return err
+	}
+
+	if rsp.Code != CodeSuccess {
+		err = NewCodeError(rsp.Code, rsp.Message)
+	}
+	c.CacheDone(rsp.ID, err)
+	c.debug("downstream extend <Error>: response,@%d", rsp.ID)
+	return c.ipcSendMessage(&ipcMessage{
+		err:     err,
+		evt:     ipcEvtErrorResponse,
+		payload: rsp.Data,
+	})
 }

@@ -231,11 +231,7 @@ func (sf *Client) linKitGwSubDevRegister(devID int) error {
 	if err != nil {
 		return err
 	}
-	if err = sf.CacheWait(id); err != nil {
-		return err
-	}
-	_ = sf.SetDevStatusByID(devID, DevStatusRegistered)
-	return nil
+	return sf.CacheWait(id)
 }
 
 func (sf *Client) linkKitGwSubDevTopoAdd(devID int) error {
@@ -243,11 +239,7 @@ func (sf *Client) linkKitGwSubDevTopoAdd(devID int) error {
 	if err != nil {
 		return err
 	}
-	if err = sf.CacheWait(id); err != nil {
-		return err
-	}
-	_ = sf.SetDevStatusByID(devID, DevStatusAttached)
-	return nil
+	return sf.CacheWait(id)
 }
 
 // linkKitGwSubDevTopoDelete 删除网关与子设备的拓扑关系
@@ -256,12 +248,7 @@ func (sf *Client) linkKitGwSubDevTopoDelete(devID int) error {
 	if err != nil {
 		return err
 	}
-
-	if err = sf.CacheWait(id); err != nil {
-		return err
-	}
-	_ = sf.SetDevStatusByID(devID, DevStatusRegistered)
-	return nil
+	return sf.CacheWait(id)
 }
 
 func (sf *Client) linkKitGwSubDevCombineLogin(devID int) error {
@@ -269,12 +256,7 @@ func (sf *Client) linkKitGwSubDevCombineLogin(devID int) error {
 	if err != nil {
 		return err
 	}
-
-	if err = sf.CacheWait(id); err != nil {
-		return err
-	}
-	_ = sf.SetDevStatusByID(devID, DevStatusLogined)
-	return nil
+	return sf.CacheWait(id)
 }
 
 func (sf *Client) linkKitGwSubDevCombineLogout(devID int) error {
@@ -282,9 +264,5 @@ func (sf *Client) linkKitGwSubDevCombineLogout(devID int) error {
 	if err != nil {
 		return err
 	}
-	if err = sf.CacheWait(id); err != nil {
-		return err
-	}
-	_ = sf.SetDevStatusByID(devID, DevStatusAttached)
-	return nil
+	return sf.CacheWait(id)
 }
