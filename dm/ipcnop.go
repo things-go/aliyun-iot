@@ -105,7 +105,8 @@ func (NopEvt) EvtExtRRPCRequest(*Client, string, string, []byte) error {
 	return nil
 }
 
-func (NopEvt) EvtRequestWaitResponseTimeout(c *Client, msgType MsgType, devID int) error {
+// EvtRequestWaitResponseTimeout  see interface EventProc
+func (NopEvt) EvtRequestWaitResponseTimeout(_ *Client, msgType MsgType, devID int) error {
 	log.Printf("%d - %s request wait response timeout", devID, msgType.String())
 	return nil
 }
@@ -124,36 +125,36 @@ func (NopGwEvt) EvtExtErrorResponse(*Client, error, string, string) error {
 }
 
 // EvtThingTopoGetReply see interface EventGwProc
-func (NopGwEvt) EvtThingTopoGetReply(c *Client, err error, list []GwTopoGetData) error {
+func (NopGwEvt) EvtThingTopoGetReply(*Client, error, []GwTopoGetData) error {
 	return nil
 }
 
 // EvtThingListFoundReply see interface EventGwProc
-func (NopGwEvt) EvtThingListFoundReply(c *Client, err error) error {
+func (NopGwEvt) EvtThingListFoundReply(*Client, error) error {
 	return nil
 }
 
 // EvtThingTopoAddNotify see interface EventGwProc
-func (NopGwEvt) EvtThingTopoAddNotify(c *Client, list []GwTopoAddNotifyParams) error {
+func (NopGwEvt) EvtThingTopoAddNotify(*Client, []GwTopoAddNotifyParams) error {
 	return nil
 }
 
 // EvtThingTopoChange see interface EventGwProc
-func (NopGwEvt) EvtThingTopoChange(c *Client, params GwTopoChangeParams) error {
+func (NopGwEvt) EvtThingTopoChange(*Client, GwTopoChangeParams) error {
 	return nil
 }
 
 // EvtThingDisable see interface EventGwProc
-func (NopGwEvt) EvtThingDisable(c *Client, productKey, deviceName string) error {
+func (NopGwEvt) EvtThingDisable(*Client, string, string) error {
 	return nil
 }
 
 // EvtThingEnable see interface EventGwProc
-func (NopGwEvt) EvtThingEnable(c *Client, productKey, deviceName string) error {
+func (NopGwEvt) EvtThingEnable(*Client, string, string) error {
 	return nil
 }
 
 // EvtThingDelete see interface EventGwProc
-func (NopGwEvt) EvtThingDelete(c *Client, productKey, deviceName string) error {
+func (NopGwEvt) EvtThingDelete(*Client, string, string) error {
 	return nil
 }

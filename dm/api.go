@@ -104,7 +104,7 @@ func New(cfg *Config) *Client {
 }
 
 // NewSubDevice 创建一个子设备
-func (sf *Client) NewSubDevice(devType int, meta Meta) (int, error) {
+func (sf *Client) NewSubDevice(meta Meta) (int, error) {
 	if !sf.cfg.hasGateway {
 		return 0, ErrNotSupportFeature
 	}

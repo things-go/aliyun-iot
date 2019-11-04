@@ -17,7 +17,7 @@ type Conn interface {
 	LogMode(enable bool)
 }
 
-// EventProc 事件回调接口
+// EventProc 事件接口
 type EventProc interface {
 	// 上行应答
 	EvtThingModelUpRawReply(c *Client, productKey, deviceName string, payload []byte) error

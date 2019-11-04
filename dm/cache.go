@@ -58,6 +58,7 @@ func (sf *Client) CacheGet(id int) (int, bool) {
 	return 0, false
 }
 
+// CacheWait 等待缓存ID的消息收到回复
 func (sf *Client) CacheWait(id int, t ...time.Duration) error {
 	v, ok := sf.msgCache.Get(strconv.Itoa(id))
 	if !ok {
@@ -82,7 +83,7 @@ func (sf *Client) CacheWait(id int, t ...time.Duration) error {
 	return ErrWaitMessageTimeout
 }
 
-// CacheDone 发送同步通知
+// CacheDone 指定缓存id收到回复,并发出同步通知
 func (sf *Client) CacheDone(id int, err error) {
 	v, ok := sf.msgCache.Get(strconv.Itoa(id))
 	if !ok {
