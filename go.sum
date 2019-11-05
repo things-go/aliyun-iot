@@ -13,6 +13,8 @@ github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
 github.com/thinkgos/cache-go v0.0.1 h1:YV3dCEp4BhdMaQRoeW4LwbM0TON3uvRQxeegQ8VgE/U=
 github.com/thinkgos/cache-go v0.0.1/go.mod h1:4BxRPXXxn8/tDDCgMvPS/XprbsWhLh5AtTdtwDq/0Yw=
+github.com/thinkgos/cache-go v0.0.2 h1:8R1kSA8He/1QigzVyDeynUt0LdlajV4vcwc242vJG8I=
+github.com/thinkgos/cache-go v0.0.2/go.mod h1:4BxRPXXxn8/tDDCgMvPS/XprbsWhLh5AtTdtwDq/0Yw=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20191001170739-f9e2070545dc h1:KyTYo8xkh/2WdbFLUyQwBS0Jfn3qfZ9QmuPbok2oENE=
 golang.org/x/crypto v0.0.0-20191001170739-f9e2070545dc/go.mod h1:yigFU9vqHzYiE8UmvKecakEJjdnWj3jj499lnFckfCI=
