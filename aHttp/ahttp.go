@@ -77,7 +77,7 @@ func New() *Client {
 		c: &http.Client{
 			Timeout: defaultTimeout,
 		},
-		Clog: clog.NewWithPrefix("http --> "),
+		Clog: clog.NewWithPrefix("alink http --> "),
 	}
 	sf.token.Store("")
 	return sf
@@ -184,26 +184,13 @@ func (sf *Client) sendAuth() error {
 	}
 
 	if rspPy.Code != CodeSuccess {
-		switch rspPy.Code {
-		case CodeUnknown:
-			err = ErrUnknown
-		case CodeParamException:
-			err = ErrParamException
-		case CodeAuthFailed:
-			err = ErrAuthFailed
-		case CodeUpdateSessionFailed:
-			err = ErrUpdateSessionFailed
-		case CodeRequestTooMany:
-			err = ErrRequestTooMany
-		default:
-			err = ErrUnknown
-		}
-		sf.Debug("auth failed, %#v", err)
+		err = NewCodeError(rspPy.Code, rspPy.Message)
+		sf.Debug("auth failed, %+v", err)
 		return err
 	}
 	sf.token.Store(rspPy.Info.Token)
 	sf.whenAuth = time.Now()
-	sf.Debug("auth success! token")
+	sf.Debug("auth success!")
 	return nil
 }
 
@@ -219,7 +206,7 @@ type DataResponse struct {
 func (sf *Client) publish(uri string, payload interface{}) (int64, error) {
 	token := sf.token.Load().(string)
 	if token == "" {
-		return 0, ErrTokenIsNull
+		return 0, NewCodeError(CodeTokenIsNull, "token is null")
 	}
 
 	var buf *bytes.Buffer
@@ -249,34 +236,21 @@ func (sf *Client) publish(uri string, payload interface{}) (int64, error) {
 		return 0, err
 	}
 	sf.Debug("publish response, %+v", rspPy)
-	switch rspPy.Code {
-	case CodeSuccess:
+	if rspPy.Code == 0 {
 		return rspPy.Info.MessageID, nil
-	case CodeParamException:
-		err = ErrParamException
-	case CodeTokenExpired:
-		err = ErrTokenExpired
-	case CodeTokenIsNull:
-		err = ErrTokenIsNull
-	case CodeTokenCheckFailed:
-		err = ErrTokenCheckFailed
-	case CodePublishMessageFailed:
-		err = ErrPublishMessageFailed
-	case CodeRequestTooMany:
-		err = ErrRequestTooMany
-	default:
-		err = ErrUnknown
 	}
-	return 0, err
+	return 0, NewCodeError(rspPy.Code, rspPy.Message)
 }
 
 // Publish 数据推送
 func (sf *Client) Publish(uri string, payload interface{}) error {
 	_, err := sf.publish(uri, payload)
 	if err != nil {
-		if err == ErrTokenExpired ||
-			err == ErrTokenCheckFailed ||
-			err == ErrTokenIsNull {
+		var pErr *CodeError
+		if errors.As(err, &pErr) &&
+			(pErr.Code() == CodeTokenExpired ||
+				pErr.Code() == CodeTokenCheckFailed ||
+				pErr.Code() == CodeTokenIsNull) {
 			if err = sf.sendAuth(); err != nil {
 				return err
 			}

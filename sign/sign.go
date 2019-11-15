@@ -17,7 +17,6 @@ import (
 
 // default defined
 const (
-	alinkVersion   = "20"
 	fixedTimestamp = "2524608000000"
 )
 
@@ -73,7 +72,7 @@ func NewMQTTSign() *MQTTSign {
 			"securemode": modeTCPDirectPlain,
 			"signmethod": signMethodHMACSHA256,
 			"lan":        "Golang",
-			"v":          alinkVersion,
+			"v":          infra.IOTAlinkVersion,
 		},
 		hfc: sha256.New,
 	}
@@ -115,7 +114,7 @@ func (sf *MQTTSign) SetSupportSecureMode(mode SecureMode) *MQTTSign {
 // SetSupportDeviceModel 设置支持物模型
 func (sf *MQTTSign) SetSupportDeviceModel(enable bool) *MQTTSign {
 	if enable {
-		sf.clientIDkv["v"] = alinkVersion
+		sf.clientIDkv["v"] = infra.IOTAlinkVersion
 		delete(sf.clientIDkv, "gw")
 		delete(sf.clientIDkv, "ext")
 	} else {

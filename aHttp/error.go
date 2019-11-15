@@ -18,15 +18,23 @@ const (
 	CodeRequestTooMany       = 40000
 )
 
-// 错误定义
-var (
-	ErrUnknown              = fmt.Errorf("code<%d>: unknown error", CodeUnknown)
-	ErrParamException       = fmt.Errorf("code<%d>: param exception", CodeParamException)
-	ErrAuthFailed           = fmt.Errorf("code<%d>: auth failed", CodeAuthFailed)
-	ErrUpdateSessionFailed  = fmt.Errorf("code<%d>: update session failed", CodeUpdateSessionFailed)
-	ErrRequestTooMany       = fmt.Errorf("code<%d>: request too many", CodeRequestTooMany)
-	ErrTokenExpired         = fmt.Errorf("code<%d>: token is expired", CodeTokenExpired)
-	ErrTokenIsNull          = fmt.Errorf("code<%d>: token is null", CodeTokenIsNull)
-	ErrTokenCheckFailed     = fmt.Errorf("code<%d>: check token failed", CodeTokenCheckFailed)
-	ErrPublishMessageFailed = fmt.Errorf("code<%d>: publish message error", CodePublishMessageFailed)
-)
+// CodeError code 错误
+type CodeError struct {
+	code    int
+	message string
+}
+
+// NewCodeError 生成code错误
+func NewCodeError(code int, message string) error {
+	return &CodeError{code, message}
+}
+
+// Error 实现error接口
+func (sf *CodeError) Error() string {
+	return fmt.Sprintf("code<%d>: %s", sf.code, sf.message)
+}
+
+// Code unwrap then got code
+func (sf *CodeError) Code() int {
+	return sf.code
+}
