@@ -20,31 +20,9 @@ import (
 
 // sign method 动态注册只支持以下签名方法
 const (
-	signMethodSHA256 = "hmacsha256"
-	signMethodSHA1   = "hmacsha1"
-	signMethodMD5    = "hmacmd5"
-)
-
-// HTTPCloudDomain http 域名
-var HTTPCloudDomain = []string{
-	"iot-auth.cn-shanghai.aliyuncs.com",    /* Shanghai */
-	"iot-auth.ap-southeast-1.aliyuncs.com", /* Singapore */
-	"iot-auth.ap-northeast-1.aliyuncs.com", /* Japan */
-	"iot-auth.us-west-1.aliyuncs.com",      /* America */
-	"iot-auth.eu-central-1.aliyuncs.com",   /* Germany */
-}
-
-// CloudRegion HTPP云端地域
-type CloudRegion byte
-
-// 云平台地域定义CloudRegionRegion
-const (
-	CloudRegionShangHai CloudRegion = iota
-	CloudRegionSingapore
-	CloudRegionJapan
-	CloudRegionAmerica
-	CloudRegionGermany
-	CloudRegionCustom
+	signMethodHMACSHA256 = "hmacsha256"
+	signMethodHMACSHA1   = "hmacsha1"
+	signMethodHMACMD5    = "hmacmd5"
 )
 
 // MetaInfo 产品与设备三元组
@@ -69,33 +47,33 @@ type Response struct {
 
 // Register2Cloud 动态注册,传入三元组,获得DeviceSecret,直接修改meta,
 // 指定签名算法,默认hmacsha256加签算法(支持hmacmd5,hmacsha1,hmacsha256)
-func Register2Cloud(meta *MetaInfo, region CloudRegion, signMethod ...string) error {
+func Register2Cloud(meta *MetaInfo, region infra.CloudRegion, signMethod ...string) error {
 	if meta == nil || meta.ProductKey == "" ||
 		meta.ProductSecret == "" || meta.DeviceName == "" {
 		return errors.New("invalid params")
 	}
 
-	signMd := append(signMethod, signMethodSHA256)[0]
-	if !(signMd == signMethodMD5 ||
-		signMd == signMethodSHA1 ||
-		(signMd == signMethodSHA256)) {
+	signMd := append(signMethod, signMethodHMACSHA256)[0]
+	if !(signMd == signMethodHMACMD5 ||
+		signMd == signMethodHMACSHA1 ||
+		(signMd == signMethodHMACSHA256)) {
 		// 非法签名使用默认签名方法
-		signMd = signMethodSHA256
+		signMd = signMethodHMACSHA256
 	}
 	// 计算签名 Signature
-	random, sign, err := calcDynregSign(meta, signMd)
+	random, sign, err := calcSign(meta, signMd)
 	if err != nil {
 		return err
 	}
 
 	var domain string
-	if region == CloudRegionCustom {
+	if region == infra.CloudRegionCustom {
 		if meta.CustomDomain == "" {
 			return errors.New("custom domain invalid")
 		}
 		domain = meta.CustomDomain
 	} else {
-		domain = HTTPCloudDomain[region]
+		domain = infra.HTTPCloudDomain[region]
 	}
 
 	requestBody := fmt.Sprintf("productKey=%s&deviceName=%s&random=%s&sign=%s&signMethod=%s",
@@ -121,23 +99,23 @@ func Register2Cloud(meta *MetaInfo, region CloudRegion, signMethod ...string) er
 	}
 	// TODO: 根据不同的code返回不同的错误
 	if responsePy.Code != infra.CodeSuccess {
-		return fmt.Errorf("got response but payload failed, %#v", infra.NewCodeError(responsePy.Code, responsePy.Message))
+		return infra.NewCodeError(responsePy.Code, responsePy.Message)
 	}
 	meta.DeviceSecret = responsePy.Data.DeviceSecret
 	return nil
 }
 
-// calcDynregSign 计算动态签名,以productKey为key
-func calcDynregSign(info *MetaInfo, signMethod string) (random, sign string, err error) {
+// calcSign 计算动态签名,以productKey为key
+func calcSign(info *MetaInfo, signMethod string) (random, sign string, err error) {
 	var h hash.Hash
 
 	/* setup password */
 	switch signMethod {
-	case signMethodSHA1:
+	case signMethodHMACSHA1:
 		h = hmac.New(sha1.New, []byte(info.ProductSecret))
-	case signMethodMD5:
+	case signMethodHMACMD5:
 		h = hmac.New(md5.New, []byte(info.ProductSecret))
-	default: // signMethodSHA256
+	default: // signMethodHMACSHA256
 		h = hmac.New(sha256.New, []byte(info.ProductSecret))
 	}
 
