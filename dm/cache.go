@@ -18,6 +18,9 @@ type MsgCacheEntry struct {
 
 // cacheInit 缓存初始化
 func (sf *Client) cacheInit() {
+	if sf.cfg.workOnWho == workOnHTTP {
+		return
+	}
 	sf.msgCache = cache.New(sf.cfg.cacheExpiration, sf.cfg.cacheCleanupInterval)
 	sf.pool = newPool()
 	sf.msgCache.OnEvicted(func(id string, v interface{}) { // 超时处理
@@ -41,6 +44,9 @@ func (sf *Client) cacheInit() {
 
 // CacheInsert 缓存插入指定ID
 func (sf *Client) CacheInsert(id, devID int, msgType MsgType) {
+	if sf.cfg.workOnWho == workOnHTTP {
+		return
+	}
 	entry := sf.pool.Get()
 	entry.devID = devID
 	entry.msgType = msgType
@@ -51,6 +57,9 @@ func (sf *Client) CacheInsert(id, devID int, msgType MsgType) {
 
 // CacheGet 获取缓存消息设备ID
 func (sf *Client) CacheGet(id int) (int, bool) {
+	if sf.cfg.workOnWho == workOnHTTP {
+		return 0, false
+	}
 	v, ok := sf.msgCache.Get(strconv.Itoa(id))
 	if ok {
 		return v.(*MsgCacheEntry).devID, true
@@ -60,6 +69,9 @@ func (sf *Client) CacheGet(id int) (int, bool) {
 
 // CacheWait 等待缓存ID的消息收到回复
 func (sf *Client) CacheWait(id int, t ...time.Duration) error {
+	if sf.cfg.workOnWho == workOnHTTP {
+		return ErrNotSupportWork
+	}
 	v, ok := sf.msgCache.Get(strconv.Itoa(id))
 	if !ok {
 		return ErrNotFound
@@ -85,6 +97,10 @@ func (sf *Client) CacheWait(id int, t ...time.Duration) error {
 
 // CacheDone 指定缓存id收到回复,并发出同步通知
 func (sf *Client) CacheDone(id int, err error) {
+	if sf.cfg.workOnWho == workOnHTTP {
+		return
+	}
+
 	v, ok := sf.msgCache.Get(strconv.Itoa(id))
 	if !ok {
 		return

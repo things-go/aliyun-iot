@@ -100,7 +100,10 @@ func New(cfg *Config) *Client {
 	if err != nil {
 		panic(fmt.Sprintf("device local duplicate,cause: %+v", err))
 	}
-	go sf.ipcRunMessage()
+	if sf.cfg.workOnWho == workOnMQTT {
+		go sf.ipcRunMessage()
+	}
+
 	return sf
 }
 
@@ -219,6 +222,14 @@ func (sf *Client) AlinkReport(msgType MsgType, devID int, payload interface{}) e
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
+	if sf.cfg.workOnWho == workOnHTTP &&
+		!(msgType == MsgTypeModelUpRaw ||
+			msgType == MsgTypeEventPropertyPost ||
+			msgType == MsgTypeDeviceInfoUpdate ||
+			msgType == MsgTypeDeviceInfoDelete) {
+		return ErrNotSupportWork
+	}
+
 	switch msgType {
 	case MsgTypeModelUpRaw:
 		if !sf.cfg.hasRawModel {
@@ -265,6 +276,10 @@ func (sf *Client) AlinkRequest(msgType MsgType, devID int) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
+	if sf.cfg.workOnWho == workOnHTTP {
+		return ErrNotSupportFeature
+	}
+
 	switch msgType {
 	case MsgTypeSubDevLogin:
 		if !sf.cfg.hasGateway {
@@ -293,6 +308,9 @@ func (sf *Client) AlinkRequest(msgType MsgType, devID int) error {
 func (sf *Client) AlinkQuery(msgType MsgType, devID int, _ ...interface{}) error {
 	if devID < 0 {
 		return ErrInvalidParameter
+	}
+	if sf.cfg.workOnWho == workOnHTTP {
+		return ErrNotSupportWork
 	}
 
 	switch msgType {

@@ -24,12 +24,12 @@ func main() {
 
 	signs, err := sign.NewMQTTSign().
 		SetSDKVersion(infra.IOTSDKVersion).
-		Generate(&sign.MetaInfo{
+		Generate(&infra.MetaInfo{
 			ProductKey:    productKey,
 			ProductSecret: productSecret,
 			DeviceName:    deviceName,
 			DeviceSecret:  deviceSecret,
-		}, sign.CloudRegionShangHai)
+		}, infra.CloudRegionShangHai)
 	if err != nil {
 		panic(err)
 	}
