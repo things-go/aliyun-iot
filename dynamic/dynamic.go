@@ -25,15 +25,6 @@ const (
 	signMethodHMACMD5    = "hmacmd5"
 )
 
-// MetaInfo 产品与设备三元组
-type MetaInfo struct {
-	ProductKey    string
-	ProductSecret string
-	DeviceName    string
-	DeviceSecret  string
-	CustomDomain  string // 如果使用CloudRegionCustom,需要定义此字段
-}
-
 // Response 应答
 type Response struct {
 	Code int `json:"code"`
@@ -47,7 +38,7 @@ type Response struct {
 
 // Register2Cloud 动态注册,传入三元组,获得DeviceSecret,直接修改meta,
 // 指定签名算法,默认hmacsha256加签算法(支持hmacmd5,hmacsha1,hmacsha256)
-func Register2Cloud(meta *MetaInfo, region infra.CloudRegion, signMethod ...string) error {
+func Register2Cloud(meta *infra.MetaInfo, region infra.CloudRegion, signMethod ...string) error {
 	if meta == nil || meta.ProductKey == "" ||
 		meta.ProductSecret == "" || meta.DeviceName == "" {
 		return errors.New("invalid params")
@@ -97,7 +88,7 @@ func Register2Cloud(meta *MetaInfo, region infra.CloudRegion, signMethod ...stri
 	if err = json.NewDecoder(response.Body).Decode(&responsePy); err != nil {
 		return err
 	}
-	// TODO: 根据不同的code返回不同的错误
+
 	if responsePy.Code != infra.CodeSuccess {
 		return infra.NewCodeError(responsePy.Code, responsePy.Message)
 	}
@@ -106,7 +97,7 @@ func Register2Cloud(meta *MetaInfo, region infra.CloudRegion, signMethod ...stri
 }
 
 // calcSign 计算动态签名,以productKey为key
-func calcSign(info *MetaInfo, signMethod string) (random, sign string, err error) {
+func calcSign(info *infra.MetaInfo, signMethod string) (random, sign string, err error) {
 	var h hash.Hash
 
 	/* setup password */
