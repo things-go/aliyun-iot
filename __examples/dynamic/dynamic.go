@@ -7,12 +7,19 @@ import (
 	"github.com/thinkgos/aliIOT/infra"
 )
 
-// jKNDfbUTddX8FVfMNg6kB6mnTReO7mVh
+const (
+	productKey    = "a1QR3GD1Db3"
+	productSecret = "mvngTYBlX9Z9l1V0"
+	deviceName    = "MPA19GT010070140"
+
+//	deviceSecret  = "ld9Xf2BtKGfdEC7G9nSMe1wYfgllvi3Q"
+)
+
 func main() {
 	meta := infra.MetaInfo{
-		ProductKey:    "a1iJcssSlPC",
-		ProductSecret: "lw3QzKHNfh7XvOxO",
-		DeviceName:    "dyncreg",
+		ProductKey:    productKey,
+		ProductSecret: productSecret,
+		DeviceName:    deviceName,
 	}
 	err := dynamic.Register2Cloud(&meta, infra.CloudRegionShangHai)
 	if err != nil {

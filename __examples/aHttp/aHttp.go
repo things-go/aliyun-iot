@@ -13,7 +13,7 @@ const (
 	productKey    = "a1iJcssSlPC"
 	productSecret = "lw3QzKHNfh7XvOxO"
 	deviceName    = "rawtest"
-	deviceSecret  = "m9PbcqYf8JgKuUx3AJIg26UcR7zXKibC"
+	deviceSecret  = "ld9Xf2BtKGfdEC7G9nSMe1wYfgllvi3Q"
 )
 
 // 透传

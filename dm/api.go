@@ -1,3 +1,5 @@
+// Package dm imp aliyun dm
+//go:generate stringer -type=MsgType
 package dm
 
 import (
@@ -21,8 +23,8 @@ const (
 	MsgTypeDesiredPropertyDelete                //!< delete a device's desired property
 	MsgTypeDeviceInfoUpdate                     //!< post device info update message to cloud
 	MsgTypeDeviceInfoDelete                     //!< post device info delete message to cloud
-	MsgTypeDsltemplateGet                       //<! get a device's dsltemplate
-	MsgTypeDynamictslGet                        //!< ??
+	MsgTypeDsltemplateGet                       //!< get a device's dsltemplate
+	MsgTypeDynamictslGet                        //!<
 	MsgTypeExtNtpRequest                        //!< query ntp time from cloud
 	MsgTypeConfigGet                            //!< 获取配置
 
@@ -40,11 +42,6 @@ const (
 	MsgTypeRequestFOTAImage            //!< only for master device, request fota image from cloud
 	MsgTypeReportSubDevFirmwareVersion //!< report subdev's firmware version
 )
-
-func (MsgType) String() string {
-	// TODO
-	return "TODO: msg type to string"
-}
 
 // Meta meta 信息
 type Meta struct {
