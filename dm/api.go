@@ -28,19 +28,19 @@ const (
 	MsgTypeExtNtpRequest                        //!< query ntp time from cloud
 	MsgTypeConfigGet                            //!< 获取配置
 
-	MsgTypeTopoAdd                     //!< 网关,添加设备拓扑关系
-	MsgTypeTopoDelete                  //!< 网关,删除设备拓扑关系
-	MsgTypeTopoGet                     //!< 网关,查询设备拓扑关系
-	MsgTypeDevListFound                //!< 网关,设备发现链表上报
-	MsgTypeSubDevRegister              //!< 子设备,动态注册
-	MsgTypeSubDevLogin                 //!< only for slave device, send login request to cloud
-	MsgTypeSubDevLogout                //!< only for slave device, send logout request to cloud
-	MsgTypeSubDevDeleteTopo            //!< only for slave device, send delete topo request to cloud
-	MsgTypeQueryFOTAData               //!< only for master device, qurey firmware ota data
-	MsgTypeQueryCOTAData               //!< only for master device, qurey config ota data
-	MsgTypeRequestCOTA                 //!< only for master device, request config ota data from cloud
-	MsgTypeRequestFOTAImage            //!< only for master device, request fota image from cloud
-	MsgTypeReportSubDevFirmwareVersion //!< report subdev's firmware version
+	MsgTypeTopoAdd               //!< 网关,添加设备拓扑关系
+	MsgTypeTopoDelete            //!< 网关,删除设备拓扑关系
+	MsgTypeTopoGet               //!< 网关,查询设备拓扑关系
+	MsgTypeDevListFound          //!< 网关,设备发现链表上报
+	MsgTypeSubDevRegister        //!< 子设备,动态注册
+	MsgTypeSubDevLogin           //!< only for slave device, send login request to cloud
+	MsgTypeSubDevLogout          //!< only for slave device, send logout request to cloud
+	MsgTypeSubDevDeleteTopo      //!< only for slave device, send delete topo request to cloud
+	MsgTypeQueryFOTAData         //!< only for master device, query firmware ota data
+	MsgTypeQueryCOTAData         //!< only for master device, query config ota data
+	MsgTypeRequestCOTA           //!< only for master device, request config ota data from cloud
+	MsgTypeRequestFOTAImage      //!< only for master device, request FOTA image from cloud
+	MsgTypeReportFirmwareVersion //!< report firmware version
 )
 
 // Meta meta 信息
@@ -215,7 +215,7 @@ func (sf *Client) AlinkSubDeviceConnect(devID int) error {
 //  - MsgTypeDeviceInfoUpdate
 //  - MsgTypeDeviceInfoDelete
 // devID 设备ID,独立设备或网关发送使用DevLocal
-func (sf *Client) AlinkReport(msgType MsgType, devID int, payload interface{}) error {
+func (sf *Client) AlinkReport(msgType MsgType, devID int, params interface{}) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
@@ -232,34 +232,38 @@ func (sf *Client) AlinkReport(msgType MsgType, devID int, payload interface{}) e
 		if !sf.cfg.hasRawModel {
 			return ErrNotSupportFeature
 		}
-		return sf.upstreamThingModelUpRaw(devID, payload)
+		return sf.upstreamThingModelUpRaw(devID, params)
 	case MsgTypeEventPropertyPost:
 		if sf.cfg.hasRawModel {
 			return ErrNotSupportFeature
 		}
-		return sf.upstreamThingEventPropertyPost(devID, payload)
+		return sf.upstreamThingEventPropertyPost(devID, params)
 	case MsgTypeEventPropertyPackPost:
 		if !sf.cfg.hasGateway {
 			return ErrNotSupportFeature
 		}
-		return sf.upstreamThingEventPropertyPackPost(payload)
+		return sf.upstreamThingEventPropertyPackPost(params)
 	case MsgTypeDesiredPropertyGet:
 		if !sf.cfg.hasDesired {
 			return ErrNotSupportFeature
 		}
-		return sf.upstreamThingDesiredPropertyGet(devID, payload)
+		return sf.upstreamThingDesiredPropertyGet(devID, params)
 	case MsgTypeDesiredPropertyDelete:
 		if !sf.cfg.hasDesired {
 			return ErrNotSupportFeature
 		}
-		return sf.upstreamThingDesiredPropertyDelete(devID, payload)
+		return sf.upstreamThingDesiredPropertyDelete(devID, params)
 	case MsgTypeDeviceInfoUpdate:
-		return sf.upstreamThingDeviceInfoUpdate(devID, payload)
+		return sf.upstreamThingDeviceInfoUpdate(devID, params)
 	case MsgTypeDeviceInfoDelete:
-		return sf.upstreamThingDeviceInfoDelete(devID, payload)
+		return sf.upstreamThingDeviceInfoDelete(devID, params)
 
-	case MsgTypeReportSubDevFirmwareVersion:
-		// TODO
+	case MsgTypeReportFirmwareVersion:
+		if !sf.cfg.hasOTA {
+			return ErrNotSupportFeature
+		}
+
+		return sf.upstreamOATFirmwareVersion(devID, params)
 	}
 	return ErrNotSupportMsgType
 }

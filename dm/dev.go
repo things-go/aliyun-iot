@@ -2,6 +2,7 @@
 package dm
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 )
@@ -283,4 +284,98 @@ func (sf *Client) upstreamThingConfigGet(devID int) error {
 	sf.CacheInsert(id, devID, MsgTypeConfigGet)
 	sf.debug("upstream thing <config>: get,@%d", id)
 	return nil
+}
+
+// OTARequest OTA请求体
+type OTARequest struct {
+	ID     int         `json:"id,string"`
+	Params interface{} `json:"params"`
+}
+
+// OTAFirmwareVersionParams OTA固件参数域
+type OTAFirmwareVersionParams struct {
+	Version string `json:"version"`
+}
+
+// upstreamOATFirmwareVersion 上报固件版本
+func (sf *Client) upstreamOATFirmwareVersion(devID int, params interface{}) error {
+	if devID < 0 {
+		return ErrInvalidParameter
+	}
+
+	node, err := sf.SearchNodeByID(devID)
+	if err != nil {
+		return err
+	}
+
+	id := sf.RequestID()
+	req, err := json.Marshal(OTARequest{id, params})
+	if err != nil {
+		return err
+	}
+
+	if err = sf.Publish(sf.URIService(URIOtaDeviceInformPrefix, "", node.ProductKey(), node.DeviceName()),
+		1, req); err != nil {
+		return err
+	}
+
+	//sf.CacheInsert(id, devID, MsgTypeReportFirmwareVersion)
+	sf.debug("upstream version <OTA>: inform,@%d", id)
+	return nil
+}
+
+// OTA下载进度比
+const (
+	OTAProgressStepUpgradeFailed  = -1
+	OTAProgressStepDownloadFailed = -2
+	OTAProgressStepVerifyFailed   = -3
+	OTAProgressStepProgramFailed  = -4
+)
+
+// OTAProgressParams 下载过程上报参数域
+type OTAProgressParams struct {
+	Step int    `json:"step,string"`
+	Desc string `json:"desc"`
+}
+
+func (sf *Client) upstreamOTAProgress(devID int, params interface{}) error {
+	if devID < 0 {
+		return ErrInvalidParameter
+	}
+
+	node, err := sf.SearchNodeByID(devID)
+	if err != nil {
+		return err
+	}
+
+	id := sf.RequestID()
+	req, err := json.Marshal(OTARequest{id, params})
+	if err != nil {
+		return err
+	}
+
+	if err = sf.Publish(sf.URIService(URIOtaDeviceProcessPrefix, "", node.ProductKey(), node.DeviceName()),
+		1, req); err != nil {
+		return err
+	}
+
+	//sf.CacheInsert(id, devID, MsgTypeReportFirmwareVersion)
+	sf.debug("upstream step <OTA>: progress,@%d", id)
+	return nil
+}
+
+// OTAUpgradeData OTA upgrade 数据域
+type OTAUpgradeData struct {
+	Size    int    `json:"size"`
+	Version string `json:"version"`
+	URL     string `json:"url"`
+	MD5     string `json:"md5"`
+}
+
+// OTAUpgradeRequest OTA upgrade 请求
+type OTAUpgradeRequest struct {
+	Code    int            `json:"code,string"`
+	Data    OTAUpgradeData `json:"data"`
+	ID      int            `json:"id"`
+	Message string         `json:"message"`
 }

@@ -175,6 +175,10 @@ func (sf *Client) SubscribeAllTopic(devType DevType, productKey, deviceName stri
 				sf.warn(err.Error())
 			}
 		}
+
+		if sf.cfg.hasOTA {
+			// TODO
+		}
 	}
 
 	return nil

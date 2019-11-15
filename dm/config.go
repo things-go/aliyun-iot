@@ -34,6 +34,7 @@ type Config struct {
 	hasDesired  bool
 	hasExtRRPC  bool
 	hasGateway  bool
+	hasOTA      bool
 }
 
 // NewConfig 创建新配置
@@ -109,5 +110,11 @@ func (sf *Config) EnableExtRRPC() *Config {
 // EnableGateway 使能网关功能
 func (sf *Config) EnableGateway() *Config {
 	sf.hasGateway = true
+	return sf
+}
+
+// EnableOTA 使能ota功能
+func (sf *Config) EnableOTA() *Config {
+	sf.hasOTA = true
 	return sf
 }

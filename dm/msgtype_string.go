@@ -32,12 +32,12 @@ func _() {
 	_ = x[MsgTypeQueryCOTAData-21]
 	_ = x[MsgTypeRequestCOTA-22]
 	_ = x[MsgTypeRequestFOTAImage-23]
-	_ = x[MsgTypeReportSubDevFirmwareVersion-24]
+	_ = x[MsgTypeReportFirmwareVersion-24]
 }
 
-const _MsgType_name = "MsgTypeModelUpRawMsgTypeEventPropertyPostMsgTypeEventPostMsgTypeEventPropertyPackPostMsgTypeDesiredPropertyGetMsgTypeDesiredPropertyDeleteMsgTypeDeviceInfoUpdateMsgTypeDeviceInfoDeleteMsgTypeDsltemplateGetMsgTypeDynamictslGetMsgTypeExtNtpRequestMsgTypeConfigGetMsgTypeTopoAddMsgTypeTopoDeleteMsgTypeTopoGetMsgTypeDevListFoundMsgTypeSubDevRegisterMsgTypeSubDevLoginMsgTypeSubDevLogoutMsgTypeSubDevDeleteTopoMsgTypeQueryFOTADataMsgTypeQueryCOTADataMsgTypeRequestCOTAMsgTypeRequestFOTAImageMsgTypeReportSubDevFirmwareVersion"
+const _MsgType_name = "MsgTypeModelUpRawMsgTypeEventPropertyPostMsgTypeEventPostMsgTypeEventPropertyPackPostMsgTypeDesiredPropertyGetMsgTypeDesiredPropertyDeleteMsgTypeDeviceInfoUpdateMsgTypeDeviceInfoDeleteMsgTypeDsltemplateGetMsgTypeDynamictslGetMsgTypeExtNtpRequestMsgTypeConfigGetMsgTypeTopoAddMsgTypeTopoDeleteMsgTypeTopoGetMsgTypeDevListFoundMsgTypeSubDevRegisterMsgTypeSubDevLoginMsgTypeSubDevLogoutMsgTypeSubDevDeleteTopoMsgTypeQueryFOTADataMsgTypeQueryCOTADataMsgTypeRequestCOTAMsgTypeRequestFOTAImageMsgTypeReportFirmwareVersion"
 
-var _MsgType_index = [...]uint16{0, 17, 41, 57, 85, 110, 138, 161, 184, 205, 225, 245, 261, 275, 292, 306, 325, 346, 364, 383, 406, 426, 446, 464, 487, 521}
+var _MsgType_index = [...]uint16{0, 17, 41, 57, 85, 110, 138, 161, 184, 205, 225, 245, 261, 275, 292, 306, 325, 346, 364, 383, 406, 426, 446, 464, 487, 515}
 
 func (i MsgType) String() string {
 	if i >= MsgType(len(_MsgType_index)-1) {
