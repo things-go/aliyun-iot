@@ -20,8 +20,8 @@ import (
 )
 
 const (
-	signMethodSHA1       = "hmacsha1"
-	signMethodMD5        = "hmacmd5"
+	signMethodHMACSHA1   = "hmacsha1"
+	signMethodHMACMD5    = "hmacmd5"
 	defaultTimeout       = time.Second * 2
 	defaultAuthLimitTime = time.Minute * 15 // 当授权通过后,在15分钟内不可再授权,防止授权频繁
 )
@@ -73,7 +73,7 @@ func New() *Client {
 	sf := &Client{
 		host:       "https://iot-as-http.cn-shanghai.aliyuncs.com",
 		version:    "default",
-		signMethod: signMethodMD5,
+		signMethod: signMethodHMACMD5,
 		c: &http.Client{
 			Timeout: defaultTimeout,
 		},
@@ -107,10 +107,10 @@ func (sf *Client) SetDeviceMetaInfo(productKey, deviceName, deviceSecret string)
 
 // SetSignMethod 设置签名方法,目前支持hmacMD5和hmacSHA1
 func (sf *Client) SetSignMethod(method string) *Client {
-	if method == signMethodMD5 || method == signMethodSHA1 {
+	if method == signMethodHMACMD5 || method == signMethodHMACSHA1 {
 		sf.signMethod = method
 	} else {
-		sf.signMethod = signMethodMD5
+		sf.signMethod = signMethodHMACMD5
 	}
 	return sf
 }
@@ -118,11 +118,11 @@ func (sf *Client) SetSignMethod(method string) *Client {
 func (sf *AuthRequest) generateSign(deviceSecret string) error {
 	var f func() hash.Hash
 
-	if sf.SignMethod == signMethodSHA1 {
+	if sf.SignMethod == signMethodHMACSHA1 {
 		f = sha1.New
 	} else {
 		f = md5.New
-		sf.SignMethod = signMethodMD5
+		sf.SignMethod = signMethodHMACMD5
 	}
 	signSource := fmt.Sprintf("clientId%sdeviceName%sproductKey%stimestamp%d",
 		sf.ClientID, sf.DeviceName, sf.ProductKey, sf.Timestamp)

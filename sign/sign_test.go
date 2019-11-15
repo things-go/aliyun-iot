@@ -20,11 +20,11 @@ func TestMQTTSign(t *testing.T) {
 			SetSupportExtRRPC().
 			AddCustomKV("testKey", "testValue").
 			DeleteCustomKV("deleteKey").
-			Generate(&MetaInfo{
+			Generate(&infra.MetaInfo{
 				ProductKey:   productKey,
 				DeviceName:   deviceName,
 				DeviceSecret: deviceSecret,
-			}, CloudRegionShangHai)
+			}, infra.CloudRegionShangHai)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -34,12 +34,12 @@ func TestMQTTSign(t *testing.T) {
 	t.Run("MQTT sign custom cloud region", func(t *testing.T) {
 		signout, err := NewMQTTSign().
 			SetSignMethod(infra.SignMethodHMACSHA1).
-			Generate(&MetaInfo{
+			Generate(&infra.MetaInfo{
 				ProductKey:   productKey,
 				DeviceName:   deviceName,
 				DeviceSecret: deviceSecret,
 				CustomDomain: "iot.custom.com",
-			}, CloudRegionCustom)
+			}, infra.CloudRegionCustom)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -48,12 +48,12 @@ func TestMQTTSign(t *testing.T) {
 
 	t.Run("MQTT sign empty custom cloud region", func(t *testing.T) {
 		_, err := NewMQTTSign().
-			Generate(&MetaInfo{
+			Generate(&infra.MetaInfo{
 				ProductKey:   productKey,
 				DeviceName:   deviceName,
 				DeviceSecret: deviceSecret,
 				CustomDomain: "",
-			}, CloudRegionCustom)
+			}, infra.CloudRegionCustom)
 		if err == nil {
 			t.Fatal("must be error")
 		}

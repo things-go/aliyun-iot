@@ -11,6 +11,8 @@ import (
 	"hash"
 	"sort"
 	"strings"
+
+	"github.com/thinkgos/aliIOT/infra"
 )
 
 // default defined
@@ -21,8 +23,8 @@ const (
 
 // sign method MQTT设备签名只支持以下签名方法
 const (
-	signMethodSHA256 = "hmacsha256"
-	signMethodSHA1   = "hmacsha1"
+	signMethodHMACSHA256 = "hmacsha256"
+	signMethodHMACSHA1   = "hmacsha1"
 )
 
 // all secure mode define
@@ -32,37 +34,6 @@ const (
 	modeTCPDirectPlain = "3"
 	modeITLSDNSID2     = "8"
 )
-
-// mqtt 域名
-var mqttDomain = []string{
-	"iot-as-mqtt.cn-shanghai.aliyuncs.com",    /* Shanghai */
-	"iot-as-mqtt.ap-southeast-1.aliyuncs.com", /* Singapore */
-	"iot-as-mqtt.ap-northeast-1.aliyuncs.com", /* Japan */
-	"iot-as-mqtt.us-west-1.aliyuncs.com",      /* America */
-	"iot-as-mqtt.eu-central-1.aliyuncs.com",   /* Germany */
-}
-
-// MQTTCloudRegion MQTT云端地域
-type MQTTCloudRegion byte
-
-// 云平台地域定义
-const (
-	CloudRegionShangHai MQTTCloudRegion = iota
-	CloudRegionSingapore
-	CloudRegionJapan
-	CloudRegionAmerica
-	CloudRegionGermany
-	CloudRegionCustom
-)
-
-// MetaInfo 产品与设备三元组
-type MetaInfo struct {
-	ProductKey    string
-	ProductSecret string
-	DeviceName    string
-	DeviceSecret  string
-	CustomDomain  string // 如果使用CloudRegionCustom,需要定义此字段
-}
 
 // MQTTSignInfo 签名后的信息
 type MQTTSignInfo struct {
@@ -100,7 +71,7 @@ func NewMQTTSign() *MQTTSign {
 		clientIDkv: map[string]string{
 			"timestamp":  fixedTimestamp,
 			"securemode": modeTCPDirectPlain,
-			"signmethod": signMethodSHA256,
+			"signmethod": signMethodHMACSHA256,
 			"lan":        "Golang",
 			"v":          alinkVersion,
 		},
@@ -110,11 +81,11 @@ func NewMQTTSign() *MQTTSign {
 
 // SetSignMethod 设置签名方法,目前只支持hmacsha1,hmacsha256, see package infra
 func (sf *MQTTSign) SetSignMethod(method string) *MQTTSign {
-	if method == signMethodSHA1 {
-		sf.clientIDkv["signmethod"] = signMethodSHA1
+	if method == signMethodHMACSHA1 {
+		sf.clientIDkv["signmethod"] = signMethodHMACSHA1
 		sf.hfc = sha1.New
 	} else {
-		sf.clientIDkv["signmethod"] = signMethodSHA256
+		sf.clientIDkv["signmethod"] = signMethodHMACSHA256
 		sf.hfc = sha256.New
 	}
 	return sf
@@ -206,7 +177,7 @@ func (sf *MQTTSign) generateClientID(deviceID string) string {
 }
 
 // Generate 根据MetaInfo和region生成签名
-func (sf *MQTTSign) Generate(meta *MetaInfo, region MQTTCloudRegion) (*MQTTSignInfo, error) {
+func (sf *MQTTSign) Generate(meta *infra.MetaInfo, region infra.CloudRegion) (*MQTTSignInfo, error) {
 	signOut := &MQTTSignInfo{}
 
 	/* setup ClientID */
@@ -224,13 +195,13 @@ func (sf *MQTTSign) Generate(meta *MetaInfo, region MQTTCloudRegion) (*MQTTSignI
 	signOut.Password = hex.EncodeToString(h.Sum(nil))
 
 	/* setup HostName */
-	if region == CloudRegionCustom {
+	if region == infra.CloudRegionCustom {
 		if meta.CustomDomain == "" {
 			return nil, errors.New("custom domain invalid")
 		}
 		signOut.HostName = meta.CustomDomain
 	} else {
-		signOut.HostName = fmt.Sprintf("%s.%s", meta.ProductKey, mqttDomain[region])
+		signOut.HostName = fmt.Sprintf("%s.%s", meta.ProductKey, infra.MQTTCloudDomain[region])
 	}
 	/* setup UserName */
 	signOut.UserName = fmt.Sprintf("%s&%s", meta.DeviceName, meta.ProductKey)
