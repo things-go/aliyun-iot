@@ -1,4 +1,4 @@
-package dm
+package infra
 
 import (
 	"fmt"

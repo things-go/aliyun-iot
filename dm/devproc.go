@@ -3,6 +3,8 @@ package dm
 import (
 	"encoding/json"
 	"strings"
+
+	"github.com/thinkgos/aliIOT/infra"
 )
 
 // ProcDownStreamFunc 处理下行数据
@@ -47,8 +49,8 @@ func ProcThingEventPostReply(c *Client, rawURI string, payload []byte) error {
 
 	eventID := uris[c.cfg.uriOffset+5]
 	c.debug("downstream thing <event>: %s post reply,@%d", eventID, rsp.ID)
-	if rsp.Code != CodeSuccess {
-		err = NewCodeError(rsp.Code, rsp.Message)
+	if rsp.Code != infra.CodeSuccess {
+		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
 	c.CacheDone(rsp.ID, err)
@@ -86,8 +88,8 @@ func ProcThingEventPropertyPackPostReply(c *Client, rawURI string, payload []byt
 	}
 
 	c.debug("downstream thing <event>: property pack post reply,@%d", rsp.ID)
-	if rsp.Code != CodeSuccess {
-		err = NewCodeError(rsp.Code, rsp.Message)
+	if rsp.Code != infra.CodeSuccess {
+		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
 	c.CacheDone(rsp.ID, err)
@@ -116,8 +118,8 @@ func ProcThingDeviceInfoUpdateReply(c *Client, rawURI string, payload []byte) er
 	}
 
 	c.debug("downstream thing <deviceInfo>: update reply,@%d", rsp.ID)
-	if rsp.Code != CodeSuccess {
-		err = NewCodeError(rsp.Code, rsp.Message)
+	if rsp.Code != infra.CodeSuccess {
+		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
 	c.CacheDone(rsp.ID, err)
@@ -148,8 +150,8 @@ func ProcThingDeviceInfoDeleteReply(c *Client, rawURI string, payload []byte) er
 	}
 
 	c.debug("downstream thing <deviceInfo>: delete reply,@%d", rsp.ID)
-	if rsp.Code != CodeSuccess {
-		err = NewCodeError(rsp.Code, rsp.Message)
+	if rsp.Code != infra.CodeSuccess {
+		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
 	c.CacheDone(rsp.ID, err)
@@ -178,8 +180,8 @@ func ProcThingDesiredPropertyGetReply(c *Client, rawURI string, payload []byte) 
 	}
 
 	c.debug("downstream thing <desired>: property get reply,@%d", rsp.ID)
-	if rsp.Code != CodeSuccess {
-		err = NewCodeError(rsp.Code, rsp.Message)
+	if rsp.Code != infra.CodeSuccess {
+		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
 	c.CacheDone(rsp.ID, err)
@@ -209,8 +211,8 @@ func ProcThingDesiredPropertyDeleteReply(c *Client, rawURI string, payload []byt
 	}
 
 	c.debug("downstream thing <desired>: property delete reply,@%d", rsp.ID)
-	if rsp.Code != CodeSuccess {
-		err = NewCodeError(rsp.Code, rsp.Message)
+	if rsp.Code != infra.CodeSuccess {
+		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
 	c.CacheDone(rsp.ID, err)
@@ -239,8 +241,8 @@ func ProcThingDsltemplateGetReply(c *Client, rawURI string, payload []byte) erro
 	}
 
 	c.debug("downstream thing <dsl template>: get reply,@%d - %s", rsp.ID, string(rsp.Data))
-	if rsp.Code != CodeSuccess {
-		err = NewCodeError(rsp.Code, rsp.Message)
+	if rsp.Code != infra.CodeSuccess {
+		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
 	c.CacheDone(rsp.ID, err)
@@ -270,8 +272,8 @@ func ProcThingDynamictslGetReply(c *Client, rawURI string, payload []byte) error
 	}
 
 	c.debug("downstream thing <dynamic tsl>: get reply,@%d - %+v", rsp.ID, rsp)
-	if rsp.Code != CodeSuccess {
-		err = NewCodeError(rsp.Code, rsp.Message)
+	if rsp.Code != infra.CodeSuccess {
+		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
 	c.CacheDone(rsp.ID, err)
@@ -325,8 +327,8 @@ func ProcThingConfigGetReply(c *Client, rawURI string, payload []byte) error {
 	}
 
 	c.debug("downstream thing <config>: get reply,@%d,payload@%+v", rsp.ID, rsp)
-	if rsp.Code != CodeSuccess {
-		err = NewCodeError(rsp.Code, rsp.Message)
+	if rsp.Code != infra.CodeSuccess {
+		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
 	c.CacheDone(rsp.ID, err)
@@ -374,7 +376,7 @@ func ProcThingConfigPush(c *Client, rawURI string, payload []byte) error {
 	}
 	c.debug("downstream thing <config>: push request")
 	if err := c.SendResponse(uriServiceReplyWithRequestURI(rawURI),
-		req.ID, CodeSuccess, "{}"); err != nil {
+		req.ID, infra.CodeSuccess, "{}"); err != nil {
 		return err
 	}
 	return c.ipcSendMessage(&ipcMessage{

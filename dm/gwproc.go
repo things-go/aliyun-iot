@@ -2,6 +2,8 @@ package dm
 
 import (
 	"encoding/json"
+
+	"github.com/thinkgos/aliIOT/infra"
 )
 
 // ProcThingTopoAddReply 处理网络拓扑添加
@@ -21,8 +23,8 @@ func ProcThingTopoAddReply(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 
-	if rsp.Code != CodeSuccess {
-		err = NewCodeError(rsp.Code, rsp.Message)
+	if rsp.Code != infra.CodeSuccess {
+		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	} else {
 		if devID, ok := c.CacheGet(rsp.ID); ok {
 			_ = c.SetDevStatusByID(devID, DevStatusAttached)
@@ -50,8 +52,8 @@ func ProcThingTopoDeleteReply(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 
-	if rsp.Code != CodeSuccess {
-		err = NewCodeError(rsp.Code, rsp.Message)
+	if rsp.Code != infra.CodeSuccess {
+		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	} else {
 		if devID, ok := c.CacheGet(rsp.ID); ok {
 			_ = c.SetDevStatusByID(devID, DevStatusRegistered)
@@ -78,8 +80,8 @@ func ProcThingTopoGetReply(c *Client, rawURI string, payload []byte) error {
 	if err != nil {
 		return err
 	}
-	if rsp.Code != CodeSuccess {
-		err = NewCodeError(rsp.Code, rsp.Message)
+	if rsp.Code != infra.CodeSuccess {
+		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
 	c.CacheDone(rsp.ID, err)
@@ -108,8 +110,8 @@ func ProcThingListFoundReply(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 
-	if rsp.Code != CodeSuccess {
-		err = NewCodeError(rsp.Code, rsp.Message)
+	if rsp.Code != infra.CodeSuccess {
+		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
 	c.CacheDone(rsp.ID, err)
@@ -156,7 +158,7 @@ func ProcThingTopoAddNotify(c *Client, rawURI string, payload []byte) error {
 		c.warn("ipc send message failed, %+v", err)
 	}
 	return c.SendResponse(uriServiceReplyWithRequestURI(rawURI),
-		req.ID, CodeSuccess, "{}")
+		req.ID, infra.CodeSuccess, "{}")
 
 }
 
@@ -202,7 +204,7 @@ func ProcThingTopoChange(c *Client, rawURI string, payload []byte) error {
 		c.warn("ipc send message failed, %+v", err)
 	}
 	return c.SendResponse(uriServiceReplyWithRequestURI(rawURI),
-		req.ID, CodeSuccess, "{}")
+		req.ID, infra.CodeSuccess, "{}")
 }
 
 /*************************************** 子设备相关处理 *************************************************************/
@@ -223,8 +225,8 @@ func ProcThingSubDevRegisterReply(c *Client, rawURI string, payload []byte) erro
 		return err
 	}
 
-	if rsp.Code != CodeSuccess {
-		err = NewCodeError(rsp.Code, rsp.Message)
+	if rsp.Code != infra.CodeSuccess {
+		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	} else {
 		for _, v := range rsp.Data {
 			node, er := c.SearchNodeByPkDn(v.ProductKey, v.DeviceName)
@@ -259,8 +261,8 @@ func ProcExtSubDevCombineLoginReply(c *Client, rawURI string, payload []byte) er
 		return err
 	}
 
-	if rsp.Code != CodeSuccess {
-		err = NewCodeError(rsp.Code, rsp.Message)
+	if rsp.Code != infra.CodeSuccess {
+		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	} else {
 		if devID, ok := c.CacheGet(rsp.ID); ok {
 			_ = c.SetDevStatusByID(devID, DevStatusLogined)
@@ -287,8 +289,8 @@ func ProcExtSubDevCombineLogoutReply(c *Client, rawURI string, payload []byte) e
 	if err != nil {
 		return err
 	}
-	if rsp.Code != CodeSuccess {
-		err = NewCodeError(rsp.Code, rsp.Message)
+	if rsp.Code != infra.CodeSuccess {
+		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	} else {
 		if devID, ok := c.CacheGet(rsp.ID); ok {
 			_ = c.SetDevStatusByID(devID, DevStatusAttached)
@@ -327,7 +329,7 @@ func ProcThingDisable(c *Client, rawURI string, payload []byte) error {
 		c.warn("<thing> disable, ipc send message failed, %+v", err)
 	}
 	return c.SendResponse(uriServiceReplyWithRequestURI(rawURI),
-		req.ID, CodeSuccess, "{}")
+		req.ID, infra.CodeSuccess, "{}")
 }
 
 // ProcThingEnable 启用子设备
@@ -358,7 +360,7 @@ func ProcThingEnable(c *Client, rawURI string, payload []byte) error {
 		c.warn("<thing> enable, ipc send message failed, %+v", err)
 	}
 	return c.SendResponse(uriServiceReplyWithRequestURI(rawURI),
-		req.ID, CodeSuccess, "{}")
+		req.ID, infra.CodeSuccess, "{}")
 }
 
 // ProcThingDelete 子设备删除,网关类型设备
@@ -386,7 +388,7 @@ func ProcThingDelete(c *Client, rawURI string, payload []byte) error {
 		c.warn("<thing> delete, ipc send message failed, %+v", err)
 	}
 	return c.SendResponse(uriServiceReplyWithRequestURI(rawURI),
-		req.ID, CodeSuccess, "{}")
+		req.ID, infra.CodeSuccess, "{}")
 }
 
 // ExtErrorData 子设备错误回复数据域
@@ -416,8 +418,8 @@ func ProcExtErrorResponse(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 
-	if rsp.Code != CodeSuccess {
-		err = NewCodeError(rsp.Code, rsp.Message)
+	if rsp.Code != infra.CodeSuccess {
+		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 	c.CacheDone(rsp.ID, err)
 	c.debug("downstream extend <Error>: response,@%d", rsp.ID)

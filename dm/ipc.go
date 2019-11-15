@@ -5,6 +5,8 @@ import (
 	"errors"
 	"strconv"
 	"strings"
+
+	"github.com/thinkgos/aliIOT/infra"
 )
 
 // ipc 事件类型
@@ -122,12 +124,12 @@ func (sf *Client) ipcEventProc(msg *ipcMessage) error {
 	case ipcEvtConfigGetReply:
 		return sf.eventProc.EvtThingConfigGetReply(sf, msg.err, msg.productKey, msg.deviceName, msg.payload.(ConfigParamsAndData))
 	case ipcEvtErrorResponse:
-		err := msg.err.(*CodeError)
+		err := msg.err.(*infra.CodeError)
 		data := msg.payload.(ExtErrorData)
 		sf.debug("ext evt error response, %+v", err)
 
 		code := err.Code()
-		if code == CodeSubDevSessionError {
+		if code == infra.CodeSubDevSessionError {
 			node, err := sf.SearchNodeByPkDn(data.ProductKey, data.DeviceName)
 			if err != nil {
 				return err

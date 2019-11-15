@@ -14,6 +14,8 @@ import (
 	"hash"
 	"net/http"
 	"time"
+
+	"github.com/thinkgos/aliIOT/infra"
 )
 
 // sign method 动态注册只支持以下签名方法
@@ -66,7 +68,7 @@ type Response struct {
 }
 
 // Register2Cloud 动态注册,传入三元组,获得DeviceSecret,直接修改meta,
-// 指定签名算法,支持hmacmd5,hmacsha1,hmacsha256将采用默认hmacsha256加签算法
+// 指定签名算法,默认hmacsha256加签算法(支持hmacmd5,hmacsha1,hmacsha256)
 func Register2Cloud(meta *MetaInfo, region CloudRegion, signMethod ...string) error {
 	if meta == nil || meta.ProductKey == "" ||
 		meta.ProductSecret == "" || meta.DeviceName == "" {
@@ -74,7 +76,10 @@ func Register2Cloud(meta *MetaInfo, region CloudRegion, signMethod ...string) er
 	}
 
 	signMd := append(signMethod, signMethodSHA256)[0]
-	if !(signMd == signMethodMD5 || signMd == signMethodSHA1 || (signMd == signMethodSHA256)) {
+	if !(signMd == signMethodMD5 ||
+		signMd == signMethodSHA1 ||
+		(signMd == signMethodSHA256)) {
+		// 非法签名使用默认签名方法
 		signMd = signMethodSHA256
 	}
 	// 计算签名 Signature
@@ -110,15 +115,15 @@ func Register2Cloud(meta *MetaInfo, region CloudRegion, signMethod ...string) er
 	}
 	defer response.Body.Close()
 
-	responsePayload := Response{}
-	if err = json.NewDecoder(response.Body).Decode(&responsePayload); err != nil {
+	responsePy := Response{}
+	if err = json.NewDecoder(response.Body).Decode(&responsePy); err != nil {
 		return err
 	}
 	// TODO: 根据不同的code返回不同的错误
-	if responsePayload.Code != 200 {
-		return fmt.Errorf("got response but payload failed, %#v", responsePayload)
+	if responsePy.Code != infra.CodeSuccess {
+		return fmt.Errorf("got response but payload failed, %#v", infra.NewCodeError(responsePy.Code, responsePy.Message))
 	}
-	meta.DeviceSecret = responsePayload.Data.DeviceSecret
+	meta.DeviceSecret = responsePy.Data.DeviceSecret
 	return nil
 }
 
