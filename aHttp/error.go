@@ -1,4 +1,4 @@
-package ahttp
+package aHttp
 
 import (
 	"fmt"

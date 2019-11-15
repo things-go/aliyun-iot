@@ -1,14 +1,14 @@
 package aliIOT
 
 import (
-	"github.com/thinkgos/aliIOT/ahttp"
+	"github.com/thinkgos/aliIOT/aHttp"
 	"github.com/thinkgos/aliIOT/clog"
 	"github.com/thinkgos/aliIOT/dm"
 )
 
 // HTTPClient HTTP客户端
 type HTTPClient struct {
-	c *ahttp.Client
+	c *aHttp.Client
 	*dm.Client
 }
 
@@ -41,13 +41,13 @@ func (sf *HTTPClient) LogMode(enable bool) {
 }
 
 // UnderlyingClient 底层客户端
-func (sf *HTTPClient) UnderlyingClient() *ahttp.Client {
+func (sf *HTTPClient) UnderlyingClient() *aHttp.Client {
 	return sf.c
 }
 
 // NewWithHTTP 新建HTTP客户端
 func NewWithHTTP(config *dm.Config) *HTTPClient {
-	client := ahttp.New().
+	client := aHttp.New().
 		SetDeviceMetaInfo(config.
 			EnableHTTP().
 			MetaInfo())

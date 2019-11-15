@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/thinkgos/aliIOT/ahttp"
+	"github.com/thinkgos/aliIOT/aHttp"
 	"github.com/thinkgos/aliIOT/dm"
 )
 
@@ -20,7 +20,7 @@ const (
 func main() {
 	var err error
 
-	client := ahttp.New().SetDeviceMetaInfo(productKey, deviceName, deviceSecret)
+	client := aHttp.New().SetDeviceMetaInfo(productKey, deviceName, deviceSecret)
 	client.
 		//SetSignMethod(infra.SignMethodHMACSHA1).
 		LogMode(true)
