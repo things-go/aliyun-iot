@@ -32,8 +32,6 @@ func main() {
 		err = client.Publish(uri, bPayload)
 		if err != nil {
 			log.Println(err)
-		} else {
-			log.Println("success")
 		}
 		time.Sleep(time.Second * 10)
 	}
