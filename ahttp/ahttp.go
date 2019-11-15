@@ -105,7 +105,7 @@ func (sf *Client) SetDeviceMetaInfo(productKey, deviceName, deviceSecret string)
 	return sf
 }
 
-// SetSignMethod 设置签名方法
+// SetSignMethod 设置签名方法,目前支持hmacMD5和hmacSHA1
 func (sf *Client) SetSignMethod(method string) *Client {
 	if method == signMethodMD5 || method == signMethodSHA1 {
 		sf.signMethod = method
