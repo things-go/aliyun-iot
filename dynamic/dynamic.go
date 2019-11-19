@@ -1,4 +1,4 @@
-// Package dynamic 实现动态注册,只限直连设备动态注册
+// Package dynamic 实现动态注册,只限直连设备动态注册,阿里云目前限制激活过的设备不可再注册
 package dynamic
 
 import (
@@ -51,8 +51,16 @@ func Register2Cloud(meta *infra.MetaInfo, region infra.CloudRegion, signMethod .
 		// 非法签名使用默认签名方法
 		signMd = signMethodHMACSHA256
 	}
+
+	ms := MetaSign{
+		ProductKey:    meta.ProductKey,
+		ProductSecret: meta.ProductSecret,
+		DeviceName:    meta.DeviceName,
+		Random:        "8Ygb7ULYh53B6OA",
+		SignMethod:    signMd,
+	}
 	// 计算签名 Signature
-	random, sign, err := calcSign(meta, signMd)
+	sign, err := calcSign(&ms)
 	if err != nil {
 		return err
 	}
@@ -68,7 +76,7 @@ func Register2Cloud(meta *infra.MetaInfo, region infra.CloudRegion, signMethod .
 	}
 
 	requestBody := fmt.Sprintf("productKey=%s&deviceName=%s&random=%s&sign=%s&signMethod=%s",
-		meta.ProductKey, meta.DeviceName, random, sign, signMd)
+		meta.ProductKey, meta.DeviceName, ms.Random, sign, signMd)
 
 	request, err := http.NewRequest(http.MethodPost,
 		fmt.Sprintf("https://%s/auth/register/device", domain),
@@ -96,26 +104,38 @@ func Register2Cloud(meta *infra.MetaInfo, region infra.CloudRegion, signMethod .
 	return nil
 }
 
+// MetaSign 签名
+type MetaSign struct {
+	ProductKey    string
+	ProductSecret string
+	DeviceName    string
+	Random        string
+	SignMethod    string
+}
+
 // calcSign 计算动态签名,以productKey为key
-func calcSign(info *infra.MetaInfo, signMethod string) (random, sign string, err error) {
+func calcSign(info *MetaSign) (string, error) {
 	var h hash.Hash
 
 	/* setup password */
-	switch signMethod {
+	switch info.SignMethod {
 	case signMethodHMACSHA1:
 		h = hmac.New(sha1.New, []byte(info.ProductSecret))
 	case signMethodHMACMD5:
 		h = hmac.New(md5.New, []byte(info.ProductSecret))
-	default: // signMethodHMACSHA256
+	case "hmacsha256":
+		fallthrough
+	case "":
 		h = hmac.New(sha256.New, []byte(info.ProductSecret))
+	default:
+		return "", errors.New("sign method not support")
 	}
 
-	random = "8Ygb7ULYh53B6OA"
-	signSource := fmt.Sprintf("deviceName%sproductKey%srandom%s", info.DeviceName, info.ProductKey, random)
+	signSource := fmt.Sprintf("deviceName%sproductKey%srandom%s", info.DeviceName, info.ProductKey, info.Random)
 
-	if _, err = h.Write([]byte(signSource)); err != nil {
-		return
+	if _, err := h.Write([]byte(signSource)); err != nil {
+		return "", err
 	}
-	sign = hex.EncodeToString(h.Sum(nil))
-	return
+
+	return hex.EncodeToString(h.Sum(nil)), nil
 }
