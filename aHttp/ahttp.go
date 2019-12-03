@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"hash"
 	"net/http"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -85,6 +86,10 @@ func New() *Client {
 
 // SetHost 设置主机
 func (sf *Client) SetHost(h string) *Client {
+	if !strings.Contains(h, "://") {
+		h = "http://" + h
+	}
+
 	if h != "" {
 		sf.host = h
 	}
