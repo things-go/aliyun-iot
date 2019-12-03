@@ -39,7 +39,7 @@ type Response struct {
 
 // Register2Cloud 动态注册,传入三元组,获得DeviceSecret,直接修改meta,
 // 指定签名算法,默认hmacsha256加签算法(支持hmacmd5,hmacsha1,hmacsha256)
-func Register2Cloud(meta *infra.MetaInfo, region infra.CloudRegion, signMethod ...string) error {
+func Register2Cloud(meta *infra.MetaInfo, crd infra.CloudRegionDomain, signMethod ...string) error {
 	if meta == nil || meta.ProductKey == "" || meta.ProductSecret == "" || meta.DeviceName == "" {
 		return errors.New("invalid params")
 	}
@@ -63,13 +63,13 @@ func Register2Cloud(meta *infra.MetaInfo, region infra.CloudRegion, signMethod .
 	}
 
 	var domain string
-	if region == infra.CloudRegionCustom {
-		if meta.CustomDomain == "" {
+	if crd.Region == infra.CloudRegionCustom {
+		if crd.CustomDomain == "" {
 			return errors.New("custom domain invalid")
 		}
-		domain = meta.CustomDomain
+		domain = crd.CustomDomain
 	} else {
-		domain = infra.HTTPCloudDomain[region]
+		domain = infra.HTTPCloudDomain[crd.Region]
 	}
 
 	if !strings.Contains(domain, "://") {

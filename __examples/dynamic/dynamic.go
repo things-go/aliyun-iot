@@ -23,9 +23,11 @@ func main() {
 		ProductKey:    productKey,
 		ProductSecret: productSecret,
 		DeviceName:    deviceName,
-		CustomDomain:  "127.168.1.14:8080",
 	}
-	err := dynamic.Register2Cloud(&meta, infra.CloudRegionCustom)
+	err := dynamic.Register2Cloud(&meta, infra.CloudRegionDomain{
+		Region:       infra.CloudRegionShangHai,
+		CustomDomain: "127.168.1.14:8080",
+	})
 	if err != nil {
 		panic(err)
 	}

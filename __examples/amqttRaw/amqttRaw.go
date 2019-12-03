@@ -29,7 +29,9 @@ func main() {
 			ProductSecret: productSecret,
 			DeviceName:    deviceName,
 			DeviceSecret:  deviceSecret,
-		}, infra.CloudRegionShangHai)
+		}, infra.CloudRegionDomain{
+			Region: infra.CloudRegionShangHai,
+		})
 	if err != nil {
 		panic(err)
 	}

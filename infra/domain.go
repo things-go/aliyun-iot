@@ -31,10 +31,10 @@ const (
 	CloudRegionCustom
 )
 
-type CloudRegionInfo struct {
+// CloudRegionInfo 云端域信息
+type CloudRegionDomain struct {
 	Region       CloudRegion
-	CustomDomain string
-	Port         int
+	CustomDomain string // address:port,采用CloudRegionCustom需要定义此字段
 }
 
 // MetaInfo 产品与设备三元组
@@ -43,5 +43,4 @@ type MetaInfo struct {
 	ProductSecret string
 	DeviceName    string
 	DeviceSecret  string
-	CustomDomain  string // 如果使用CloudRegionCustom,需要定义此字段
 }

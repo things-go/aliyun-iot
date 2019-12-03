@@ -176,7 +176,7 @@ func (sf *MQTTSign) generateClientID(deviceID string) string {
 }
 
 // Generate 根据MetaInfo和region生成签名
-func (sf *MQTTSign) Generate(meta *infra.MetaInfo, region infra.CloudRegion) (*MQTTSignInfo, error) {
+func (sf *MQTTSign) Generate(meta *infra.MetaInfo, crd infra.CloudRegionDomain) (*MQTTSignInfo, error) {
 	signOut := &MQTTSignInfo{}
 
 	/* setup ClientID */
@@ -194,13 +194,13 @@ func (sf *MQTTSign) Generate(meta *infra.MetaInfo, region infra.CloudRegion) (*M
 	signOut.Password = hex.EncodeToString(h.Sum(nil))
 
 	/* setup HostName */
-	if region == infra.CloudRegionCustom {
-		if meta.CustomDomain == "" {
+	if crd.Region == infra.CloudRegionCustom {
+		if crd.CustomDomain == "" {
 			return nil, errors.New("custom domain invalid")
 		}
-		signOut.HostName = meta.CustomDomain
+		signOut.HostName = crd.CustomDomain
 	} else {
-		signOut.HostName = fmt.Sprintf("%s.%s", meta.ProductKey, infra.MQTTCloudDomain[region])
+		signOut.HostName = fmt.Sprintf("%s.%s", meta.ProductKey, infra.MQTTCloudDomain[crd.Region])
 	}
 	/* setup UserName */
 	signOut.UserName = fmt.Sprintf("%s&%s", meta.DeviceName, meta.ProductKey)

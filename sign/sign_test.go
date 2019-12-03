@@ -24,7 +24,9 @@ func TestMQTTSign(t *testing.T) {
 				ProductKey:   productKey,
 				DeviceName:   deviceName,
 				DeviceSecret: deviceSecret,
-			}, infra.CloudRegionShangHai)
+			}, infra.CloudRegionDomain{
+				Region: infra.CloudRegionShangHai,
+			})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -38,8 +40,10 @@ func TestMQTTSign(t *testing.T) {
 				ProductKey:   productKey,
 				DeviceName:   deviceName,
 				DeviceSecret: deviceSecret,
+			}, infra.CloudRegionDomain{
+				Region:       infra.CloudRegionCustom,
 				CustomDomain: "iot.custom.com",
-			}, infra.CloudRegionCustom)
+			})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -52,8 +56,10 @@ func TestMQTTSign(t *testing.T) {
 				ProductKey:   productKey,
 				DeviceName:   deviceName,
 				DeviceSecret: deviceSecret,
+			}, infra.CloudRegionDomain{
+				Region:       infra.CloudRegionCustom,
 				CustomDomain: "",
-			}, infra.CloudRegionCustom)
+			})
 		if err == nil {
 			t.Fatal("must be error")
 		}
