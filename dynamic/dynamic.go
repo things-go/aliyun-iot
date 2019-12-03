@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"hash"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/thinkgos/aliIOT/infra"
@@ -39,17 +40,13 @@ type Response struct {
 // Register2Cloud 动态注册,传入三元组,获得DeviceSecret,直接修改meta,
 // 指定签名算法,默认hmacsha256加签算法(支持hmacmd5,hmacsha1,hmacsha256)
 func Register2Cloud(meta *infra.MetaInfo, region infra.CloudRegion, signMethod ...string) error {
-	if meta == nil || meta.ProductKey == "" ||
-		meta.ProductSecret == "" || meta.DeviceName == "" {
+	if meta == nil || meta.ProductKey == "" || meta.ProductSecret == "" || meta.DeviceName == "" {
 		return errors.New("invalid params")
 	}
 
 	signMd := append(signMethod, signMethodHMACSHA256)[0]
-	if !(signMd == signMethodHMACMD5 ||
-		signMd == signMethodHMACSHA1 ||
-		(signMd == signMethodHMACSHA256)) {
-		// 非法签名使用默认签名方法
-		signMd = signMethodHMACSHA256
+	if !(signMd == signMethodHMACMD5 || signMd == signMethodHMACSHA1 || (signMd == signMethodHMACSHA256)) {
+		signMd = signMethodHMACSHA256 // 非法签名使用默认签名方法
 	}
 
 	ms := MetaSign{
@@ -75,15 +72,20 @@ func Register2Cloud(meta *infra.MetaInfo, region infra.CloudRegion, signMethod .
 		domain = infra.HTTPCloudDomain[region]
 	}
 
+	if !strings.Contains(domain, "://") {
+		domain = "http://" + domain
+	}
+
 	requestBody := fmt.Sprintf("productKey=%s&deviceName=%s&random=%s&sign=%s&signMethod=%s",
 		meta.ProductKey, meta.DeviceName, ms.Random, sign, signMd)
 
 	request, err := http.NewRequest(http.MethodPost,
-		fmt.Sprintf("https://%s/auth/register/device", domain),
+		fmt.Sprintf("%s/auth/register/device", domain),
 		bytes.NewBufferString(requestBody))
 	if err != nil {
 		return err
 	}
+
 	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	request.Header.Set("Accept", "text/xml,text/javascript,text/html,application/json")
 	response, err := (&http.Client{Timeout: time.Millisecond * 2000}).Do(request)
