@@ -2,11 +2,11 @@ package infra
 
 // HTTPCloudDomain http 域名
 var HTTPCloudDomain = []string{
-	"https://iot-auth.cn-shanghai.aliyuncs.com",    /* Shanghai */
-	"https://iot-auth.ap-southeast-1.aliyuncs.com", /* Singapore */
-	"https://iot-auth.ap-northeast-1.aliyuncs.com", /* Japan */
-	"https://iot-auth.us-west-1.aliyuncs.com",      /* America */
-	"https://iot-auth.eu-central-1.aliyuncs.com",   /* Germany */
+	"iot-auth.cn-shanghai.aliyuncs.com",    /* Shanghai */
+	"iot-auth.ap-southeast-1.aliyuncs.com", /* Singapore */
+	"iot-auth.ap-northeast-1.aliyuncs.com", /* Japan */
+	"iot-auth.us-west-1.aliyuncs.com",      /* America */
+	"iot-auth.eu-central-1.aliyuncs.com",   /* Germany */
 }
 
 // MQTTCloudDomain mqtt 域名
