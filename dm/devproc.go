@@ -59,7 +59,8 @@ func ProcThingEventPostReply(c *Client, rawURI string, payload []byte) error {
 			err:        err,
 			evt:        ipcEvtEventPropertyPostReply,
 			productKey: uris[c.cfg.uriOffset+1],
-			deviceName: uris[c.cfg.uriOffset+2]})
+			deviceName: uris[c.cfg.uriOffset+2],
+		})
 	}
 
 	return c.ipcSendMessage(&ipcMessage{
