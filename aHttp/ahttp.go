@@ -63,7 +63,7 @@ type Client struct {
 	mu       sync.Mutex
 
 	c *http.Client
-	*clog.Clog
+	clog.Clog
 }
 
 // New 新建alink http client
@@ -78,7 +78,7 @@ func New() *Client {
 		c: &http.Client{
 			Timeout: defaultTimeout,
 		},
-		Clog: clog.NewWithPrefix("alink http --> "),
+		Clog: clog.NewLogger("alink http --> "),
 	}
 	sf.token.Store("")
 	return sf

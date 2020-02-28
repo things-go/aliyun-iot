@@ -10,7 +10,7 @@ import (
 type MQTTClient struct {
 	c mqtt.Client
 	*dm.Client
-	log *clog.Clog
+	log clog.Clog
 }
 
 // 确保 NopEvt 实现 dm.Conn 接口
@@ -56,7 +56,7 @@ func (sf *MQTTClient) UnderlyingClient() mqtt.Client {
 // NewWithMQTT 新建MQTTClient
 func NewWithMQTT(config *dm.Config, c mqtt.Client) *MQTTClient {
 	m := dm.New(config)
-	cli := &MQTTClient{c, m, clog.NewWithPrefix("mqtt --> ")}
+	cli := &MQTTClient{c, m, clog.NewLogger("mqtt --> ")}
 	m.SetConn(cli)
 	return cli
 }
