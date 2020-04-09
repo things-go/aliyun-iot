@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/thinkgos/aliIOT/infra"
+	"github.com/thinkgos/aiot/infra"
 )
 
 // ipc 事件类型

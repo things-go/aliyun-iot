@@ -1,9 +1,9 @@
-package aliIOT
+package aiot
 
 import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
-	"github.com/thinkgos/aliIOT/clog"
-	"github.com/thinkgos/aliIOT/dm"
+	"github.com/thinkgos/aiot/clog"
+	"github.com/thinkgos/aiot/dm"
 )
 
 // MQTTClient MQTT客户端

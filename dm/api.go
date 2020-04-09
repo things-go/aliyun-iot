@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"sync/atomic"
 
-	"github.com/thinkgos/cache-go"
+	"github.com/patrickmn/go-cache"
 )
 
 // MsgType 消息类型

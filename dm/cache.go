@@ -5,7 +5,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/thinkgos/cache-go"
+	"github.com/patrickmn/go-cache"
 )
 
 // MsgCacheEntry 消息缓存条目
@@ -37,9 +37,10 @@ func (sf *Client) cacheInit() {
 		sf.debug("cache evicted - @%s", id)
 		sf.pool.Put(entry)
 	})
-	sf.msgCache.OnDeleted(func(s string, v interface{}) {
-		sf.pool.Put(v.(*MsgCacheEntry))
-	})
+	// TODO: 删除时放回Pool
+	//sf.msgCache.OnDeleted(func(s string, v interface{}) {
+	//	sf.pool.Put(v.(*MsgCacheEntry))
+	//})
 }
 
 // CacheInsert 缓存插入指定ID

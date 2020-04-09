@@ -3,7 +3,7 @@ package dynamic
 import (
 	"testing"
 
-	"github.com/thinkgos/aliIOT/infra"
+	"github.com/thinkgos/aiot/infra"
 )
 
 func Test_calcSign(t *testing.T) {

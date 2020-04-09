@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/thinkgos/aliIOT/infra"
+	"github.com/thinkgos/aiot/infra"
 )
 
 // ProcDownStreamFunc 处理下行数据

@@ -7,11 +7,11 @@ import (
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
-	"github.com/thinkgos/aliIOT"
-	"github.com/thinkgos/aliIOT/dm"
-	"github.com/thinkgos/aliIOT/dmd"
-	"github.com/thinkgos/aliIOT/infra"
-	"github.com/thinkgos/aliIOT/sign"
+	"github.com/thinkgos/aiot"
+	"github.com/thinkgos/aiot/dm"
+	"github.com/thinkgos/aiot/dmd"
+	"github.com/thinkgos/aiot/infra"
+	"github.com/thinkgos/aiot/sign"
 )
 
 const (
@@ -21,7 +21,7 @@ const (
 	deviceSecret  = "ld9Xf2BtKGfdEC7G9nSMe1wYfgllvi3Q"
 )
 
-var dmClient *aliIOT.MQTTClient
+var dmClient *aiot.MQTTClient
 
 func main() {
 	signs, err := sign.NewMQTTSign().
@@ -54,7 +54,7 @@ func main() {
 
 	dmopt := dm.NewConfig(productKey, deviceName, deviceSecret).
 		Valid()
-	dmClient = aliIOT.NewWithMQTT(dmopt, client)
+	dmClient = aiot.NewWithMQTT(dmopt, client)
 	dmClient.LogMode(true)
 
 	client.Connect().Wait()

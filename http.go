@@ -1,9 +1,9 @@
-package aliIOT
+package aiot
 
 import (
-	"github.com/thinkgos/aliIOT/aHttp"
-	"github.com/thinkgos/aliIOT/clog"
-	"github.com/thinkgos/aliIOT/dm"
+	"github.com/thinkgos/aiot/aHttp"
+	"github.com/thinkgos/aiot/clog"
+	"github.com/thinkgos/aiot/dm"
 )
 
 // HTTPClient HTTP客户端

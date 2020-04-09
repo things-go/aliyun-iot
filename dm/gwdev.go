@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/thinkgos/aliIOT/infra"
+	"github.com/thinkgos/aiot/infra"
 )
 
 // GwSubDevRegisterParams 子设备注册参数域

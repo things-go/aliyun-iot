@@ -12,7 +12,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/thinkgos/aliIOT/infra"
+	"github.com/thinkgos/aiot/infra"
 )
 
 // default defined

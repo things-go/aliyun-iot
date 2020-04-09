@@ -16,7 +16,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/thinkgos/aliIOT/infra"
+	"github.com/thinkgos/aiot/infra"
 )
 
 // sign method 动态注册只支持以下签名方法

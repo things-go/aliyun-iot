@@ -6,10 +6,10 @@ import (
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
-	"github.com/thinkgos/aliIOT"
-	"github.com/thinkgos/aliIOT/dm"
-	"github.com/thinkgos/aliIOT/infra"
-	"github.com/thinkgos/aliIOT/sign"
+	"github.com/thinkgos/aiot"
+	"github.com/thinkgos/aiot/dm"
+	"github.com/thinkgos/aiot/infra"
+	"github.com/thinkgos/aiot/sign"
 )
 
 const (
@@ -74,7 +74,7 @@ func main() {
 	dmConfig := dm.NewConfig(productKey, deviceName, deviceSecret).
 		EnableModelRaw().
 		Valid()
-	dmClient := aliIOT.NewWithMQTT(dmConfig, client)
+	dmClient := aiot.NewWithMQTT(dmConfig, client)
 	dmClient.LogMode(true)
 	dmClient.SetEventProc(RawProc{})
 

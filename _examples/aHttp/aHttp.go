@@ -5,8 +5,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/thinkgos/aliIOT/aHttp"
-	"github.com/thinkgos/aliIOT/dm"
+	"github.com/thinkgos/aiot/aHttp"
+	"github.com/thinkgos/aiot/dm"
 )
 
 const (

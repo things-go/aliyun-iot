@@ -3,7 +3,7 @@ package dm
 import (
 	"encoding/json"
 
-	"github.com/thinkgos/aliIOT/clog"
+	"github.com/thinkgos/aiot/clog"
 )
 
 // Conn conn接口

@@ -1,12 +1,12 @@
-package aliIOT
+package aiot
 
 import (
 	"bytes"
 	"errors"
 
 	"github.com/go-ocf/go-coap"
-	"github.com/thinkgos/aliIOT/clog"
-	"github.com/thinkgos/aliIOT/dm"
+	"github.com/thinkgos/aiot/clog"
+	"github.com/thinkgos/aiot/dm"
 )
 
 // COAPClient COAP客户端

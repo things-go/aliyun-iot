@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"github.com/thinkgos/aliIOT/dynamic"
-	"github.com/thinkgos/aliIOT/infra"
+	"github.com/thinkgos/aiot/dynamic"
+	"github.com/thinkgos/aiot/infra"
 )
 
 const (

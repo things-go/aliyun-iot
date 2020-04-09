@@ -5,8 +5,8 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/thinkgos/aliIOT"
-	"github.com/thinkgos/aliIOT/dm"
+	"github.com/thinkgos/aiot"
+	"github.com/thinkgos/aiot/dm"
 )
 
 const (
@@ -20,7 +20,7 @@ func main() {
 	dmopt := dm.NewConfig(productKey, deviceName, deviceSecret).
 		//EnableModelRaw().
 		Valid()
-	dmClient := aliIOT.NewWithHTTP(dmopt)
+	dmClient := aiot.NewWithHTTP(dmopt)
 	dmClient.LogMode(true)
 
 	for {
