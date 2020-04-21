@@ -43,42 +43,45 @@ func main() {
 		0x53, 0x51, 0x09, 0x51, 0x2b, 0x4e, 0x61, 0x43, 0x09, 0x2a, 0x14, 0x4d,
 		0x42, 0x1f, 0x47, 0x38, 0x52, 0x47}
 
-	signs, err := sign.NewMQTTSign().
-		SetSDKVersion(infra.IOTSDKVersion).
-		Generate(&infra.MetaInfo{
-			ProductKey:    productKey,
-			ProductSecret: productSecret,
-			DeviceName:    deviceName,
-			DeviceSecret:  deviceSecret,
-		}, infra.CloudRegionDomain{
-			Region: infra.CloudRegionShangHai,
-		})
+	signs, err :=
+		sign.NewMQTTSign().
+			SetSDKVersion(infra.IOTSDKVersion).
+			Generate(&infra.MetaInfo{
+				ProductKey:    productKey,
+				ProductSecret: productSecret,
+				DeviceName:    deviceName,
+				DeviceSecret:  deviceSecret,
+			}, infra.CloudRegionDomain{Region: infra.CloudRegionShangHai})
 	if err != nil {
 		panic(err)
 	}
-	opts := mqtt.NewClientOptions().
-		AddBroker(fmt.Sprintf("%s:%d", signs.HostName, signs.Port)).
-		SetClientID(signs.ClientID).
-		SetUsername(signs.UserName).
-		SetPassword(signs.Password).
-		SetCleanSession(true).
-		SetAutoReconnect(true).
-		SetOnConnectHandler(func(cli mqtt.Client) {
-			log.Println("mqtt client connection success")
-		}).
-		SetConnectionLostHandler(func(cli mqtt.Client, err error) {
-			log.Println("mqtt client connection lost, ", err)
-		})
-	client := mqtt.NewClient(opts)
 
-	dmConfig := dm.NewConfig(productKey, deviceName, deviceSecret).
-		EnableModelRaw().
-		Valid()
-	dmClient := aiot.NewWithMQTT(dmConfig, client)
+	opts :=
+		mqtt.NewClientOptions().
+			AddBroker(fmt.Sprintf("%s:%d", signs.HostName, signs.Port)).
+			SetClientID(signs.ClientID).
+			SetUsername(signs.UserName).
+			SetPassword(signs.Password).
+			SetCleanSession(true).
+			SetAutoReconnect(true).
+			SetOnConnectHandler(func(cli mqtt.Client) {
+				log.Println("mqtt client connection success")
+			}).
+			SetConnectionLostHandler(func(cli mqtt.Client, err error) {
+				log.Println("mqtt client connection lost, ", err)
+			})
+
+	dmConfig :=
+		dm.NewConfig(productKey, deviceName, deviceSecret).
+			EnableModelRaw().
+			Valid()
+
+	dmClient := aiot.NewWithMQTT(dmConfig, mqtt.NewClient(opts))
 	dmClient.LogMode(true)
 	dmClient.SetEventProc(RawProc{})
 
-	client.Connect().Wait()
+	dmClient.UnderlyingClient().Connect().Wait()
+
 	if err = dmClient.AlinkConnect(); err != nil {
 		panic(err)
 	}
