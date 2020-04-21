@@ -1,4 +1,4 @@
-## aliyun 物联网设备接入的golang实现
+## aliyun 物联网设备接入的golang实现 alpha version
 
 - clog: 调试日志包,可独立使用
 - sign: 实现MQTT签名,独立使用,不依赖第三方任何包
