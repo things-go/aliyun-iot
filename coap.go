@@ -3,6 +3,8 @@ package aiot
 import (
 	"bytes"
 	"errors"
+	"log"
+	"os"
 
 	"github.com/go-ocf/go-coap"
 	"github.com/thinkgos/aliyun-iot/clog"
@@ -13,7 +15,7 @@ import (
 type COAPClient struct {
 	c *coap.ClientConn
 	*dm.Client
-	log clog.Clog
+	log *clog.Clog
 }
 
 // 确保 NopEvt 实现 dm.Conn 接口
@@ -65,7 +67,11 @@ func (sf *COAPClient) UnderlyingClient() *coap.ClientConn {
 // NewWithCOAP 新建MQTTClient
 func NewWithCOAP(config *dm.Config, c *coap.ClientConn) *COAPClient {
 	m := dm.New(config)
-	cli := &COAPClient{c, m, clog.NewLogger("mqtt --> ")}
+	cli := &COAPClient{
+		c,
+		m,
+		clog.New(clog.WithLogger(clog.NewLogger(log.New(os.Stderr, "mqtt --> ", log.LstdFlags)))),
+	}
 	m.SetConn(cli)
 	return cli
 }

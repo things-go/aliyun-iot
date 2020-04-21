@@ -1,6 +1,9 @@
 package aiot
 
 import (
+	"log"
+	"os"
+
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/thinkgos/aliyun-iot/clog"
 	"github.com/thinkgos/aliyun-iot/dm"
@@ -10,7 +13,7 @@ import (
 type MQTTClient struct {
 	c mqtt.Client
 	*dm.Client
-	log clog.Clog
+	log *clog.Clog
 }
 
 // 确保 NopEvt 实现 dm.Conn 接口
@@ -56,7 +59,11 @@ func (sf *MQTTClient) UnderlyingClient() mqtt.Client {
 // NewWithMQTT 新建MQTTClient
 func NewWithMQTT(config *dm.Config, c mqtt.Client) *MQTTClient {
 	m := dm.New(config)
-	cli := &MQTTClient{c, m, clog.NewLogger("mqtt --> ")}
+	cli := &MQTTClient{
+		c,
+		m,
+		clog.New(clog.WithLogger(clog.NewLogger(log.New(os.Stderr, "mqtt --> ", log.LstdFlags)))),
+	}
 	m.SetConn(cli)
 	return cli
 }

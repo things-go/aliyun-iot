@@ -1,8 +1,6 @@
 package clog
 
 import (
-	"log"
-	"os"
 	"sync/atomic"
 )
 
@@ -14,21 +12,38 @@ type LogProvider interface {
 	Debug(format string, v ...interface{})
 }
 
-// Clog 日志内部调试实现
+type Option func(*Clog)
+
+func WithLogger(p LogProvider) Option {
+	return func(c *Clog) {
+		if p != nil {
+			c.provider = p
+		}
+	}
+}
+
+// SetLogProvider set provider provider
+func WithEnableLogger() Option {
+	return func(c *Clog) {
+		c.LogMode(true)
+	}
+}
+
+// Clog Logger internal implement
 type Clog struct {
 	provider LogProvider
 	// is log output enabled,1: enable, 0: disable
 	has uint32
 }
 
-// NewLogger 创建一个新的日志，采用指定prefix前缀
-func NewLogger(prefix string) Clog {
-	return Clog{
-		logger{
-			log.New(os.Stderr, prefix, log.LstdFlags),
-		},
-		0,
+// New new a Logger, default use Discard
+func New(opts ...Option) *Clog {
+	c := &Clog{NewDiscard(), 0}
+
+	for _, opt := range opts {
+		opt(c)
 	}
+	return c
 }
 
 // LogMode set enable or disable log output when you has set provider
@@ -37,13 +52,6 @@ func (sf *Clog) LogMode(enable bool) {
 		atomic.StoreUint32(&sf.has, 1)
 	} else {
 		atomic.StoreUint32(&sf.has, 0)
-	}
-}
-
-// SetLogProvider set provider provider
-func (sf *Clog) SetLogProvider(p LogProvider) {
-	if p != nil {
-		sf.provider = p
 	}
 }
 
@@ -73,31 +81,4 @@ func (sf Clog) Debug(format string, v ...interface{}) {
 	if atomic.LoadUint32(&sf.has) == 1 {
 		sf.provider.Debug(format, v...)
 	}
-}
-
-// default log
-type logger struct {
-	*log.Logger
-}
-
-var _ LogProvider = (*logger)(nil)
-
-// Critical Log CRITICAL level message.
-func (sf logger) Critical(format string, v ...interface{}) {
-	sf.Printf("[C]: "+format, v...)
-}
-
-// Error Log ERROR level message.
-func (sf logger) Error(format string, v ...interface{}) {
-	sf.Printf("[E]: "+format, v...)
-}
-
-// Warn Log WARN level message.
-func (sf logger) Warn(format string, v ...interface{}) {
-	sf.Printf("[W]: "+format, v...)
-}
-
-// Debug Log DEBUG level message.
-func (sf logger) Debug(format string, v ...interface{}) {
-	sf.Printf("[D]: "+format, v...)
 }

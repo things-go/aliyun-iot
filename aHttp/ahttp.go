@@ -11,7 +11,9 @@ import (
 	"errors"
 	"fmt"
 	"hash"
+	"log"
 	"net/http"
+	"os"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -63,7 +65,7 @@ type Client struct {
 	mu       sync.Mutex
 
 	c *http.Client
-	clog.Clog
+	*clog.Clog
 }
 
 // New 新建alink http client
@@ -78,7 +80,7 @@ func New() *Client {
 		c: &http.Client{
 			Timeout: defaultTimeout,
 		},
-		Clog: clog.NewLogger("alink http --> "),
+		Clog: clog.New(clog.WithLogger(clog.NewLogger(log.New(os.Stderr, "alink http --> ", log.LstdFlags)))),
 	}
 	sf.token.Store("")
 	return sf
