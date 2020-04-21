@@ -5,8 +5,8 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/thinkgos/aiot"
-	"github.com/thinkgos/aiot/dm"
+	aiot "github.com/thinkgos/aliyun-iot"
+	"github.com/thinkgos/aliyun-iot/dm"
 )
 
 const (

@@ -14,9 +14,7 @@ func main() {
 	ts.OnEvicted(func(s string, i interface{}) {
 		fmt.Println(s)
 	})
-	ts.OnDeleted(func(s string, i interface{}) {
-		fmt.Println(s)
-	})
+
 	ts.Delete("delete")
 	time.Sleep(time.Second * 3)
 }

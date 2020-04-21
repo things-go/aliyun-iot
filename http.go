@@ -1,9 +1,9 @@
 package aiot
 
 import (
-	"github.com/thinkgos/aiot/aHttp"
-	"github.com/thinkgos/aiot/clog"
-	"github.com/thinkgos/aiot/dm"
+	"github.com/thinkgos/aliyun-iot/aHttp"
+	"github.com/thinkgos/aliyun-iot/clog"
+	"github.com/thinkgos/aliyun-iot/dm"
 )
 
 // HTTPClient HTTP客户端

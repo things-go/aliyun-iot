@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/thinkgos/aiot/infra"
+	"github.com/thinkgos/aliyun-iot/infra"
 )
 
 // SubDevTopoAddParams 添加设备拓扑关系参数域

@@ -17,7 +17,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/thinkgos/aiot/clog"
+	"github.com/thinkgos/aliyun-iot/clog"
 )
 
 const (

@@ -3,7 +3,7 @@ package dm
 import (
 	"encoding/json"
 
-	"github.com/thinkgos/aiot/infra"
+	"github.com/thinkgos/aliyun-iot/infra"
 )
 
 // ProcThingTopoAddReply 处理网络拓扑添加

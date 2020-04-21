@@ -3,7 +3,7 @@ package sign
 import (
 	"testing"
 
-	"github.com/thinkgos/aiot/infra"
+	"github.com/thinkgos/aliyun-iot/infra"
 )
 
 const (

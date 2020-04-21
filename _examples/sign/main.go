@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/thinkgos/aiot/infra"
-	"github.com/thinkgos/aiot/sign"
+	"github.com/thinkgos/aliyun-iot/infra"
+	"github.com/thinkgos/aliyun-iot/sign"
 )
 
 func main() {

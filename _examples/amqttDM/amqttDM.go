@@ -7,11 +7,11 @@ import (
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
-	"github.com/thinkgos/aiot"
-	"github.com/thinkgos/aiot/dm"
-	"github.com/thinkgos/aiot/dmd"
-	"github.com/thinkgos/aiot/infra"
-	"github.com/thinkgos/aiot/sign"
+	aiot "github.com/thinkgos/aliyun-iot"
+	"github.com/thinkgos/aliyun-iot/dm"
+	"github.com/thinkgos/aliyun-iot/dmd"
+	"github.com/thinkgos/aliyun-iot/infra"
+	"github.com/thinkgos/aliyun-iot/sign"
 )
 
 const (
