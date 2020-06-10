@@ -264,13 +264,13 @@ func TestParseHistoryEvent(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotTi, err := ParseHistoryEvent(tt.args.topic)
+			gotTi, err := ParseTopicHistoryEvent(tt.args.topic)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("ParseHistoryEvent() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("ParseTopicHistoryEvent() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(gotTi, tt.wantTi) {
-				t.Errorf("ParseHistoryEvent() gotTi = %v, want %v", gotTi, tt.wantTi)
+				t.Errorf("ParseTopicHistoryEvent() gotTi = %v, want %v", gotTi, tt.wantTi)
 			}
 		})
 	}
@@ -301,13 +301,13 @@ func TestParseOtaUpgrade(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotTi, err := ParseOtaUpgrade(tt.args.topic)
+			gotTi, err := ParseTopicOtaUpgrade(tt.args.topic)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("ParseOtaUpgrade() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("ParseTopicOtaUpgrade() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(gotTi, tt.wantTi) {
-				t.Errorf("ParseOtaUpgrade() gotTi = %v, want %v", gotTi, tt.wantTi)
+				t.Errorf("ParseTopicOtaUpgrade() gotTi = %v, want %v", gotTi, tt.wantTi)
 			}
 		})
 	}

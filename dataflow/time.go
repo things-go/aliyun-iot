@@ -51,8 +51,8 @@ func (sf *UTCtime) UnmarshalJSON(data []byte) error {
 }
 
 // String implemented interface Stringer
-func (t UTCtime) String() string {
-	return time.Time(t).Format(utcLayout)
+func (sf UTCtime) String() string {
+	return time.Time(sf).Format(utcLayout)
 }
 
 // Unix 时间戳转换

@@ -12,8 +12,10 @@ type LogProvider interface {
 	Debug(format string, v ...interface{})
 }
 
+// Option logger option
 type Option func(*Clog)
 
+// WithLogger set logger provider
 func WithLogger(p LogProvider) Option {
 	return func(c *Clog) {
 		if p != nil {
@@ -22,7 +24,7 @@ func WithLogger(p LogProvider) Option {
 	}
 }
 
-// SetLogProvider set provider provider
+// WithEnableLogger enable
 func WithEnableLogger() Option {
 	return func(c *Clog) {
 		c.LogMode(true)

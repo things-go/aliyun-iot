@@ -19,6 +19,7 @@ const (
 // see https://help.aliyun.com/document_detail/73736.html?spm=a2c4g.11186623.6.630.19485a105hJAhr
 type TopicType int
 
+// topic defined
 const (
 	// topic: /as/mqtt/status/{productKey}/{deviceName}
 	TopicStatusWildcard = "/as/mqtt/status/+/+"
@@ -47,6 +48,7 @@ type TopicInfo struct {
 	EventID    string // 仅TopicTypeEvent有效
 }
 
+// ParseTopicStatus parse status topic
 // topic: /as/mqtt/status/{productKey}/{deviceName}
 func ParseTopicStatus(topic string) (ti TopicInfo, err error) {
 	if topic == "" {
@@ -61,40 +63,47 @@ func ParseTopicStatus(topic string) (ti TopicInfo, err error) {
 	return TopicInfo{ProductKey: s[3], DeviceName: s[4]}, nil
 }
 
+// ParseTopicEvent parse event topic
 // topic: /{productKey}/{deviceName}/thing/event/{tsl.event.identifier}/post
 // topic: /{productKey}/{deviceName}/thing/event/property/post
 func ParseTopicEvent(topic string) (ti TopicInfo, err error) {
 	return parseTopic(topic, false, true, 6)
 }
 
+// ParseTopicLifecycle parse lifecycle topic
 // topic: /{productKey}/{deviceName}/thing/lifecycle
 func ParseTopicLifecycle(topic string) (ti TopicInfo, err error) {
 	return parseTopic(topic, false, false, 4)
 }
 
+// ParseTopicTopoLifecycle parse topo lifecycle topic
 // topic: /{productKey}/{deviceName}/thing/topo/lifecycle
 func ParseTopicTopoLifecycle(topic string) (ti TopicInfo, err error) {
 	return parseTopic(topic, false, false, 5)
 }
 
+// ParseTopicListFound parse listfound topic
 // topic: /{productKey}/{deviceName}/thing/list/found
 func ParseTopicListFound(topic string) (ti TopicInfo, err error) {
 	return parseTopic(topic, false, false, 5)
 }
 
+// ParseTopicDownLinkReply parse downlink reply topic
 // topic: /{productKey}/{deviceName}/thing/downlink/reply/message
 func ParseTopicDownLinkReply(topic string) (ti TopicInfo, err error) {
 	return parseTopic(topic, false, false, 6)
 }
 
+// ParseTopicHistoryEvent parse history event topic
 // topic: /sys/{productKey}/{deviceName}/thing/event/property/history/post
 // topic: /sys/{productKey}/{deviceName}/thing/event/{tsl.event.identifier}/history/post
-func ParseHistoryEvent(topic string) (ti TopicInfo, err error) {
+func ParseTopicHistoryEvent(topic string) (ti TopicInfo, err error) {
 	return parseTopic(topic, true, true, 8)
 }
 
+// ParseTopicOtaUpgrade parse ota upgrade topic
 // topic: /sys/${productKey}/${deviceName}/ota/upgrade
-func ParseOtaUpgrade(topic string) (ti TopicInfo, err error) {
+func ParseTopicOtaUpgrade(topic string) (ti TopicInfo, err error) {
 	return parseTopic(topic, true, false, 5)
 }
 

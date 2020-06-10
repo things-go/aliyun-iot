@@ -20,15 +20,15 @@ type DeviceStatus struct {
 	UtcTime     UTCtime `json:"utcTime"`     // 发送通知的UTC时间点
 	LastTime    Time    `json:"lastTime"`    // 状态变更前最后一次通信的时间, 根据lastTime来维护最终设备的状态
 	UtcLastTime UTCtime `json:"utcLastTime"` // 状态变更前最后一次通信的UTC时间。
-	ClientIp    string  `json:"clientIp"`    // 设备公网出口IP
+	ClientIP    string  `json:"clientIp"`    // 设备公网出口IP
 }
 
-// MarshalBinary 实现接口
+// MarshalBinary 实现BinaryMarshaler接口
 func (sf *DeviceStatus) MarshalBinary() ([]byte, error) {
 	return json.Marshal(sf)
 }
 
-// 实现接口 UnmarshalBinary
+// UnmarshalBinary 实现UnmarshalBinary接口
 func (sf *DeviceStatus) UnmarshalBinary(data []byte) error {
 	return json.Unmarshal(data, sf)
 }
@@ -36,7 +36,7 @@ func (sf *DeviceStatus) UnmarshalBinary(data []byte) error {
 // DeviceProperty 设备属性上报
 // Topic: /{productKey}/{deviceName}/thing/event/property/post
 type DeviceProperty struct {
-	IotId      string      `json:"iotId"`
+	IotID      string      `json:"iotId"`
 	ProductKey string      `json:"productKey"` // 设备所属产品的productKey
 	DeviceName string      `json:"deviceName"` // 设各名称
 	GmtCreate  int64       `json:"gmtCreate"`  // 数据流转产生的时间,单位ms
@@ -50,7 +50,7 @@ type DeviceEvent struct {
 	Identifier string      `json:"identifier"` // 事件唯一标识,事件ID
 	Name       string      `json:"name"`       // 事件名称
 	Type       string      // 事件类型,参见产品的TSL描述
-	IotId      string      `json:"iotId"`      // 设备在平台内的唯一标识.
+	IotID      string      `json:"iotId"`      // 设备在平台内的唯一标识.
 	ProductKey string      `json:"productKey"` // 设备所属productKey
 	DeviceName string      `json:"deviceName"` // 设备名称
 	GmtCreate  int64       `json:"gmtCreate"`  // 数据流转产生的时间,单位ms
@@ -70,7 +70,7 @@ const (
 // Topic：/{productKey}/{deviceName}/thing/lifecycle
 type DeviceLifecycle struct {
 	Action            string `json:"action"`            // create|delete|enable|disable
-	IotId             string `json:"iotId"`             // 设备在平台内的唯一标识.
+	IotID             string `json:"iotId"`             // 设备在平台内的唯一标识.
 	ProductKey        string `json:"productKey"`        // 设备所属productKey
 	DeviceName        string `json:"deviceName"`        // 设备名称
 	DeviceSecret      string `json:"deviceSecret"`      // 仅在设备create时包含
@@ -87,7 +87,7 @@ const (
 
 // DeviceSubInfo 子设备信息
 type DeviceSubInfo struct {
-	IotId      string `json:"iotId"`      // 设备在平台内的唯一标识.
+	IotID      string `json:"iotId"`      // 设备在平台内的唯一标识.
 	ProductKey string `json:"productKey"` // 设备所属productKey
 	DeviceName string `json:"deviceName"` // 设各名称
 }
@@ -96,7 +96,7 @@ type DeviceSubInfo struct {
 // Topic：/{productKey}/{deviceName}/thing/topo/lifecycle
 type GwDeviceTopologyRelation struct {
 	Action            string          `json:"action"`            // add|remove|enable|disable
-	GwIotId           string          `json:"gwIotId"`           // 网关设备在平台内的唯一标识.
+	GwIotID           string          `json:"gwIotId"`           // 网关设备在平台内的唯一标识.
 	GwProductKey      string          `json:"gwProductKey"`      // 网关设备所属productKey
 	GwDeviceName      string          `json:"gwDeviceName"`      // 网关设各名称
 	Devices           []DeviceSubInfo `json:"devices"`           // 变更的子设备列表
@@ -106,12 +106,13 @@ type GwDeviceTopologyRelation struct {
 // GwDeviceFound 网关发现子设备
 // Topic：/{productKey}/{deviceName}/thing/list/found
 type GwDeviceFound struct {
-	GwIotId      string          `json:"gwIotId"`      // 网关设备在平台内的唯一标识.
+	GwIotID      string          `json:"gwIotId"`      // 网关设备在平台内的唯一标识.
 	GwProductKey string          `json:"gwProductKey"` // 网关设备所属productKey
 	GwDeviceName string          `json:"gwDeviceName"` // 网关设各名称
 	Devices      []DeviceSubInfo `json:"devices"`      // 发现的子设备列表
 }
 
+// http response code
 const (
 	CodeSuccess             = 200  // 成功
 	CodeErrRequest          = 400  // 内部服务错误
@@ -126,10 +127,10 @@ const (
 // Topic：/{productKey}/{deviceName}/thing/downlink/reply/message
 type DeviceDownlinkResult struct {
 	GmtCreate  int64       `json:"gmtCreate"`  // UTC时间戳
-	IotId      string      `json:"iotId"`      // 设备在平台内的唯一标识.
+	IotID      string      `json:"iotId"`      // 设备在平台内的唯一标识.
 	ProductKey string      `json:"productKey"` // 设备所属productKey
 	DeviceName string      `json:"deviceName"` // 设备名称
-	RequestId  int64       `json:"requestId"`  // 阿里云产生和设备通信的信息ID
+	RequestID  int64       `json:"requestId"`  // 阿里云产生和设备通信的信息ID
 	Code       int         `json:"code"`       // 调用的结果code
 	Message    string      `json:"message"`    // 结果code的消息
 	Topic      string      `json:"topic"`      // 主题
@@ -139,7 +140,7 @@ type DeviceDownlinkResult struct {
 // DeviceHistoryProperty 历史属性上报
 // Topic：/sys/{productKey}/{deviceName}/thing/event/property/history/post
 type DeviceHistoryProperty struct {
-	IotId      string      `json:"iotId"`      // 设备在平台内的唯一标识.
+	IotID      string      `json:"iotId"`      // 设备在平台内的唯一标识.
 	ProductKey string      `json:"productKey"` // 设备所属productKey
 	DeviceName string      `json:"deviceName"` // 设备名称
 	GmtCreate  int64       `json:"gmtCreate"`  // UTC时间戳
@@ -153,7 +154,7 @@ type DeviceHistoryEvent struct {
 	Identifier string `json:"identifier"`
 	Name       string `json:"name"`
 	Type       string
-	IotId      string      `json:"iotId"`      // 设备在平台内的唯一标识.
+	IotID      string      `json:"iotId"`      // 设备在平台内的唯一标识.
 	ProductKey string      `json:"productKey"` // 设备所属productKey
 	DeviceName string      `json:"deviceName"` // 设备名称
 	GmtCreate  int64       `json:"gmtCreate"`  // UTC时间戳
@@ -164,7 +165,7 @@ type DeviceHistoryEvent struct {
 // DeviceOtaUpgrade 固件升级状态通知
 // Topic：/sys/${productKey}/${deviceName}/ota/upgrade
 type DeviceOtaUpgrade struct {
-	IotId             string `json:"iotId"`             // 设备在平台内的唯一标识.
+	IotID             string `json:"iotId"`             // 设备在平台内的唯一标识.
 	ProductKey        string `json:"productKey"`        // 设备所属productKey
 	DeviceName        string `json:"deviceName"`        // 设备名称
 	Status            int64  `json:"status"`            // 升级状态 SUCCEEDED|FAILED
@@ -172,6 +173,6 @@ type DeviceOtaUpgrade struct {
 	SrcVersion        string `json:"srcVersion"`        // 升级前的原固件版本。
 	DestVersion       string `json:"destVersion"`       // 升级目标固件版本。
 	Desc              string `json:"desc"`              // 升级状态描述信息。
-	JobId             string `json:"jobId"`             // 升级批次ID，升级批次的唯一标识符。
-	TaskId            string `json:"taskId"`            // 设备升级记录的唯一标识符。
+	JobID             string `json:"jobId"`             // 升级批次ID，升级批次的唯一标识符。
+	TaskID            string `json:"taskId"`            // 设备升级记录的唯一标识符。
 }
