@@ -27,8 +27,8 @@ func (sf *Time) UnmarshalJSON(data []byte) error {
 }
 
 // String implemented interface Stringer
-func (t Time) String() string {
-	return time.Time(t).Format(layout)
+func (sf Time) String() string {
+	return time.Time(sf).Format(layout)
 }
 
 // UTCtime utc time layout like "2006-01-02T15:04:05.999Z"
