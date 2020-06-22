@@ -1,5 +1,7 @@
 language: go
 
+language: go
+
 matrix:
   fast_finish: true
   include:
@@ -10,7 +12,7 @@ matrix:
 before_install:
   - go get -v ./...
 
-install: 
+install:
   - go test -v -benchmem -test.bench=".*" -coverprofile=coverage.txt -covermode=atomic  ./...
 after_success:
   - bash <(curl -s https://codecov.io/bash)
