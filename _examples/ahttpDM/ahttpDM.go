@@ -13,7 +13,7 @@ const (
 	productKey    = "a1QR3GD1Db3"
 	productSecret = ""
 	deviceName    = "MPA19GT010070140"
-	deviceSecret  = "ld9Xf2BtKGfdEC7G9nSMe1wYfgllvi3Q"
+	deviceSecret  = "26b136834c0dc1b9f3afc64158f6580d"
 )
 
 func main() {

@@ -10,22 +10,22 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"hash"
 	"log"
 	"net/http"
 	"os"
 	"strings"
-	"sync"
 	"sync/atomic"
 	"time"
+
+	"golang.org/x/sync/singleflight"
 
 	"github.com/thinkgos/aliyun-iot/clog"
 )
 
+// Sign method
 const (
-	signMethodHMACSHA1   = "hmacsha1"
-	signMethodHMACMD5    = "hmacmd5"
-	defaultAuthLimitTime = time.Minute * 15 // 当授权通过后,在15分钟内不可再授权,防止授权频繁
+	HMACSHA1 = "hmacsha1"
+	HMACMD5  = "hmacmd5"
 )
 
 // AuthRequest 鉴权请求
@@ -59,9 +59,8 @@ type Client struct {
 	version      string
 	signMethod   string
 
-	token    atomic.Value
-	whenAuth time.Time
-	mu       sync.Mutex
+	token atomic.Value
+	group singleflight.Group
 
 	httpc *http.Client
 	*clog.Clog
@@ -83,7 +82,6 @@ func WithHost(h string) Option {
 		if !strings.Contains(h, "://") {
 			h = "http://" + h
 		}
-
 		if h != "" {
 			c.host = h
 		}
@@ -93,10 +91,10 @@ func WithHost(h string) Option {
 // WithSignMethod 设置签名方法,目前支持hmacMD5和hmacSHA1
 func WithSignMethod(method string) Option {
 	return func(c *Client) {
-		if method == signMethodHMACMD5 || method == signMethodHMACSHA1 {
-			c.signMethod = method
+		if method == HMACSHA1 {
+			c.signMethod = HMACSHA1
 		} else {
-			c.signMethod = signMethodHMACMD5
+			c.signMethod = HMACMD5
 		}
 	}
 }
@@ -109,7 +107,7 @@ func New(opts ...Option) *Client {
 	c := &Client{
 		host:       "https://iot-as-http.cn-shanghai.aliyuncs.com",
 		version:    "default",
-		signMethod: signMethodHMACMD5,
+		signMethod: HMACMD5,
 		httpc:      http.DefaultClient,
 		Clog:       clog.New(clog.WithLogger(clog.NewLogger(log.New(os.Stderr, "alink http --> ", log.LstdFlags)))),
 	}
@@ -128,64 +126,58 @@ func (sf *Client) SetDeviceMetaInfo(productKey, deviceName, deviceSecret string)
 	return sf
 }
 
-// sendAuth 鉴权
-// TODO: use cache
-func (sf *Client) sendAuth() error {
-	if sf.productKey == "" ||
-		sf.deviceName == "" ||
-		sf.deviceSecret == "" {
-		return errors.New("invalid device meta info")
+// 鉴权
+func (sf *Client) getToken() (string, error) {
+	if sf.productKey == "" || sf.deviceName == "" || sf.deviceSecret == "" {
+		return "", errors.New("invalid device meta info")
 	}
 
-	sf.mu.Lock()
-	defer sf.mu.Unlock()
-	// 如果刚在15分钟内刚授权过,不用再授权了. 直接返回
-	if time.Since(sf.whenAuth) < defaultAuthLimitTime {
-		return nil
-	}
-	authPy := AuthRequest{
-		Version:    sf.version,
-		ClientID:   sf.productKey + "." + sf.deviceName,
-		SignMethod: sf.signMethod,
-		ProductKey: sf.productKey,
-		DeviceName: sf.deviceName,
-		Timestamp:  time.Now().Unix() * 1000,
+	if token := sf.token.Load().(string); token != "" {
+		return token, nil
 	}
 
-	if err := authPy.generateSign(sf.deviceSecret); err != nil {
-		return err
-	}
+	tk, err, _ := sf.group.Do("auth", func() (interface{}, error) {
+		authReq := AuthRequest{
+			Version:    sf.version,
+			ClientID:   sf.productKey + "." + sf.deviceName,
+			SignMethod: sf.signMethod,
+			ProductKey: sf.productKey,
+			DeviceName: sf.deviceName,
+			Timestamp:  time.Now().Unix() * 1000,
+		}
 
-	b, err := json.Marshal(&authPy)
-	if err != nil {
-		return err
-	}
+		if err := authReq.generateSign(sf.deviceSecret); err != nil {
+			return "", err
+		}
 
-	request, err := http.NewRequest(http.MethodPost, sf.host+"/auth", bytes.NewBuffer(b))
-	if err != nil {
-		return err
-	}
-	request.Header.Set("Content-Type", "application/json")
-	response, err := sf.httpc.Do(request)
-	if err != nil {
-		return err
-	}
-	defer response.Body.Close()
+		b, err := json.Marshal(&authReq)
+		if err != nil {
+			return "", err
+		}
 
-	rspPy := AuthResponse{}
-	if err = json.NewDecoder(response.Body).Decode(&rspPy); err != nil {
-		return err
-	}
+		request, err := http.NewRequest(http.MethodPost, sf.host+"/auth", bytes.NewBuffer(b))
+		if err != nil {
+			return "", err
+		}
+		request.Header.Set("Content-Type", "application/json")
+		response, err := sf.httpc.Do(request)
+		if err != nil {
+			return "", err
+		}
+		defer response.Body.Close()
 
-	if rspPy.Code != CodeSuccess {
-		err = NewCodeError(rspPy.Code, rspPy.Message)
-		sf.Debug("auth failed, %+v", err)
-		return err
-	}
-	sf.token.Store(rspPy.Info.Token)
-	sf.whenAuth = time.Now()
-	sf.Debug("auth success!")
-	return nil
+		authRsp := AuthResponse{}
+		if err = json.NewDecoder(response.Body).Decode(&authRsp); err != nil {
+			return "", err
+		}
+
+		if authRsp.Code != CodeSuccess {
+			return "", NewCodeError(authRsp.Code, authRsp.Message)
+		}
+		sf.token.Store(authRsp.Info.Token)
+		return authRsp.Info.Token, nil
+	})
+	return tk.(string), err
 }
 
 // DataResponse 上报数据回复
@@ -197,77 +189,64 @@ type DataResponse struct {
 	} `json:"info"`
 }
 
-func (sf *Client) publish(uri string, payload interface{}) (int64, error) {
-	token := sf.token.Load().(string)
-	if token == "" {
-		return 0, NewCodeError(CodeTokenIsNull, "token is null")
-	}
-
-	var buf *bytes.Buffer
-	switch v := payload.(type) {
-	case string:
-		buf = bytes.NewBufferString(v)
-	case []byte:
-		buf = bytes.NewBuffer(v)
-	default:
-		return 0, errors.New("Unknown payload type, must be string or []byte")
-	}
-
-	request, err := http.NewRequest(http.MethodPost, sf.host+uri, buf)
-	if err != nil {
-		return 0, err
-	}
-	request.Header.Set("Content-Type", "application/octet-stream")
-	request.Header.Set("password", token)
-	response, err := sf.httpc.Do(request)
-	if err != nil {
-		return 0, err
-	}
-	defer response.Body.Close()
-
-	rspPy := DataResponse{}
-	if err = json.NewDecoder(response.Body).Decode(&rspPy); err != nil {
-		return 0, err
-	}
-	sf.Debug("publish response, %+v", rspPy)
-	if rspPy.Code == 0 {
-		return rspPy.Info.MessageID, nil
-	}
-	return 0, NewCodeError(rspPy.Code, rspPy.Message)
-}
-
-// Publish 数据推送
 func (sf *Client) Publish(uri string, payload interface{}) error {
-	_, err := sf.publish(uri, payload)
-	if err != nil {
-		var pErr *CodeError
-		if errors.As(err, &pErr) &&
-			(pErr.Code() == CodeTokenExpired ||
-				pErr.Code() == CodeTokenCheckFailed ||
-				pErr.Code() == CodeTokenIsNull) {
-			if err = sf.sendAuth(); err != nil {
-				return err
-			}
-			_, err = sf.publish(uri, payload)
-		} else {
-			sf.Error("send data failed, %#v", err)
+	py := DataResponse{}
+
+	for retry := 0; retry < 1; retry++ {
+		token, err := sf.getToken()
+		if err != nil {
+			return err
+		}
+
+		var buf *bytes.Buffer
+		switch v := payload.(type) {
+		case string:
+			buf = bytes.NewBufferString(v)
+		case []byte:
+			buf = bytes.NewBuffer(v)
+		default:
+			return errors.New("Unknown payload type, must be string or []byte")
+		}
+
+		request, err := http.NewRequest(http.MethodPost, sf.host+uri, buf)
+		if err != nil {
+			return err
+		}
+		request.Header.Set("Content-Type", "application/octet-stream")
+		request.Header.Set("password", token)
+		response, err := sf.httpc.Do(request)
+		if err != nil {
+			return err
+		}
+		defer response.Body.Close()
+
+		if err = json.NewDecoder(response.Body).Decode(&py); err != nil {
+			return err
+		}
+		sf.Debug("publish response, %+v", py)
+		if py.Code == 0 {
+			return nil
+		}
+
+		if !(py.Code == CodeTokenExpired ||
+			py.Code == CodeTokenCheckFailed ||
+			py.Code == CodeTokenIsNull) {
+			sf.token.Store("")
+			return NewCodeError(py.Code, py.Message)
 		}
 	}
-	return err
+	return NewCodeError(py.Code, py.Message)
 }
 
 func (sf *AuthRequest) generateSign(deviceSecret string) error {
-	var f func() hash.Hash
-
-	if sf.SignMethod == signMethodHMACSHA1 {
-		f = sha1.New
-	} else {
-		f = md5.New
-		sf.SignMethod = signMethodHMACMD5
+	hashFunc := md5.New
+	if sf.SignMethod == HMACSHA1 {
+		hashFunc = sha1.New
 	}
+
 	signSource := fmt.Sprintf("clientId%sdeviceName%sproductKey%stimestamp%d",
 		sf.ClientID, sf.DeviceName, sf.ProductKey, sf.Timestamp)
-	h := hmac.New(f, []byte(deviceSecret))
+	h := hmac.New(hashFunc, []byte(deviceSecret))
 	if _, err := h.Write([]byte(signSource)); err != nil {
 		return err
 	}
