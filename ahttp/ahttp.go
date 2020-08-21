@@ -1,5 +1,5 @@
-// Package aHttp 实现http client 上传数据. 授权方式为自动调用授权,可手动调用,也可以直接调用发送数据接口
-package aHttp
+// Package ahttp 实现http client 上传数据. 授权方式为自动调用授权,可手动调用,也可以直接调用发送数据接口
+package ahttp
 
 import (
 	"bytes"
@@ -25,7 +25,6 @@ import (
 const (
 	signMethodHMACSHA1   = "hmacsha1"
 	signMethodHMACMD5    = "hmacmd5"
-	defaultTimeout       = time.Second * 2
 	defaultAuthLimitTime = time.Minute * 15 // 当授权通过后,在15分钟内不可再授权,防止授权频繁
 )
 
@@ -64,44 +63,61 @@ type Client struct {
 	whenAuth time.Time
 	mu       sync.Mutex
 
-	c *http.Client
+	httpc *http.Client
 	*clog.Clog
+}
+
+// Option client option
+type Option func(c *Client)
+
+// WithHTTPClient with custom http.Client
+func WithHTTPClient(c *http.Client) Option {
+	return func(client *Client) {
+		client.httpc = c
+	}
+}
+
+// WithHost 设置远程主机,
+func WithHost(h string) Option {
+	return func(c *Client) {
+		if !strings.Contains(h, "://") {
+			h = "http://" + h
+		}
+
+		if h != "" {
+			c.host = h
+		}
+	}
+}
+
+// WithSignMethod 设置签名方法,目前支持hmacMD5和hmacSHA1
+func WithSignMethod(method string) Option {
+	return func(c *Client) {
+		if method == signMethodHMACMD5 || method == signMethodHMACSHA1 {
+			c.signMethod = method
+		} else {
+			c.signMethod = signMethodHMACMD5
+		}
+	}
 }
 
 // New 新建alink http client
 // 默认hmacmd5加签算法
 // 默认上海host
 // 请求超时2秒
-func New() *Client {
-	sf := &Client{
+func New(opts ...Option) *Client {
+	c := &Client{
 		host:       "https://iot-as-http.cn-shanghai.aliyuncs.com",
 		version:    "default",
 		signMethod: signMethodHMACMD5,
-		c: &http.Client{
-			Timeout: defaultTimeout,
-		},
-		Clog: clog.New(clog.WithLogger(clog.NewLogger(log.New(os.Stderr, "alink http --> ", log.LstdFlags)))),
+		httpc:      http.DefaultClient,
+		Clog:       clog.New(clog.WithLogger(clog.NewLogger(log.New(os.Stderr, "alink http --> ", log.LstdFlags)))),
 	}
-	sf.token.Store("")
-	return sf
-}
-
-// SetHost 设置主机
-func (sf *Client) SetHost(h string) *Client {
-	if !strings.Contains(h, "://") {
-		h = "http://" + h
+	c.token.Store("")
+	for _, opt := range opts {
+		opt(c)
 	}
-
-	if h != "" {
-		sf.host = h
-	}
-	return sf
-}
-
-// SetRequestTimeout 设置请求超时时间
-func (sf *Client) SetRequestTimeout(t time.Duration) *Client {
-	sf.c.Timeout = t
-	return sf
+	return c
 }
 
 // SetDeviceMetaInfo 设置设备三元组信息
@@ -112,42 +128,13 @@ func (sf *Client) SetDeviceMetaInfo(productKey, deviceName, deviceSecret string)
 	return sf
 }
 
-// SetSignMethod 设置签名方法,目前支持hmacMD5和hmacSHA1
-func (sf *Client) SetSignMethod(method string) *Client {
-	if method == signMethodHMACMD5 || method == signMethodHMACSHA1 {
-		sf.signMethod = method
-	} else {
-		sf.signMethod = signMethodHMACMD5
-	}
-	return sf
-}
-
-func (sf *AuthRequest) generateSign(deviceSecret string) error {
-	var f func() hash.Hash
-
-	if sf.SignMethod == signMethodHMACSHA1 {
-		f = sha1.New
-	} else {
-		f = md5.New
-		sf.SignMethod = signMethodHMACMD5
-	}
-	signSource := fmt.Sprintf("clientId%sdeviceName%sproductKey%stimestamp%d",
-		sf.ClientID, sf.DeviceName, sf.ProductKey, sf.Timestamp)
-	h := hmac.New(f, []byte(deviceSecret))
-	if _, err := h.Write([]byte(signSource)); err != nil {
-		return err
-	}
-
-	sf.Sign = hex.EncodeToString(h.Sum(nil))
-	return nil
-}
-
 // sendAuth 鉴权
+// TODO: use cache
 func (sf *Client) sendAuth() error {
 	if sf.productKey == "" ||
 		sf.deviceName == "" ||
 		sf.deviceSecret == "" {
-		return errors.New("invalid meta info")
+		return errors.New("invalid device meta info")
 	}
 
 	sf.mu.Lock()
@@ -179,7 +166,7 @@ func (sf *Client) sendAuth() error {
 		return err
 	}
 	request.Header.Set("Content-Type", "application/json")
-	response, err := sf.c.Do(request)
+	response, err := sf.httpc.Do(request)
 	if err != nil {
 		return err
 	}
@@ -232,7 +219,7 @@ func (sf *Client) publish(uri string, payload interface{}) (int64, error) {
 	}
 	request.Header.Set("Content-Type", "application/octet-stream")
 	request.Header.Set("password", token)
-	response, err := sf.c.Do(request)
+	response, err := sf.httpc.Do(request)
 	if err != nil {
 		return 0, err
 	}
@@ -267,4 +254,24 @@ func (sf *Client) Publish(uri string, payload interface{}) error {
 		}
 	}
 	return err
+}
+
+func (sf *AuthRequest) generateSign(deviceSecret string) error {
+	var f func() hash.Hash
+
+	if sf.SignMethod == signMethodHMACSHA1 {
+		f = sha1.New
+	} else {
+		f = md5.New
+		sf.SignMethod = signMethodHMACMD5
+	}
+	signSource := fmt.Sprintf("clientId%sdeviceName%sproductKey%stimestamp%d",
+		sf.ClientID, sf.DeviceName, sf.ProductKey, sf.Timestamp)
+	h := hmac.New(f, []byte(deviceSecret))
+	if _, err := h.Write([]byte(signSource)); err != nil {
+		return err
+	}
+
+	sf.Sign = hex.EncodeToString(h.Sum(nil))
+	return nil
 }

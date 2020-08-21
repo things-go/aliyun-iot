@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/thinkgos/aliyun-iot/aHttp"
+	"github.com/thinkgos/aliyun-iot/ahttp"
 	"github.com/thinkgos/aliyun-iot/dm"
 )
 
@@ -20,9 +20,8 @@ const (
 func main() {
 	var err error
 
-	client := aHttp.New().SetDeviceMetaInfo(productKey, deviceName, deviceSecret)
+	client := ahttp.New().SetDeviceMetaInfo(productKey, deviceName, deviceSecret)
 	client.
-		//SetSignMethod(infra.SignMethodHMACSHA1).
 		LogMode(true)
 
 	uri := dm.URICOAPHTTPPrePrefix + fmt.Sprintf(dm.URISysPrefix, productKey, deviceName) + dm.URIThingModelUpRaw
