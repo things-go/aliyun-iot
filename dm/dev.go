@@ -22,7 +22,7 @@ func (sf *Client) upstreamThingModelUpRaw(devID int, payload interface{}) error 
 	if err != nil {
 		return err
 	}
-	sf.debug("upstream thing <model>: up raw")
+	sf.debugf("upstream thing <model>: up raw")
 	return nil
 }
 
@@ -45,7 +45,7 @@ func (sf *Client) upstreamThingEventPropertyPost(devID int, params interface{}) 
 	}
 
 	sf.CacheInsert(id, devID, MsgTypeEventPropertyPost)
-	sf.debug("upstream thing <event>: property post,@%d", id)
+	sf.debugf("upstream thing <event>: property post,@%d", id)
 	return nil
 }
 
@@ -67,7 +67,7 @@ func (sf *Client) upstreamThingEventPost(devID int, eventID string, params inter
 		return err
 	}
 	sf.CacheInsert(id, devID, MsgTypeEventPost)
-	sf.debug("upstream thing <event>: %s post,@%d", eventID, id)
+	sf.debugf("upstream thing <event>: %s post,@%d", eventID, id)
 	return nil
 }
 
@@ -80,7 +80,7 @@ func (sf *Client) upstreamThingEventPropertyPackPost(params interface{}) error {
 	}
 
 	sf.CacheInsert(id, DevNodeLocal, MsgTypeEventPropertyPackPost)
-	sf.debug("upstream thing <deviceInfo>: update,@%d", id)
+	sf.debugf("upstream thing <deviceInfo>: update,@%d", id)
 	return nil
 }
 
@@ -103,7 +103,7 @@ func (sf *Client) upstreamThingDeviceInfoUpdate(devID int, params interface{}) e
 	}
 
 	sf.CacheInsert(id, devID, MsgTypeDeviceInfoUpdate)
-	sf.debug("upstream thing <deviceInfo>: update,@%d", id)
+	sf.debugf("upstream thing <deviceInfo>: update,@%d", id)
 	return nil
 }
 
@@ -125,7 +125,7 @@ func (sf *Client) upstreamThingDeviceInfoDelete(devID int, params interface{}) e
 		return err
 	}
 	sf.CacheInsert(id, devID, MsgTypeDeviceInfoDelete)
-	sf.debug("upstream thing <deviceInfo>: delete,@%d", id)
+	sf.debugf("upstream thing <deviceInfo>: delete,@%d", id)
 	return nil
 }
 
@@ -147,7 +147,7 @@ func (sf *Client) upstreamThingDesiredPropertyGet(devID int, params interface{})
 		return err
 	}
 	sf.CacheInsert(id, devID, MsgTypeDesiredPropertyGet)
-	sf.debug("upstream thing <desired>: property get,@%d", id)
+	sf.debugf("upstream thing <desired>: property get,@%d", id)
 	return nil
 }
 
@@ -169,7 +169,7 @@ func (sf *Client) upstreamThingDesiredPropertyDelete(devID int, params interface
 		return err
 	}
 	sf.CacheInsert(id, devID, MsgTypeDesiredPropertyDelete)
-	sf.debug("upstream thing <desired>: property delete,@%d", id)
+	sf.debugf("upstream thing <desired>: property delete,@%d", id)
 	return nil
 }
 
@@ -186,13 +186,14 @@ func (sf *Client) upstreamThingDsltemplateGet(devID int) error {
 	}
 
 	id := sf.RequestID()
-	if err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingDslTemplateGet, node.ProductKey(), node.DeviceName()),
-		id, methodDslTemplateGet, "{}"); err != nil {
+	err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingDslTemplateGet, node.ProductKey(), node.DeviceName()),
+		id, methodDslTemplateGet, "{}")
+	if err != nil {
 		return err
 	}
 
 	sf.CacheInsert(id, devID, MsgTypeDsltemplateGet)
-	sf.debug("upstream thing <dsl template>: get,@%d", id)
+	sf.debugf("upstream thing <dsl template>: get,@%d", id)
 	return nil
 }
 
@@ -208,12 +209,13 @@ func (sf *Client) upstreamThingDynamictslGet(devID int) error {
 	}
 
 	id := sf.RequestID()
-	if err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingDynamicTslGet, node.ProductKey(), node.DeviceName()), id,
-		methodDynamicTslGet, `{"nodes":["type","identifier"],"addDefault":false}`); err != nil {
+	err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingDynamicTslGet, node.ProductKey(), node.DeviceName()),
+		id, methodDynamicTslGet, `{"nodes":["type","identifier"],"addDefault":false}`)
+	if err != nil {
 		return err
 	}
 	sf.CacheInsert(id, DevNodeLocal, MsgTypeDynamictslGet)
-	sf.debug("upstream thing <dynamic tsl>: get,@%d", id)
+	sf.debugf("upstream thing <dynamic tsl>: get,@%d", id)
 	return nil
 }
 
@@ -233,7 +235,7 @@ func (sf *Client) upstreamExtNtpRequest() error {
 	if err != nil {
 		return err
 	}
-	sf.debug("upstream ext <ntp>: request")
+	sf.debugf("upstream ext <ntp>: request")
 	return nil
 }
 
@@ -277,12 +279,13 @@ func (sf *Client) upstreamThingConfigGet(devID int) error {
 	}
 
 	id := sf.RequestID()
-	if err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingConfigGet, node.ProductKey(), node.DeviceName()),
-		id, methodConfigGet, `{"configScope":"product","getType":"file"}`); err != nil {
+	err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingConfigGet, node.ProductKey(), node.DeviceName()),
+		id, methodConfigGet, `{"configScope":"product","getType":"file"}`)
+	if err != nil {
 		return err
 	}
 	sf.CacheInsert(id, devID, MsgTypeConfigGet)
-	sf.debug("upstream thing <config>: get,@%d", id)
+	sf.debugf("upstream thing <config>: get,@%d", id)
 	return nil
 }
 
@@ -313,14 +316,14 @@ func (sf *Client) upstreamOATFirmwareVersion(devID int, params interface{}) erro
 	if err != nil {
 		return err
 	}
-
-	if err = sf.Publish(sf.URIService(URIOtaDeviceInformPrefix, "", node.ProductKey(), node.DeviceName()),
-		1, req); err != nil {
+	err = sf.Publish(sf.URIService(URIOtaDeviceInformPrefix, "", node.ProductKey(), node.DeviceName()),
+		1, req)
+	if err != nil {
 		return err
 	}
 
-	//sf.CacheInsert(id, devID, MsgTypeReportFirmwareVersion)
-	sf.debug("upstream version <OTA>: inform,@%d", id)
+	// sf.CacheInsert(id, devID, MsgTypeReportFirmwareVersion)
+	sf.debugf("upstream version <OTA>: inform,@%d", id)
 	return nil
 }
 
@@ -353,14 +356,14 @@ func (sf *Client) upstreamOTAProgress(devID int, params interface{}) error {
 	if err != nil {
 		return err
 	}
-
-	if err = sf.Publish(sf.URIService(URIOtaDeviceProcessPrefix, "", node.ProductKey(), node.DeviceName()),
-		1, req); err != nil {
+	err = sf.Publish(sf.URIService(URIOtaDeviceProcessPrefix, "", node.ProductKey(), node.DeviceName()),
+		1, req)
+	if err != nil {
 		return err
 	}
 
-	//sf.CacheInsert(id, devID, MsgTypeReportFirmwareVersion)
-	sf.debug("upstream step <OTA>: progress,@%d", id)
+	// sf.CacheInsert(id, devID, MsgTypeReportFirmwareVersion)
+	sf.debugf("upstream step <OTA>: progress,@%d", id)
 	return nil
 }
 

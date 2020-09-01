@@ -31,7 +31,7 @@ const (
 	CloudRegionCustom
 )
 
-// CloudRegionInfo 云端域信息
+// CloudRegionDomain 云端域信息
 type CloudRegionDomain struct {
 	Region       CloudRegion
 	CustomDomain string // address:port,采用CloudRegionCustom需要定义此字段

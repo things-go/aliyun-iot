@@ -17,8 +17,8 @@ const (
 	DevTypeSubDev
 	DevTypeGateway
 
-	//DevTypeMain = DevTypeSingle | DevTypeSubDev
-	//DevTypeALl
+	// DevTypeMain = DevTypeSingle | DevTypeSubDev
+	// DevTypeALl
 )
 
 // DevStatus 设备状态
@@ -304,7 +304,7 @@ func (sf *DevMgr) SetDeviceSecretByID(devID int, deviceSecret string) error {
 }
 
 // SetDeviceSecretByPkDn 设置设备的密钥
-func (sf *DevMgr) SetDeviceSecretByPkDn(productKey, deviceName string, deviceSecret string) error {
+func (sf *DevMgr) SetDeviceSecretByPkDn(productKey, deviceName, deviceSecret string) error {
 	sf.rw.Lock()
 	defer sf.rw.Unlock()
 

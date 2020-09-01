@@ -13,38 +13,46 @@ var _ LogProvider = (*Discard)(nil)
 // NewDiscard a discard Logger
 func NewDiscard() Discard { return Discard{} }
 
-func (sf Discard) Critical(string, ...interface{}) {}
-func (sf Discard) Error(string, ...interface{})    {}
-func (sf Discard) Warn(string, ...interface{})     {}
-func (sf Discard) Debug(string, ...interface{})    {}
+// Criticalf implement interface LogProvider
+func (sf Discard) Criticalf(string, ...interface{}) {}
 
-// default log
+// Errorf implement interface LogProvider
+func (sf Discard) Errorf(string, ...interface{}) {}
+
+// Warnf implement interface LogProvider
+func (sf Discard) Warnf(string, ...interface{}) {}
+
+// Debugf implement interface LogProvider
+func (sf Discard) Debugf(string, ...interface{}) {}
+
+// Logger default log
 type Logger struct {
 	*log.Logger
 }
 
 var _ LogProvider = (*Logger)(nil)
 
+// NewLogger new logger
 func NewLogger(l *log.Logger) Logger {
 	return Logger{l}
 }
 
-// Critical Log CRITICAL level message.
-func (sf Logger) Critical(format string, v ...interface{}) {
+// Criticalf Log CRITICAL level message.
+func (sf Logger) Criticalf(format string, v ...interface{}) {
 	sf.Printf("[C]: "+format, v...)
 }
 
-// Error Log ERROR level message.
-func (sf Logger) Error(format string, v ...interface{}) {
+// Errorf Log ERROR level message.
+func (sf Logger) Errorf(format string, v ...interface{}) {
 	sf.Printf("[E]: "+format, v...)
 }
 
-// Warn Log WARN level message.
-func (sf Logger) Warn(format string, v ...interface{}) {
+// Warnf Log WARN level message.
+func (sf Logger) Warnf(format string, v ...interface{}) {
 	sf.Printf("[W]: "+format, v...)
 }
 
-// Debug Log DEBUG level message.
-func (sf Logger) Debug(format string, v ...interface{}) {
+// Debugf Log DEBUG level message.
+func (sf Logger) Debugf(format string, v ...interface{}) {
 	sf.Printf("[D]: "+format, v...)
 }

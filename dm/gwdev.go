@@ -42,18 +42,19 @@ func (sf *Client) upstreamThingGwSubDevRegister(devID int) (int, error) {
 	}
 
 	id := sf.RequestID()
-	if err = sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingSubDevRegister),
+	err = sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingSubDevRegister),
 		id, methodSubDevRegister, []GwSubDevRegisterParams{
 			{
 				node.ProductKey(),
 				node.DeviceName(),
 			},
-		}); err != nil {
+		})
+	if err != nil {
 		return 0, err
 	}
 
 	sf.CacheInsert(id, devID, MsgTypeSubDevRegister)
-	sf.debug("upstream thing GW <sub>: register @%d", id)
+	sf.debugf("upstream thing GW <sub>: register @%d", id)
 	return id, nil
 }
 
@@ -109,13 +110,13 @@ func (sf *Client) upstreamExtGwSubDevCombineLogin(devID int) (int, error) {
 		return 0, err
 	}
 	// NOTE: 子设备上线,使用网关的productKey和deviceName,且只支持qos = 0
-	if err = sf.Publish(sf.URIServiceSelf(URIExtSessionPrefix, URISubDevCombineLogin),
+	if err := sf.Publish(sf.URIServiceSelf(URIExtSessionPrefix, URISubDevCombineLogin),
 		0, req); err != nil {
 		return 0, err
 	}
 
 	sf.CacheInsert(id, devID, MsgTypeSubDevLogin)
-	sf.debug("upstream Ext GW <sub>: login @%d", id)
+	sf.debugf("upstream Ext GW <sub>: login @%d", id)
 	return id, nil
 }
 
@@ -156,11 +157,11 @@ func (sf *Client) upstreamExtGwSubDevCombineLogout(devID int) (int, error) {
 	}
 
 	// NOTE: 子设备下线,要用网关的productKey和deviceName
-	if err = sf.Publish(sf.URIServiceSelf(URIExtSessionPrefix, URISubDevCombineLogout),
-		0, req); err != nil {
+	err = sf.Publish(sf.URIServiceSelf(URIExtSessionPrefix, URISubDevCombineLogout), 0, req)
+	if err != nil {
 		return 0, err
 	}
 	sf.CacheInsert(id, devID, MsgTypeSubDevLogin)
-	sf.debug("upstream Ext GW <sub>: logout @%d", id)
+	sf.debugf("upstream Ext GW <sub>: logout @%d", id)
 	return id, nil
 }

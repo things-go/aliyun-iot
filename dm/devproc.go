@@ -20,7 +20,7 @@ func ProcThingModelUpRawReply(c *Client, rawURI string, payload []byte) error {
 	if len(uris) < (c.cfg.uriOffset + 6) {
 		return ErrInvalidURI
 	}
-	c.debug("downstream thing <model>: up raw reply")
+	c.debugf("downstream thing <model>: up raw reply")
 	return c.ipcSendMessage(&ipcMessage{
 		err:        nil,
 		evt:        ipcEvtUpRawReply,
@@ -48,7 +48,7 @@ func ProcThingEventPostReply(c *Client, rawURI string, payload []byte) error {
 	}
 
 	eventID := uris[c.cfg.uriOffset+5]
-	c.debug("downstream thing <event>: %s post reply,@%d", eventID, rsp.ID)
+	c.debugf("downstream thing <event>: %s post reply,@%d", eventID, rsp.ID)
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
@@ -88,7 +88,7 @@ func ProcThingEventPropertyPackPostReply(c *Client, rawURI string, payload []byt
 		return err
 	}
 
-	c.debug("downstream thing <event>: property pack post reply,@%d", rsp.ID)
+	c.debugf("downstream thing <event>: property pack post reply,@%d", rsp.ID)
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
@@ -118,7 +118,7 @@ func ProcThingDeviceInfoUpdateReply(c *Client, rawURI string, payload []byte) er
 		return err
 	}
 
-	c.debug("downstream thing <deviceInfo>: update reply,@%d", rsp.ID)
+	c.debugf("downstream thing <deviceInfo>: update reply,@%d", rsp.ID)
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
@@ -150,7 +150,7 @@ func ProcThingDeviceInfoDeleteReply(c *Client, rawURI string, payload []byte) er
 		return err
 	}
 
-	c.debug("downstream thing <deviceInfo>: delete reply,@%d", rsp.ID)
+	c.debugf("downstream thing <deviceInfo>: delete reply,@%d", rsp.ID)
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
@@ -180,7 +180,7 @@ func ProcThingDesiredPropertyGetReply(c *Client, rawURI string, payload []byte) 
 		return err
 	}
 
-	c.debug("downstream thing <desired>: property get reply,@%d", rsp.ID)
+	c.debugf("downstream thing <desired>: property get reply,@%d", rsp.ID)
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
@@ -211,7 +211,7 @@ func ProcThingDesiredPropertyDeleteReply(c *Client, rawURI string, payload []byt
 		return err
 	}
 
-	c.debug("downstream thing <desired>: property delete reply,@%d", rsp.ID)
+	c.debugf("downstream thing <desired>: property delete reply,@%d", rsp.ID)
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
@@ -241,7 +241,7 @@ func ProcThingDsltemplateGetReply(c *Client, rawURI string, payload []byte) erro
 		return err
 	}
 
-	c.debug("downstream thing <dsl template>: get reply,@%d - %s", rsp.ID, string(rsp.Data))
+	c.debugf("downstream thing <dsl template>: get reply,@%d - %s", rsp.ID, string(rsp.Data))
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
@@ -272,7 +272,7 @@ func ProcThingDynamictslGetReply(c *Client, rawURI string, payload []byte) error
 		return err
 	}
 
-	c.debug("downstream thing <dynamic tsl>: get reply,@%d - %+v", rsp.ID, rsp)
+	c.debugf("downstream thing <dynamic tsl>: get reply,@%d - %+v", rsp.ID, rsp)
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
@@ -301,7 +301,7 @@ func ProcExtNtpResponse(c *Client, rawURI string, payload []byte) error {
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
-	c.debug("downstream extend <ntp>: response - %+v", rsp)
+	c.debugf("downstream extend <ntp>: response - %+v", rsp)
 	return c.ipcSendMessage(&ipcMessage{
 		err:        nil,
 		evt:        ipcEvtExtNtpResponse,
@@ -327,7 +327,7 @@ func ProcThingConfigGetReply(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 
-	c.debug("downstream thing <config>: get reply,@%d,payload@%+v", rsp.ID, rsp)
+	c.debugf("downstream thing <config>: get reply,@%d,payload@%+v", rsp.ID, rsp)
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
@@ -352,7 +352,7 @@ func ProcThingModelDownRaw(c *Client, rawURI string, payload []byte) error {
 	if len(uris) < (c.cfg.uriOffset + 6) {
 		return ErrInvalidURI
 	}
-	c.debug("downstream thing <model>: down raw request")
+	c.debugf("downstream thing <model>: down raw request")
 	return c.ipcSendMessage(&ipcMessage{
 		evt:        ipcEvtDownRaw,
 		productKey: uris[c.cfg.uriOffset+1],
@@ -375,7 +375,7 @@ func ProcThingConfigPush(c *Client, rawURI string, payload []byte) error {
 	if err := json.Unmarshal(payload, &req); err != nil {
 		return err
 	}
-	c.debug("downstream thing <config>: push request")
+	c.debugf("downstream thing <config>: push request")
 	if err := c.SendResponse(uriServiceReplyWithRequestURI(rawURI),
 		req.ID, infra.CodeSuccess, "{}"); err != nil {
 		return err
@@ -398,7 +398,7 @@ func ProcThingServicePropertySet(c *Client, rawURI string, payload []byte) error
 	if len(uris) < (c.cfg.uriOffset + 7) {
 		return ErrInvalidURI
 	}
-	c.debug("downstream thing <service>: property set request")
+	c.debugf("downstream thing <service>: property set request")
 	return c.ipcSendMessage(&ipcMessage{
 		evt:        ipcEvtServicePropertySet,
 		productKey: uris[c.cfg.uriOffset+1],
@@ -418,7 +418,7 @@ func ProcThingServiceRequest(c *Client, rawURI string, payload []byte) error {
 		return ErrInvalidURI
 	}
 	serviceID := uris[c.cfg.uriOffset+5]
-	c.debug("downstream thing <service>: %s set request", serviceID)
+	c.debugf("downstream thing <service>: %s set request", serviceID)
 	return c.ipcSendMessage(&ipcMessage{
 		evt:        ipcEvtServiceRequest,
 		productKey: uris[c.cfg.uriOffset+1],
@@ -439,7 +439,7 @@ func ProcRRPCRequest(c *Client, rawURI string, payload []byte) error {
 		return ErrInvalidURI
 	}
 	messageID := uris[c.cfg.uriOffset+5]
-	c.debug("downstream sys <RRPC>: request - messageID: %s", messageID)
+	c.debugf("downstream sys <RRPC>: request - messageID: %s", messageID)
 
 	return c.ipcSendMessage(&ipcMessage{
 		evt:        ipcEvtRRPCRequest,
@@ -462,7 +462,7 @@ func ProcExtRRPCRequest(c *Client, rawURI string, payload []byte) error {
 		return ErrInvalidParameter
 	}
 
-	c.debug("downstream extend <RRPC>: Request - URI: ", rawURI)
+	c.debugf("downstream extend <RRPC>: Request - URI: ", rawURI)
 	return c.ipcSendMessage(&ipcMessage{
 		evt:     ipcEvtExtRRPCRequest,
 		extend:  uris[c.cfg.uriOffset+2], // ${messageId}/${topic}

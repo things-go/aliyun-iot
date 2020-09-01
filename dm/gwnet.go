@@ -51,7 +51,7 @@ func (sf *Client) upstreamGwThingTopoAdd(devID int) (int, error) {
 		return 0, err
 	}
 	sf.CacheInsert(id, devID, MsgTypeTopoAdd)
-	sf.debug("upstream GW thing <topo>: add @%d", id)
+	sf.debugf("upstream GW thing <topo>: add @%d", id)
 	return id, nil
 }
 
@@ -71,17 +71,18 @@ func (sf *Client) upstreamGwThingTopoDelete(devID int) (int, error) {
 		return 0, err
 	}
 	id := sf.RequestID()
-	if err = sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingTopoDelete),
+	err = sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingTopoDelete),
 		id, methodTopoDelete, []GwTopoDeleteParams{
 			{
 				node.ProductKey(),
 				node.DeviceName(),
 			},
-		}); err != nil {
+		})
+	if err != nil {
 		return 0, err
 	}
 	sf.CacheInsert(id, devID, MsgTypeTopoDelete)
-	sf.debug("upstream GW thing <topo>: delete @%d", id)
+	sf.debugf("upstream GW thing <topo>: delete @%d", id)
 	return id, nil
 }
 
@@ -105,7 +106,7 @@ func (sf *Client) upstreamGwThingTopoGet() error {
 		return err
 	}
 	sf.CacheInsert(id, DevNodeLocal, MsgTypeTopoGet)
-	sf.debug("upstream GW thing <topo>: Get @%d", id)
+	sf.debugf("upstream GW thing <topo>: Get @%d", id)
 	return nil
 }
 
@@ -127,16 +128,17 @@ func (sf *Client) UpstreamGwThingListFound(devID int) error {
 		return err
 	}
 	id := sf.RequestID()
-	if err = sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingListFound),
+	err = sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingListFound),
 		id, methodListFound, []GwDevListFoundParams{
 			{
 				node.ProductKey(),
 				node.DeviceName(),
 			},
-		}); err != nil {
+		})
+	if err != nil {
 		return err
 	}
 	sf.CacheInsert(id, DevNodeLocal, MsgTypeDevListFound)
-	sf.debug("upstream GW thing <list>: found @%d", id)
+	sf.debugf("upstream GW thing <list>: found @%d", id)
 	return nil
 }

@@ -65,8 +65,8 @@ const (
 	// 错误码：460、429、6100、6401、6203
 	CodeTopoRelationNotExist = 6401 // 网关和子设备没有拓扑关系
 	// 获取拓扑关系
-	//请求Topic：/sys/{productKey}/{deviceName}/thing/topo/get
-	//错误码： 460、429、500、6203
+	// 请求Topic：/sys/{productKey}/{deviceName}/thing/topo/get
+	// 错误码： 460、429、500、6203
 
 	// 网关上报发现子设备
 	// 请求Topic：/sys/{productKey}/{deviceName}/thing/list/found
@@ -76,9 +76,9 @@ const (
 
 // 子设备上下线相关错误码
 const (
-	//子设备上线
-	//请求Topic：/ext/session/${productKey}/${deviceName}/combine/login
-	//错误码： 460、429、6100、6204、6287、6401、500
+	// 子设备上线
+	// 请求Topic：/ext/session/${productKey}/${deviceName}/combine/login
+	// 错误码： 460、429、6100、6204、6287、6401、500
 
 	// 子设备主动下线异常
 	// 接收消息的网关Topic：/ext/session/{productKey}/{deviceName}/combine/logout_reply
@@ -103,7 +103,7 @@ const (
 	CodeSubDevSignInvalid  = 6287 // 子设备密码或签名错误
 )
 
-//设备属性、事件、服务相关错误码
+// 设备属性、事件、服务相关错误码
 const (
 	// 设备上报属性
 	// 请求Topic（透传数据格式）： /sys/{productKey}/{deviceName}/thing/model/up_raw
@@ -146,13 +146,13 @@ const (
 // 设备请求固件信息失败
 // 设备请求配置信息失败
 const (
-	//设备上报标签信息
-	//	请求Topic：/sys/{productKey}/{deviceName}/thing/deviceinfo/update
-	//错误码：460、6100
+	// 设备上报标签信息
+	// 请求Topic：/sys/{productKey}/{deviceName}/thing/deviceinfo/update
+	// 错误码：460、6100
 
-	//设备删除标签信息
-	//请求Topic：/sys/{productKey}/{deviceName}/thing/deviceinfo/delete
-	//错误码： 460、500
+	// 设备删除标签信息
+	// 请求Topic：/sys/{productKey}/{deviceName}/thing/deviceinfo/delete
+	// 错误码： 460、500
 
 	// 获取TSL模板失败错误码
 	// 请求Topic：/sys/{productKey}/{deviceName}/thing/dsltemplate/get

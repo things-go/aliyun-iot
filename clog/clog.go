@@ -4,12 +4,12 @@ import (
 	"sync/atomic"
 )
 
-// LogProvider RFC5424 log message levels only Debug Warn and Error
+// LogProvider RFC5424 log message levels only Debugf Warnf and Errorf
 type LogProvider interface {
-	Critical(format string, v ...interface{})
-	Error(format string, v ...interface{})
-	Warn(format string, v ...interface{})
-	Debug(format string, v ...interface{})
+	Criticalf(format string, v ...interface{})
+	Errorf(format string, v ...interface{})
+	Warnf(format string, v ...interface{})
+	Debugf(format string, v ...interface{})
 }
 
 // Option logger option
@@ -57,30 +57,30 @@ func (sf *Clog) LogMode(enable bool) {
 	}
 }
 
-// Critical Log CRITICAL level message.
-func (sf Clog) Critical(format string, v ...interface{}) {
+// Criticalf Log CRITICAL level message.
+func (sf Clog) Criticalf(format string, v ...interface{}) {
 	if atomic.LoadUint32(&sf.has) == 1 {
-		sf.provider.Critical(format, v...)
+		sf.provider.Criticalf(format, v...)
 	}
 }
 
-// Error Log ERROR level message.
-func (sf Clog) Error(format string, v ...interface{}) {
+// Errorf Log ERROR level message.
+func (sf Clog) Errorf(format string, v ...interface{}) {
 	if atomic.LoadUint32(&sf.has) == 1 {
-		sf.provider.Error(format, v...)
+		sf.provider.Errorf(format, v...)
 	}
 }
 
-// Warn Log WARN level message.
-func (sf Clog) Warn(format string, v ...interface{}) {
+// Warnf Log WARN level message.
+func (sf Clog) Warnf(format string, v ...interface{}) {
 	if atomic.LoadUint32(&sf.has) == 1 {
-		sf.provider.Warn(format, v...)
+		sf.provider.Warnf(format, v...)
 	}
 }
 
-// Debug Log DEBUG level message.
-func (sf Clog) Debug(format string, v ...interface{}) {
+// Debugf Log DEBUG level message.
+func (sf Clog) Debugf(format string, v ...interface{}) {
 	if atomic.LoadUint32(&sf.has) == 1 {
-		sf.provider.Debug(format, v...)
+		sf.provider.Debugf(format, v...)
 	}
 }

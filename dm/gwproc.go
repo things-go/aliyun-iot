@@ -25,14 +25,12 @@ func ProcThingTopoAddReply(c *Client, rawURI string, payload []byte) error {
 
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
-	} else {
-		if devID, ok := c.CacheGet(rsp.ID); ok {
-			_ = c.SetDevStatusByID(devID, DevStatusAttached)
-		}
+	} else if devID, ok := c.CacheGet(rsp.ID); ok {
+		_ = c.SetDevStatusByID(devID, DevStatusAttached)
 	}
 
 	c.CacheDone(rsp.ID, err)
-	c.debug("downstream GW thing <topo>: add reply @%d", rsp.ID)
+	c.debugf("downstream GW thing <topo>: add reply @%d", rsp.ID)
 	return nil
 }
 
@@ -54,14 +52,12 @@ func ProcThingTopoDeleteReply(c *Client, rawURI string, payload []byte) error {
 
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
-	} else {
-		if devID, ok := c.CacheGet(rsp.ID); ok {
-			_ = c.SetDevStatusByID(devID, DevStatusRegistered)
-		}
+	} else if devID, ok := c.CacheGet(rsp.ID); ok {
+		_ = c.SetDevStatusByID(devID, DevStatusRegistered)
 	}
 
 	c.CacheDone(rsp.ID, err)
-	c.debug("downstream GW thing <topo>: delete reply @%d", rsp.ID)
+	c.debugf("downstream GW thing <topo>: delete reply @%d", rsp.ID)
 	return nil
 }
 
@@ -85,7 +81,7 @@ func ProcThingTopoGetReply(c *Client, rawURI string, payload []byte) error {
 	}
 
 	c.CacheDone(rsp.ID, err)
-	c.debug("downstream GW thing <topo>: get reply @%d", rsp.ID)
+	c.debugf("downstream GW thing <topo>: get reply @%d", rsp.ID)
 	return c.ipcSendMessage(&ipcMessage{
 		err:     err,
 		evt:     ipcEvtTopoGetReply,
@@ -115,7 +111,7 @@ func ProcThingListFoundReply(c *Client, rawURI string, payload []byte) error {
 	}
 
 	c.CacheDone(rsp.ID, err)
-	c.debug("downstream GW thing <list>: found reply @%d", rsp.ID)
+	c.debugf("downstream GW thing <list>: found reply @%d", rsp.ID)
 	return c.ipcSendMessage(&ipcMessage{
 		err: err,
 		evt: ipcEvtListFoundReply,
@@ -144,7 +140,7 @@ func ProcThingTopoAddNotify(c *Client, rawURI string, payload []byte) error {
 	if len(uris) < (c.cfg.uriOffset + 7) {
 		return ErrInvalidURI
 	}
-	c.debug("downstream GW thing <topo>: add notify")
+	c.debugf("downstream GW thing <topo>: add notify")
 
 	req := GwTopoAddNotifyRequest{}
 	if err := json.Unmarshal(payload, &req); err != nil {
@@ -155,11 +151,10 @@ func ProcThingTopoAddNotify(c *Client, rawURI string, payload []byte) error {
 		evt:     ipcEvtTopoAddNotify,
 		payload: req.Params,
 	}); err != nil {
-		c.warn("ipc send message failed, %+v", err)
+		c.warnf("ipc send message failed, %+v", err)
 	}
 	return c.SendResponse(uriServiceReplyWithRequestURI(rawURI),
 		req.ID, infra.CodeSuccess, "{}")
-
 }
 
 // GwTopoChangeDev 网络拓扑关系变化请求参数域 设备结构
@@ -190,7 +185,7 @@ func ProcThingTopoChange(c *Client, rawURI string, payload []byte) error {
 	if len(uris) < (c.cfg.uriOffset + 6) {
 		return ErrInvalidURI
 	}
-	c.debug("downstream GW thing <topo>: change")
+	c.debugf("downstream GW thing <topo>: change")
 
 	req := GwTopoChangeRequest{}
 	if err := json.Unmarshal(payload, &req); err != nil {
@@ -201,7 +196,7 @@ func ProcThingTopoChange(c *Client, rawURI string, payload []byte) error {
 		evt:     ipcTopoChange,
 		payload: req.Params,
 	}); err != nil {
-		c.warn("ipc send message failed, %+v", err)
+		c.warnf("ipc send message failed, %+v", err)
 	}
 	return c.SendResponse(uriServiceReplyWithRequestURI(rawURI),
 		req.ID, infra.CodeSuccess, "{}")
@@ -231,7 +226,7 @@ func ProcThingSubDevRegisterReply(c *Client, rawURI string, payload []byte) erro
 		for _, v := range rsp.Data {
 			node, er := c.SearchNodeByPkDn(v.ProductKey, v.DeviceName)
 			if er != nil {
-				c.warn("downstream GW thing <sub>: register reply, %+v <%s - %s - %s>",
+				c.warnf("downstream GW thing <sub>: register reply, %+v <%s - %s - %s>",
 					er, v.ProductKey, v.DeviceName, v.DeviceSecret)
 				continue
 			}
@@ -240,7 +235,7 @@ func ProcThingSubDevRegisterReply(c *Client, rawURI string, payload []byte) erro
 		}
 	}
 	c.CacheDone(rsp.ID, err)
-	c.debug("downstream GW thing <sub>: register reply @%d", rsp.ID)
+	c.debugf("downstream GW thing <sub>: register reply @%d", rsp.ID)
 	return nil
 }
 
@@ -263,13 +258,11 @@ func ProcExtSubDevCombineLoginReply(c *Client, rawURI string, payload []byte) er
 
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
-	} else {
-		if devID, ok := c.CacheGet(rsp.ID); ok {
-			_ = c.SetDevStatusByID(devID, DevStatusLogined)
-		}
+	} else if devID, ok := c.CacheGet(rsp.ID); ok {
+		_ = c.SetDevStatusByID(devID, DevStatusLogined)
 	}
 	c.CacheDone(rsp.ID, err)
-	c.debug("downstream Ext GW <sub>: login reply @%d", rsp.ID)
+	c.debugf("downstream Ext GW <sub>: login reply @%d", rsp.ID)
 	return nil
 }
 
@@ -291,13 +284,11 @@ func ProcExtSubDevCombineLogoutReply(c *Client, rawURI string, payload []byte) e
 	}
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
-	} else {
-		if devID, ok := c.CacheGet(rsp.ID); ok {
-			_ = c.SetDevStatusByID(devID, DevStatusAttached)
-		}
+	} else if devID, ok := c.CacheGet(rsp.ID); ok {
+		_ = c.SetDevStatusByID(devID, DevStatusAttached)
 	}
 	c.CacheDone(rsp.ID, err)
-	c.debug("downstream Ext GW <sub>: logout reply @%d", rsp.ID)
+	c.debugf("downstream Ext GW <sub>: logout reply @%d", rsp.ID)
 	return nil
 }
 
@@ -311,7 +302,7 @@ func ProcThingDisable(c *Client, rawURI string, payload []byte) error {
 	if len(uris) < (c.cfg.uriOffset + 5) {
 		return ErrInvalidURI
 	}
-	c.debug("downstream <thing>: disable >> %s - %s", uris[1], uris[2])
+	c.debugf("downstream <thing>: disable >> %s - %s", uris[1], uris[2])
 
 	req := Request{}
 	err := json.Unmarshal(payload, &req)
@@ -319,14 +310,14 @@ func ProcThingDisable(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 	if err = c.SetDevAvailByPkDN(uris[1], uris[2], false); err != nil {
-		c.warn("<thing> disable failed, %+v", err)
+		c.warnf("<thing> disable failed, %+v", err)
 	}
 	if err = c.ipcSendMessage(&ipcMessage{
 		evt:        ipcThingDisable,
 		productKey: uris[1],
 		deviceName: uris[2],
 	}); err != nil {
-		c.warn("<thing> disable, ipc send message failed, %+v", err)
+		c.warnf("<thing> disable, ipc send message failed, %+v", err)
 	}
 	return c.SendResponse(uriServiceReplyWithRequestURI(rawURI),
 		req.ID, infra.CodeSuccess, "{}")
@@ -342,7 +333,7 @@ func ProcThingEnable(c *Client, rawURI string, payload []byte) error {
 	if len(uris) < (c.cfg.uriOffset + 5) {
 		return ErrInvalidURI
 	}
-	c.debug("downstream <thing>: enable >> %s - %s", uris[1], uris[2])
+	c.debugf("downstream <thing>: enable >> %s - %s", uris[1], uris[2])
 
 	req := Request{}
 	err := json.Unmarshal(payload, &req)
@@ -350,14 +341,14 @@ func ProcThingEnable(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 	if err = c.SetDevAvailByPkDN(uris[1], uris[2], true); err != nil {
-		c.warn("<thing> enable failed, %+v", err)
+		c.warnf("<thing> enable failed, %+v", err)
 	}
 	if err = c.ipcSendMessage(&ipcMessage{
 		evt:        ipcThingEnable,
 		productKey: uris[1],
 		deviceName: uris[2],
 	}); err != nil {
-		c.warn("<thing> enable, ipc send message failed, %+v", err)
+		c.warnf("<thing> enable, ipc send message failed, %+v", err)
 	}
 	return c.SendResponse(uriServiceReplyWithRequestURI(rawURI),
 		req.ID, infra.CodeSuccess, "{}")
@@ -373,7 +364,7 @@ func ProcThingDelete(c *Client, rawURI string, payload []byte) error {
 	if len(uris) < (c.cfg.uriOffset + 5) {
 		return ErrInvalidURI
 	}
-	c.debug("downstream <thing>: delete >> %s - %s", uris[1], uris[2])
+	c.debugf("downstream <thing>: delete >> %s - %s", uris[1], uris[2])
 
 	req := Request{}
 	if err := json.Unmarshal(payload, &req); err != nil {
@@ -385,7 +376,7 @@ func ProcThingDelete(c *Client, rawURI string, payload []byte) error {
 		productKey: uris[1],
 		deviceName: uris[2],
 	}); err != nil {
-		c.warn("<thing> delete, ipc send message failed, %+v", err)
+		c.warnf("<thing> delete, ipc send message failed, %+v", err)
 	}
 	return c.SendResponse(uriServiceReplyWithRequestURI(rawURI),
 		req.ID, infra.CodeSuccess, "{}")
@@ -422,7 +413,7 @@ func ProcExtErrorResponse(c *Client, rawURI string, payload []byte) error {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 	c.CacheDone(rsp.ID, err)
-	c.debug("downstream extend <Error>: response,@%d", rsp.ID)
+	c.debugf("downstream extend <Error>: response,@%d", rsp.ID)
 	return c.ipcSendMessage(&ipcMessage{
 		err:     err,
 		evt:     ipcEvtErrorResponse,

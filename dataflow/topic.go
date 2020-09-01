@@ -107,7 +107,7 @@ func ParseTopicOtaUpgrade(topic string) (ti TopicInfo, err error) {
 	return parseTopic(topic, true, false, 5)
 }
 
-func parseTopic(topic string, isSys bool, isEvent bool, match int) (ti TopicInfo, err error) {
+func parseTopic(topic string, isSys, isEvent bool, match int) (ti TopicInfo, err error) {
 	if topic == "" {
 		err = ErrTopicInvalid
 		return

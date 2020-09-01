@@ -155,7 +155,7 @@ func (sf *Client) SendRequest(uriService string, requestID int, method string, p
 // code: 回复code
 // data: 数据域
 // API内部已实现json序列化
-func (sf *Client) SendResponse(uriService string, responseID int, code int, data interface{}) error {
+func (sf *Client) SendResponse(uriService string, responseID, code int, data interface{}) error {
 	out, err := json.Marshal(
 		struct {
 			*Response

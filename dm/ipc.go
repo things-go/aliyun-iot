@@ -76,57 +76,69 @@ func (sf *Client) ipcRunMessage() {
 	for msg := range sf.ipc {
 		err = sf.ipcEventProc(msg)
 		if err != nil {
-			sf.error("ipc event process failed, %+v", err)
+			sf.errorf("ipc event process failed, %+v", err)
 		}
 	}
-	//for {
+	// for {
 	//	select {
 	//	case msg := <-sf.ipc:
 	//		err = sf.ipcEventProc(msg)
 	//		if err != nil {
-	//			sf.error("ipc event process failed, %+v", err)
+	//			sf.errorf("ipc event process failed, %+v", err)
 	//		}
 	//	}
-	//}
+	// }
 }
 
 func (sf *Client) ipcEventProc(msg *ipcMessage) error {
 	defer func() {
 		if err := recover(); err != nil {
-			sf.critical("panic happen, %+v", err)
+			sf.criticalf("panic happen, %+v", err)
 		}
 	}()
 
 	switch msg.evt {
 	// 下行应答
 	case ipcEvtUpRawReply:
-		return sf.eventProc.EvtThingModelUpRawReply(sf, msg.productKey, msg.deviceName, msg.payload.([]byte))
+		return sf.eventProc.EvtThingModelUpRawReply(sf,
+			msg.productKey, msg.deviceName, msg.payload.([]byte))
 	case ipcEvtEventPropertyPostReply:
-		return sf.eventProc.EvtThingEventPropertyPostReply(sf, msg.err, msg.productKey, msg.deviceName)
+		return sf.eventProc.EvtThingEventPropertyPostReply(sf,
+			msg.err, msg.productKey, msg.deviceName)
 	case ipcEvtEventPostReply:
-		return sf.eventProc.EvtThingEventPostReply(sf, msg.err, msg.extend, msg.productKey, msg.deviceName)
+		return sf.eventProc.EvtThingEventPostReply(sf,
+			msg.err, msg.extend, msg.productKey, msg.deviceName)
 	case ipcEvtPropertyPackPostReply:
-		return sf.eventProc.EvtThingEventPropertyPackPostReply(sf, msg.err, msg.productKey, msg.deviceName)
+		return sf.eventProc.EvtThingEventPropertyPackPostReply(sf,
+			msg.err, msg.productKey, msg.deviceName)
 	case ipcEvtDeviceInfoUpdateReply:
-		return sf.eventProc.EvtThingDeviceInfoUpdateReply(sf, msg.err, msg.productKey, msg.deviceName)
+		return sf.eventProc.EvtThingDeviceInfoUpdateReply(sf,
+			msg.err, msg.productKey, msg.deviceName)
 	case ipcEvtDeviceInfoDeleteReply:
-		return sf.eventProc.EvtThingDeviceInfoDeleteReply(sf, msg.err, msg.productKey, msg.deviceName)
+		return sf.eventProc.EvtThingDeviceInfoDeleteReply(sf,
+			msg.err, msg.productKey, msg.deviceName)
 	case ipcEvtDesiredPropertyGetReply:
-		return sf.eventProc.EvtThingDesiredPropertyGetReply(sf, msg.err, msg.productKey, msg.deviceName, msg.payload.(json.RawMessage))
+		return sf.eventProc.EvtThingDesiredPropertyGetReply(sf,
+			msg.err, msg.productKey, msg.deviceName, msg.payload.(json.RawMessage))
 	case ipcEvtDesiredPropertyDeleteReply:
-		return sf.eventProc.EvtThingDesiredPropertyDeleteReply(sf, msg.err, msg.productKey, msg.deviceName)
+		return sf.eventProc.EvtThingDesiredPropertyDeleteReply(sf,
+			msg.err, msg.productKey, msg.deviceName)
 	case ipcEvtDsltemplateGetReply:
-		return sf.eventProc.EvtThingDsltemplateGetReply(sf, msg.err, msg.productKey, msg.deviceName, msg.payload.(json.RawMessage))
+		return sf.eventProc.EvtThingDsltemplateGetReply(sf,
+			msg.err, msg.productKey, msg.deviceName, msg.payload.(json.RawMessage))
 	case ipcEvtDynamictslGetReply:
-		return sf.eventProc.EvtThingDynamictslGetReply(sf, msg.err, msg.productKey, msg.deviceName, msg.payload.(json.RawMessage))
+		return sf.eventProc.EvtThingDynamictslGetReply(sf,
+			msg.err, msg.productKey, msg.deviceName, msg.payload.(json.RawMessage))
 	case ipcEvtExtNtpResponse:
-		return sf.eventProc.EvtExtNtpResponse(sf, msg.productKey, msg.deviceName, msg.payload.(NtpResponsePayload))
+		return sf.eventProc.EvtExtNtpResponse(sf,
+			msg.productKey, msg.deviceName, msg.payload.(NtpResponsePayload))
 	case ipcEvtConfigGetReply:
-		return sf.eventProc.EvtThingConfigGetReply(sf, msg.err, msg.productKey, msg.deviceName, msg.payload.(ConfigParamsAndData))
+		return sf.eventProc.EvtThingConfigGetReply(sf,
+			msg.err, msg.productKey, msg.deviceName, msg.payload.(ConfigParamsAndData))
 	case ipcEvtErrorResponse:
 		err := msg.err.(*infra.CodeError)
 		data := msg.payload.(ExtErrorData)
-		sf.debug("ext evt error response, %+v", err)
+		sf.debugf("ext evt errorf response, %+v", err)
 
 		code := err.Code()
 		if code == infra.CodeSubDevSessionError {
@@ -140,22 +152,29 @@ func (sf *Client) ipcEventProc(msg *ipcMessage) error {
 
 		// 下行
 	case ipcEvtDownRaw:
-		return sf.eventProc.EvtThingModelDownRaw(sf, msg.productKey, msg.deviceName, msg.payload.([]byte))
+		return sf.eventProc.EvtThingModelDownRaw(sf,
+			msg.productKey, msg.deviceName, msg.payload.([]byte))
 	case ipcEvtConfigPush:
-		return sf.eventProc.EvtThingConfigPush(sf, msg.productKey, msg.deviceName, msg.payload.(ConfigParamsAndData))
+		return sf.eventProc.EvtThingConfigPush(sf,
+			msg.productKey, msg.deviceName, msg.payload.(ConfigParamsAndData))
 	case ipcEvtServicePropertySet:
-		return sf.eventProc.EvtThingServicePropertySet(sf, msg.productKey, msg.deviceName, msg.payload.([]byte))
+		return sf.eventProc.EvtThingServicePropertySet(sf,
+			msg.productKey, msg.deviceName, msg.payload.([]byte))
 	case ipcEvtServiceRequest:
-		return sf.eventProc.EvtThingServiceRequest(sf, msg.extend, msg.productKey, msg.deviceName, msg.payload.([]byte))
+		return sf.eventProc.EvtThingServiceRequest(sf,
+			msg.extend, msg.productKey, msg.deviceName, msg.payload.([]byte))
 	case ipcEvtRRPCRequest:
-		return sf.eventProc.EvtRRPCRequest(sf, msg.extend, msg.productKey, msg.deviceName, msg.payload.([]byte))
+		return sf.eventProc.EvtRRPCRequest(sf,
+			msg.extend, msg.productKey, msg.deviceName, msg.payload.([]byte))
 	case ipcEvtExtRRPCRequest:
 		ext := strings.SplitN(msg.extend, SEP, 2)
-		return sf.eventProc.EvtExtRRPCRequest(sf, ext[0], ext[1], msg.payload.([]byte))
+		return sf.eventProc.EvtExtRRPCRequest(sf,
+			ext[0], ext[1], msg.payload.([]byte))
 
 		// 上行应答
 	case ipcEvtTopoGetReply:
-		return sf.eventGwProc.EvtThingTopoGetReply(sf, msg.err, msg.payload.([]GwTopoGetData))
+		return sf.eventGwProc.EvtThingTopoGetReply(sf,
+			msg.err, msg.payload.([]GwTopoGetData))
 	case ipcEvtListFoundReply:
 		return sf.eventGwProc.EvtThingListFoundReply(sf, msg.err)
 		// 下行

@@ -64,5 +64,4 @@ func TestMQTTSign(t *testing.T) {
 			t.Fatal("must be error")
 		}
 	})
-
 }

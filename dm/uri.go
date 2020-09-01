@@ -17,7 +17,7 @@ const (
 	URISysPrefix              = "/sys/%s/%s/"
 	URIExtSessionPrefix       = "/ext/session/%s/%s/"
 	URIExtNtpPrefix           = "/ext/ntp/%s/%s/"
-	URIExtErrorPrefix         = "/ext/error/%s/%s"
+	URIExtErrorPrefix         = "/ext/errorf/%s/%s"
 	URIOtaDeviceInformPrefix  = "/ota/device/inform/%s/%s"
 	URIOtaDeviceUpgradePrefix = "/ota/device/upgrade/%s/%s"
 	URIOtaDeviceProcessPrefix = "/ota/device/progress/%s/%s"

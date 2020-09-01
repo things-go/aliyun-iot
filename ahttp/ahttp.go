@@ -3,6 +3,7 @@ package ahttp
 
 import (
 	"bytes"
+	"context"
 	"crypto/hmac"
 	"crypto/md5"
 	"crypto/sha1"
@@ -155,7 +156,7 @@ func (sf *Client) getToken() (string, error) {
 			return "", err
 		}
 
-		request, err := http.NewRequest(http.MethodPost, sf.host+"/auth", bytes.NewBuffer(b))
+		request, err := http.NewRequestWithContext(context.Background(), http.MethodPost, sf.host+"/auth", bytes.NewBuffer(b))
 		if err != nil {
 			return "", err
 		}
@@ -167,7 +168,7 @@ func (sf *Client) getToken() (string, error) {
 		defer response.Body.Close()
 
 		authRsp := AuthResponse{}
-		if err = json.NewDecoder(response.Body).Decode(&authRsp); err != nil {
+		if err := json.NewDecoder(response.Body).Decode(&authRsp); err != nil {
 			return "", err
 		}
 
@@ -189,6 +190,7 @@ type DataResponse struct {
 	} `json:"info"`
 }
 
+// Publish push message
 func (sf *Client) Publish(uri string, payload interface{}) error {
 	py := DataResponse{}
 
@@ -205,10 +207,10 @@ func (sf *Client) Publish(uri string, payload interface{}) error {
 		case []byte:
 			buf = bytes.NewBuffer(v)
 		default:
-			return errors.New("Unknown payload type, must be string or []byte")
+			return errors.New("unknown payload type, must be string or []byte")
 		}
 
-		request, err := http.NewRequest(http.MethodPost, sf.host+uri, buf)
+		request, err := http.NewRequestWithContext(context.Background(), http.MethodPost, sf.host+uri, buf)
 		if err != nil {
 			return err
 		}
@@ -220,10 +222,10 @@ func (sf *Client) Publish(uri string, payload interface{}) error {
 		}
 		defer response.Body.Close()
 
-		if err = json.NewDecoder(response.Body).Decode(&py); err != nil {
+		if err := json.NewDecoder(response.Body).Decode(&py); err != nil {
 			return err
 		}
-		sf.Debug("publish response, %+v", py)
+		sf.Debugf("publish response, %+v", py)
 		if py.Code == 0 {
 			return nil
 		}

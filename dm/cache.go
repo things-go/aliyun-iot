@@ -31,16 +31,16 @@ func (sf *Client) cacheInit() {
 				extend:  strconv.Itoa(entry.devID),
 				payload: entry.msgType,
 			}); err != nil {
-				sf.warn("ipc send message cache timeout failed, %+v", err)
+				sf.warnf("ipc send message cache timeout failed, %+v", err)
 			}
 		}
-		sf.debug("cache evicted - @%s", id)
+		sf.debugf("cache evicted - @%s", id)
 		sf.pool.Put(entry)
 	})
 	// TODO: 删除时放回Pool
-	//sf.msgCache.OnDeleted(func(s string, v interface{}) {
+	// sf.msgCache.OnDeleted(func(s string, v interface{}) {
 	//	sf.pool.Put(v.(*MsgCacheEntry))
-	//})
+	// })
 }
 
 // CacheInsert 缓存插入指定ID
@@ -53,7 +53,7 @@ func (sf *Client) CacheInsert(id, devID int, msgType MsgType) {
 	entry.msgType = msgType
 	entry.done = 0
 	sf.msgCache.SetDefault(strconv.Itoa(id), entry)
-	sf.debug("cache insert - @%d", id)
+	sf.debugf("cache insert - @%d", id)
 }
 
 // CacheGet 获取缓存消息设备ID
@@ -87,7 +87,7 @@ func (sf *Client) CacheWait(id int, t ...time.Duration) error {
 
 	tk := time.NewTicker(tm)
 	defer tk.Stop()
-	sf.debug("cache wait - @%d", id)
+	sf.debugf("cache wait - @%d", id)
 	select {
 	case v := <-entry.err:
 		return v
@@ -107,7 +107,7 @@ func (sf *Client) CacheDone(id int, err error) {
 		return
 	}
 
-	sf.debug("cache done - @%d", id)
+	sf.debugf("cache done - @%d", id)
 	entry := v.(*MsgCacheEntry)
 	atomic.StoreUint32(&entry.done, 1)
 	select {

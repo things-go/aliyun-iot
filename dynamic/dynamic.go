@@ -3,6 +3,7 @@ package dynamic
 
 import (
 	"bytes"
+	"context"
 	"crypto/hmac"
 	"crypto/md5"
 	"crypto/sha1"
@@ -80,7 +81,7 @@ func Register2Cloud(meta *infra.MetaInfo, crd infra.CloudRegionDomain, signMetho
 	requestBody := fmt.Sprintf("productKey=%s&deviceName=%s&random=%s&sign=%s&signMethod=%s",
 		meta.ProductKey, meta.DeviceName, ms.Random, sign, signMd)
 
-	request, err := http.NewRequest(http.MethodPost,
+	request, err := http.NewRequestWithContext(context.Background(), http.MethodPost,
 		fmt.Sprintf("%s/auth/register/device", domain),
 		bytes.NewBufferString(requestBody))
 	if err != nil {
@@ -96,7 +97,7 @@ func Register2Cloud(meta *infra.MetaInfo, crd infra.CloudRegionDomain, signMetho
 	defer response.Body.Close()
 
 	responsePy := Response{}
-	if err = json.NewDecoder(response.Body).Decode(&responsePy); err != nil {
+	if err := json.NewDecoder(response.Body).Decode(&responsePy); err != nil {
 		return err
 	}
 
@@ -126,9 +127,7 @@ func calcSign(info *MetaSign) (string, error) {
 		h = hmac.New(sha1.New, []byte(info.ProductSecret))
 	case signMethodHMACMD5:
 		h = hmac.New(md5.New, []byte(info.ProductSecret))
-	case "hmacsha256":
-		fallthrough
-	case "":
+	case "hmacsha256", "":
 		h = hmac.New(sha256.New, []byte(info.ProductSecret))
 	default:
 		return "", errors.New("sign method not support")
