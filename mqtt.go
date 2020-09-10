@@ -7,6 +7,7 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/thinkgos/aliyun-iot/clog"
 	"github.com/thinkgos/aliyun-iot/dm"
+	"github.com/thinkgos/aliyun-iot/infra"
 )
 
 // MQTTClient MQTT客户端
@@ -57,8 +58,8 @@ func (sf *MQTTClient) UnderlyingClient() mqtt.Client {
 }
 
 // NewWithMQTT 新建MQTTClient
-func NewWithMQTT(config *dm.Config, c mqtt.Client) *MQTTClient {
-	m := dm.New(config)
+func NewWithMQTT(meta infra.MetaInfo, c mqtt.Client, opts ...dm.Option) *MQTTClient {
+	m := dm.New(meta, append(opts, dm.WithWork(dm.WorkOnCOAP))...)
 	cli := &MQTTClient{
 		c,
 		m,

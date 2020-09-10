@@ -4,6 +4,7 @@ import (
 	"github.com/thinkgos/aliyun-iot/ahttp"
 	"github.com/thinkgos/aliyun-iot/clog"
 	"github.com/thinkgos/aliyun-iot/dm"
+	"github.com/thinkgos/aliyun-iot/infra"
 )
 
 // HTTPClient HTTP客户端
@@ -46,10 +47,9 @@ func (sf *HTTPClient) UnderlyingClient() *ahttp.Client {
 }
 
 // NewWithHTTP 新建HTTP客户端
-func NewWithHTTP(config *dm.Config) *HTTPClient {
-	client := ahttp.New(ahttp.WithDeviceMetaInfo(config.MetaInfo()))
-
-	sf := dm.New(config.EnableHTTP())
+func NewWithHTTP(meta infra.MetaInfo) *HTTPClient {
+	client := ahttp.New(meta)
+	sf := dm.New(meta)
 	cli := &HTTPClient{c: client, Client: sf}
 	sf.SetConn(cli)
 	return cli

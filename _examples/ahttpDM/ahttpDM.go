@@ -6,21 +6,12 @@ import (
 	"time"
 
 	aiot "github.com/thinkgos/aliyun-iot"
+	"github.com/thinkgos/aliyun-iot/_examples/testmeta"
 	"github.com/thinkgos/aliyun-iot/dm"
 )
 
-const (
-	productKey    = "a1QR3GD1Db3"
-	productSecret = ""
-	deviceName    = "MPA19GT010070140"
-	deviceSecret  = "26b136834c0dc1b9f3afc64158f6580d"
-)
-
 func main() {
-	dmopt := dm.NewConfig(productKey, deviceName, deviceSecret).
-		//EnableModelRaw().
-		Valid()
-	dmClient := aiot.NewWithHTTP(dmopt)
+	dmClient := aiot.NewWithHTTP(testmeta.MetaInfo())
 	dmClient.LogMode(true)
 
 	for {

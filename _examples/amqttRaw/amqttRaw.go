@@ -8,16 +8,10 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 
 	aiot "github.com/thinkgos/aliyun-iot"
+	"github.com/thinkgos/aliyun-iot/_examples/testmeta"
 	"github.com/thinkgos/aliyun-iot/dm"
 	"github.com/thinkgos/aliyun-iot/infra"
 	"github.com/thinkgos/aliyun-iot/sign"
-)
-
-const (
-	productKey    = "a1iJcssSlPC"
-	productSecret = "lw3QzKHNfh7XvOxO"
-	deviceName    = "rawtest"
-	deviceSecret  = "m9PbcqYf8JgKuUx3AJIg26UcR7zXKibC"
 )
 
 func main() {
@@ -44,14 +38,10 @@ func main() {
 		0x53, 0x51, 0x09, 0x51, 0x2b, 0x4e, 0x61, 0x43, 0x09, 0x2a, 0x14, 0x4d,
 		0x42, 0x1f, 0x47, 0x38, 0x52, 0x47}
 
+	meta := testmeta.MetaInfo()
 	signs, err :=
 		sign.NewMQTTSign(sign.WithSDKVersion(sign.AlinkSDKVersion)).
-			Generate(&infra.MetaInfo{
-				ProductKey:    productKey,
-				ProductSecret: productSecret,
-				DeviceName:    deviceName,
-				DeviceSecret:  deviceSecret,
-			}, infra.CloudRegionDomain{Region: infra.CloudRegionShangHai})
+			Generate(&meta, infra.CloudRegionDomain{Region: infra.CloudRegionShangHai})
 	if err != nil {
 		panic(err)
 	}
@@ -71,12 +61,7 @@ func main() {
 				log.Println("mqtt client connection lost, ", err)
 			})
 
-	dmConfig :=
-		dm.NewConfig(productKey, deviceName, deviceSecret).
-			EnableModelRaw().
-			Valid()
-
-	dmClient := aiot.NewWithMQTT(dmConfig, mqtt.NewClient(opts))
+	dmClient := aiot.NewWithMQTT(testmeta.MetaInfo(), mqtt.NewClient(opts), dm.WithEnableModelRaw())
 	dmClient.LogMode(true)
 	dmClient.SetEventProc(RawProc{})
 

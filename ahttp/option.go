@@ -37,11 +37,3 @@ func WithSignMethod(method string) Option {
 		}
 	}
 }
-
-func WithDeviceMetaInfo(productKey, deviceName, deviceSecret string) Option {
-	return func(c *Client) {
-		c.productKey = productKey
-		c.deviceName = deviceName
-		c.deviceSecret = deviceSecret
-	}
-}

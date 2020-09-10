@@ -9,19 +9,19 @@ import (
 
 // URIServiceSelf 获得本设备URI
 func (sf *Client) URIServiceSelf(prefix, name string) string {
-	return URIService(prefix, name, sf.cfg.productKey, sf.cfg.deviceName)
+	return URIService(prefix, name, sf.ProductKey, sf.DeviceName)
 }
 
 // URIService 生成URI, inName的作用是有一些需要格式化到name里.
 func (sf *Client) URIService(prefix, name, productKey, deviceName string, inName ...string) string {
-	if sf.cfg.uriOffset == 1 {
+	if sf.uriOffset == 1 {
 		prefix = URICOAPHTTPPrePrefix + prefix
 	}
 	return URIService(prefix, name, productKey, deviceName, inName...)
 }
 
 func (sf *Client) _URIExtRRPCService(prefix, messageID, topic string) string {
-	if sf.cfg.uriOffset == 1 {
+	if sf.uriOffset == 1 {
 		return URICOAPHTTPPrePrefix + fmt.Sprintf(prefix, messageID) + topic
 	}
 	return fmt.Sprintf(prefix, messageID) + topic

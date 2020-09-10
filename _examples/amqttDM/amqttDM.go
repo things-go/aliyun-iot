@@ -9,6 +9,7 @@ import (
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 
 	aiot "github.com/thinkgos/aliyun-iot"
+	"github.com/thinkgos/aliyun-iot/_examples/testmeta"
 	"github.com/thinkgos/aliyun-iot/dm"
 	"github.com/thinkgos/aliyun-iot/dmd"
 	"github.com/thinkgos/aliyun-iot/infra"
@@ -51,10 +52,7 @@ func main() {
 				log.Println("mqtt client connection lost, ", err)
 			})
 
-	dmopt :=
-		dm.NewConfig(productKey, deviceName, deviceSecret).
-			Valid()
-	dmClient = aiot.NewWithMQTT(dmopt, mqtt.NewClient(opts))
+	dmClient = aiot.NewWithMQTT(testmeta.MetaInfo(), mqtt.NewClient(opts))
 	dmClient.LogMode(true)
 
 	dmClient.UnderlyingClient().Connect().Wait()

@@ -15,7 +15,7 @@ import (
 func main() {
 	var err error
 
-	client := ahttp.New(ahttp.WithDeviceMetaInfo(testmeta.ProductKey, testmeta.DeviceName, testmeta.DeviceSecret))
+	client := ahttp.New((testmeta.MetaInfo()))
 	client.LogMode(true)
 
 	uri := dm.URICOAPHTTPPrePrefix + dm.URIService(dm.URISysPrefix, dm.URIThingEventPropertyPost, testmeta.ProductKey, testmeta.DeviceName)

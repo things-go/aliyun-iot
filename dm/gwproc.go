@@ -13,7 +13,7 @@ import (
 // subscribe: /sys/{productKey}/{deviceName}/thing/topo/add_reply
 func ProcThingTopoAddReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (c.cfg.uriOffset + 6) {
+	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
 
@@ -41,7 +41,7 @@ func ProcThingTopoAddReply(c *Client, rawURI string, payload []byte) error {
 // subscribe: /sys/{productKey}/{deviceName}/thing/topo/delete_reply
 func ProcThingTopoDeleteReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (c.cfg.uriOffset + 6) {
+	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
 	rsp := Response{}
@@ -68,7 +68,7 @@ func ProcThingTopoDeleteReply(c *Client, rawURI string, payload []byte) error {
 // subscribe: /sys/{productKey}/{deviceName}/thing/topo/get_reply
 func ProcThingTopoGetReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (c.cfg.uriOffset + 6) {
+	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
 	rsp := GwTopoGetResponse{}
@@ -96,7 +96,7 @@ func ProcThingTopoGetReply(c *Client, rawURI string, payload []byte) error {
 // subscribe: /sys/{productKey}/{deviceName}/thing/list/found_reply
 func ProcThingListFoundReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (c.cfg.uriOffset + 6) {
+	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
 
@@ -137,7 +137,7 @@ type GwTopoAddNotifyRequest struct {
 // subscribe: /sys/{productKey}/{deviceName}/thing/topo/add/notify
 func ProcThingTopoAddNotify(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (c.cfg.uriOffset + 7) {
+	if len(uris) < (c.uriOffset + 7) {
 		return ErrInvalidURI
 	}
 	c.debugf("downstream GW thing <topo>: add notify")
@@ -182,7 +182,7 @@ type GwTopoChangeRequest struct {
 // subscribe:  /sys/{productKey}/{deviceName}/thing/topo/change
 func ProcThingTopoChange(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (c.cfg.uriOffset + 6) {
+	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
 	c.debugf("downstream GW thing <topo>: change")
@@ -211,7 +211,7 @@ func ProcThingTopoChange(c *Client, rawURI string, payload []byte) error {
 // subscribe: /sys/{productKey}/{deviceName}/thing/sub/register_reply
 func ProcThingSubDevRegisterReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (c.cfg.uriOffset + 6) {
+	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
 	rsp := GwSubDevRegisterResponse{}
@@ -246,7 +246,7 @@ func ProcThingSubDevRegisterReply(c *Client, rawURI string, payload []byte) erro
 // subscribe: /ext/session/{productKey}/{deviceName}/combine/login_reply
 func ProcExtSubDevCombineLoginReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (c.cfg.uriOffset + 6) {
+	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
 
@@ -273,7 +273,7 @@ func ProcExtSubDevCombineLoginReply(c *Client, rawURI string, payload []byte) er
 // subscribe: /ext/session/{productKey}/{deviceName}/combine/logout_reply
 func ProcExtSubDevCombineLogoutReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (c.cfg.uriOffset + 6) {
+	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
 
@@ -299,7 +299,7 @@ func ProcExtSubDevCombineLogoutReply(c *Client, rawURI string, payload []byte) e
 // subscribe: /sys/{productKey}/{deviceName}/thing/disable
 func ProcThingDisable(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (c.cfg.uriOffset + 5) {
+	if len(uris) < (c.uriOffset + 5) {
 		return ErrInvalidURI
 	}
 	c.debugf("downstream <thing>: disable >> %s - %s", uris[1], uris[2])
@@ -330,7 +330,7 @@ func ProcThingDisable(c *Client, rawURI string, payload []byte) error {
 // subscribe: /sys/{productKey}/{deviceName}/thing/enable
 func ProcThingEnable(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (c.cfg.uriOffset + 5) {
+	if len(uris) < (c.uriOffset + 5) {
 		return ErrInvalidURI
 	}
 	c.debugf("downstream <thing>: enable >> %s - %s", uris[1], uris[2])
@@ -361,7 +361,7 @@ func ProcThingEnable(c *Client, rawURI string, payload []byte) error {
 // subscribe: /sys/{productKey}/{deviceName}/thing/delete
 func ProcThingDelete(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (c.cfg.uriOffset + 5) {
+	if len(uris) < (c.uriOffset + 5) {
 		return ErrInvalidURI
 	}
 	c.debugf("downstream <thing>: delete >> %s - %s", uris[1], uris[2])
@@ -399,7 +399,7 @@ type ExtErrorResponse struct {
 // subscribe: ext/error/{productKey}/{deviceName}
 func ProcExtErrorResponse(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (c.cfg.uriOffset + 4) {
+	if len(uris) < (c.uriOffset + 4) {
 		return ErrInvalidURI
 	}
 

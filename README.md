@@ -1,4 +1,5 @@
-## aliyun 物联网设备接入的golang实现 alpha version
+## aliyun 物联网设备接入的golang实现 
+WIP
 
 - infra 公共包
 - clog: 调试日志包,可独立使用

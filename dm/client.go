@@ -4,12 +4,12 @@ package dm
 func (sf *Client) SubscribeAllTopic(devType DevType, productKey, deviceName string) error {
 	var err error
 
-	if sf.cfg.workOnWho == workOnHTTP {
+	if sf.workOnWho == WorkOnHTTP {
 		return nil
 	}
 
 	// model raw订阅
-	if sf.cfg.hasRawModel {
+	if sf.hasRawModel {
 		if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingModelUpRawReply, productKey, deviceName),
 			ProcThingModelUpRawReply); err != nil {
 			sf.warnf(err.Error())
@@ -28,7 +28,7 @@ func (sf *Client) SubscribeAllTopic(devType DevType, productKey, deviceName stri
 	}
 
 	// desired 期望属性订阅
-	if sf.cfg.hasDesired {
+	if sf.hasDesired {
 		if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingDesiredPropertyGetReply, productKey, deviceName),
 			ProcThingDesiredPropertyGetReply); err != nil {
 			sf.warnf(err.Error())
@@ -78,7 +78,7 @@ func (sf *Client) SubscribeAllTopic(devType DevType, productKey, deviceName stri
 	}
 
 	// ntp订阅, 只有网关和独立设备支持ntp
-	if sf.cfg.hasNTP && devType != DevTypeSubDev {
+	if sf.hasNTP && devType != DevTypeSubDev {
 		if err = sf.Subscribe(sf.URIService(URIExtNtpPrefix, URINtpResponse, productKey, deviceName),
 			ProcExtNtpResponse); err != nil {
 			sf.warnf(err.Error())
@@ -101,7 +101,7 @@ func (sf *Client) SubscribeAllTopic(devType DevType, productKey, deviceName stri
 		sf.warnf(err.Error())
 	}
 
-	if sf.cfg.hasGateway {
+	if sf.isGateway {
 		if devType == DevTypeGateway {
 			// 网关批量上报数据
 			if err = sf.Subscribe(sf.URIServiceSelf(URISysPrefix, URIThingEventPropertyPackPostReply),
@@ -177,7 +177,7 @@ func (sf *Client) SubscribeAllTopic(devType DevType, productKey, deviceName stri
 			}
 		}
 
-		// if sf.cfg.hasOTA {
+		// if sf.hasOTA {
 		// TODO
 		// }
 	}
@@ -189,12 +189,12 @@ func (sf *Client) SubscribeAllTopic(devType DevType, productKey, deviceName stri
 func (sf *Client) UnSubscribeSubDevAllTopic(productKey, deviceName string) error {
 	var topicList []string
 
-	if !sf.cfg.hasGateway || sf.cfg.workOnWho == workOnHTTP {
+	if !sf.isGateway || sf.workOnWho == WorkOnHTTP {
 		return nil
 	}
 
 	// model raw 取消订阅
-	if sf.cfg.hasRawModel {
+	if sf.hasRawModel {
 		topicList = append(topicList,
 			sf.URIService(URISysPrefix, URIThingModelUpRawReply, productKey, deviceName),
 			sf.URIService(URISysPrefix, URIThingModelDownRawReply, productKey, deviceName))
@@ -205,7 +205,7 @@ func (sf *Client) UnSubscribeSubDevAllTopic(productKey, deviceName string) error
 	}
 
 	// desired 期望属性取消订阅
-	if sf.cfg.hasDesired {
+	if sf.hasDesired {
 		topicList = append(topicList,
 			sf.URIService(URISysPrefix, URIThingDesiredPropertyGetReply, productKey, deviceName),
 			sf.URIService(URISysPrefix, URIThingDesiredPropertyDelete, productKey, deviceName))

@@ -6,8 +6,24 @@ import (
 	"encoding/json"
 	"fmt"
 	"sync/atomic"
+	"time"
 
 	"github.com/patrickmn/go-cache"
+
+	"github.com/thinkgos/aliyun-iot/infra"
+)
+
+// 缓存默认值
+const (
+	DefaultCacheExpiration      = time.Second * 10
+	DefaultCacheCleanupInterval = time.Second * 30
+)
+
+// 当前的工作方式
+const (
+	WorkOnMQTT = iota
+	WorkOnCOAP
+	WorkOnHTTP
 )
 
 // MsgType 消息类型
@@ -67,11 +83,30 @@ type Response struct {
 	Message string          `json:"message,omitempty"`
 }
 
+// Config 配置信息
+type Config struct {
+	infra.MetaInfo
+
+	uriOffset int
+	workOnWho byte
+
+	cacheExpiration      time.Duration
+	cacheCleanupInterval time.Duration
+
+	// 选项功能
+	isGateway   bool
+	hasNTP      bool
+	hasRawModel bool
+	hasDesired  bool
+	hasExtRRPC  bool
+	hasOTA      bool
+}
+
 // Client 客户端
 type Client struct {
 	requestID int32
 
-	cfg Config
+	Config
 
 	*DevMgr
 	msgCache *cache.Cache
@@ -83,30 +118,40 @@ type Client struct {
 }
 
 // New 创建一个物管理客户端
-func New(cfg *Config) *Client {
-	sf := &Client{
-		cfg:         *cfg,
+func New(meta infra.MetaInfo, opts ...Option) *Client {
+	c := &Client{
+		Config: Config{
+			MetaInfo: meta,
+
+			uriOffset: 0,
+			workOnWho: WorkOnMQTT,
+
+			cacheExpiration:      DefaultCacheExpiration,
+			cacheCleanupInterval: DefaultCacheCleanupInterval,
+		},
 		DevMgr:      NewDevMgr(),
 		ipc:         make(chan *ipcMessage, 1024),
 		eventProc:   NopEvt{},
 		eventGwProc: NopGwEvt{},
 	}
-
-	sf.cacheInit()
-	err := sf.insert(DevNodeLocal, DevTypeSingle, cfg.productKey, cfg.deviceName, cfg.deviceSecret)
+	for _, opt := range opts {
+		opt(c)
+	}
+	c.cacheInit()
+	err := c.insert(DevNodeLocal, DevTypeSingle, c.ProductKey, c.DeviceName, c.DeviceSecret)
 	if err != nil {
 		panic(fmt.Sprintf("device local duplicate,cause: %+v", err))
 	}
-	if sf.cfg.workOnWho == workOnMQTT {
-		go sf.ipcRunMessage()
+	if c.workOnWho == WorkOnMQTT {
+		go c.ipcRunMessage()
 	}
 
-	return sf
+	return c
 }
 
 // NewSubDevice 创建一个子设备
 func (sf *Client) NewSubDevice(meta Meta) (int, error) {
-	if !sf.cfg.hasGateway {
+	if !sf.isGateway {
 		return 0, ErrNotSupportFeature
 	}
 	return sf.Create(DevTypeSubDev, meta.ProductKey, meta.DeviceName, meta.DeviceSecret)
@@ -174,12 +219,12 @@ func (sf *Client) SendResponse(uriService string, responseID, code int, data int
 func (sf *Client) AlinkConnect() error {
 	var devType DevType
 
-	if sf.cfg.hasGateway {
+	if sf.isGateway {
 		devType = DevTypeGateway
 	} else {
 		devType = DevTypeSingle
 	}
-	return sf.SubscribeAllTopic(devType, sf.cfg.productKey, sf.cfg.deviceName)
+	return sf.SubscribeAllTopic(devType, sf.ProductKey, sf.DeviceName)
 }
 
 // AlinkSubDeviceConnect 子设备连接注册并添加到网关拓扑关系
@@ -219,7 +264,7 @@ func (sf *Client) AlinkReport(msgType MsgType, devID int, params interface{}) er
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
-	if sf.cfg.workOnWho == workOnHTTP &&
+	if sf.workOnWho == WorkOnHTTP &&
 		!(msgType == MsgTypeModelUpRaw ||
 			msgType == MsgTypeEventPropertyPost ||
 			msgType == MsgTypeDeviceInfoUpdate ||
@@ -229,27 +274,27 @@ func (sf *Client) AlinkReport(msgType MsgType, devID int, params interface{}) er
 
 	switch msgType {
 	case MsgTypeModelUpRaw:
-		if !sf.cfg.hasRawModel {
+		if !sf.hasRawModel {
 			return ErrNotSupportFeature
 		}
 		return sf.upstreamThingModelUpRaw(devID, params)
 	case MsgTypeEventPropertyPost:
-		if sf.cfg.hasRawModel {
+		if sf.hasRawModel {
 			return ErrNotSupportFeature
 		}
 		return sf.upstreamThingEventPropertyPost(devID, params)
 	case MsgTypeEventPropertyPackPost:
-		if !sf.cfg.hasGateway {
+		if !sf.isGateway {
 			return ErrNotSupportFeature
 		}
 		return sf.upstreamThingEventPropertyPackPost(params)
 	case MsgTypeDesiredPropertyGet:
-		if !sf.cfg.hasDesired {
+		if !sf.hasDesired {
 			return ErrNotSupportFeature
 		}
 		return sf.upstreamThingDesiredPropertyGet(devID, params)
 	case MsgTypeDesiredPropertyDelete:
-		if !sf.cfg.hasDesired {
+		if !sf.hasDesired {
 			return ErrNotSupportFeature
 		}
 		return sf.upstreamThingDesiredPropertyDelete(devID, params)
@@ -259,7 +304,7 @@ func (sf *Client) AlinkReport(msgType MsgType, devID int, params interface{}) er
 		return sf.upstreamThingDeviceInfoDelete(devID, params)
 
 	case MsgTypeReportFirmwareVersion:
-		if !sf.cfg.hasOTA {
+		if !sf.hasOTA {
 			return ErrNotSupportFeature
 		}
 
@@ -277,23 +322,23 @@ func (sf *Client) AlinkRequest(msgType MsgType, devID int) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
-	if sf.cfg.workOnWho == workOnHTTP {
+	if sf.workOnWho == WorkOnHTTP {
 		return ErrNotSupportFeature
 	}
 
 	switch msgType {
 	case MsgTypeSubDevLogin:
-		if !sf.cfg.hasGateway {
+		if !sf.isGateway {
 			return ErrNotSupportFeature
 		}
 		return sf.linkKitGwSubDevCombineLogin(devID)
 	case MsgTypeSubDevLogout:
-		if !sf.cfg.hasGateway {
+		if !sf.isGateway {
 			return ErrNotSupportFeature
 		}
 		return sf.linkKitGwSubDevCombineLogout(devID)
 	case MsgTypeSubDevDeleteTopo:
-		if !sf.cfg.hasGateway {
+		if !sf.isGateway {
 			return ErrNotSupportFeature
 		}
 		return sf.linkKitGwSubDevTopoDelete(devID)
@@ -310,7 +355,7 @@ func (sf *Client) AlinkQuery(msgType MsgType, devID int, _ ...interface{}) error
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
-	if sf.cfg.workOnWho == workOnHTTP {
+	if sf.workOnWho == WorkOnHTTP {
 		return ErrNotSupportWork
 	}
 
@@ -320,17 +365,17 @@ func (sf *Client) AlinkQuery(msgType MsgType, devID int, _ ...interface{}) error
 	case MsgTypeDynamictslGet:
 		return sf.upstreamThingDynamictslGet(devID)
 	case MsgTypeExtNtpRequest:
-		if !sf.cfg.hasNTP || sf.cfg.hasRawModel {
+		if !sf.hasNTP || sf.hasRawModel {
 			return ErrNotSupportFeature
 		}
 		return sf.upstreamExtNtpRequest()
 	case MsgTypeConfigGet:
-		if !sf.cfg.hasGateway {
+		if !sf.isGateway {
 			return ErrNotSupportFeature
 		}
 		return sf.upstreamThingConfigGet(devID)
 	case MsgTypeTopoGet:
-		if !sf.cfg.hasGateway {
+		if !sf.isGateway {
 			return ErrNotSupportFeature
 		}
 		return sf.upstreamGwThingTopoGet()

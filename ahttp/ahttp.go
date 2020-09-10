@@ -64,9 +64,7 @@ type AuthResponse struct {
 
 // Client 客户端
 type Client struct {
-	productKey   string
-	deviceName   string
-	deviceSecret string
+	meta infra.MetaInfo
 
 	host       string
 	version    string
@@ -83,8 +81,9 @@ type Client struct {
 // 默认加签算法: hmacmd5
 // 默认host: https://iot-as-http.cn-shanghai.aliyuncs.com
 // 默认使用http.DefaultClient
-func New(opts ...Option) *Client {
+func New(meta infra.MetaInfo, opts ...Option) *Client {
 	c := &Client{
+		meta:       meta,
 		host:       "https://iot-as-http.cn-shanghai.aliyuncs.com",
 		version:    "default",
 		signMethod: hmacmd5,
@@ -100,7 +99,7 @@ func New(opts ...Option) *Client {
 
 // 鉴权
 func (sf *Client) getToken() (string, error) {
-	if sf.productKey == "" || sf.deviceName == "" || sf.deviceSecret == "" {
+	if sf.meta.ProductKey == "" || sf.meta.DeviceName == "" || sf.meta.DeviceSecret == "" {
 		return "", errors.New("invalid device meta info")
 	}
 
@@ -114,16 +113,16 @@ func (sf *Client) getToken() (string, error) {
 		if sf.signMethod == hmacsha1 {
 			method = algo.MethodSha1
 		}
-		clientID, tm := sf.productKey+"."+sf.deviceName, time.Now().Unix()*1000
+		clientID, tm := sf.meta.ProductKey+"."+sf.meta.DeviceName, time.Now().Unix()*1000
 		signSource := fmt.Sprintf("clientId%sdeviceName%sproductKey%stimestamp%d",
-			clientID, sf.deviceName, sf.productKey, tm)
+			clientID, sf.meta.DeviceName, sf.meta.ProductKey, tm)
 		authReq := AuthRequest{
 			sf.version,
 			clientID,
 			sf.signMethod,
-			algo.Hmac(method, signSource, sf.deviceSecret),
-			sf.productKey,
-			sf.deviceName,
+			algo.Hmac(method, signSource, sf.meta.DeviceSecret),
+			sf.meta.ProductKey,
+			sf.meta.DeviceName,
 			tm,
 		}
 

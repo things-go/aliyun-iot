@@ -17,15 +17,15 @@ type ProcDownStreamFunc func(c *Client, rawURI string, payload []byte) error
 // subscribe: /sys/{productKey}/{deviceName}/thing/model/up_raw_reply
 func ProcThingModelUpRawReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (c.cfg.uriOffset + 6) {
+	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
 	c.debugf("downstream thing <model>: up raw reply")
 	return c.ipcSendMessage(&ipcMessage{
 		err:        nil,
 		evt:        ipcEvtUpRawReply,
-		productKey: uris[c.cfg.uriOffset+1],
-		deviceName: uris[c.cfg.uriOffset+2],
+		productKey: uris[c.uriOffset+1],
+		deviceName: uris[c.uriOffset+2],
 		payload:    payload,
 	})
 }
@@ -37,7 +37,7 @@ func ProcThingModelUpRawReply(c *Client, rawURI string, payload []byte) error {
 // subscribe: /sys/{productKey}/{deviceName}/thing/event/+/post_reply
 func ProcThingEventPostReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (c.cfg.uriOffset + 7) {
+	if len(uris) < (c.uriOffset + 7) {
 		return ErrInvalidURI
 	}
 
@@ -47,7 +47,7 @@ func ProcThingEventPostReply(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 
-	eventID := uris[c.cfg.uriOffset+5]
+	eventID := uris[c.uriOffset+5]
 	c.debugf("downstream thing <event>: %s post reply,@%d", eventID, rsp.ID)
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
@@ -58,16 +58,16 @@ func ProcThingEventPostReply(c *Client, rawURI string, payload []byte) error {
 		return c.ipcSendMessage(&ipcMessage{
 			err:        err,
 			evt:        ipcEvtEventPropertyPostReply,
-			productKey: uris[c.cfg.uriOffset+1],
-			deviceName: uris[c.cfg.uriOffset+2],
+			productKey: uris[c.uriOffset+1],
+			deviceName: uris[c.uriOffset+2],
 		})
 	}
 
 	return c.ipcSendMessage(&ipcMessage{
 		err:        err,
 		evt:        ipcEvtEventPostReply,
-		productKey: uris[c.cfg.uriOffset+1],
-		deviceName: uris[c.cfg.uriOffset+2],
+		productKey: uris[c.uriOffset+1],
+		deviceName: uris[c.uriOffset+2],
 		extend:     eventID,
 	})
 }
@@ -79,7 +79,7 @@ func ProcThingEventPostReply(c *Client, rawURI string, payload []byte) error {
 // subscribe: /sys/{productKey}/{deviceName}/thing/event/property/pack/post_reply
 func ProcThingEventPropertyPackPostReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (c.cfg.uriOffset + 8) {
+	if len(uris) < (c.uriOffset + 8) {
 		return ErrInvalidURI
 	}
 	rsp := Response{}
@@ -97,8 +97,8 @@ func ProcThingEventPropertyPackPostReply(c *Client, rawURI string, payload []byt
 	return c.ipcSendMessage(&ipcMessage{
 		err:        err,
 		evt:        ipcEvtEventPropertyPostReply,
-		productKey: uris[c.cfg.uriOffset+1],
-		deviceName: uris[c.cfg.uriOffset+2]})
+		productKey: uris[c.uriOffset+1],
+		deviceName: uris[c.uriOffset+2]})
 }
 
 // ProcThingDeviceInfoUpdateReply 处理设备信息更新应答
@@ -108,7 +108,7 @@ func ProcThingEventPropertyPackPostReply(c *Client, rawURI string, payload []byt
 // subscribe: /sys/{productKey}/{deviceName}/thing/deviceinfo/update_reply
 func ProcThingDeviceInfoUpdateReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (c.cfg.uriOffset + 6) {
+	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
 
@@ -128,8 +128,8 @@ func ProcThingDeviceInfoUpdateReply(c *Client, rawURI string, payload []byte) er
 	return c.ipcSendMessage(&ipcMessage{
 		err:        err,
 		evt:        ipcEvtDeviceInfoUpdateReply,
-		productKey: uris[c.cfg.uriOffset+1],
-		deviceName: uris[c.cfg.uriOffset+2],
+		productKey: uris[c.uriOffset+1],
+		deviceName: uris[c.uriOffset+2],
 	})
 }
 
@@ -140,7 +140,7 @@ func ProcThingDeviceInfoUpdateReply(c *Client, rawURI string, payload []byte) er
 // subscribe: /sys/{productKey}/{deviceName}/thing/deviceinfo/delete_reply
 func ProcThingDeviceInfoDeleteReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (c.cfg.uriOffset + 6) {
+	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
 
@@ -159,8 +159,8 @@ func ProcThingDeviceInfoDeleteReply(c *Client, rawURI string, payload []byte) er
 	return c.ipcSendMessage(&ipcMessage{
 		err:        err,
 		evt:        ipcEvtDeviceInfoUpdateReply,
-		productKey: uris[c.cfg.uriOffset+1],
-		deviceName: uris[c.cfg.uriOffset+2],
+		productKey: uris[c.uriOffset+1],
+		deviceName: uris[c.uriOffset+2],
 	})
 }
 
@@ -171,7 +171,7 @@ func ProcThingDeviceInfoDeleteReply(c *Client, rawURI string, payload []byte) er
 // subscribe: /sys/{productKey}/{deviceName}/thing/property/desired/get_reply
 func ProcThingDesiredPropertyGetReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (c.cfg.uriOffset + 7) {
+	if len(uris) < (c.uriOffset + 7) {
 		return ErrInvalidURI
 	}
 	rsp := Response{}
@@ -189,8 +189,8 @@ func ProcThingDesiredPropertyGetReply(c *Client, rawURI string, payload []byte) 
 	return c.ipcSendMessage(&ipcMessage{
 		err:        err,
 		evt:        ipcEvtDesiredPropertyGetReply,
-		productKey: uris[c.cfg.uriOffset+1],
-		deviceName: uris[c.cfg.uriOffset+2],
+		productKey: uris[c.uriOffset+1],
+		deviceName: uris[c.uriOffset+2],
 		payload:    rsp.Data,
 	})
 }
@@ -202,7 +202,7 @@ func ProcThingDesiredPropertyGetReply(c *Client, rawURI string, payload []byte) 
 // subscribe: /sys/{productKey}/{deviceName}/thing/property/desired/delete_reply
 func ProcThingDesiredPropertyDeleteReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (c.cfg.uriOffset + 7) {
+	if len(uris) < (c.uriOffset + 7) {
 		return ErrInvalidURI
 	}
 	rsp := Response{}
@@ -220,8 +220,8 @@ func ProcThingDesiredPropertyDeleteReply(c *Client, rawURI string, payload []byt
 	return c.ipcSendMessage(&ipcMessage{
 		err:        err,
 		evt:        ipcEvtDesiredPropertyDeleteReply,
-		productKey: uris[c.cfg.uriOffset+1],
-		deviceName: uris[c.cfg.uriOffset+2],
+		productKey: uris[c.uriOffset+1],
+		deviceName: uris[c.uriOffset+2],
 	})
 }
 
@@ -232,7 +232,7 @@ func ProcThingDesiredPropertyDeleteReply(c *Client, rawURI string, payload []byt
 // subscribe: /sys/{productKey}/{deviceName}/thing/dsltemplate/get_reply
 func ProcThingDsltemplateGetReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (c.cfg.uriOffset + 6) {
+	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
 	rsp := Response{}
@@ -250,8 +250,8 @@ func ProcThingDsltemplateGetReply(c *Client, rawURI string, payload []byte) erro
 	return c.ipcSendMessage(&ipcMessage{
 		err:        err,
 		evt:        ipcEvtDsltemplateGetReply,
-		productKey: uris[c.cfg.uriOffset+1],
-		deviceName: uris[c.cfg.uriOffset+2],
+		productKey: uris[c.uriOffset+1],
+		deviceName: uris[c.uriOffset+2],
 		payload:    rsp.Data,
 	})
 }
@@ -263,7 +263,7 @@ func ProcThingDsltemplateGetReply(c *Client, rawURI string, payload []byte) erro
 // subscribe: /sys/${YourProductKey}/${YourDeviceName}/thing/dynamicTsl/get_reply
 func ProcThingDynamictslGetReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (c.cfg.uriOffset + 6) {
+	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
 	rsp := Response{}
@@ -281,8 +281,8 @@ func ProcThingDynamictslGetReply(c *Client, rawURI string, payload []byte) error
 	return c.ipcSendMessage(&ipcMessage{
 		err:        err,
 		evt:        ipcEvtDynamictslGetReply,
-		productKey: uris[c.cfg.uriOffset+1],
-		deviceName: uris[c.cfg.uriOffset+2],
+		productKey: uris[c.uriOffset+1],
+		deviceName: uris[c.uriOffset+2],
 		payload:    rsp.Data,
 	})
 }
@@ -294,7 +294,7 @@ func ProcThingDynamictslGetReply(c *Client, rawURI string, payload []byte) error
 // subscribe: /ext/ntp/${YourProductKey}/${YourDeviceName}/response
 func ProcExtNtpResponse(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (c.cfg.uriOffset + 5) {
+	if len(uris) < (c.uriOffset + 5) {
 		return ErrInvalidURI
 	}
 	rsp := NtpResponsePayload{}
@@ -305,8 +305,8 @@ func ProcExtNtpResponse(c *Client, rawURI string, payload []byte) error {
 	return c.ipcSendMessage(&ipcMessage{
 		err:        nil,
 		evt:        ipcEvtExtNtpResponse,
-		productKey: uris[c.cfg.uriOffset+2],
-		deviceName: uris[c.cfg.uriOffset+3],
+		productKey: uris[c.uriOffset+2],
+		deviceName: uris[c.uriOffset+3],
 		payload:    rsp,
 	})
 }
@@ -318,7 +318,7 @@ func ProcExtNtpResponse(c *Client, rawURI string, payload []byte) error {
 // subscribe: /sys/{productKey}/{deviceName}/thing/config/get_reply
 func ProcThingConfigGetReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (c.cfg.uriOffset + 6) {
+	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
 	rsp := ConfigGetResponse{}
@@ -336,8 +336,8 @@ func ProcThingConfigGetReply(c *Client, rawURI string, payload []byte) error {
 	return c.ipcSendMessage(&ipcMessage{
 		err:        err,
 		evt:        ipcEvtConfigGetReply,
-		productKey: uris[c.cfg.uriOffset+1],
-		deviceName: uris[c.cfg.uriOffset+2],
+		productKey: uris[c.uriOffset+1],
+		deviceName: uris[c.uriOffset+2],
 		payload:    rsp.Data,
 	})
 }
@@ -349,14 +349,14 @@ func ProcThingConfigGetReply(c *Client, rawURI string, payload []byte) error {
 // subscribe: /sys/{productKey}/{deviceName}/thing/model/down_raw
 func ProcThingModelDownRaw(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (c.cfg.uriOffset + 6) {
+	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
 	c.debugf("downstream thing <model>: down raw request")
 	return c.ipcSendMessage(&ipcMessage{
 		evt:        ipcEvtDownRaw,
-		productKey: uris[c.cfg.uriOffset+1],
-		deviceName: uris[c.cfg.uriOffset+2],
+		productKey: uris[c.uriOffset+1],
+		deviceName: uris[c.uriOffset+2],
 		payload:    payload,
 	})
 }
@@ -368,7 +368,7 @@ func ProcThingModelDownRaw(c *Client, rawURI string, payload []byte) error {
 // subscribe: /sys/{productKey}/{deviceName}/thing/config/push
 func ProcThingConfigPush(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (c.cfg.uriOffset + 6) {
+	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
 	req := ConfigPushRequest{}
@@ -382,8 +382,8 @@ func ProcThingConfigPush(c *Client, rawURI string, payload []byte) error {
 	}
 	return c.ipcSendMessage(&ipcMessage{
 		evt:        ipcEvtConfigPush,
-		productKey: uris[c.cfg.uriOffset+1],
-		deviceName: uris[c.cfg.uriOffset+2],
+		productKey: uris[c.uriOffset+1],
+		deviceName: uris[c.uriOffset+2],
 		payload:    req.Params,
 	})
 }
@@ -395,14 +395,14 @@ func ProcThingConfigPush(c *Client, rawURI string, payload []byte) error {
 // subscribe: /sys/{productKey}/{deviceName}/thing/service/[+,#]
 func ProcThingServicePropertySet(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (c.cfg.uriOffset + 7) {
+	if len(uris) < (c.uriOffset + 7) {
 		return ErrInvalidURI
 	}
 	c.debugf("downstream thing <service>: property set request")
 	return c.ipcSendMessage(&ipcMessage{
 		evt:        ipcEvtServicePropertySet,
-		productKey: uris[c.cfg.uriOffset+1],
-		deviceName: uris[c.cfg.uriOffset+2],
+		productKey: uris[c.uriOffset+1],
+		deviceName: uris[c.uriOffset+2],
 		payload:    payload,
 	})
 }
@@ -414,15 +414,15 @@ func ProcThingServicePropertySet(c *Client, rawURI string, payload []byte) error
 // subscribe: /sys/{productKey}/{deviceName}/thing/service/[+,#]
 func ProcThingServiceRequest(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (c.cfg.uriOffset + 6) {
+	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
-	serviceID := uris[c.cfg.uriOffset+5]
+	serviceID := uris[c.uriOffset+5]
 	c.debugf("downstream thing <service>: %s set request", serviceID)
 	return c.ipcSendMessage(&ipcMessage{
 		evt:        ipcEvtServiceRequest,
-		productKey: uris[c.cfg.uriOffset+1],
-		deviceName: uris[c.cfg.uriOffset+2],
+		productKey: uris[c.uriOffset+1],
+		deviceName: uris[c.uriOffset+2],
 		payload:    payload,
 		extend:     serviceID,
 	})
@@ -435,16 +435,16 @@ func ProcThingServiceRequest(c *Client, rawURI string, payload []byte) error {
 // subscribe: /sys/${YourProductKey}/${YourDeviceName}/rrpc/request/+
 func ProcRRPCRequest(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (c.cfg.uriOffset + 6) {
+	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
-	messageID := uris[c.cfg.uriOffset+5]
+	messageID := uris[c.uriOffset+5]
 	c.debugf("downstream sys <RRPC>: request - messageID: %s", messageID)
 
 	return c.ipcSendMessage(&ipcMessage{
 		evt:        ipcEvtRRPCRequest,
-		productKey: uris[c.cfg.uriOffset+1],
-		deviceName: uris[c.cfg.uriOffset+2],
+		productKey: uris[c.uriOffset+1],
+		deviceName: uris[c.uriOffset+2],
 		payload:    payload,
 		extend:     messageID,
 	})
@@ -457,15 +457,15 @@ func ProcRRPCRequest(c *Client, rawURI string, payload []byte) error {
 // response: /ext/rrpc/${messageId}/${topic}
 // subscribe: /ext/rrpc/+/${topic}
 func ProcExtRRPCRequest(c *Client, rawURI string, payload []byte) error {
-	uris := strings.SplitN(strings.TrimLeft(rawURI, SEP), SEP, c.cfg.uriOffset+3)
-	if len(uris) < (c.cfg.uriOffset + 3) {
+	uris := strings.SplitN(strings.TrimLeft(rawURI, SEP), SEP, c.uriOffset+3)
+	if len(uris) < (c.uriOffset + 3) {
 		return ErrInvalidParameter
 	}
 
 	c.debugf("downstream extend <RRPC>: Request - URI: ", rawURI)
 	return c.ipcSendMessage(&ipcMessage{
 		evt:     ipcEvtExtRRPCRequest,
-		extend:  uris[c.cfg.uriOffset+2], // ${messageId}/${topic}
+		extend:  uris[c.uriOffset+2], // ${messageId}/${topic}
 		payload: payload,
 	})
 }

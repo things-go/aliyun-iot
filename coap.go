@@ -9,6 +9,7 @@ import (
 	"github.com/go-ocf/go-coap"
 	"github.com/thinkgos/aliyun-iot/clog"
 	"github.com/thinkgos/aliyun-iot/dm"
+	"github.com/thinkgos/aliyun-iot/infra"
 )
 
 // COAPClient COAP客户端
@@ -65,8 +66,8 @@ func (sf *COAPClient) UnderlyingClient() *coap.ClientConn {
 }
 
 // NewWithCOAP 新建MQTTClient
-func NewWithCOAP(config *dm.Config, c *coap.ClientConn) *COAPClient {
-	m := dm.New(config)
+func NewWithCOAP(meta infra.MetaInfo, c *coap.ClientConn, opts ...dm.Option) *COAPClient {
+	m := dm.New(meta, append(opts, dm.WithWork(dm.WorkOnCOAP))...)
 	cli := &COAPClient{
 		c,
 		m,
