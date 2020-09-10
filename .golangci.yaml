@@ -32,6 +32,7 @@ linters-settings:
       - unnamedResult
       - unnecessaryBlock
       - commentedOutCode
+      - emptyFallthrough
   goimports:
     local-prefixes: github.com/golangci/golangci-lint
   golint:

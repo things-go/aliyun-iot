@@ -153,7 +153,7 @@ func ProcThingTopoAddNotify(c *Client, rawURI string, payload []byte) error {
 	}); err != nil {
 		c.warnf("ipc send message failed, %+v", err)
 	}
-	return c.SendResponse(uriServiceReplyWithRequestURI(rawURI),
+	return c.SendResponse(URIServiceReplyWithRequestURI(rawURI),
 		req.ID, infra.CodeSuccess, "{}")
 }
 
@@ -198,7 +198,7 @@ func ProcThingTopoChange(c *Client, rawURI string, payload []byte) error {
 	}); err != nil {
 		c.warnf("ipc send message failed, %+v", err)
 	}
-	return c.SendResponse(uriServiceReplyWithRequestURI(rawURI),
+	return c.SendResponse(URIServiceReplyWithRequestURI(rawURI),
 		req.ID, infra.CodeSuccess, "{}")
 }
 
@@ -319,7 +319,7 @@ func ProcThingDisable(c *Client, rawURI string, payload []byte) error {
 	}); err != nil {
 		c.warnf("<thing> disable, ipc send message failed, %+v", err)
 	}
-	return c.SendResponse(uriServiceReplyWithRequestURI(rawURI),
+	return c.SendResponse(URIServiceReplyWithRequestURI(rawURI),
 		req.ID, infra.CodeSuccess, "{}")
 }
 
@@ -350,7 +350,7 @@ func ProcThingEnable(c *Client, rawURI string, payload []byte) error {
 	}); err != nil {
 		c.warnf("<thing> enable, ipc send message failed, %+v", err)
 	}
-	return c.SendResponse(uriServiceReplyWithRequestURI(rawURI),
+	return c.SendResponse(URIServiceReplyWithRequestURI(rawURI),
 		req.ID, infra.CodeSuccess, "{}")
 }
 
@@ -378,7 +378,7 @@ func ProcThingDelete(c *Client, rawURI string, payload []byte) error {
 	}); err != nil {
 		c.warnf("<thing> delete, ipc send message failed, %+v", err)
 	}
-	return c.SendResponse(uriServiceReplyWithRequestURI(rawURI),
+	return c.SendResponse(URIServiceReplyWithRequestURI(rawURI),
 		req.ID, infra.CodeSuccess, "{}")
 }
 

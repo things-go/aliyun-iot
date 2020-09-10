@@ -3,22 +3,16 @@ package main
 import (
 	"log"
 
+	"github.com/thinkgos/aliyun-iot/_examples/testmeta"
 	"github.com/thinkgos/aliyun-iot/dynamic"
 	"github.com/thinkgos/aliyun-iot/infra"
 )
 
-// just for test
-const (
-	testProductKey    = "a1QR3GD1Db3"
-	testProductSecret = "mvngTYBlX9Z9l1V0"
-	testDeviceName    = "dynamic"
-)
-
 func main() {
-	meta := infra.MetaInfo{
-		ProductKey:    testProductKey,
-		ProductSecret: testProductSecret,
-		DeviceName:    testDeviceName,
+	meta := &infra.MetaInfo{
+		ProductKey:    testmeta.ProductKey,
+		ProductSecret: testmeta.ProductSecret,
+		DeviceName:    testmeta.DeviceName,
 	}
 	crd := infra.CloudRegionDomain{
 		Region:       infra.CloudRegionShangHai,
@@ -27,7 +21,7 @@ func main() {
 
 	dclient := dynamic.New()
 
-	err := dclient.RegisterCloud(&meta, crd)
+	err := dclient.RegisterCloud(meta, crd)
 	if err != nil {
 		panic(err)
 	}

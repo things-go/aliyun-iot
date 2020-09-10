@@ -136,7 +136,7 @@ func (sf *Client) RequestID() int {
 }
 
 // SendRequest 发送请求
-// uriService 唯一定位服务器或(topic)
+// URIService 唯一定位服务器或(topic)
 // requestID: 请求ID
 // method: 方法
 // params: 消息体

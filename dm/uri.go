@@ -123,8 +123,13 @@ const (
 	URIThingDeleteReply     = "thing/delete_reply"
 )
 
-// uriService 生成URI, inName的作用是有一些需要格式化到name里.
-func uriService(prefix, name, productKey, deviceName string, inName ...string) string {
+// URIService 生成URI
+// prefix: 主题前缀
+// name: 可为空字符串
+// productKey: 产品key
+// deviceName: 设备名
+// inName的作用是有一些需要格式化到name里.
+func URIService(prefix, name, productKey, deviceName string, inName ...string) string {
 	str := strings.Builder{}
 	str.Grow(len(prefix) + len(name) + len(productKey) + len(deviceName))
 	if prefix != "" {
@@ -140,8 +145,8 @@ func uriService(prefix, name, productKey, deviceName string, inName ...string) s
 	return str.String()
 }
 
-// uriServiceReplyWithRequestURI 根据请求的URI生成应答的URI
-func uriServiceReplyWithRequestURI(uri string) string {
+// URIServiceReplyWithRequestURI 根据请求的URI生成应答的URI
+func URIServiceReplyWithRequestURI(uri string) string {
 	return uri + "_" + URIReplySuffix
 }
 

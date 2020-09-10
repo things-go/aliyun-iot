@@ -66,7 +66,7 @@ func (sf *Client) SubscribeAllTopic(devType DevType, productKey, deviceName stri
 
 	// TODO: 不使用??
 	// dynamictsl
-	// if err = sf.Subscribe(sf.uriService(URISysPrefix, URIThingDynamicTslGetReply, productKey, deviceName),
+	// if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingDynamicTslGetReply, productKey, deviceName),
 	//	ProcThingDynamictslGetReply); err != nil {
 	//	sf.warnf(err.Error())
 	// }
@@ -220,7 +220,7 @@ func (sf *Client) UnSubscribeSubDevAllTopic(productKey, deviceName string) error
 		// dystemplate
 		sf.URIService(URISysPrefix, URIThingDslTemplateGetReply, productKey, deviceName),
 		// dynamictsl 不使用??
-		// sf.uriService(URISysPrefix, URIThingDynamicTslGetReply, productKey, deviceName),
+		// sf.URIService(URISysPrefix, URIThingDynamicTslGetReply, productKey, deviceName),
 		// RRPC
 		sf.URIService(URISysPrefix, URIRRPCRequestSingleWildcard, productKey, deviceName),
 		// config

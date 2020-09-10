@@ -376,7 +376,7 @@ func ProcThingConfigPush(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 	c.debugf("downstream thing <config>: push request")
-	if err := c.SendResponse(uriServiceReplyWithRequestURI(rawURI),
+	if err := c.SendResponse(URIServiceReplyWithRequestURI(rawURI),
 		req.ID, infra.CodeSuccess, "{}"); err != nil {
 		return err
 	}
