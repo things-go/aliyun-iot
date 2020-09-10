@@ -7,25 +7,27 @@ import (
 	"github.com/thinkgos/aliyun-iot/infra"
 )
 
+// just for test
 const (
-	productKey    = "a1iJcssSlPC"
-	productSecret = "lw3QzKHNfh7XvOxO"
-	deviceName    = "dynamic"
-	//productKey    = "a1iJcssSlPC"
-	//productSecret = "lw3QzKHNfh7XvOxO"
-	//deviceName    = "1Myx6uC9RjJnucEraO2R"
+	testProductKey    = "a1QR3GD1Db3"
+	testProductSecret = "mvngTYBlX9Z9l1V0"
+	testDeviceName    = "dynamic"
 )
 
 func main() {
 	meta := infra.MetaInfo{
-		ProductKey:    productKey,
-		ProductSecret: productSecret,
-		DeviceName:    deviceName,
+		ProductKey:    testProductKey,
+		ProductSecret: testProductSecret,
+		DeviceName:    testDeviceName,
 	}
-	err := dynamic.Register2Cloud(&meta, infra.CloudRegionDomain{
+	crd := infra.CloudRegionDomain{
 		Region:       infra.CloudRegionShangHai,
 		CustomDomain: "127.0.0.1:8080",
-	})
+	}
+
+	dclient := dynamic.New()
+
+	err := dclient.RegisterCloud(&meta, crd)
 	if err != nil {
 		panic(err)
 	}

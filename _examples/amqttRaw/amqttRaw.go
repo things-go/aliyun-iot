@@ -6,6 +6,7 @@ import (
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
+
 	aiot "github.com/thinkgos/aliyun-iot"
 	"github.com/thinkgos/aliyun-iot/dm"
 	"github.com/thinkgos/aliyun-iot/infra"
@@ -44,8 +45,7 @@ func main() {
 		0x42, 0x1f, 0x47, 0x38, 0x52, 0x47}
 
 	signs, err :=
-		sign.NewMQTTSign().
-			SetSDKVersion(infra.IOTSDKVersion).
+		sign.NewMQTTSign(sign.WithSDKVersion(sign.AlinkSDKVersion)).
 			Generate(&infra.MetaInfo{
 				ProductKey:    productKey,
 				ProductSecret: productSecret,

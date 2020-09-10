@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/thinkgos/aliyun-iot/infra"
+	sign2 "github.com/thinkgos/aliyun-iot/sign"
 )
 
 // GwSubDevRegisterParams 子设备注册参数域
@@ -87,7 +87,7 @@ func (sf *Client) upstreamExtGwSubDevCombineLogin(devID int) (int, error) {
 		return 0, err
 	}
 
-	clientID := fmt.Sprintf("%s.%s|_v=%s|", node.ProductKey(), node.DeviceName(), infra.IOTSDKVersion)
+	clientID := fmt.Sprintf("%s.%s|_v=%s|", node.ProductKey(), node.DeviceName(), sign2.AlinkSDKVersion)
 	timestamp := time.Now().Unix()
 	sign, err := generateSign(node.ProductKey(), node.DeviceName(), node.DeviceSecret(), clientID, timestamp)
 	if err != nil {
@@ -101,7 +101,7 @@ func (sf *Client) upstreamExtGwSubDevCombineLogin(devID int) (int, error) {
 			node.DeviceName(),
 			clientID,
 			timestamp,
-			infra.SignMethodHMACSHA1,
+			"hmacsha1",
 			sign,
 			true,
 		},

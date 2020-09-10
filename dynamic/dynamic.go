@@ -1,4 +1,5 @@
 // Package dynamic 实现动态注册,只限直连设备动态注册,阿里云目前限制激活过的设备不可再注册
+// see
 package dynamic
 
 import (
@@ -15,17 +16,42 @@ import (
 	"hash"
 	"net/http"
 	"strings"
-	"time"
+
+	"github.com/thinkgos/go-core-package/extrand"
 
 	"github.com/thinkgos/aliyun-iot/infra"
 )
 
 // sign method 动态注册只支持以下签名方法
 const (
-	signMethodHMACSHA256 = "hmacsha256"
-	signMethodHMACSHA1   = "hmacsha1"
-	signMethodHMACMD5    = "hmacmd5"
+	hmacSHA256 = "hmacsha256"
+	hmacSHA1   = "hmacsha1"
+	hmacMD5    = "hmacmd5"
 )
+
+// Option option
+type Option func(*Client)
+
+// WithHTTPClient with custom http.Client
+func WithHTTPClient(c *http.Client) Option {
+	return func(client *Client) {
+		client.httpc = c
+	}
+}
+
+// Client dynamic client
+type Client struct {
+	httpc *http.Client
+}
+
+// New new a dynamic client
+func New() *Client {
+	c := &Client{
+		http.DefaultClient,
+	}
+
+	return c
+}
 
 // Response 应答
 type Response struct {
@@ -38,66 +64,50 @@ type Response struct {
 	Message string `json:"message"`
 }
 
-// Register2Cloud 动态注册,传入三元组,获得DeviceSecret,直接修改meta,
-// 指定签名算法,默认hmacsha256加签算法(支持hmacmd5,hmacsha1,hmacsha256)
-func Register2Cloud(meta *infra.MetaInfo, crd infra.CloudRegionDomain, signMethod ...string) error {
+// RegisterCloud 一型一密动态注册,传入三元组,根据ProductKey,ProductSecret和deviceName获得DeviceSecret,
+// meta: 成功将直接修改meta
+// crd: 指定注册的云端,地址: [https://, http://]URL/auth/register/device
+// signMethods: 可选指定签名算法hmacmd5,hmacsha1,hmacsha256(默认)
+// NOTE: 设备联网前，需要在物联网平台预注册设备DeviceName，建议采用设备的MAC地址、IMEI、SN码等作为DeviceName
+func (sf *Client) RegisterCloud(meta *infra.MetaInfo, crd infra.CloudRegionDomain, signMethods ...string) error {
 	var domain string
 
 	if meta == nil || meta.ProductKey == "" || meta.ProductSecret == "" || meta.DeviceName == "" {
-		return errors.New("invalid params")
-	}
-
-	signMd := append(signMethod, signMethodHMACSHA256)[0]
-	if !(signMd == signMethodHMACMD5 || signMd == signMethodHMACSHA1 || (signMd == signMethodHMACSHA256)) {
-		signMd = signMethodHMACSHA256 // 非法签名使用默认签名方法
-	}
-
-	ms := MetaSign{
-		ProductKey:    meta.ProductKey,
-		ProductSecret: meta.ProductSecret,
-		DeviceName:    meta.DeviceName,
-		Random:        "8Ygb7ULYh53B6OA",
-		SignMethod:    signMd,
-	}
-	// 计算签名 Signature
-	sign, err := calcSign(&ms)
-	if err != nil {
-		return err
+		return errors.New("invalid parameter")
 	}
 
 	if crd.Region == infra.CloudRegionCustom {
 		if crd.CustomDomain == "" {
-			return errors.New("custom domain invalid")
+			return errors.New("invalid custom domain")
 		}
-		domain = crd.CustomDomain
+		if !strings.Contains(crd.CustomDomain, "://") {
+			domain = "http://" + crd.CustomDomain
+		}
 	} else {
 		domain = "https://" + infra.HTTPCloudDomain[crd.Region]
 	}
 
-	if !strings.Contains(domain, "://") {
-		domain = "http://" + domain
+	requestBody, err := requestBody(meta, signMethods...)
+	if err != nil {
+		return err
 	}
-
-	requestBody := fmt.Sprintf("productKey=%s&deviceName=%s&random=%s&sign=%s&signMethod=%s",
-		meta.ProductKey, meta.DeviceName, ms.Random, sign, signMd)
-
 	request, err := http.NewRequestWithContext(context.Background(), http.MethodPost,
 		fmt.Sprintf("%s/auth/register/device", domain),
 		bytes.NewBufferString(requestBody))
 	if err != nil {
 		return err
 	}
-
 	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	request.Header.Set("Accept", "text/xml,text/javascript,text/html,application/json")
-	response, err := (&http.Client{Timeout: time.Millisecond * 2000}).Do(request)
+
+	response, err := sf.httpc.Do(request)
 	if err != nil {
 		return err
 	}
 	defer response.Body.Close()
 
-	responsePy := Response{}
-	if err := json.NewDecoder(response.Body).Decode(&responsePy); err != nil {
+	responsePy := &Response{}
+	if err := json.NewDecoder(response.Body).Decode(responsePy); err != nil {
 		return err
 	}
 
@@ -108,36 +118,41 @@ func Register2Cloud(meta *infra.MetaInfo, crd infra.CloudRegionDomain, signMetho
 	return nil
 }
 
-// MetaSign 签名
-type MetaSign struct {
-	ProductKey    string
-	ProductSecret string
-	DeviceName    string
-	Random        string
-	SignMethod    string
+func requestBody(meta *infra.MetaInfo, signMethods ...string) (string, error) {
+	signMd := append(signMethods, hmacSHA256)[0]
+	if !(signMd == hmacMD5 || signMd == hmacSHA1 || (signMd == hmacSHA256)) {
+		signMd = hmacSHA256 // 非法签名使用默认签名方法
+	}
+	//  "8Ygb7ULYh53B6OA"
+	random := extrand.RandString(16)
+	// 计算签名 Signature
+	sign, err := calcSign(signMd, random, meta)
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("productKey=%s&deviceName=%s&random=%s&sign=%s&signMethod=%s",
+		meta.ProductKey, meta.DeviceName, random, sign, signMd), nil
 }
 
 // calcSign 计算动态签名,以productKey为key
-func calcSign(info *MetaSign) (string, error) {
+func calcSign(signMethod, random string, meta *infra.MetaInfo) (string, error) {
 	var h hash.Hash
 
-	/* setup password */
-	switch info.SignMethod {
-	case signMethodHMACSHA1:
-		h = hmac.New(sha1.New, []byte(info.ProductSecret))
-	case signMethodHMACMD5:
-		h = hmac.New(md5.New, []byte(info.ProductSecret))
-	case "hmacsha256", "":
-		h = hmac.New(sha256.New, []byte(info.ProductSecret))
+	switch signMethod {
+	case hmacSHA1:
+		h = hmac.New(sha1.New, []byte(meta.ProductSecret))
+	case hmacMD5:
+		h = hmac.New(md5.New, []byte(meta.ProductSecret))
+	case hmacSHA256:
+		h = hmac.New(sha256.New, []byte(meta.ProductSecret))
 	default:
-		return "", errors.New("sign method not support")
+		return "", errors.New("not support sign method")
 	}
-
-	signSource := fmt.Sprintf("deviceName%sproductKey%srandom%s", info.DeviceName, info.ProductKey, info.Random)
+	signSource := fmt.Sprintf("deviceName%sproductKey%srandom%s",
+		meta.DeviceName, meta.ProductKey, random)
 
 	if _, err := h.Write([]byte(signSource)); err != nil {
 		return "", err
 	}
-
 	return hex.EncodeToString(h.Sum(nil)), nil
 }

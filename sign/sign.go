@@ -1,10 +1,10 @@
 // Package sign 实现MQTT设备签名
+// see https://help.aliyun.com/document_detail/73742.html?spm=a2c4g.11186623.6.599.76216eebzbvrYq
 package sign
 
 import (
 	"crypto/hmac"
-	"crypto/sha1"
-	"crypto/sha256"
+	"crypto/md5"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -18,12 +18,12 @@ import (
 // default defined
 const (
 	fixedTimestamp = "2524608000000"
-)
+	alinkVersion   = "20"
 
-// sign method MQTT设备签名只支持以下签名方法
-const (
-	signMethodHMACSHA256 = "hmacsha256"
-	signMethodHMACSHA1   = "hmacsha1"
+	// sign method MQTT设备签名只支持以下签名方法
+	hmacsha256 = "hmacsha256"
+	hmacsha1   = "hmacsha1"
+	hmacmd5    = "hmacmd5"
 )
 
 // all secure mode define
@@ -33,15 +33,6 @@ const (
 	modeTCPDirectPlain = "3"
 	modeITLSDNSID2     = "8"
 )
-
-// MQTTSignInfo 签名后的信息
-type MQTTSignInfo struct {
-	HostName string
-	Port     uint16
-	ClientID string
-	UserName string
-	Password string
-}
 
 // SecureMode 安全模式
 type SecureMode byte
@@ -54,6 +45,15 @@ const (
 	SecureModeITLSDNSID2
 )
 
+// MQTTSignInfo 签名后的信息
+type MQTTSignInfo struct {
+	HostName string
+	Port     uint16
+	ClientID string
+	UserName string
+	Password string
+}
+
 // MQTTSign MQTT签名主要设置
 type MQTTSign struct {
 	enableTLS   bool
@@ -62,104 +62,76 @@ type MQTTSign struct {
 	hfc         func() hash.Hash
 }
 
+// AlinkSDKVersion alink sdk version
+var AlinkSDKVersion = "sdk-golang-v0.0.1"
+
 // NewMQTTSign 新建一个签名,默认不支持PreAUTH也不支持TLS(即安全模式为SecureModeTcpDirectPlain)
-// 默认支持物模型,默认hmacsha256签名加密
-func NewMQTTSign() *MQTTSign {
-	return &MQTTSign{
+// 默认支持物模型,默认hmacmd5签名加密
+// TODO: 支持tls
+func NewMQTTSign(opts ...Option) *MQTTSign {
+	ms := &MQTTSign{
 		deviceModel: true,
 		clientIDkv: map[string]string{
 			"timestamp":  fixedTimestamp,
 			"securemode": modeTCPDirectPlain,
-			"signmethod": signMethodHMACSHA256,
+			"signmethod": hmacmd5,
 			"lan":        "Golang",
-			"v":          infra.IOTAlinkVersion,
+			"v":          alinkVersion,
 		},
-		hfc: sha256.New,
+		hfc: md5.New,
 	}
+	for _, opt := range opts {
+		opt(ms)
+	}
+	return ms
 }
 
-// SetSignMethod 设置签名方法,目前只支持hmacsha1,hmacsha256, see package infra
-func (sf *MQTTSign) SetSignMethod(method string) *MQTTSign {
-	if method == signMethodHMACSHA1 {
-		sf.clientIDkv["signmethod"] = signMethodHMACSHA1
-		sf.hfc = sha1.New
+// Generate 根据MetaInfo和region生成签名
+func (sf *MQTTSign) Generate(meta *infra.MetaInfo, crd infra.CloudRegionDomain) (*MQTTSignInfo, error) {
+	if crd.Region == infra.CloudRegionCustom && crd.CustomDomain == "" {
+		return nil, errors.New("invalid custom domain")
+	}
+
+	// setup ClientID
+	clientID := fmt.Sprintf("%s.%s", meta.ProductKey, meta.DeviceName)
+
+	signSource := fmt.Sprintf("clientId%sdeviceName%sproductKey%stimestamp%s",
+		clientID, meta.DeviceName, meta.ProductKey, fixedTimestamp)
+	// setup Password
+	h := hmac.New(sf.hfc, []byte(meta.DeviceSecret))
+	if _, err := h.Write([]byte(signSource)); err != nil {
+		return nil, err
+	}
+	pwd := hex.EncodeToString(h.Sum(nil))
+
+	signOut := &MQTTSignInfo{
+		Port:     1883,
+		ClientID: generateClientID(sf.clientIDkv, clientID),
+		UserName: fmt.Sprintf("%s&%s", meta.DeviceName, meta.ProductKey),
+		Password: pwd,
+	}
+
+	// setup HostName
+	if crd.Region == infra.CloudRegionCustom {
+		signOut.HostName = crd.CustomDomain
 	} else {
-		sf.clientIDkv["signmethod"] = signMethodHMACSHA256
-		sf.hfc = sha256.New
+		signOut.HostName = fmt.Sprintf("%s.%s", meta.ProductKey, infra.MQTTCloudDomain[crd.Region])
 	}
-	return sf
-}
-
-// SetSupportSecureMode 设置支持的安全模式
-func (sf *MQTTSign) SetSupportSecureMode(mode SecureMode) *MQTTSign {
-	switch mode {
-	case SecureModeTLSGuider:
-		sf.enableTLS = true
-		sf.clientIDkv["securemode"] = modeTLSGuider
-	case SecureModeTLSDirect:
-		sf.enableTLS = true
-		sf.clientIDkv["securemode"] = modeTLSDirect
-	case SecureModeTCPDirectPlain:
-		sf.enableTLS = false
-		sf.clientIDkv["securemode"] = modeTCPDirectPlain
-	case SecureModeITLSDNSID2:
-		sf.enableTLS = true
-		sf.clientIDkv["securemode"] = modeITLSDNSID2
-	default:
-		panic("invalid secure mode")
+	// setup Port
+	if sf.enableTLS {
+		signOut.Port = 443
 	}
-	return sf
-}
-
-// SetSupportDeviceModel 设置支持物模型
-func (sf *MQTTSign) SetSupportDeviceModel(enable bool) *MQTTSign {
-	if enable {
-		sf.clientIDkv["v"] = infra.IOTAlinkVersion
-		delete(sf.clientIDkv, "gw")
-		delete(sf.clientIDkv, "ext")
-	} else {
-		sf.clientIDkv["gw"] = "0"
-		sf.clientIDkv["ext"] = "0"
-		delete(sf.clientIDkv, "v")
-	}
-	return sf
-}
-
-// SetSupportExtRRPC 支持扩展RRPC 仅物模型下支持
-func (sf *MQTTSign) SetSupportExtRRPC() *MQTTSign {
-	if _, ok := sf.clientIDkv["v"]; ok {
-		sf.clientIDkv["ext"] = "1"
-	}
-
-	return sf
-}
-
-// SetSDKVersion 设备SDK版本
-func (sf *MQTTSign) SetSDKVersion(ver string) *MQTTSign {
-	sf.clientIDkv["_v"] = ver
-	return sf
-}
-
-// AddCustomKV 添加一个用户的键值对,键值对将被添加到clientID上
-func (sf *MQTTSign) AddCustomKV(key, value string) *MQTTSign {
-	sf.clientIDkv[key] = value
-	return sf
-}
-
-// DeleteCustomKV 删除一个用户的键值对
-func (sf *MQTTSign) DeleteCustomKV(key string) *MQTTSign {
-	delete(sf.clientIDkv, key)
-	return sf
+	return signOut, nil
 }
 
 // generateClientID 根据deviceID生成clientID
-func (sf *MQTTSign) generateClientID(deviceID string) string {
+func generateClientID(clientIDkv map[string]string, deviceID string) string {
 	builder := new(strings.Builder)
 	builder.WriteString(deviceID)
 	builder.WriteString("|")
 
-	sKey := make([]string, 0, len(sf.clientIDkv))
-	for k := range sf.clientIDkv {
+	sKey := make([]string, 0, len(clientIDkv))
+	for k := range clientIDkv {
 		sKey = append(sKey, k)
 	}
 	// 对键进行排序
@@ -168,49 +140,8 @@ func (sf *MQTTSign) generateClientID(deviceID string) string {
 	for _, Value := range sKey {
 		builder.WriteString(Value)
 		builder.WriteString("=")
-		builder.WriteString(sf.clientIDkv[Value])
+		builder.WriteString(clientIDkv[Value])
 		builder.WriteString(",")
 	}
-
 	return strings.TrimRight(builder.String(), ",") + "|"
-}
-
-// Generate 根据MetaInfo和region生成签名
-func (sf *MQTTSign) Generate(meta *infra.MetaInfo, crd infra.CloudRegionDomain) (*MQTTSignInfo, error) {
-	signOut := &MQTTSignInfo{}
-
-	/* setup ClientID */
-	deviceID := fmt.Sprintf("%s.%s", meta.ProductKey, meta.DeviceName)
-
-	signOut.ClientID = sf.generateClientID(deviceID)
-
-	signSource := fmt.Sprintf("clientId%sdeviceName%sproductKey%stimestamp%s",
-		deviceID, meta.DeviceName, meta.ProductKey, fixedTimestamp)
-	/* setup Password */
-	h := hmac.New(sf.hfc, []byte(meta.DeviceSecret))
-	if _, err := h.Write([]byte(signSource)); err != nil {
-		return nil, err
-	}
-	signOut.Password = hex.EncodeToString(h.Sum(nil))
-
-	/* setup HostName */
-	if crd.Region == infra.CloudRegionCustom {
-		if crd.CustomDomain == "" {
-			return nil, errors.New("custom domain invalid")
-		}
-		signOut.HostName = crd.CustomDomain
-	} else {
-		signOut.HostName = fmt.Sprintf("%s.%s", meta.ProductKey, infra.MQTTCloudDomain[crd.Region])
-	}
-	/* setup UserName */
-	signOut.UserName = fmt.Sprintf("%s&%s", meta.DeviceName, meta.ProductKey)
-
-	/* setup Port */
-	if sf.enableTLS {
-		signOut.Port = 443
-	} else {
-		signOut.Port = 1883
-	}
-
-	return signOut, nil
 }

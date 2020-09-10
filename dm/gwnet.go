@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/thinkgos/aliyun-iot/infra"
+	sign2 "github.com/thinkgos/aliyun-iot/sign"
 )
 
 // SubDevTopoAddParams 添加设备拓扑关系参数域
@@ -30,7 +30,7 @@ func (sf *Client) upstreamGwThingTopoAdd(devID int) (int, error) {
 	}
 
 	timestamp := time.Now().Unix()
-	clientID := fmt.Sprintf("%s.%s|_v=%s|", node.ProductKey(), node.DeviceName(), infra.IOTSDKVersion)
+	clientID := fmt.Sprintf("%s.%s|_v=%s|", node.ProductKey(), node.DeviceName(), sign2.AlinkSDKVersion)
 	sign, err := generateSign(node.ProductKey(), node.DeviceName(), node.deviceSecret, clientID, timestamp)
 	if err != nil {
 		return 0, err
@@ -43,7 +43,7 @@ func (sf *Client) upstreamGwThingTopoAdd(devID int) (int, error) {
 				node.DeviceName(),
 				clientID,
 				timestamp,
-				infra.SignMethodHMACSHA1,
+				"hmacsha1",
 				sign,
 			},
 		})
