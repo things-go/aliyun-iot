@@ -47,12 +47,9 @@ func (sf *HTTPClient) UnderlyingClient() *ahttp.Client {
 
 // NewWithHTTP 新建HTTP客户端
 func NewWithHTTP(config *dm.Config) *HTTPClient {
-	client := ahttp.New().
-		SetDeviceMetaInfo(config.
-			EnableHTTP().
-			MetaInfo())
+	client := ahttp.New(ahttp.WithDeviceMetaInfo(config.MetaInfo()))
 
-	sf := dm.New(config)
+	sf := dm.New(config.EnableHTTP())
 	cli := &HTTPClient{c: client, Client: sf}
 	sf.SetConn(cli)
 	return cli

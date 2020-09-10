@@ -4,29 +4,40 @@ package ahttp
 import (
 	"bytes"
 	"context"
-	"crypto/hmac"
-	"crypto/md5"
-	"crypto/sha1"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
-	"strings"
 	"sync/atomic"
 	"time"
 
+	"github.com/thinkgos/go-core-package/lib/algo"
 	"golang.org/x/sync/singleflight"
 
 	"github.com/thinkgos/aliyun-iot/clog"
+	"github.com/thinkgos/aliyun-iot/infra"
+)
+
+// 错误码
+const (
+	CodeSuccess              = 0
+	CodeUnknown              = 10000
+	CodeParamException       = 10001
+	CodeAuthFailed           = 20000
+	CodeTokenExpired         = 20001 // 需重新调用auth进行鉴权，获取token
+	CodeTokenIsNull          = 20002 // 需重新调用auth进行鉴权，获取token
+	CodeTokenCheckFailed     = 20003 // 根据token获取identify信息失败。需重新调用auth进行鉴权，获取token
+	CodeUpdateSessionFailed  = 20004
+	CodePublishMessageFailed = 30001
+	CodeRequestTooMany       = 40000
 )
 
 // Sign method
 const (
-	HMACSHA1 = "hmacsha1"
-	HMACMD5  = "hmacmd5"
+	hmacsha1 = "hmacsha1"
+	hmacmd5  = "hmacmd5"
 )
 
 // AuthRequest 鉴权请求
@@ -56,9 +67,10 @@ type Client struct {
 	productKey   string
 	deviceName   string
 	deviceSecret string
-	host         string
-	version      string
-	signMethod   string
+
+	host       string
+	version    string
+	signMethod string
 
 	token atomic.Value
 	group singleflight.Group
@@ -67,48 +79,15 @@ type Client struct {
 	*clog.Clog
 }
 
-// Option client option
-type Option func(c *Client)
-
-// WithHTTPClient with custom http.Client
-func WithHTTPClient(c *http.Client) Option {
-	return func(client *Client) {
-		client.httpc = c
-	}
-}
-
-// WithHost 设置远程主机,
-func WithHost(h string) Option {
-	return func(c *Client) {
-		if !strings.Contains(h, "://") {
-			h = "http://" + h
-		}
-		if h != "" {
-			c.host = h
-		}
-	}
-}
-
-// WithSignMethod 设置签名方法,目前支持hmacMD5和hmacSHA1
-func WithSignMethod(method string) Option {
-	return func(c *Client) {
-		if method == HMACSHA1 {
-			c.signMethod = HMACSHA1
-		} else {
-			c.signMethod = HMACMD5
-		}
-	}
-}
-
 // New 新建alink http client
-// 默认hmacmd5加签算法
-// 默认上海host
-// 请求超时2秒
+// 默认加签算法: hmacmd5
+// 默认host: https://iot-as-http.cn-shanghai.aliyuncs.com
+// 默认使用http.DefaultClient
 func New(opts ...Option) *Client {
 	c := &Client{
 		host:       "https://iot-as-http.cn-shanghai.aliyuncs.com",
 		version:    "default",
-		signMethod: HMACMD5,
+		signMethod: hmacmd5,
 		httpc:      http.DefaultClient,
 		Clog:       clog.New(clog.WithLogger(clog.NewLogger(log.New(os.Stderr, "alink http --> ", log.LstdFlags)))),
 	}
@@ -117,14 +96,6 @@ func New(opts ...Option) *Client {
 		opt(c)
 	}
 	return c
-}
-
-// SetDeviceMetaInfo 设置设备三元组信息
-func (sf *Client) SetDeviceMetaInfo(productKey, deviceName, deviceSecret string) *Client {
-	sf.productKey = productKey
-	sf.deviceName = deviceName
-	sf.deviceSecret = deviceSecret
-	return sf
 }
 
 // 鉴权
@@ -138,17 +109,22 @@ func (sf *Client) getToken() (string, error) {
 	}
 
 	tk, err, _ := sf.group.Do("auth", func() (interface{}, error) {
-		authReq := AuthRequest{
-			Version:    sf.version,
-			ClientID:   sf.productKey + "." + sf.deviceName,
-			SignMethod: sf.signMethod,
-			ProductKey: sf.productKey,
-			DeviceName: sf.deviceName,
-			Timestamp:  time.Now().Unix() * 1000,
+		// 生成body加签
+		method := algo.MethodMD5
+		if sf.signMethod == hmacsha1 {
+			method = algo.MethodSha1
 		}
-
-		if err := authReq.generateSign(sf.deviceSecret); err != nil {
-			return "", err
+		clientID, tm := sf.productKey+"."+sf.deviceName, time.Now().Unix()*1000
+		signSource := fmt.Sprintf("clientId%sdeviceName%sproductKey%stimestamp%d",
+			clientID, sf.deviceName, sf.productKey, tm)
+		authReq := AuthRequest{
+			sf.version,
+			clientID,
+			sf.signMethod,
+			algo.Hmac(method, signSource, sf.deviceSecret),
+			sf.productKey,
+			sf.deviceName,
+			tm,
 		}
 
 		b, err := json.Marshal(&authReq)
@@ -173,7 +149,7 @@ func (sf *Client) getToken() (string, error) {
 		}
 
 		if authRsp.Code != CodeSuccess {
-			return "", NewCodeError(authRsp.Code, authRsp.Message)
+			return "", infra.NewCodeError(authRsp.Code, authRsp.Message)
 		}
 		sf.token.Store(authRsp.Info.Token)
 		return authRsp.Info.Token, nil
@@ -234,25 +210,8 @@ func (sf *Client) Publish(uri string, payload interface{}) error {
 			py.Code == CodeTokenCheckFailed ||
 			py.Code == CodeTokenIsNull) {
 			sf.token.Store("")
-			return NewCodeError(py.Code, py.Message)
+			return infra.NewCodeError(py.Code, py.Message)
 		}
 	}
-	return NewCodeError(py.Code, py.Message)
-}
-
-func (sf *AuthRequest) generateSign(deviceSecret string) error {
-	hashFunc := md5.New
-	if sf.SignMethod == HMACSHA1 {
-		hashFunc = sha1.New
-	}
-
-	signSource := fmt.Sprintf("clientId%sdeviceName%sproductKey%stimestamp%d",
-		sf.ClientID, sf.DeviceName, sf.ProductKey, sf.Timestamp)
-	h := hmac.New(hashFunc, []byte(deviceSecret))
-	if _, err := h.Write([]byte(signSource)); err != nil {
-		return err
-	}
-
-	sf.Sign = hex.EncodeToString(h.Sum(nil))
-	return nil
+	return infra.NewCodeError(py.Code, py.Message)
 }

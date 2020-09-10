@@ -39,7 +39,7 @@ func (sf *Client) upstreamThingEventPropertyPost(devID int, params interface{}) 
 
 	id := sf.RequestID()
 	err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingEventPropertyPost, node.ProductKey(), node.DeviceName()),
-		id, methodEventPropertyPost, params)
+		id, MethodEventPropertyPost, params)
 	if err != nil {
 		return err
 	}
@@ -60,7 +60,7 @@ func (sf *Client) upstreamThingEventPost(devID int, eventID string, params inter
 		return err
 	}
 	id := sf.RequestID()
-	method := fmt.Sprintf(methodEventFormatPost, eventID)
+	method := fmt.Sprintf(MethodEventFormatPost, eventID)
 	err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingEventPost, node.ProductKey(), node.DeviceName(), eventID),
 		id, method, params)
 	if err != nil {
@@ -74,7 +74,7 @@ func (sf *Client) upstreamThingEventPost(devID int, eventID string, params inter
 func (sf *Client) upstreamThingEventPropertyPackPost(params interface{}) error {
 	id := sf.RequestID()
 	err := sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingEventPropertyPackPost),
-		id, methodEventPropertyPackPost, params)
+		id, MethodEventPropertyPackPost, params)
 	if err != nil {
 		return err
 	}
@@ -97,7 +97,7 @@ func (sf *Client) upstreamThingDeviceInfoUpdate(devID int, params interface{}) e
 
 	id := sf.RequestID()
 	err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingDeviceInfoUpdate, node.ProductKey(), node.DeviceName()),
-		id, methodDeviceInfoUpdate, params)
+		id, MethodDeviceInfoUpdate, params)
 	if err != nil {
 		return err
 	}
@@ -120,7 +120,7 @@ func (sf *Client) upstreamThingDeviceInfoDelete(devID int, params interface{}) e
 
 	id := sf.RequestID()
 	err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingDeviceInfoDelete, node.ProductKey(), node.DeviceName()),
-		id, methodDeviceInfoDelete, params)
+		id, MethodDeviceInfoDelete, params)
 	if err != nil {
 		return err
 	}
@@ -142,7 +142,7 @@ func (sf *Client) upstreamThingDesiredPropertyGet(devID int, params interface{})
 
 	id := sf.RequestID()
 	err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingDesiredPropertyGet, node.ProductKey(), node.DeviceName()),
-		id, methodDesiredPropertyGet, params)
+		id, MethodDesiredPropertyGet, params)
 	if err != nil {
 		return err
 	}
@@ -164,7 +164,7 @@ func (sf *Client) upstreamThingDesiredPropertyDelete(devID int, params interface
 
 	id := sf.RequestID()
 	err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingDesiredPropertyDelete, node.ProductKey(), node.DeviceName()),
-		id, methodDesiredPropertyDelete, params)
+		id, MethodDesiredPropertyDelete, params)
 	if err != nil {
 		return err
 	}
@@ -187,7 +187,7 @@ func (sf *Client) upstreamThingDsltemplateGet(devID int) error {
 
 	id := sf.RequestID()
 	err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingDslTemplateGet, node.ProductKey(), node.DeviceName()),
-		id, methodDslTemplateGet, "{}")
+		id, MethodDslTemplateGet, "{}")
 	if err != nil {
 		return err
 	}
@@ -210,7 +210,7 @@ func (sf *Client) upstreamThingDynamictslGet(devID int) error {
 
 	id := sf.RequestID()
 	err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingDynamicTslGet, node.ProductKey(), node.DeviceName()),
-		id, methodDynamicTslGet, `{"nodes":["type","identifier"],"addDefault":false}`)
+		id, MethodDynamicTslGet, `{"nodes":["type","identifier"],"addDefault":false}`)
 	if err != nil {
 		return err
 	}
@@ -280,7 +280,7 @@ func (sf *Client) upstreamThingConfigGet(devID int) error {
 
 	id := sf.RequestID()
 	err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingConfigGet, node.ProductKey(), node.DeviceName()),
-		id, methodConfigGet, `{"configScope":"product","getType":"file"}`)
+		id, MethodConfigGet, `{"configScope":"product","getType":"file"}`)
 	if err != nil {
 		return err
 	}

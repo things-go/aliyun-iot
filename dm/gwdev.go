@@ -43,7 +43,7 @@ func (sf *Client) upstreamThingGwSubDevRegister(devID int) (int, error) {
 
 	id := sf.RequestID()
 	err = sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingSubDevRegister),
-		id, methodSubDevRegister, []GwSubDevRegisterParams{
+		id, MethodSubDevRegister, []GwSubDevRegisterParams{
 			{
 				node.ProductKey(),
 				node.DeviceName(),

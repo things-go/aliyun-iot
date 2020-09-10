@@ -57,13 +57,6 @@ func (sf *Clog) LogMode(enable bool) {
 	}
 }
 
-// Criticalf Log CRITICAL level message.
-func (sf Clog) Criticalf(format string, v ...interface{}) {
-	if atomic.LoadUint32(&sf.has) == 1 {
-		sf.provider.Criticalf(format, v...)
-	}
-}
-
 // Errorf Log ERROR level message.
 func (sf Clog) Errorf(format string, v ...interface{}) {
 	if atomic.LoadUint32(&sf.has) == 1 {
@@ -82,5 +75,12 @@ func (sf Clog) Warnf(format string, v ...interface{}) {
 func (sf Clog) Debugf(format string, v ...interface{}) {
 	if atomic.LoadUint32(&sf.has) == 1 {
 		sf.provider.Debugf(format, v...)
+	}
+}
+
+// Criticalf Log CRITICAL level message.
+func (sf Clog) Criticalf(format string, v ...interface{}) {
+	if atomic.LoadUint32(&sf.has) == 1 {
+		sf.provider.Criticalf(format, v...)
 	}
 }
