@@ -2,6 +2,8 @@ package dm
 
 import (
 	"time"
+
+	"github.com/thinkgos/go-core-package/lib/logger"
 )
 
 type Option func(*Client)
@@ -84,5 +86,11 @@ func WithCallback(cb Callback) Option {
 func WithGwCallback(cb GwCallback) Option {
 	return func(c *Client) {
 		c.gwCb = cb
+	}
+}
+
+func WithLogger(l logger.Logger) Option {
+	return func(c *Client) {
+		c.log = l
 	}
 }

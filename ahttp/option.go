@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/thinkgos/aliyun-iot/clog"
+	"github.com/thinkgos/go-core-package/lib/logger"
 )
 
 // Option client option
@@ -41,7 +41,7 @@ func WithSignMethod(method string) Option {
 }
 
 // WithLogger 设置日志
-func WithLogger(l clog.LogProvider) Option {
+func WithLogger(l logger.Logger) Option {
 	return func(c *Client) {
 		c.log = l
 	}

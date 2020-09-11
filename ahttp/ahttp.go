@@ -12,9 +12,9 @@ import (
 	"time"
 
 	"github.com/thinkgos/go-core-package/lib/algo"
+	"github.com/thinkgos/go-core-package/lib/logger"
 	"golang.org/x/sync/singleflight"
 
-	"github.com/thinkgos/aliyun-iot/clog"
 	"github.com/thinkgos/aliyun-iot/infra"
 )
 
@@ -72,7 +72,7 @@ type Client struct {
 	group singleflight.Group
 
 	httpc *http.Client
-	log   clog.LogProvider
+	log   logger.Logger
 }
 
 // New 新建alink http client
@@ -86,7 +86,7 @@ func New(meta infra.MetaInfo, opts ...Option) *Client {
 		version:    "default",
 		signMethod: hmacmd5,
 		httpc:      http.DefaultClient,
-		log:        clog.NewDiscard(),
+		log:        logger.NewDiscard(),
 	}
 	c.token.Store("")
 	for _, opt := range opts {

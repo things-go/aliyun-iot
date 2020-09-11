@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"github.com/patrickmn/go-cache"
+	"github.com/thinkgos/go-core-package/lib/logger"
 
-	"github.com/thinkgos/aliyun-iot/clog"
 	"github.com/thinkgos/aliyun-iot/infra"
 )
 
@@ -76,7 +76,7 @@ type Client struct {
 	cb   Callback
 	gwCb GwCallback
 
-	log clog.LogProvider
+	log logger.Logger
 }
 
 // New 创建一个物管理客户端
@@ -94,7 +94,7 @@ func New(meta infra.MetaInfo, conn Conn, opts ...Option) *Client {
 		Conn:   conn,
 		cb:     NopEvt{},
 		gwCb:   NopGwEvt{},
-		log:    clog.NewDiscard(),
+		log:    logger.NewDiscard(),
 	}
 	for _, opt := range opts {
 		opt(c)
