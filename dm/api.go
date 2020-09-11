@@ -257,19 +257,10 @@ func (sf *Client) AlinkReport(msgType MsgType, devID int, params interface{}) er
 
 	switch msgType {
 	case MsgTypeModelUpRaw:
-		if !sf.hasRawModel {
-			return ErrNotSupportFeature
-		}
 		return sf.upstreamThingModelUpRaw(devID, params)
 	case MsgTypeEventPropertyPost:
-		if sf.hasRawModel {
-			return ErrNotSupportFeature
-		}
 		return sf.upstreamThingEventPropertyPost(devID, params)
 	case MsgTypeEventPropertyPackPost:
-		if !sf.isGateway {
-			return ErrNotSupportFeature
-		}
 		return sf.upstreamThingEventPropertyPackPost(params)
 	case MsgTypeDesiredPropertyGet:
 		if !sf.hasDesired {

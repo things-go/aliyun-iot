@@ -30,13 +30,13 @@ type EventProc interface {
 	EvtThingDesiredPropertyDeleteReply(c *Client, err error, productKey, deviceName string) error
 	EvtThingDsltemplateGetReply(c *Client, err error, productKey, deviceName string, data json.RawMessage) error
 	EvtThingDynamictslGetReply(c *Client, err error, productKey, deviceName string, data json.RawMessage) error
-	EvtExtNtpResponse(c *Client, productKey, deviceName string, payload NtpResponsePayload) error
-	EvtThingConfigGetReply(c *Client, err error, productKey, deviceName string, data ConfigParamsAndData) error
+	EvtExtNtpResponse(c *Client, productKey, deviceName string, payload NtpResponse) error
+	EvtThingConfigGetReply(c *Client, err error, productKey, deviceName string, data ConfigParamsData) error
 	// 下行
 	// 透传请求,需要用户自己处理及应答
 	EvtThingModelDownRaw(c *Client, productKey, deviceName string, payload []byte) error
 	// 配置推送,已做默认回复
-	EvtThingConfigPush(c *Client, productKey, deviceName string, params ConfigParamsAndData) error
+	EvtThingConfigPush(c *Client, productKey, deviceName string, params ConfigParamsData) error
 	// 设置设备属性, 需用户自行做回复
 	EvtThingServicePropertySet(c *Client, productKey, deviceName string, payload []byte) error
 	// 设备服务调用,需用户自行做回复

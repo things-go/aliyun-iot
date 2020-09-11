@@ -1,9 +1,7 @@
 package dm
 
-// 平台通信版本
-const (
-	Version = "1.0"
-)
+// Version 平台通信版本
+var Version = "1.0"
 
 // method 定义
 const (

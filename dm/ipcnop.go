@@ -62,12 +62,12 @@ func (NopEvt) EvtThingDynamictslGetReply(*Client, error, string, string, json.Ra
 }
 
 // EvtExtNtpResponse see interface EventProc
-func (NopEvt) EvtExtNtpResponse(*Client, string, string, NtpResponsePayload) error {
+func (NopEvt) EvtExtNtpResponse(*Client, string, string, NtpResponse) error {
 	return nil
 }
 
 // EvtThingConfigGetReply see interface EventProc
-func (NopEvt) EvtThingConfigGetReply(*Client, error, string, string, ConfigParamsAndData) error {
+func (NopEvt) EvtThingConfigGetReply(*Client, error, string, string, ConfigParamsData) error {
 	return nil
 }
 
@@ -77,7 +77,7 @@ func (NopEvt) EvtThingModelDownRaw(*Client, string, string, []byte) error {
 }
 
 // EvtThingConfigPush see interface EventProc
-func (NopEvt) EvtThingConfigPush(*Client, string, string, ConfigParamsAndData) error {
+func (NopEvt) EvtThingConfigPush(*Client, string, string, ConfigParamsData) error {
 	return nil
 }
 
