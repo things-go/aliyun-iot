@@ -7,9 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
-	"os"
 	"sync/atomic"
 	"time"
 
@@ -74,7 +72,7 @@ type Client struct {
 	group singleflight.Group
 
 	httpc *http.Client
-	*clog.Clog
+	log   clog.LogProvider
 }
 
 // New 新建alink http client
@@ -88,7 +86,7 @@ func New(meta infra.MetaInfo, opts ...Option) *Client {
 		version:    "default",
 		signMethod: hmacmd5,
 		httpc:      http.DefaultClient,
-		Clog:       clog.New(clog.WithLogger(clog.NewLogger(log.New(os.Stderr, "alink http --> ", log.LstdFlags)))),
+		log:        clog.NewDiscard(),
 	}
 	c.token.Store("")
 	for _, opt := range opts {
@@ -200,7 +198,7 @@ func (sf *Client) Publish(uri string, payload interface{}) error {
 		if err := json.NewDecoder(response.Body).Decode(&py); err != nil {
 			return err
 		}
-		sf.Debugf("publish response, %+v", py)
+		sf.log.Debugf("publish response, %+v", py)
 		if py.Code == 0 {
 			return nil
 		}

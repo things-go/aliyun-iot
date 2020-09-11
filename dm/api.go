@@ -80,7 +80,7 @@ type Client struct {
 }
 
 // New 创建一个物管理客户端
-func New(meta infra.MetaInfo, opts ...Option) *Client {
+func New(meta infra.MetaInfo, conn Conn, opts ...Option) *Client {
 	c := &Client{
 		MetaInfo: meta,
 
@@ -91,6 +91,7 @@ func New(meta infra.MetaInfo, opts ...Option) *Client {
 		cacheCleanupInterval: DefaultCacheCleanupInterval,
 
 		DevMgr: NewDevMgr(),
+		Conn:   conn,
 		cb:     NopEvt{},
 		gwCb:   NopGwEvt{},
 		log:    clog.NewDiscard(),
@@ -101,8 +102,8 @@ func New(meta infra.MetaInfo, opts ...Option) *Client {
 	if c.workOnWho != WorkOnHTTP {
 		c.msgCache = cache.New(c.cacheExpiration, c.cacheCleanupInterval)
 	}
-	err := c.DevMgr.insert(DevNodeLocal, DevTypeSingle, c.MetaInfo)
-	if err != nil {
+
+	if err := c.DevMgr.insert(DevNodeLocal, DevTypeSingle, c.MetaInfo); err != nil {
 		panic(fmt.Sprintf("device local duplicate,cause: %+v", err))
 	}
 
@@ -115,12 +116,6 @@ func (sf *Client) NewSubDevice(meta infra.MetaInfo) (int, error) {
 		return sf.Create(DevTypeSubDev, meta)
 	}
 	return 0, ErrNotSupportFeature
-}
-
-// SetConn 设置连接接口
-func (sf *Client) SetConn(conn Conn) *Client {
-	sf.Conn = conn
-	return sf
 }
 
 // RequestID 获得下一个requestID,协程安全

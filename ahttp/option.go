@@ -3,6 +3,8 @@ package ahttp
 import (
 	"net/http"
 	"strings"
+
+	"github.com/thinkgos/aliyun-iot/clog"
 )
 
 // Option client option
@@ -35,5 +37,12 @@ func WithSignMethod(method string) Option {
 		} else {
 			c.signMethod = hmacmd5
 		}
+	}
+}
+
+// WithLogger 设置日志
+func WithLogger(l clog.LogProvider) Option {
+	return func(c *Client) {
+		c.log = l
 	}
 }

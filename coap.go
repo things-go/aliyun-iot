@@ -9,17 +9,16 @@ import (
 	"github.com/thinkgos/aliyun-iot/infra"
 )
 
-// COAPClient COAP客户端
-type COAPClient struct {
-	c *coap.ClientConn
-	*dm.Client
-}
-
 // 确保 NopEvt 实现 dm.Conn 接口
 var _ dm.Conn = (*COAPClient)(nil)
 
+// COAPClient COAP客户端
+type coapClient struct {
+	c *coap.ClientConn
+}
+
 // Publish 实现dm.Conn接口
-func (sf *COAPClient) Publish(topic string, _ byte, payload interface{}) error {
+func (sf *coapClient) Publish(topic string, _ byte, payload interface{}) error {
 	var buf *bytes.Buffer
 
 	switch v := payload.(type) {
@@ -37,27 +36,26 @@ func (sf *COAPClient) Publish(topic string, _ byte, payload interface{}) error {
 }
 
 // Subscribe 实现dm.Conn接口
-func (sf *COAPClient) Subscribe(topic string, streamFunc dm.ProcDownStream) error {
-	return nil
-}
+func (*coapClient) Subscribe(string, dm.ProcDownStream) error { return nil }
 
 // UnSubscribe 实现dm.Conn接口
-func (sf *COAPClient) UnSubscribe(...string) error {
-	return nil
+func (sf *coapClient) UnSubscribe(...string) error { return nil }
+
+// COAPClient COAP客户端
+type COAPClient struct {
+	c *coap.ClientConn
+	*dm.Client
+}
+
+// NewWithCOAP 新建MQTTClient
+func NewWithCOAP(meta infra.MetaInfo, c *coap.ClientConn, opts ...dm.Option) *COAPClient {
+	return &COAPClient{
+		c,
+		dm.New(meta, &coapClient{c}, append(opts, dm.WithWork(dm.WorkOnCOAP))...),
+	}
 }
 
 // UnderlyingClient 获得底层的Client
 func (sf *COAPClient) UnderlyingClient() *coap.ClientConn {
 	return sf.c
-}
-
-// NewWithCOAP 新建MQTTClient
-func NewWithCOAP(meta infra.MetaInfo, c *coap.ClientConn, opts ...dm.Option) *COAPClient {
-	m := dm.New(meta, append(opts, dm.WithWork(dm.WorkOnCOAP))...)
-	cli := &COAPClient{
-		c,
-		m,
-	}
-	m.SetConn(cli)
-	return cli
 }

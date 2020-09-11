@@ -12,7 +12,6 @@ import (
 
 func main() {
 	dmClient := aiot.NewWithHTTP(testmeta.MetaInfo())
-	dmClient.LogMode(true)
 	for {
 		_, err := dmClient.ThingEventPropertyPost(dm.DevNodeLocal, map[string]interface{}{
 			"Temp":         rand.Intn(200),

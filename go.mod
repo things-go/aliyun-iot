@@ -7,6 +7,7 @@ require (
 	github.com/go-ocf/go-coap v0.0.0-20200420092245-1fa077b7846f
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pion/dtls/v2 v2.0.2 // indirect
+	github.com/prometheus/common v0.13.0 // indirect
 	github.com/stretchr/testify v1.6.1
 	github.com/thinkgos/go-core-package v0.1.1
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a // indirect
