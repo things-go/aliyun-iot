@@ -8,104 +8,104 @@ import (
 // NopEvt 实现EventProc接口的空实现
 type NopEvt struct{}
 
-// 确保 NopEvt 实现 EventProc 接口
-var _ EventProc = (*NopEvt)(nil)
+// 确保 NopEvt 实现 Callback 接口
+var _ Callback = (*NopEvt)(nil)
 
-// EvtThingModelUpRawReply see interface EventProc
-func (NopEvt) EvtThingModelUpRawReply(*Client, string, string, []byte) error {
+// ThingModelUpRawReply see interface Callback
+func (NopEvt) ThingModelUpRawReply(*Client, string, string, []byte) error {
 	return nil
 }
 
-// EvtThingEventPropertyPostReply see interface EventProc
-func (NopEvt) EvtThingEventPropertyPostReply(*Client, error, string, string) error {
+// ThingEventPropertyPostReply see interface Callback
+func (NopEvt) ThingEventPropertyPostReply(*Client, error, string, string) error {
 	return nil
 }
 
-// EvtThingEventPostReply see interface EventProc
-func (NopEvt) EvtThingEventPostReply(*Client, error, string, string, string) error {
+// ThingEventPostReply see interface Callback
+func (NopEvt) ThingEventPostReply(*Client, error, string, string, string) error {
 	return nil
 }
 
-// EvtThingEventPropertyPackPostReply see interface EventProc
-func (NopEvt) EvtThingEventPropertyPackPostReply(*Client, error, string, string) error {
+// ThingEventPropertyPackPostReply see interface Callback
+func (NopEvt) ThingEventPropertyPackPostReply(*Client, error, string, string) error {
 	return nil
 }
 
-// EvtThingDeviceInfoUpdateReply see interface EventProc
-func (NopEvt) EvtThingDeviceInfoUpdateReply(*Client, error, string, string) error {
+// ThingDeviceInfoUpdateReply see interface Callback
+func (NopEvt) ThingDeviceInfoUpdateReply(*Client, error, string, string) error {
 	return nil
 }
 
-// EvtThingDeviceInfoDeleteReply see interface EventProc
-func (NopEvt) EvtThingDeviceInfoDeleteReply(*Client, error, string, string) error {
+// ThingDeviceInfoDeleteReply see interface Callback
+func (NopEvt) ThingDeviceInfoDeleteReply(*Client, error, string, string) error {
 	return nil
 }
 
-// EvtThingDesiredPropertyGetReply see interface EventProc
-func (NopEvt) EvtThingDesiredPropertyGetReply(*Client, error, string, string, json.RawMessage) error {
+// ThingDesiredPropertyGetReply see interface Callback
+func (NopEvt) ThingDesiredPropertyGetReply(*Client, error, string, string, json.RawMessage) error {
 	return nil
 }
 
-// EvtThingDesiredPropertyDeleteReply see interface EventProc
-func (NopEvt) EvtThingDesiredPropertyDeleteReply(*Client, error, string, string) error {
+// ThingDesiredPropertyDeleteReply see interface Callback
+func (NopEvt) ThingDesiredPropertyDeleteReply(*Client, error, string, string) error {
 	return nil
 }
 
-// EvtThingDsltemplateGetReply see interface EventProc
-func (NopEvt) EvtThingDsltemplateGetReply(*Client, error, string, string, json.RawMessage) error {
+// ThingDsltemplateGetReply see interface Callback
+func (NopEvt) ThingDsltemplateGetReply(*Client, error, string, string, json.RawMessage) error {
 	return nil
 }
 
-// EvtThingDynamictslGetReply see interface EventProc
-func (NopEvt) EvtThingDynamictslGetReply(*Client, error, string, string, json.RawMessage) error {
+// ThingDynamictslGetReply see interface Callback
+func (NopEvt) ThingDynamictslGetReply(*Client, error, string, string, json.RawMessage) error {
 	return nil
 }
 
-// EvtExtNtpResponse see interface EventProc
-func (NopEvt) EvtExtNtpResponse(*Client, string, string, NtpResponse) error {
+// ExtNtpResponse see interface Callback
+func (NopEvt) ExtNtpResponse(*Client, string, string, NtpResponse) error {
 	return nil
 }
 
-// EvtThingConfigGetReply see interface EventProc
-func (NopEvt) EvtThingConfigGetReply(*Client, error, string, string, ConfigParamsData) error {
+// ThingConfigGetReply see interface Callback
+func (NopEvt) ThingConfigGetReply(*Client, error, string, string, ConfigParamsData) error {
 	return nil
 }
 
-// EvtThingModelDownRaw see interface EventProc
-func (NopEvt) EvtThingModelDownRaw(*Client, string, string, []byte) error {
+// ThingModelDownRaw see interface Callback
+func (NopEvt) ThingModelDownRaw(*Client, string, string, []byte) error {
 	return nil
 }
 
-// EvtThingConfigPush see interface EventProc
-func (NopEvt) EvtThingConfigPush(*Client, string, string, ConfigParamsData) error {
+// ThingConfigPush see interface Callback
+func (NopEvt) ThingConfigPush(*Client, string, string, ConfigParamsData) error {
 	return nil
 }
 
-// EvtThingServicePropertySet see interface EventProc
-func (NopEvt) EvtThingServicePropertySet(*Client, string, string, []byte) error {
-	log.Println("EvtThingServicePropertySet is not implementation")
+// ThingServicePropertySet see interface Callback
+func (NopEvt) ThingServicePropertySet(*Client, string, string, []byte) error {
+	log.Println("ThingServicePropertySet is not implementation")
 	return nil
 }
 
-// EvtThingServiceRequest see interface EventProc
-func (NopEvt) EvtThingServiceRequest(*Client, string, string, string, []byte) error {
-	log.Println("EvtThingServiceRequest is not implementation")
+// ThingServiceRequest see interface Callback
+func (NopEvt) ThingServiceRequest(*Client, string, string, string, []byte) error {
+	log.Println("ThingServiceRequest is not implementation")
 	return nil
 }
 
-// EvtRRPCRequest see interface EventProc
-func (NopEvt) EvtRRPCRequest(*Client, string, string, string, []byte) error {
-	log.Println("EvtRRPCRequest is not implementation")
+// RRPCRequest see interface Callback
+func (NopEvt) RRPCRequest(*Client, string, string, string, []byte) error {
+	log.Println("RRPCRequest is not implementation")
 	return nil
 }
 
-// EvtExtRRPCRequest see interface EventProc
-func (NopEvt) EvtExtRRPCRequest(*Client, string, string, []byte) error {
-	log.Println("EvtRRPCRequest is not implementation")
+// ExtRRPCRequest see interface Callback
+func (NopEvt) ExtRRPCRequest(*Client, string, string, []byte) error {
+	log.Println("RRPCRequest is not implementation")
 	return nil
 }
 
-// EvtRequestWaitResponseTimeout  see interface EventProc
+// EvtRequestWaitResponseTimeout  see interface Callback
 func (NopEvt) EvtRequestWaitResponseTimeout(_ *Client, devID int) error {
 	log.Printf("%d request wait response timeout", devID)
 	return nil
@@ -116,45 +116,45 @@ func (NopEvt) EvtRequestWaitResponseTimeout(_ *Client, devID int) error {
 // NopGwEvt 实现EventGwProc接口的空实现
 type NopGwEvt struct{}
 
-// 确保 NopGwEvt 实现 EventGwProc 接口
-var _ EventGwProc = (*NopGwEvt)(nil)
+// 确保 NopGwEvt 实现 GwCallback 接口
+var _ GwCallback = (*NopGwEvt)(nil)
 
-// EvtExtErrorResponse see interface EventGwProc
-func (NopGwEvt) EvtExtErrorResponse(*Client, error, string, string) error {
+// ExtErrorResponse see interface GwCallback
+func (NopGwEvt) ExtErrorResponse(*Client, error, string, string) error {
 	return nil
 }
 
-// EvtThingGwSubTopoGetReply see interface EventGwProc
-func (NopGwEvt) EvtThingGwSubTopoGetReply(*Client, error, []GwTopoGetData) error {
+// ThingGwTopoGetReply see interface GwCallback
+func (NopGwEvt) ThingGwTopoGetReply(*Client, error, []GwTopoGetData) error {
 	return nil
 }
 
-// EvtThingListFoundReply see interface EventGwProc
-func (NopGwEvt) EvtThingListFoundReply(*Client, error) error {
+// ThingGwListFoundReply see interface GwCallback
+func (NopGwEvt) ThingGwListFoundReply(*Client, error) error {
 	return nil
 }
 
-// EvtThingTopoAddNotify see interface EventGwProc
-func (NopGwEvt) EvtThingTopoAddNotify(*Client, []GwTopoAddNotifyParams) error {
+// ThingGwTopoAddNotify see interface GwCallback
+func (NopGwEvt) ThingGwTopoAddNotify(*Client, []GwTopoAddNotifyParams) error {
 	return nil
 }
 
-// EvtThingTopoChange see interface EventGwProc
-func (NopGwEvt) EvtThingTopoChange(*Client, GwTopoChangeParams) error {
+// ThingGwTopoChange see interface GwCallback
+func (NopGwEvt) ThingGwTopoChange(*Client, GwTopoChangeParams) error {
 	return nil
 }
 
-// EvtThingDisable see interface EventGwProc
-func (NopGwEvt) EvtThingDisable(*Client, string, string) error {
+// ThingGwDisable see interface GwCallback
+func (NopGwEvt) ThingGwDisable(*Client, string, string) error {
 	return nil
 }
 
-// EvtThingEnable see interface EventGwProc
-func (NopGwEvt) EvtThingEnable(*Client, string, string) error {
+// ThingGwEnable see interface GwCallback
+func (NopGwEvt) ThingGwEnable(*Client, string, string) error {
 	return nil
 }
 
-// EvtThingDelete see interface EventGwProc
-func (NopGwEvt) EvtThingDelete(*Client, string, string) error {
+// ThingGwDelete see interface GwCallback
+func (NopGwEvt) ThingGwDelete(*Client, string, string) error {
 	return nil
 }

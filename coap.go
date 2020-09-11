@@ -3,11 +3,8 @@ package aiot
 import (
 	"bytes"
 	"errors"
-	"log"
-	"os"
 
 	"github.com/go-ocf/go-coap"
-	"github.com/thinkgos/aliyun-iot/clog"
 	"github.com/thinkgos/aliyun-iot/dm"
 	"github.com/thinkgos/aliyun-iot/infra"
 )
@@ -16,7 +13,6 @@ import (
 type COAPClient struct {
 	c *coap.ClientConn
 	*dm.Client
-	log *clog.Clog
 }
 
 // 确保 NopEvt 实现 dm.Conn 接口
@@ -41,23 +37,13 @@ func (sf *COAPClient) Publish(topic string, _ byte, payload interface{}) error {
 }
 
 // Subscribe 实现dm.Conn接口
-func (sf *COAPClient) Subscribe(topic string, streamFunc dm.ProcDownStreamFunc) error {
+func (sf *COAPClient) Subscribe(topic string, streamFunc dm.ProcDownStream) error {
 	return nil
 }
 
 // UnSubscribe 实现dm.Conn接口
 func (sf *COAPClient) UnSubscribe(...string) error {
 	return nil
-}
-
-// LogProvider 实现dm.Conn接口
-func (sf *COAPClient) LogProvider() clog.LogProvider {
-	return sf.log
-}
-
-// LogMode 实现dm.Conn接口
-func (sf *COAPClient) LogMode(enable bool) {
-	sf.log.LogMode(enable)
 }
 
 // UnderlyingClient 获得底层的Client
@@ -71,7 +57,6 @@ func NewWithCOAP(meta infra.MetaInfo, c *coap.ClientConn, opts ...dm.Option) *CO
 	cli := &COAPClient{
 		c,
 		m,
-		clog.New(clog.WithLogger(clog.NewLogger(log.New(os.Stderr, "mqtt --> ", log.LstdFlags)))),
 	}
 	m.SetConn(cli)
 	return cli

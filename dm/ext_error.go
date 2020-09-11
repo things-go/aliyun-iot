@@ -39,7 +39,7 @@ func ProcExtErrorResponse(c *Client, rawURI string, payload []byte) error {
 	}
 
 	c.done(rsp.ID, err, nil)
-	c.debugf("downstream extend <Error>: response,@%d", rsp.ID)
+	c.log.Debugf("downstream extend <Error>: response,@%d", rsp.ID)
 
 	pk, dn := rsp.Data.ProductKey, rsp.Data.DeviceName
 	if rsp.Code == infra.CodeSubDevSessionError {
@@ -49,5 +49,5 @@ func ProcExtErrorResponse(c *Client, rawURI string, payload []byte) error {
 		}
 		_, _ = c.ExtCombineLogin(node.ID())
 	}
-	return c.eventGwProc.EvtExtErrorResponse(c, err, pk, dn)
+	return c.gwCb.ExtErrorResponse(c, err, pk, dn)
 }

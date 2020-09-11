@@ -26,7 +26,7 @@ func (sf *Client) ThingDsltemplateGet(devID int) (*Entry, error) {
 		return nil, err
 	}
 
-	sf.debugf("upstream thing <dsl template>: get,@%d", id)
+	sf.log.Debugf("upstream thing <dsl template>: get,@%d", id)
 	return sf.Insert(id), nil
 }
 
@@ -50,7 +50,7 @@ func (sf *Client) ThingDynamictslGet(devID int) (*Entry, error) {
 		return nil, err
 	}
 
-	sf.debugf("upstream thing <dynamic tsl>: get,@%d", id)
+	sf.log.Debugf("upstream thing <dynamic tsl>: get,@%d", id)
 	return sf.Insert(id), nil
 }
 
@@ -76,8 +76,8 @@ func ProcThingDsltemplateGetReply(c *Client, rawURI string, payload []byte) erro
 
 	c.done(rsp.ID, err, nil)
 	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
-	c.debugf("downstream thing <dsl template>: get reply,@%d - %s", rsp.ID, string(rsp.Data))
-	return c.eventProc.EvtThingDsltemplateGetReply(c, err, pk, dn, rsp.Data)
+	c.log.Debugf("downstream thing <dsl template>: get reply,@%d - %s", rsp.ID, string(rsp.Data))
+	return c.cb.ThingDsltemplateGetReply(c, err, pk, dn, rsp.Data)
 }
 
 // ProcThingDynamictslGetReply 处理
@@ -102,6 +102,6 @@ func ProcThingDynamictslGetReply(c *Client, rawURI string, payload []byte) error
 
 	c.done(rsp.ID, err, nil)
 	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
-	c.debugf("downstream thing <dynamic tsl>: get reply,@%d - %+v", rsp.ID, rsp)
-	return c.eventProc.EvtThingDynamictslGetReply(c, err, pk, dn, rsp.Data)
+	c.log.Debugf("downstream thing <dynamic tsl>: get reply,@%d - %+v", rsp.ID, rsp)
+	return c.cb.ThingDynamictslGetReply(c, err, pk, dn, rsp.Data)
 }

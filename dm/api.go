@@ -10,6 +10,7 @@ import (
 
 	"github.com/patrickmn/go-cache"
 
+	"github.com/thinkgos/aliyun-iot/clog"
 	"github.com/thinkgos/aliyun-iot/infra"
 )
 
@@ -72,8 +73,10 @@ type Client struct {
 	*DevMgr
 	msgCache *cache.Cache
 	Conn
-	eventProc   EventProc
-	eventGwProc EventGwProc
+	cb   Callback
+	gwCb GwCallback
+
+	log clog.LogProvider
 }
 
 // New 创建一个物管理客户端
@@ -87,9 +90,10 @@ func New(meta infra.MetaInfo, opts ...Option) *Client {
 		cacheExpiration:      DefaultCacheExpiration,
 		cacheCleanupInterval: DefaultCacheCleanupInterval,
 
-		DevMgr:      NewDevMgr(),
-		eventProc:   NopEvt{},
-		eventGwProc: NopGwEvt{},
+		DevMgr: NewDevMgr(),
+		cb:     NopEvt{},
+		gwCb:   NopGwEvt{},
+		log:    clog.NewDiscard(),
 	}
 	for _, opt := range opts {
 		opt(c)
@@ -116,18 +120,6 @@ func (sf *Client) NewSubDevice(meta infra.MetaInfo) (int, error) {
 // SetConn 设置连接接口
 func (sf *Client) SetConn(conn Conn) *Client {
 	sf.Conn = conn
-	return sf
-}
-
-// SetEventProc 设置事件处理接品
-func (sf *Client) SetEventProc(proc EventProc) *Client {
-	sf.eventProc = proc
-	return sf
-}
-
-// SetEventGwProc 设备网关事件接口
-func (sf *Client) SetEventGwProc(proc EventGwProc) *Client {
-	sf.eventGwProc = proc
 	return sf
 }
 
@@ -191,7 +183,7 @@ func (sf *Client) AlinkSubDeviceConnect(devID int) error {
 	}
 
 	// 子设备添加到拓扑
-	return sf.LinkKitGwSubTopoAdd(devID)
+	return sf.LinkKitGwTopoAdd(devID)
 }
 
 func (sf *Client) LinKitGwSubRegister(devID int) error {
@@ -203,7 +195,7 @@ func (sf *Client) LinKitGwSubRegister(devID int) error {
 	return err
 }
 
-func (sf *Client) LinkKitGwSubTopoAdd(devID int) error {
+func (sf *Client) LinkKitGwTopoAdd(devID int) error {
 	entry, err := sf.ThingGwTopoAdd(devID)
 	if err != nil {
 		return err
@@ -212,8 +204,8 @@ func (sf *Client) LinkKitGwSubTopoAdd(devID int) error {
 	return err
 }
 
-// LinkKitGwSubTopoDelete 删除网关与子设备的拓扑关系
-func (sf *Client) LinkKitGwSubTopoDelete(devID int) error {
+// LinkKitGwTopoDelete 删除网关与子设备的拓扑关系
+func (sf *Client) LinkKitGwTopoDelete(devID int) error {
 	if !sf.isGateway {
 		return ErrNotSupportFeature
 	}
@@ -225,7 +217,7 @@ func (sf *Client) LinkKitGwSubTopoDelete(devID int) error {
 	return err
 }
 
-func (sf *Client) LinkKitGwSubCombineLogin(devID int) error {
+func (sf *Client) LinkKitExtCombineLogin(devID int) error {
 	if !sf.isGateway {
 		return ErrNotSupportFeature
 	}
@@ -237,7 +229,7 @@ func (sf *Client) LinkKitGwSubCombineLogin(devID int) error {
 	return err
 }
 
-func (sf *Client) LinkKitGwSubCombineLogout(devID int) error {
+func (sf *Client) LinkKitExtCombineLogout(devID int) error {
 	if !sf.isGateway {
 		return ErrNotSupportFeature
 	}

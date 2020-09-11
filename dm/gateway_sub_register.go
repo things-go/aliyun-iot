@@ -51,7 +51,7 @@ func (sf *Client) ThingGwSubRegister(devID int) (*Entry, error) {
 		return nil, err
 	}
 
-	sf.debugf("upstream thing GW <sub>: register @%d", id)
+	sf.log.Debugf("upstream thing GW <sub>: register @%d", id)
 	return sf.Insert(id), nil
 }
 
@@ -77,7 +77,7 @@ func ProcThingGwSubRegisterReply(c *Client, rawURI string, payload []byte) error
 		for _, v := range rsp.Data {
 			node, er := c.SearchNodeByPkDn(v.ProductKey, v.DeviceName)
 			if er != nil {
-				c.warnf("downstream GW thing <sub>: register reply, %+v <%s - %s - %s>",
+				c.log.Warnf("downstream GW thing <sub>: register reply, %+v <%s - %s - %s>",
 					er, v.ProductKey, v.DeviceName, v.DeviceSecret)
 				continue
 			}
@@ -86,6 +86,6 @@ func ProcThingGwSubRegisterReply(c *Client, rawURI string, payload []byte) error
 		}
 	}
 	c.done(rsp.ID, err, nil)
-	c.debugf("downstream GW thing <sub>: register reply @%d", rsp.ID)
+	c.log.Debugf("downstream GW thing <sub>: register reply @%d", rsp.ID)
 	return nil
 }

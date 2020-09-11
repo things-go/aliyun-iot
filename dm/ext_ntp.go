@@ -31,7 +31,7 @@ func (sf *Client) ExtNtpRequest() error {
 	if err != nil {
 		return err
 	}
-	sf.debugf("upstream ext <ntp>: request")
+	sf.log.Debugf("upstream ext <ntp>: request")
 	return nil
 }
 
@@ -49,6 +49,6 @@ func ProcExtNtpResponse(c *Client, rawURI string, payload []byte) error {
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
-	c.debugf("downstream extend <ntp>: response - %+v", rsp)
-	return c.eventProc.EvtExtNtpResponse(c, uris[c.uriOffset+2], uris[c.uriOffset+3], rsp)
+	c.log.Debugf("downstream extend <ntp>: response - %+v", rsp)
+	return c.cb.ExtNtpResponse(c, uris[c.uriOffset+2], uris[c.uriOffset+3], rsp)
 }

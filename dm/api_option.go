@@ -72,3 +72,17 @@ func WithEnableOTA() Option {
 		c.hasOTA = true
 	}
 }
+
+// WithCallback 设置事件处理接口
+func WithCallback(cb Callback) Option {
+	return func(c *Client) {
+		c.cb = cb
+	}
+}
+
+// WithGwCallback 设备网关事件接口
+func WithGwCallback(cb GwCallback) Option {
+	return func(c *Client) {
+		c.gwCb = cb
+	}
+}

@@ -33,7 +33,7 @@ func (sf *Entry) Wait(t time.Duration) (uint, interface{}, error) {
 func (sf *Client) Insert(id uint) *Entry {
 	entry := &Entry{make(chan message, 1)}
 	sf.msgCache.SetDefault(strconv.FormatUint(uint64(id), 10), entry)
-	sf.debugf("cache Insert - @%d", id)
+	sf.log.Debugf("cache Insert - @%d", id)
 	return entry
 }
 
@@ -42,7 +42,7 @@ func (sf *Client) done(id uint, err error, data interface{}) {
 	key := strconv.FormatUint(uint64(id), 10)
 	if v, ok := sf.msgCache.Get(key); ok {
 		sf.msgCache.Delete(key)
-		sf.debugf("cache done - @%d", id)
+		sf.log.Debugf("cache done - @%d", id)
 		select {
 		case v.(*Entry).message <- message{err, id, data}:
 		default:

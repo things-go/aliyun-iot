@@ -1,11 +1,7 @@
 package aiot
 
 import (
-	"log"
-	"os"
-
 	mqtt "github.com/eclipse/paho.mqtt.golang"
-	"github.com/thinkgos/aliyun-iot/clog"
 	"github.com/thinkgos/aliyun-iot/dm"
 	"github.com/thinkgos/aliyun-iot/infra"
 )
@@ -14,7 +10,6 @@ import (
 type MQTTClient struct {
 	c mqtt.Client
 	*dm.Client
-	log *clog.Clog
 }
 
 // 确保 NopEvt 实现 dm.Conn 接口
@@ -26,13 +21,13 @@ func (sf *MQTTClient) Publish(topic string, qos byte, payload interface{}) error
 }
 
 // Subscribe 实现dm.Conn接口
-func (sf *MQTTClient) Subscribe(topic string, streamFunc dm.ProcDownStreamFunc) error {
+func (sf *MQTTClient) Subscribe(topic string, streamFunc dm.ProcDownStream) error {
 	return sf.c.Subscribe(topic, 1, func(client mqtt.Client, message mqtt.Message) {
 		if message.Duplicate() {
 			return
 		}
 		if err := streamFunc(sf.Client, message.Topic(), message.Payload()); err != nil {
-			sf.log.Errorf("topic: %s, Error: %+v", message.Topic(), err)
+			// 	sf.log.Errorf("topic: %s, Error: %+v", message.Topic(), err)
 		}
 	}).Error()
 }
@@ -40,16 +35,6 @@ func (sf *MQTTClient) Subscribe(topic string, streamFunc dm.ProcDownStreamFunc) 
 // UnSubscribe 实现dm.Conn接口
 func (sf *MQTTClient) UnSubscribe(topic ...string) error {
 	return sf.c.Unsubscribe(topic...).Error()
-}
-
-// LogProvider 实现dm.Conn接口
-func (sf *MQTTClient) LogProvider() clog.LogProvider {
-	return sf.log
-}
-
-// LogMode 实现dm.Conn接口
-func (sf *MQTTClient) LogMode(enable bool) {
-	sf.log.LogMode(enable)
 }
 
 // UnderlyingClient 获得底层的Client
@@ -63,7 +48,6 @@ func NewWithMQTT(meta infra.MetaInfo, c mqtt.Client, opts ...dm.Option) *MQTTCli
 	cli := &MQTTClient{
 		c,
 		m,
-		clog.New(clog.WithLogger(clog.NewLogger(log.New(os.Stderr, "mqtt --> ", log.LstdFlags)))),
 	}
 	m.SetConn(cli)
 	return cli

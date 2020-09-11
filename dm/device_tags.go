@@ -25,7 +25,7 @@ func (sf *Client) ThingDeviceInfoUpdate(devID int, params interface{}) (*Entry, 
 		return nil, err
 	}
 
-	sf.debugf("upstream thing <deviceInfo>: update,@%d", id)
+	sf.log.Debugf("upstream thing <deviceInfo>: update,@%d", id)
 	return sf.Insert(id), nil
 }
 
@@ -47,7 +47,7 @@ func (sf *Client) ThingDeviceInfoDelete(devID int, params interface{}) (*Entry, 
 	if err != nil {
 		return nil, err
 	}
-	sf.debugf("upstream thing <deviceInfo>: delete,@%d", id)
+	sf.log.Debugf("upstream thing <deviceInfo>: delete,@%d", id)
 	return sf.Insert(id), nil
 }
 
@@ -68,14 +68,14 @@ func ProcThingDeviceInfoUpdateReply(c *Client, rawURI string, payload []byte) er
 		return err
 	}
 
-	c.debugf("downstream thing <deviceInfo>: update reply,@%d", rsp.ID)
+	c.log.Debugf("downstream thing <deviceInfo>: update reply,@%d", rsp.ID)
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
 	c.done(rsp.ID, err, nil)
 	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
-	return c.eventProc.EvtThingDeviceInfoUpdateReply(c, err, pk, dn)
+	return c.cb.ThingDeviceInfoUpdateReply(c, err, pk, dn)
 }
 
 // ProcThingDeviceInfoDeleteReply 处理设备信息删除的应答
@@ -100,6 +100,6 @@ func ProcThingDeviceInfoDeleteReply(c *Client, rawURI string, payload []byte) er
 	}
 	c.done(rsp.ID, err, nil)
 	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
-	c.debugf("downstream thing <deviceInfo>: delete reply,@%d", rsp.ID)
-	return c.eventProc.EvtThingDeviceInfoDeleteReply(c, err, pk, dn)
+	c.log.Debugf("downstream thing <deviceInfo>: delete reply,@%d", rsp.ID)
+	return c.cb.ThingDeviceInfoDeleteReply(c, err, pk, dn)
 }

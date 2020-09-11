@@ -18,7 +18,7 @@ func ProcThingGwDisable(c *Client, rawURI string, payload []byte) error {
 	}
 
 	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
-	c.debugf("downstream <thing>: disable >> %s - %s", pk, dn)
+	c.log.Debugf("downstream <thing>: disable >> %s - %s", pk, dn)
 
 	req := &Request{}
 	err := json.Unmarshal(payload, req)
@@ -27,10 +27,10 @@ func ProcThingGwDisable(c *Client, rawURI string, payload []byte) error {
 	}
 
 	if err = c.SetDevAvailByPkDN(pk, dn, false); err != nil {
-		c.warnf("<thing> disable failed, %+v", err)
+		c.log.Warnf("<thing> disable failed, %+v", err)
 	}
-	if err = c.eventGwProc.EvtThingDisable(c, pk, dn); err != nil {
-		c.warnf("<thing> disable, ipc send message failed, %+v", err)
+	if err = c.gwCb.ThingGwDisable(c, pk, dn); err != nil {
+		c.log.Warnf("<thing> disable, ipc send message failed, %+v", err)
 	}
 	return c.SendResponse(URIServiceReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
 }
@@ -46,7 +46,7 @@ func ProcThingGwEnable(c *Client, rawURI string, payload []byte) error {
 		return ErrInvalidURI
 	}
 	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
-	c.debugf("downstream <thing>: enable >> %s - %s", pk, dn)
+	c.log.Debugf("downstream <thing>: enable >> %s - %s", pk, dn)
 
 	req := &Request{}
 	err := json.Unmarshal(payload, req)
@@ -55,11 +55,11 @@ func ProcThingGwEnable(c *Client, rawURI string, payload []byte) error {
 	}
 
 	if err = c.SetDevAvailByPkDN(pk, dn, true); err != nil {
-		c.warnf("<thing> enable failed, %+v", err)
+		c.log.Warnf("<thing> enable failed, %+v", err)
 	}
 
-	if err = c.eventGwProc.EvtThingEnable(c, pk, dn); err != nil {
-		c.warnf("<thing> enable, ipc send message failed, %+v", err)
+	if err = c.gwCb.ThingGwEnable(c, pk, dn); err != nil {
+		c.log.Warnf("<thing> enable, ipc send message failed, %+v", err)
 	}
 	return c.SendResponse(URIServiceReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
 }
@@ -75,7 +75,7 @@ func ProcThingGwDelete(c *Client, rawURI string, payload []byte) error {
 		return ErrInvalidURI
 	}
 	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
-	c.debugf("downstream <thing>: delete >> %s - %s", pk, dn)
+	c.log.Debugf("downstream <thing>: delete >> %s - %s", pk, dn)
 
 	req := &Request{}
 	if err := json.Unmarshal(payload, req); err != nil {
@@ -83,8 +83,8 @@ func ProcThingGwDelete(c *Client, rawURI string, payload []byte) error {
 	}
 
 	c.DeleteByPkDn(pk, dn)
-	if err := c.eventGwProc.EvtThingDelete(c, pk, dn); err != nil {
-		c.warnf("<thing> delete, ipc send message failed, %+v", err)
+	if err := c.gwCb.ThingGwDelete(c, pk, dn); err != nil {
+		c.log.Warnf("<thing> delete, ipc send message failed, %+v", err)
 	}
 	return c.SendResponse(URIServiceReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
 }

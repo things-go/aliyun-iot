@@ -18,7 +18,7 @@ func (sf *Client) ThingModelUpRaw(devID int, payload interface{}) error {
 	if err != nil {
 		return err
 	}
-	sf.debugf("upstream thing <model>: up raw")
+	sf.log.Debugf("upstream thing <model>: up raw")
 	return nil
 }
 
@@ -32,9 +32,9 @@ func ProcThingModelUpRawReply(c *Client, rawURI string, payload []byte) error {
 	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
-	c.debugf("downstream thing <model>: up raw reply")
+	c.log.Debugf("downstream thing <model>: up raw reply")
 	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
-	return c.eventProc.EvtThingModelUpRawReply(c, pk, dn, payload)
+	return c.cb.ThingModelUpRawReply(c, pk, dn, payload)
 }
 
 // ProcThingModelDownRaw 处理透传下行数据
@@ -47,7 +47,7 @@ func ProcThingModelDownRaw(c *Client, rawURI string, payload []byte) error {
 	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
-	c.debugf("downstream thing <model>: down raw request")
+	c.log.Debugf("downstream thing <model>: down raw request")
 	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
-	return c.eventProc.EvtThingModelDownRaw(c, pk, dn, payload)
+	return c.cb.ThingModelDownRaw(c, pk, dn, payload)
 }

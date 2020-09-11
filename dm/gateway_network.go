@@ -55,7 +55,7 @@ func (sf *Client) ThingGwTopoAdd(devID int) (*Entry, error) {
 		return nil, err
 	}
 
-	sf.debugf("upstream GW thing <topo>: add @%d", id)
+	sf.log.Debugf("upstream GW thing <topo>: add @%d", id)
 	return sf.Insert(id), nil
 }
 
@@ -86,7 +86,7 @@ func (sf *Client) ThingGwTopoDelete(devID int) (*Entry, error) {
 	if err != nil {
 		return nil, err
 	}
-	sf.debugf("upstream GW thing <topo>: delete @%d", id)
+	sf.log.Debugf("upstream GW thing <topo>: delete @%d", id)
 	return sf.Insert(id), nil
 }
 
@@ -114,7 +114,7 @@ func (sf *Client) ThingGwTopoGet() (*Entry, error) {
 	if err := sf.SendRequest(uri, id, MethodTopoGet, "{}"); err != nil {
 		return nil, err
 	}
-	sf.debugf("upstream GW thing <topo>: Get @%d", id)
+	sf.log.Debugf("upstream GW thing <topo>: Get @%d", id)
 	return sf.Insert(id), nil
 }
 
@@ -148,7 +148,7 @@ func (sf *Client) ThingGwListFound(devID int) (*Entry, error) {
 		return nil, err
 	}
 	sf.Insert(id)
-	sf.debugf("upstream GW thing <list>: found @%d", id)
+	sf.log.Debugf("upstream GW thing <list>: found @%d", id)
 	return sf.Insert(id), nil
 }
 
@@ -177,7 +177,7 @@ func ProcThingGwTopoAddReply(c *Client, rawURI string, payload []byte) error {
 	}
 
 	c.done(rsp.ID, err, nil)
-	c.debugf("downstream GW thing <topo>: add reply @%d", rsp.ID)
+	c.log.Debugf("downstream GW thing <topo>: add reply @%d", rsp.ID)
 	return nil
 }
 
@@ -205,7 +205,7 @@ func ProcThingGwTopoDeleteReply(c *Client, rawURI string, payload []byte) error 
 	}
 
 	c.done(rsp.ID, err, nil)
-	c.debugf("downstream GW thing <topo>: delete reply @%d", rsp.ID)
+	c.log.Debugf("downstream GW thing <topo>: delete reply @%d", rsp.ID)
 	return nil
 }
 
@@ -229,8 +229,8 @@ func ProcThingGwTopoGetReply(c *Client, rawURI string, payload []byte) error {
 	}
 
 	c.done(rsp.ID, err, nil)
-	c.debugf("downstream GW thing <topo>: get reply @%d", rsp.ID)
-	return c.eventGwProc.EvtThingGwSubTopoGetReply(c, err, rsp.Data)
+	c.log.Debugf("downstream GW thing <topo>: get reply @%d", rsp.ID)
+	return c.gwCb.ThingGwTopoGetReply(c, err, rsp.Data)
 }
 
 // ProcThingGwListFoundReply 处理发现设备列表上报应答
@@ -255,8 +255,8 @@ func ProcThingGwListFoundReply(c *Client, rawURI string, payload []byte) error {
 	}
 
 	c.done(rsp.ID, err, nil)
-	c.debugf("downstream GW thing <list>: found reply @%d", rsp.ID)
-	return c.eventGwProc.EvtThingListFoundReply(c, err)
+	c.log.Debugf("downstream GW thing <list>: found reply @%d", rsp.ID)
+	return c.gwCb.ThingGwListFoundReply(c, err)
 }
 
 // GwTopoAddNotifyParams 添加设备拓扑关系通知参数域
@@ -283,15 +283,15 @@ func ProcThingGwTopoAddNotify(c *Client, rawURI string, payload []byte) error {
 	if len(uris) < (c.uriOffset + 7) {
 		return ErrInvalidURI
 	}
-	c.debugf("downstream GW thing <topo>: add notify")
+	c.log.Debugf("downstream GW thing <topo>: add notify")
 
 	req := &GwTopoAddNotifyRequest{}
 	if err := json.Unmarshal(payload, req); err != nil {
 		return err
 	}
 
-	if err := c.eventGwProc.EvtThingTopoAddNotify(c, req.Params); err != nil {
-		c.warnf("ipc send message failed, %+v", err)
+	if err := c.gwCb.ThingGwTopoAddNotify(c, req.Params); err != nil {
+		c.log.Warnf("ipc send message failed, %+v", err)
 	}
 	return c.SendResponse(URIServiceReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
 }
@@ -326,15 +326,15 @@ func ProcThingGwTopoChange(c *Client, rawURI string, payload []byte) error {
 	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
-	c.debugf("downstream GW thing <topo>: change")
+	c.log.Debugf("downstream GW thing <topo>: change")
 
 	req := &GwTopoChangeRequest{}
 	if err := json.Unmarshal(payload, req); err != nil {
 		return err
 	}
 
-	if err := c.eventGwProc.EvtThingTopoChange(c, req.Params); err != nil {
-		c.warnf("ipc send message failed, %+v", err)
+	if err := c.gwCb.ThingGwTopoChange(c, req.Params); err != nil {
+		c.log.Warnf("ipc send message failed, %+v", err)
 	}
 	return c.SendResponse(URIServiceReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
 }

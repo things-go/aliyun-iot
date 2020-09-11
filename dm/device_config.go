@@ -59,7 +59,7 @@ func (sf *Client) ThingConfigGet(devID int) (*Entry, error) {
 	if err != nil {
 		return nil, err
 	}
-	sf.debugf("upstream thing <config>: get,@%d", id)
+	sf.log.Debugf("upstream thing <config>: get,@%d", id)
 	return sf.Insert(id), nil
 }
 
@@ -86,8 +86,8 @@ func ProcThingConfigGetReply(c *Client, rawURI string, payload []byte) error {
 
 	c.done(rsp.ID, err, nil)
 	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
-	c.debugf("downstream thing <config>: get reply,@%d,payload@%+v", rsp.ID, rsp)
-	return c.eventProc.EvtThingConfigGetReply(c, err, pk, dn, rsp.Data)
+	c.log.Debugf("downstream thing <config>: get reply,@%d,payload@%+v", rsp.ID, rsp)
+	return c.cb.ThingConfigGetReply(c, err, pk, dn, rsp.Data)
 }
 
 // ProcThingConfigPush 处理配置推送
@@ -109,6 +109,6 @@ func ProcThingConfigPush(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
-	c.debugf("downstream thing <config>: push request")
-	return c.eventProc.EvtThingConfigPush(c, pk, dn, req.Params)
+	c.log.Debugf("downstream thing <config>: push request")
+	return c.cb.ThingConfigPush(c, pk, dn, req.Params)
 }

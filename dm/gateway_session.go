@@ -105,7 +105,7 @@ func (sf *Client) ExtCombineLogin(devID int) (*Entry, error) {
 		return nil, err
 	}
 
-	sf.debugf("upstream Ext GW <sub>: login @%d", id)
+	sf.log.Debugf("upstream Ext GW <sub>: login @%d", id)
 	return sf.Insert(id), nil
 }
 
@@ -165,7 +165,7 @@ func (sf *Client) ExtCombineLogout(devID int) (*Entry, error) {
 	if err != nil {
 		return nil, err
 	}
-	sf.debugf("upstream Ext GW <sub>: logout @%d", id)
+	sf.log.Debugf("upstream Ext GW <sub>: logout @%d", id)
 	return sf.Insert(id), nil
 }
 
@@ -202,7 +202,7 @@ func ProcExtCombineLoginReply(c *Client, rawURI string, payload []byte) error {
 		c.SetDevStatusByPkDn(pk, dn, DevStatusLogined) // nolint: errcheck
 	}
 	c.done(rsp.ID, err, nil)
-	c.debugf("downstream Ext GW <sub>: login reply @%d", rsp.ID)
+	c.log.Debugf("downstream Ext GW <sub>: login reply @%d", rsp.ID)
 	return nil
 }
 
@@ -240,7 +240,7 @@ func ProcExtCombineLoginoutReply(c *Client, rawURI string, payload []byte) error
 		c.SetDevStatusByPkDn(pk, dn, DevStatusAttached) // nolint: errcheck
 	}
 	c.done(rsp.ID, err, nil)
-	c.debugf("downstream Ext GW <sub>: logout reply @%d", rsp.ID)
+	c.log.Debugf("downstream Ext GW <sub>: logout reply @%d", rsp.ID)
 	return nil
 }
 

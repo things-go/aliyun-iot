@@ -41,7 +41,7 @@ func (sf *Client) UpstreamOATFirmwareVersion(devID int, params interface{}) erro
 	}
 
 	// sf.Insert(id, devID, MsgTypeReportFirmwareVersion)
-	sf.debugf("upstream version <OTA>: inform,@%d", id)
+	sf.log.Debugf("upstream version <OTA>: inform,@%d", id)
 	return nil
 }
 
@@ -81,7 +81,7 @@ func (sf *Client) upstreamOTAProgress(devID int, params interface{}) error {
 	}
 
 	// sf.Insert(id, devID, MsgTypeReportFirmwareVersion)
-	sf.debugf("upstream step <OTA>: progress,@%d", id)
+	sf.log.Debugf("upstream step <OTA>: progress,@%d", id)
 	return nil
 }
 

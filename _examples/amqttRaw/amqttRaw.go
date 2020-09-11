@@ -61,9 +61,13 @@ func main() {
 				log.Println("mqtt client connection lost, ", err)
 			})
 
-	dmClient := aiot.NewWithMQTT(testmeta.MetaInfo(), mqtt.NewClient(opts), dm.WithEnableModelRaw())
+	dmClient := aiot.NewWithMQTT(
+		testmeta.MetaInfo(),
+		mqtt.NewClient(opts),
+		dm.WithEnableModelRaw(),
+		dm.WithCallback(RawProc{}),
+	)
 	dmClient.LogMode(true)
-	dmClient.SetEventProc(RawProc{})
 
 	dmClient.UnderlyingClient().Connect().Wait()
 
@@ -84,7 +88,7 @@ type RawProc struct {
 	dm.NopEvt
 }
 
-func (RawProc) EvtThingModelUpRawReply(_ *dm.Client, _ string, _ string, b []byte) error {
+func (RawProc) ThingModelUpRawReply(_ *dm.Client, _ string, _ string, b []byte) error {
 	fmt.Println(b)
 	return nil
 }

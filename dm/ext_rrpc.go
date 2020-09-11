@@ -16,8 +16,8 @@ func ProcRRPCRequest(c *Client, rawURI string, payload []byte) error {
 	}
 	messageID := uris[c.uriOffset+5]
 	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
-	c.debugf("downstream sys <RRPC>: request - messageID: %s", messageID)
-	return c.eventProc.EvtRRPCRequest(c, messageID, pk, dn, payload)
+	c.log.Debugf("downstream sys <RRPC>: request - messageID: %s", messageID)
+	return c.cb.RRPCRequest(c, messageID, pk, dn, payload)
 }
 
 // ProcExtRRPCRequest 处理扩展RRPC请求
@@ -31,7 +31,7 @@ func ProcExtRRPCRequest(c *Client, rawURI string, payload []byte) error {
 	if len(uris) < (c.uriOffset + 3) {
 		return ErrInvalidParameter
 	}
-	c.debugf("downstream extend <RRPC>: Request - URI: ", rawURI)
+	c.log.Debugf("downstream extend <RRPC>: Request - URI: ", rawURI)
 	messageID, topic := uris[c.uriOffset+2], uris[c.uriOffset+3]
-	return c.eventProc.EvtExtRRPCRequest(c, messageID, topic, payload)
+	return c.cb.ExtRRPCRequest(c, messageID, topic, payload)
 }

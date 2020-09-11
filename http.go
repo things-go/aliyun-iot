@@ -2,7 +2,6 @@ package aiot
 
 import (
 	"github.com/thinkgos/aliyun-iot/ahttp"
-	"github.com/thinkgos/aliyun-iot/clog"
 	"github.com/thinkgos/aliyun-iot/dm"
 	"github.com/thinkgos/aliyun-iot/infra"
 )
@@ -22,23 +21,13 @@ func (sf *HTTPClient) Publish(topic string, _ byte, payload interface{}) error {
 }
 
 // Subscribe 实现dm.Conn接口
-func (sf *HTTPClient) Subscribe(_ string, _ dm.ProcDownStreamFunc) error {
+func (sf *HTTPClient) Subscribe(_ string, _ dm.ProcDownStream) error {
 	return nil
 }
 
 // UnSubscribe 实现dm.Conn接口
 func (sf *HTTPClient) UnSubscribe(_ ...string) error {
 	return nil
-}
-
-// LogProvider 实现dm.Conn接口
-func (sf *HTTPClient) LogProvider() clog.LogProvider {
-	return sf.c.Clog
-}
-
-// LogMode 实现dm.Conn接口
-func (sf *HTTPClient) LogMode(enable bool) {
-	sf.c.LogMode(enable)
 }
 
 // UnderlyingClient 底层客户端
