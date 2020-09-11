@@ -41,7 +41,7 @@ func ProcThingEventPostReply(c *Client, rawURI string, payload []byte) error {
 		return ErrInvalidURI
 	}
 
-	rsp := Response{}
+	rsp := ResponseRawData{}
 	err := json.Unmarshal(payload, &rsp)
 	if err != nil {
 		return err
@@ -54,22 +54,24 @@ func ProcThingEventPostReply(c *Client, rawURI string, payload []byte) error {
 	}
 
 	c.CacheDone(rsp.ID, err)
+	var message *ipcMessage
 	if eventID == "property" {
-		return c.ipcSendMessage(&ipcMessage{
+		message = &ipcMessage{
 			err:        err,
 			evt:        ipcEvtEventPropertyPostReply,
 			productKey: uris[c.uriOffset+1],
 			deviceName: uris[c.uriOffset+2],
-		})
+		}
+	} else {
+		message = &ipcMessage{
+			err:        err,
+			evt:        ipcEvtEventPostReply,
+			productKey: uris[c.uriOffset+1],
+			deviceName: uris[c.uriOffset+2],
+			extend:     eventID,
+		}
 	}
-
-	return c.ipcSendMessage(&ipcMessage{
-		err:        err,
-		evt:        ipcEvtEventPostReply,
-		productKey: uris[c.uriOffset+1],
-		deviceName: uris[c.uriOffset+2],
-		extend:     eventID,
-	})
+	return c.ipcSendMessage(message)
 }
 
 // ProcThingEventPropertyPackPostReply 网关批量上报数据
@@ -82,7 +84,7 @@ func ProcThingEventPropertyPackPostReply(c *Client, rawURI string, payload []byt
 	if len(uris) < (c.uriOffset + 8) {
 		return ErrInvalidURI
 	}
-	rsp := Response{}
+	rsp := ResponseRawData{}
 	err := json.Unmarshal(payload, &rsp)
 	if err != nil {
 		return err
@@ -112,7 +114,7 @@ func ProcThingDeviceInfoUpdateReply(c *Client, rawURI string, payload []byte) er
 		return ErrInvalidURI
 	}
 
-	rsp := Response{}
+	rsp := ResponseRawData{}
 	err := json.Unmarshal(payload, &rsp)
 	if err != nil {
 		return err
@@ -144,7 +146,7 @@ func ProcThingDeviceInfoDeleteReply(c *Client, rawURI string, payload []byte) er
 		return ErrInvalidURI
 	}
 
-	rsp := Response{}
+	rsp := ResponseRawData{}
 	err := json.Unmarshal(payload, &rsp)
 	if err != nil {
 		return err
@@ -174,7 +176,7 @@ func ProcThingDesiredPropertyGetReply(c *Client, rawURI string, payload []byte) 
 	if len(uris) < (c.uriOffset + 7) {
 		return ErrInvalidURI
 	}
-	rsp := Response{}
+	rsp := ResponseRawData{}
 	err := json.Unmarshal(payload, &rsp)
 	if err != nil {
 		return err
@@ -205,7 +207,7 @@ func ProcThingDesiredPropertyDeleteReply(c *Client, rawURI string, payload []byt
 	if len(uris) < (c.uriOffset + 7) {
 		return ErrInvalidURI
 	}
-	rsp := Response{}
+	rsp := ResponseRawData{}
 	err := json.Unmarshal(payload, &rsp)
 	if err != nil {
 		return err
@@ -235,7 +237,7 @@ func ProcThingDsltemplateGetReply(c *Client, rawURI string, payload []byte) erro
 	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
-	rsp := Response{}
+	rsp := ResponseRawData{}
 	err := json.Unmarshal(payload, &rsp)
 	if err != nil {
 		return err
@@ -266,7 +268,7 @@ func ProcThingDynamictslGetReply(c *Client, rawURI string, payload []byte) error
 	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
-	rsp := Response{}
+	rsp := ResponseRawData{}
 	err := json.Unmarshal(payload, &rsp)
 	if err != nil {
 		return err
@@ -361,6 +363,25 @@ func ProcThingModelDownRaw(c *Client, rawURI string, payload []byte) error {
 	})
 }
 
+// ProcThingServicePropertySet 处理属性设置
+// 下行
+// request: /sys/{productKey}/{deviceName}/thing/service/property/set
+// response: /sys/{productKey}/{deviceName}/thing/service/property/set_reply
+// subscribe: /sys/{productKey}/{deviceName}/thing/service/[+,#]
+func ProcThingServicePropertySet(c *Client, rawURI string, payload []byte) error {
+	uris := URIServiceSpilt(rawURI)
+	if len(uris) < (c.uriOffset + 7) {
+		return ErrInvalidURI
+	}
+	c.debugf("downstream thing <service>: property set request")
+	return c.ipcSendMessage(&ipcMessage{
+		evt:        ipcEvtServicePropertySet,
+		productKey: uris[c.uriOffset+1],
+		deviceName: uris[c.uriOffset+2],
+		payload:    payload,
+	})
+}
+
 // ProcThingConfigPush 处理配置推送
 // 下行
 // request: /sys/{productKey}/{deviceName}/thing/config/push
@@ -385,25 +406,6 @@ func ProcThingConfigPush(c *Client, rawURI string, payload []byte) error {
 		productKey: uris[c.uriOffset+1],
 		deviceName: uris[c.uriOffset+2],
 		payload:    req.Params,
-	})
-}
-
-// ProcThingServicePropertySet 处理属性设置
-// 下行
-// request: /sys/{productKey}/{deviceName}/thing/service/property/set
-// response: /sys/{productKey}/{deviceName}/thing/service/property/set_reply
-// subscribe: /sys/{productKey}/{deviceName}/thing/service/[+,#]
-func ProcThingServicePropertySet(c *Client, rawURI string, payload []byte) error {
-	uris := URIServiceSpilt(rawURI)
-	if len(uris) < (c.uriOffset + 7) {
-		return ErrInvalidURI
-	}
-	c.debugf("downstream thing <service>: property set request")
-	return c.ipcSendMessage(&ipcMessage{
-		evt:        ipcEvtServicePropertySet,
-		productKey: uris[c.uriOffset+1],
-		deviceName: uris[c.uriOffset+2],
-		payload:    payload,
 	})
 }
 

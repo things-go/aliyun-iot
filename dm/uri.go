@@ -71,15 +71,15 @@ const (
 	URIThingServiceRequestSingleWildcard = "thing/service/+"
 	URIThingServiceRequestMultiWildcard2 = "thing/service/#"
 
-	/* dsl template From Local To Cloud Request And Response */
+	/* dsl template From Local To Cloud Request And ResponseRawData */
 	URIThingDslTemplateGet      = "thing/dsltemplate/get"
 	URIThingDslTemplateGetReply = "thing/dsltemplate/get_reply"
 
-	/* dynamic tsl From Local To Cloud Request And Response */
+	/* dynamic tsl From Local To Cloud Request And ResponseRawData */
 	URIThingDynamicTslGet      = "thing/dynamicTsl/get"
 	URIThingDynamicTslGetReply = "thing/dynamicTsl/get_reply"
 
-	/* ntp From Local To Cloud Request And Response */
+	/* ntp From Local To Cloud Request And ResponseRawData */
 	URINtpRequest  = "request"
 	URINtpResponse = "response"
 

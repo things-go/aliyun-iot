@@ -19,7 +19,7 @@ type SubDevTopoAddParams struct {
 
 // upstreamGwThingTopoAdd 添加设备拓扑关系
 // 子设备身份注册后,需网关上报与子设备的关系,然后才进行子设备上线
-func (sf *Client) upstreamGwThingTopoAdd(devID int) (int, error) {
+func (sf *Client) upstreamGwThingTopoAdd(devID int) (uint, error) {
 	if devID < 0 {
 		return 0, ErrInvalidParameter
 	}
@@ -62,7 +62,7 @@ type GwTopoDeleteParams struct {
 }
 
 // upstreamGwThingTopoDelete 删除网关与子设备的拓扑关系
-func (sf *Client) upstreamGwThingTopoDelete(devID int) (int, error) {
+func (sf *Client) upstreamGwThingTopoDelete(devID int) (uint, error) {
 	if devID < 0 {
 		return 0, ErrInvalidParameter
 	}
@@ -94,7 +94,7 @@ type GwTopoGetData struct {
 
 // GwTopoGetResponse 获取网关和子设备的拓扑关系应答
 type GwTopoGetResponse struct {
-	Response
+	ResponseRawData
 	Data []GwTopoGetData `json:"data"`
 }
 

@@ -17,7 +17,7 @@ func ProcThingTopoAddReply(c *Client, rawURI string, payload []byte) error {
 		return ErrInvalidURI
 	}
 
-	rsp := Response{}
+	rsp := ResponseRawData{}
 	err := json.Unmarshal(payload, &rsp)
 	if err != nil {
 		return err
@@ -44,7 +44,7 @@ func ProcThingTopoDeleteReply(c *Client, rawURI string, payload []byte) error {
 	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
-	rsp := Response{}
+	rsp := ResponseRawData{}
 	err := json.Unmarshal(payload, &rsp)
 	if err != nil {
 		return err
@@ -100,7 +100,7 @@ func ProcThingListFoundReply(c *Client, rawURI string, payload []byte) error {
 		return ErrInvalidURI
 	}
 
-	rsp := Response{}
+	rsp := ResponseRawData{}
 	err := json.Unmarshal(payload, &rsp)
 	if err != nil {
 		return err
@@ -250,7 +250,7 @@ func ProcExtSubDevCombineLoginReply(c *Client, rawURI string, payload []byte) er
 		return ErrInvalidURI
 	}
 
-	rsp := Response{}
+	rsp := ResponseRawData{}
 	err := json.Unmarshal(payload, &rsp)
 	if err != nil {
 		return err
@@ -277,7 +277,7 @@ func ProcExtSubDevCombineLogoutReply(c *Client, rawURI string, payload []byte) e
 		return ErrInvalidURI
 	}
 
-	rsp := Response{}
+	rsp := ResponseRawData{}
 	err := json.Unmarshal(payload, &rsp)
 	if err != nil {
 		return err
@@ -390,7 +390,7 @@ type ExtErrorData struct {
 
 // ExtErrorResponse 子设备错误回复
 type ExtErrorResponse struct {
-	Response
+	ResponseRawData
 	Data ExtErrorData `json:"data"`
 }
 

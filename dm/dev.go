@@ -1,4 +1,4 @@
-// Package dm 实现阿里去物模型
+// Package dm 实现阿里云物模型
 package dm
 
 import (
@@ -7,17 +7,17 @@ import (
 	"time"
 )
 
+// @see https://help.aliyun.com/document_detail/89301.html?spm=a2c4g.11186623.6.706.570f3f69J3fW5z
+
 // upstreamThingModelUpRaw 上传透传数据
 func (sf *Client) upstreamThingModelUpRaw(devID int, payload interface{}) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
-
 	node, err := sf.SearchNode(devID)
 	if err != nil {
 		return err
 	}
-
 	err = sf.Publish(sf.URIService(URISysPrefix, URIThingModelUpRaw, node.ProductKey(), node.DeviceName()), 1, payload)
 	if err != nil {
 		return err
@@ -31,7 +31,6 @@ func (sf *Client) upstreamThingEventPropertyPost(devID int, params interface{}) 
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
-
 	node, err := sf.SearchNode(devID)
 	if err != nil {
 		return err
@@ -54,15 +53,14 @@ func (sf *Client) upstreamThingEventPost(devID int, eventID string, params inter
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
-
 	node, err := sf.SearchNode(devID)
 	if err != nil {
 		return err
 	}
+
 	id := sf.RequestID()
-	method := fmt.Sprintf(MethodEventFormatPost, eventID)
 	err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingEventPost, node.ProductKey(), node.DeviceName(), eventID),
-		id, method, params)
+		id, fmt.Sprintf(MethodEventFormatPost, eventID), params)
 	if err != nil {
 		return err
 	}
@@ -257,7 +255,7 @@ type ConfigParamsAndData struct {
 
 // ConfigGetResponse 配置获取的回复
 type ConfigGetResponse struct {
-	Response
+	ResponseRawData
 	Data ConfigParamsAndData `json:"data"`
 }
 
@@ -291,7 +289,7 @@ func (sf *Client) upstreamThingConfigGet(devID int) error {
 
 // OTARequest OTA请求体
 type OTARequest struct {
-	ID     int         `json:"id,string"`
+	ID     uint        `json:"id,string"`
 	Params interface{} `json:"params"`
 }
 

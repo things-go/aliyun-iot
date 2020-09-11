@@ -61,7 +61,7 @@ const (
 
 // Request 请求
 type Request struct {
-	ID      int         `json:"id,string"`
+	ID      uint        `json:"id,string"`
 	Version string      `json:"version"`
 	Params  interface{} `json:"params"`
 	Method  string      `json:"method"`
@@ -69,19 +69,30 @@ type Request struct {
 
 // Response 应答
 type Response struct {
-	ID      int             `json:"id,string"`
+	ID      uint        `json:"id,string"`
+	Code    int         `json:"code"`
+	Data    interface{} `json:"data"`
+	Message string      `json:"message,omitempty"`
+}
+
+// ResponseRawData 应答, data域为 json.RawMessage
+type ResponseRawData struct {
+	ID      uint            `json:"id,string"`
 	Code    int             `json:"code"`
 	Data    json.RawMessage `json:"data"`
 	Message string          `json:"message,omitempty"`
 }
 
-// Config 配置信息
-type Config struct {
-	uriOffset int
-	workOnWho byte
+// Client 客户端
+type Client struct {
+	requestID uint32
+	infra.MetaInfo
 
 	cacheExpiration      time.Duration
 	cacheCleanupInterval time.Duration
+
+	uriOffset int
+	workOnWho byte
 
 	// 选项功能
 	isGateway   bool
@@ -90,13 +101,6 @@ type Config struct {
 	hasDesired  bool
 	hasExtRRPC  bool
 	hasOTA      bool
-}
-
-// Client 客户端
-type Client struct {
-	requestID int32
-	infra.MetaInfo
-	Config
 
 	*DevMgr
 	msgCache *cache.Cache
@@ -111,13 +115,13 @@ type Client struct {
 func New(meta infra.MetaInfo, opts ...Option) *Client {
 	c := &Client{
 		MetaInfo: meta,
-		Config: Config{
-			uriOffset: 0,
-			workOnWho: WorkOnMQTT,
 
-			cacheExpiration:      DefaultCacheExpiration,
-			cacheCleanupInterval: DefaultCacheCleanupInterval,
-		},
+		uriOffset: 0,
+		workOnWho: WorkOnMQTT,
+
+		cacheExpiration:      DefaultCacheExpiration,
+		cacheCleanupInterval: DefaultCacheCleanupInterval,
+
 		DevMgr:      NewDevMgr(),
 		ipc:         make(chan *ipcMessage, 1024),
 		eventProc:   NopEvt{},
@@ -140,10 +144,10 @@ func New(meta infra.MetaInfo, opts ...Option) *Client {
 
 // NewSubDevice 创建一个子设备
 func (sf *Client) NewSubDevice(meta infra.MetaInfo) (int, error) {
-	if !sf.isGateway {
-		return 0, ErrNotSupportFeature
+	if sf.isGateway {
+		return sf.Create(DevTypeSubDev, meta)
 	}
-	return sf.Create(DevTypeSubDev, meta)
+	return 0, ErrNotSupportFeature
 }
 
 // SetConn 设置连接接口
@@ -165,8 +169,8 @@ func (sf *Client) SetEventGwProc(proc EventGwProc) *Client {
 }
 
 // RequestID 获得下一个requestID,协程安全
-func (sf *Client) RequestID() int {
-	return int(atomic.AddInt32(&sf.requestID, 1))
+func (sf *Client) RequestID() uint {
+	return uint(atomic.AddUint32(&sf.requestID, 1))
 }
 
 // SendRequest 发送请求,API内部已实现json序列化
@@ -174,7 +178,7 @@ func (sf *Client) RequestID() int {
 // requestID: 请求ID
 // method: 方法
 // params: 消息体Request的params
-func (sf *Client) SendRequest(uriService string, requestID int, method string, params interface{}) error {
+func (sf *Client) SendRequest(uriService string, requestID uint, method string, params interface{}) error {
 	out, err := json.Marshal(&Request{requestID, Version, params, method})
 	if err != nil {
 		return err
@@ -188,15 +192,8 @@ func (sf *Client) SendRequest(uriService string, requestID int, method string, p
 // code: 回复code
 // data: 数据域
 // API内部已实现json序列化
-func (sf *Client) SendResponse(uriService string, responseID, code int, data interface{}) error {
-	out, err := json.Marshal(
-		struct {
-			*Response
-			Data interface{} `json:"data"`
-		}{
-			&Response{ID: responseID, Code: code},
-			data,
-		})
+func (sf *Client) SendResponse(uriService string, responseID uint, code int, data interface{}) error {
+	out, err := json.Marshal(&Response{ID: responseID, Code: code, Data: data})
 	if err != nil {
 		return err
 	}
@@ -205,12 +202,10 @@ func (sf *Client) SendResponse(uriService string, responseID, code int, data int
 
 // AlinkConnect 将订阅所有相关主题,主题有config配置
 func (sf *Client) AlinkConnect() error {
-	var devType DevType
+	var devType DevType = DevTypeSingle
 
 	if sf.isGateway {
 		devType = DevTypeGateway
-	} else {
-		devType = DevTypeSingle
 	}
 	return sf.SubscribeAllTopic(devType, sf.ProductKey, sf.DeviceName)
 }

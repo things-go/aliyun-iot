@@ -24,14 +24,14 @@ type GwSubDevRegisterData struct {
 
 // GwSubDevRegisterResponse 子设备注册应答
 type GwSubDevRegisterResponse struct {
-	Response
+	ResponseRawData
 	Data []GwSubDevRegisterData `json:"data"`
 }
 
 // upstreamThingGwSubDevRegister 子设备动态注册
 // @return: requestID
 // 子设备注册使用网关topic通道
-func (sf *Client) upstreamThingGwSubDevRegister(devID int) (int, error) {
+func (sf *Client) upstreamThingGwSubDevRegister(devID int) (uint, error) {
 	if devID < 0 {
 		return 0, ErrInvalidParameter
 	}
@@ -71,13 +71,13 @@ type GwSubDevCombineLoginParams struct {
 
 // GwSubDevCombineLoginRequest 子设备上线请求
 type GwSubDevCombineLoginRequest struct {
-	ID     int                        `json:"id,string"`
+	ID     uint                       `json:"id,string"`
 	Params GwSubDevCombineLoginParams `json:"params"`
 }
 
 // upstreamExtGwSubDevCombineLogin 子设备上线
 // 子设备上下线只支持Qos = 0.
-func (sf *Client) upstreamExtGwSubDevCombineLogin(devID int) (int, error) {
+func (sf *Client) upstreamExtGwSubDevCombineLogin(devID int) (uint, error) {
 	if devID < 0 {
 		return 0, ErrInvalidParameter
 	}
@@ -128,13 +128,13 @@ type GwSubDevCombineLogoutParams struct {
 
 // GwSubDevCombineLogoutRequest 子设备下线请求
 type GwSubDevCombineLogoutRequest struct {
-	ID     int                         `json:"id,string"`
+	ID     uint                        `json:"id,string"`
 	Params GwSubDevCombineLogoutParams `json:"params"`
 }
 
 // upstreamExtGwSubDevCombineLogout 子设备下线
 // 子设备上下线只支持Qos = 0.
-func (sf *Client) upstreamExtGwSubDevCombineLogout(devID int) (int, error) {
+func (sf *Client) upstreamExtGwSubDevCombineLogout(devID int) (uint, error) {
 	if devID < 0 {
 		return 0, ErrInvalidParameter
 	}
