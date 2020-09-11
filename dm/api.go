@@ -31,41 +31,33 @@ type MsgType byte
 
 // 消息类型定义
 const (
-	MsgTypeModelUpRaw            MsgType = iota //!< post raw data to cloud
-	MsgTypeEventPropertyPost                    //!< post property value to cloud
-	MsgTypeEventPost                            //!< post event identifies value to cloud
-	MsgTypeEventPropertyPackPost                //!<
-	MsgTypeDesiredPropertyGet                   //!< get a device's desired property
-	MsgTypeDesiredPropertyDelete                //!< delete a device's desired property
-	MsgTypeDeviceInfoUpdate                     //!< post device info update message to cloud
-	MsgTypeDeviceInfoDelete                     //!< post device info delete message to cloud
-	MsgTypeDsltemplateGet                       //!< get a device's dsltemplate
-	MsgTypeDynamictslGet                        //!<
-	MsgTypeExtNtpRequest                        //!< query ntp time from cloud
-	MsgTypeConfigGet                            //!< 获取配置
+	MsgTypeModelUpRaw            MsgType = iota // post raw data to cloud
+	MsgTypeEventPropertyPost                    // post property value to cloud
+	MsgTypeEventPost                            // post event identifies value to cloud
+	MsgTypeEventPropertyPackPost                //
+	MsgTypeDesiredPropertyGet                   // get a device's desired property
+	MsgTypeDesiredPropertyDelete                // delete a device's desired property
+	MsgTypeDeviceInfoUpdate                     // post device info update message to cloud
+	MsgTypeDeviceInfoDelete                     // post device info delete message to cloud
+	MsgTypeDsltemplateGet                       // get a device's dsltemplate
+	MsgTypeDynamictslGet                        //
+	MsgTypeExtNtpRequest                        // query ntp time from cloud
+	MsgTypeConfigGet                            // 获取配置
 
-	MsgTypeTopoAdd               //!< 网关,添加设备拓扑关系
-	MsgTypeTopoDelete            //!< 网关,删除设备拓扑关系
-	MsgTypeTopoGet               //!< 网关,查询设备拓扑关系
-	MsgTypeDevListFound          //!< 网关,设备发现链表上报
-	MsgTypeSubDevRegister        //!< 子设备,动态注册
-	MsgTypeSubDevLogin           //!< only for slave device, send login request to cloud
-	MsgTypeSubDevLogout          //!< only for slave device, send logout request to cloud
-	MsgTypeSubDevDeleteTopo      //!< only for slave device, send delete topo request to cloud
-	MsgTypeQueryFOTAData         //!< only for master device, query firmware ota data
-	MsgTypeQueryCOTAData         //!< only for master device, query config ota data
-	MsgTypeRequestCOTA           //!< only for master device, request config ota data from cloud
-	MsgTypeRequestFOTAImage      //!< only for master device, request FOTA image from cloud
-	MsgTypeReportFirmwareVersion //!< report firmware version
+	MsgTypeTopoAdd               // 网关,添加设备拓扑关系
+	MsgTypeTopoDelete            // 网关,删除设备拓扑关系
+	MsgTypeTopoGet               // 网关,查询设备拓扑关系
+	MsgTypeDevListFound          // 网关,设备发现链表上报
+	MsgTypeSubDevRegister        // 子设备,动态注册
+	MsgTypeSubDevLogin           // only for slave device, send login request to cloud
+	MsgTypeSubDevLogout          // only for slave device, send logout request to cloud
+	MsgTypeSubDevDeleteTopo      // only for slave device, send delete topo request to cloud
+	MsgTypeQueryFOTAData         // only for master device, query firmware ota data
+	MsgTypeQueryCOTAData         // only for master device, query config ota data
+	MsgTypeRequestCOTA           // only for master device, request config ota data from cloud
+	MsgTypeRequestFOTAImage      // only for master device, request FOTA image from cloud
+	MsgTypeReportFirmwareVersion // report firmware version
 )
-
-// Meta meta 信息
-type Meta struct {
-	ProductKey    string
-	ProductSecret string
-	DeviceName    string
-	DeviceSecret  string
-}
 
 // Request 请求
 type Request struct {
@@ -85,8 +77,6 @@ type Response struct {
 
 // Config 配置信息
 type Config struct {
-	infra.MetaInfo
-
 	uriOffset int
 	workOnWho byte
 
@@ -105,7 +95,7 @@ type Config struct {
 // Client 客户端
 type Client struct {
 	requestID int32
-
+	infra.MetaInfo
 	Config
 
 	*DevMgr
@@ -120,9 +110,8 @@ type Client struct {
 // New 创建一个物管理客户端
 func New(meta infra.MetaInfo, opts ...Option) *Client {
 	c := &Client{
+		MetaInfo: meta,
 		Config: Config{
-			MetaInfo: meta,
-
 			uriOffset: 0,
 			workOnWho: WorkOnMQTT,
 
@@ -138,7 +127,7 @@ func New(meta infra.MetaInfo, opts ...Option) *Client {
 		opt(c)
 	}
 	c.cacheInit()
-	err := c.insert(DevNodeLocal, DevTypeSingle, c.ProductKey, c.DeviceName, c.DeviceSecret)
+	err := c.insert(DevNodeLocal, DevTypeSingle, c.MetaInfo)
 	if err != nil {
 		panic(fmt.Sprintf("device local duplicate,cause: %+v", err))
 	}
@@ -150,11 +139,11 @@ func New(meta infra.MetaInfo, opts ...Option) *Client {
 }
 
 // NewSubDevice 创建一个子设备
-func (sf *Client) NewSubDevice(meta Meta) (int, error) {
+func (sf *Client) NewSubDevice(meta infra.MetaInfo) (int, error) {
 	if !sf.isGateway {
 		return 0, ErrNotSupportFeature
 	}
-	return sf.Create(DevTypeSubDev, meta.ProductKey, meta.DeviceName, meta.DeviceSecret)
+	return sf.Create(DevTypeSubDev, meta)
 }
 
 // SetConn 设置连接接口
@@ -180,12 +169,11 @@ func (sf *Client) RequestID() int {
 	return int(atomic.AddInt32(&sf.requestID, 1))
 }
 
-// SendRequest 发送请求
+// SendRequest 发送请求,API内部已实现json序列化
 // URIService 唯一定位服务器或(topic)
 // requestID: 请求ID
 // method: 方法
-// params: 消息体
-// API内部已实现json序列化
+// params: 消息体Request的params
 func (sf *Client) SendRequest(uriService string, requestID int, method string, params interface{}) error {
 	out, err := json.Marshal(&Request{requestID, Version, params, method})
 	if err != nil {
@@ -233,7 +221,7 @@ func (sf *Client) AlinkSubDeviceConnect(devID int) error {
 		return ErrInvalidParameter
 	}
 
-	node, err := sf.SearchNodeByID(devID)
+	node, err := sf.SearchNode(devID)
 	if err != nil {
 		return err
 	}

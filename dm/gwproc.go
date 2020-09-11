@@ -230,7 +230,7 @@ func ProcThingSubDevRegisterReply(c *Client, rawURI string, payload []byte) erro
 					er, v.ProductKey, v.DeviceName, v.DeviceSecret)
 				continue
 			}
-			_ = c.SetDeviceSecretByID(node.ID(), v.DeviceSecret)
+			_ = c.SetDeviceSecret(node.ID(), v.DeviceSecret)
 			_ = c.SetDevStatusByID(node.ID(), DevStatusRegistered)
 		}
 	}

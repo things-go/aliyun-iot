@@ -13,7 +13,7 @@ func (sf *Client) upstreamThingModelUpRaw(devID int, payload interface{}) error 
 		return ErrInvalidParameter
 	}
 
-	node, err := sf.SearchNodeByID(devID)
+	node, err := sf.SearchNode(devID)
 	if err != nil {
 		return err
 	}
@@ -32,7 +32,7 @@ func (sf *Client) upstreamThingEventPropertyPost(devID int, params interface{}) 
 		return ErrInvalidParameter
 	}
 
-	node, err := sf.SearchNodeByID(devID)
+	node, err := sf.SearchNode(devID)
 	if err != nil {
 		return err
 	}
@@ -55,7 +55,7 @@ func (sf *Client) upstreamThingEventPost(devID int, eventID string, params inter
 		return ErrInvalidParameter
 	}
 
-	node, err := sf.SearchNodeByID(devID)
+	node, err := sf.SearchNode(devID)
 	if err != nil {
 		return err
 	}
@@ -90,7 +90,7 @@ func (sf *Client) upstreamThingDeviceInfoUpdate(devID int, params interface{}) e
 		return ErrInvalidParameter
 	}
 
-	node, err := sf.SearchNodeByID(devID)
+	node, err := sf.SearchNode(devID)
 	if err != nil {
 		return err
 	}
@@ -113,7 +113,7 @@ func (sf *Client) upstreamThingDeviceInfoDelete(devID int, params interface{}) e
 		return ErrInvalidParameter
 	}
 
-	node, err := sf.SearchNodeByID(devID)
+	node, err := sf.SearchNode(devID)
 	if err != nil {
 		return err
 	}
@@ -135,7 +135,7 @@ func (sf *Client) upstreamThingDesiredPropertyGet(devID int, params interface{})
 		return ErrInvalidParameter
 	}
 
-	node, err := sf.SearchNodeByID(devID)
+	node, err := sf.SearchNode(devID)
 	if err != nil {
 		return err
 	}
@@ -157,7 +157,7 @@ func (sf *Client) upstreamThingDesiredPropertyDelete(devID int, params interface
 		return ErrInvalidParameter
 	}
 
-	node, err := sf.SearchNodeByID(devID)
+	node, err := sf.SearchNode(devID)
 	if err != nil {
 		return err
 	}
@@ -180,7 +180,7 @@ func (sf *Client) upstreamThingDsltemplateGet(devID int) error {
 		return ErrInvalidParameter
 	}
 
-	node, err := sf.SearchNodeByID(devID)
+	node, err := sf.SearchNode(devID)
 	if err != nil {
 		return err
 	}
@@ -203,7 +203,7 @@ func (sf *Client) upstreamThingDynamictslGet(devID int) error {
 		return ErrInvalidParameter
 	}
 
-	node, err := sf.SearchNodeByID(devID)
+	node, err := sf.SearchNode(devID)
 	if err != nil {
 		return err
 	}
@@ -273,7 +273,7 @@ func (sf *Client) upstreamThingConfigGet(devID int) error {
 		return ErrInvalidParameter
 	}
 
-	node, err := sf.SearchNodeByID(devID)
+	node, err := sf.SearchNode(devID)
 	if err != nil {
 		return err
 	}
@@ -306,7 +306,7 @@ func (sf *Client) upstreamOATFirmwareVersion(devID int, params interface{}) erro
 		return ErrInvalidParameter
 	}
 
-	node, err := sf.SearchNodeByID(devID)
+	node, err := sf.SearchNode(devID)
 	if err != nil {
 		return err
 	}
@@ -346,7 +346,7 @@ func (sf *Client) upstreamOTAProgress(devID int, params interface{}) error {
 		return ErrInvalidParameter
 	}
 
-	node, err := sf.SearchNodeByID(devID)
+	node, err := sf.SearchNode(devID)
 	if err != nil {
 		return err
 	}

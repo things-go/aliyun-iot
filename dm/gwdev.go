@@ -36,7 +36,7 @@ func (sf *Client) upstreamThingGwSubDevRegister(devID int) (int, error) {
 		return 0, ErrInvalidParameter
 	}
 
-	node, err := sf.SearchNodeByID(devID)
+	node, err := sf.SearchNode(devID)
 	if err != nil {
 		return 0, err
 	}
@@ -82,7 +82,7 @@ func (sf *Client) upstreamExtGwSubDevCombineLogin(devID int) (int, error) {
 		return 0, ErrInvalidParameter
 	}
 
-	node, err := sf.SearchNodeByID(devID)
+	node, err := sf.SearchNode(devID)
 	if err != nil {
 		return 0, err
 	}
@@ -139,7 +139,7 @@ func (sf *Client) upstreamExtGwSubDevCombineLogout(devID int) (int, error) {
 		return 0, ErrInvalidParameter
 	}
 
-	node, err := sf.SearchNodeByID(devID)
+	node, err := sf.SearchNode(devID)
 	if err != nil {
 		return 0, err
 	}

@@ -24,7 +24,7 @@ func (sf *Client) upstreamGwThingTopoAdd(devID int) (int, error) {
 		return 0, ErrInvalidParameter
 	}
 
-	node, err := sf.SearchNodeByID(devID)
+	node, err := sf.SearchNode(devID)
 	if err != nil {
 		return 0, err
 	}
@@ -66,7 +66,7 @@ func (sf *Client) upstreamGwThingTopoDelete(devID int) (int, error) {
 	if devID < 0 {
 		return 0, ErrInvalidParameter
 	}
-	node, err := sf.SearchNodeByID(devID)
+	node, err := sf.SearchNode(devID)
 	if err != nil {
 		return 0, err
 	}
@@ -123,7 +123,7 @@ func (sf *Client) UpstreamGwThingListFound(devID int) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
-	node, err := sf.SearchNodeByID(devID)
+	node, err := sf.SearchNode(devID)
 	if err != nil {
 		return err
 	}

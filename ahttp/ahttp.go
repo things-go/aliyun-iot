@@ -80,7 +80,7 @@ type Client struct {
 // New 新建alink http client
 // 默认加签算法: hmacmd5
 // 默认host: https://iot-as-http.cn-shanghai.aliyuncs.com
-// 默认使用http.DefaultClient
+// 默认使用 http.DefaultClient
 func New(meta infra.MetaInfo, opts ...Option) *Client {
 	c := &Client{
 		meta:       meta,
