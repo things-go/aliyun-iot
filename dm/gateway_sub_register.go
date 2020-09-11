@@ -1,0 +1,92 @@
+package dm
+
+import (
+	"encoding/json"
+
+	"github.com/thinkgos/aliyun-iot/infra"
+)
+
+// GwSubRegisterParams 子设备注册参数域
+type GwSubRegisterParams struct {
+	ProductKey string `json:"productKey"`
+	DeviceName string `json:"deviceName"`
+}
+
+// GwSubRegisterData 子设备注册应答数据域
+type GwSubRegisterData struct {
+	IotID        int64  `json:"iotId,string"`
+	ProductKey   string `json:"productKey"`
+	DeviceName   string `json:"deviceName"`
+	DeviceSecret string `json:"deviceSecret"`
+}
+
+// GwSubRegisterResponse 子设备注册应答
+type GwSubRegisterResponse struct {
+	ID      uint                `json:"id,string"`
+	Code    int                 `json:"code"`
+	Data    []GwSubRegisterData `json:"data"`
+	Message string              `json:"message,omitempty"`
+}
+
+// upstreamThingGwSubRegister 子设备动态注册
+// 以通过上行请求为子设备发起动态注册，返回成功注册的子设备的设备证书
+// request:   /sys/{productKey}/{deviceName}/thing/sub/register
+// response:  /sys/{productKey}/{deviceName}/thing/sub/register_reply
+func (sf *Client) upstreamThingGwSubRegister(devID int) (uint, error) {
+	if devID < 0 {
+		return 0, ErrInvalidParameter
+	}
+	node, err := sf.SearchNode(devID)
+	if err != nil {
+		return 0, err
+	}
+
+	id := sf.RequestID()
+	uri := sf.URIServiceSelf(URISysPrefix, URIThingSubDevRegister)
+	err = sf.SendRequest(uri, id, MethodSubDevRegister,
+		[]GwSubRegisterParams{
+			{node.ProductKey(), node.DeviceName()},
+		})
+	if err != nil {
+		return 0, err
+	}
+
+	sf.CacheInsert(id, devID, MsgTypeSubDevRegister)
+	sf.debugf("upstream thing GW <sub>: register @%d", id)
+	return id, nil
+}
+
+// ProcThingGwSubRegisterReply 子设备动态注册处理
+// 上行
+// request:   /sys/{productKey}/{deviceName}/thing/sub/register
+// response:  /sys/{productKey}/{deviceName}/thing/sub/register_reply
+// subscribe: /sys/{productKey}/{deviceName}/thing/sub/register_reply
+func ProcThingGwSubRegisterReply(c *Client, rawURI string, payload []byte) error {
+	uris := URIServiceSpilt(rawURI)
+	if len(uris) < (c.uriOffset + 6) {
+		return ErrInvalidURI
+	}
+	rsp := &GwSubRegisterResponse{}
+	err := json.Unmarshal(payload, rsp)
+	if err != nil {
+		return err
+	}
+
+	if rsp.Code != infra.CodeSuccess {
+		err = infra.NewCodeError(rsp.Code, rsp.Message)
+	} else {
+		for _, v := range rsp.Data {
+			node, er := c.SearchNodeByPkDn(v.ProductKey, v.DeviceName)
+			if er != nil {
+				c.warnf("downstream GW thing <sub>: register reply, %+v <%s - %s - %s>",
+					er, v.ProductKey, v.DeviceName, v.DeviceSecret)
+				continue
+			}
+			_ = c.SetDeviceSecret(node.ID(), v.DeviceSecret)
+			_ = c.SetDevStatusByID(node.ID(), DevStatusRegistered)
+		}
+	}
+	c.CacheDone(rsp.ID, err)
+	c.debugf("downstream GW thing <sub>: register reply @%d", rsp.ID)
+	return nil
+}
