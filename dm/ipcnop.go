@@ -106,8 +106,8 @@ func (NopEvt) EvtExtRRPCRequest(*Client, string, string, []byte) error {
 }
 
 // EvtRequestWaitResponseTimeout  see interface EventProc
-func (NopEvt) EvtRequestWaitResponseTimeout(_ *Client, msgType MsgType, devID int) error {
-	log.Printf("%d - %s request wait response timeout", devID, msgType.String())
+func (NopEvt) EvtRequestWaitResponseTimeout(_ *Client, devID int) error {
+	log.Printf("%d request wait response timeout", devID)
 	return nil
 }
 

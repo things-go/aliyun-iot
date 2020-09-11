@@ -6,38 +6,38 @@ import (
 	"github.com/thinkgos/aliyun-iot/infra"
 )
 
-// upstreamThingDsltemplateGet 设备可以通过上行请求获取设备的TSL模板（包含属性、服务和事件的定义）
+// UpstreamThingDsltemplateGet 设备可以通过上行请求获取设备的TSL模板（包含属性、服务和事件的定义）
 // see https://help.aliyun.com/document_detail/89305.html?spm=a2c4g.11186623.6.672.5d3d70374hpPcx
 // request:   /sys/{productKey}/{deviceName}/thing/dsltemplate/get
 // response:  /sys/{productKey}/{deviceName}/thing/dsltemplate/get_reply
-func (sf *Client) upstreamThingDsltemplateGet(devID int) error {
+func (sf *Client) UpstreamThingDsltemplateGet(devID int) (*Entry, error) {
 	if devID < 0 {
-		return ErrInvalidParameter
+		return nil, ErrInvalidParameter
 	}
 	node, err := sf.SearchNode(devID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	id := sf.RequestID()
 	uri := sf.URIService(URISysPrefix, URIThingDslTemplateGet, node.ProductKey(), node.DeviceName())
 	err = sf.SendRequest(uri, id, MethodDslTemplateGet, "{}")
 	if err != nil {
-		return err
+		return nil, err
 	}
-	sf.CacheInsert(id, devID, MsgTypeDsltemplateGet)
+
 	sf.debugf("upstream thing <dsl template>: get,@%d", id)
-	return nil
+	return sf.Insert(id), nil
 }
 
-// upstreamThingDynamictslGet 获取动态tsl
-func (sf *Client) upstreamThingDynamictslGet(devID int) error {
+// UpstreamThingDynamictslGet 获取动态tsl
+func (sf *Client) UpstreamThingDynamictslGet(devID int) (*Entry, error) {
 	if devID < 0 {
-		return ErrInvalidParameter
+		return nil, ErrInvalidParameter
 	}
 	node, err := sf.SearchNode(devID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	id := sf.RequestID()
@@ -47,11 +47,11 @@ func (sf *Client) upstreamThingDynamictslGet(devID int) error {
 		"addDefault": false,
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
-	sf.CacheInsert(id, DevNodeLocal, MsgTypeDynamictslGet)
+
 	sf.debugf("upstream thing <dynamic tsl>: get,@%d", id)
-	return nil
+	return sf.Insert(id), nil
 }
 
 // ProcThingDsltemplateGetReply 处理dsltemplate获取的应答
@@ -74,7 +74,7 @@ func ProcThingDsltemplateGetReply(c *Client, rawURI string, payload []byte) erro
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.CacheDone(rsp.ID, err)
+	c.done(rsp.ID, err, nil)
 	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
 	c.debugf("downstream thing <dsl template>: get reply,@%d - %s", rsp.ID, string(rsp.Data))
 	return c.eventProc.EvtThingDsltemplateGetReply(c, err, pk, dn, rsp.Data)
@@ -100,7 +100,7 @@ func ProcThingDynamictslGetReply(c *Client, rawURI string, payload []byte) error
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.CacheDone(rsp.ID, err)
+	c.done(rsp.ID, err, nil)
 	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
 	c.debugf("downstream thing <dynamic tsl>: get reply,@%d - %+v", rsp.ID, rsp)
 	return c.eventProc.EvtThingDynamictslGetReply(c, err, pk, dn, rsp.Data)

@@ -38,7 +38,7 @@ func ProcExtErrorResponse(c *Client, rawURI string, payload []byte) error {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.CacheDone(rsp.ID, err)
+	c.done(rsp.ID, err, nil)
 	c.debugf("downstream extend <Error>: response,@%d", rsp.ID)
 
 	pk, dn := rsp.Data.ProductKey, rsp.Data.DeviceName

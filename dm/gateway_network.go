@@ -23,21 +23,21 @@ type GwSubTopoAddParams struct {
 // 子设备身份注册后,需网关上报与子设备的关系,然后才进行子设备上线
 // request:   /sys/{productKey}/{deviceName}/thing/topo/add
 // response:  /sys/{productKey}/{deviceName}/thing/topo/add_reply
-func (sf *Client) upstreamThingGwSubTopoAdd(devID int) (uint, error) {
+func (sf *Client) upstreamThingGwSubTopoAdd(devID int) (*Entry, error) {
 	if devID < 0 {
-		return 0, ErrInvalidParameter
+		return nil, ErrInvalidParameter
 	}
 
 	node, err := sf.SearchNode(devID)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
 	timestamp := int64(time.Now().Nanosecond()) / 1000000
 	clientID := fmt.Sprintf("%s.%s|_v=%s|", node.ProductKey(), node.DeviceName(), sign.AlinkSDKVersion)
 	signs, err := generateSign(node.ProductKey(), node.DeviceName(), node.deviceSecret, clientID, timestamp)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 	id := sf.RequestID()
 	uri := sf.URIServiceSelf(URISysPrefix, URIThingTopoAdd)
@@ -52,11 +52,11 @@ func (sf *Client) upstreamThingGwSubTopoAdd(devID int) (uint, error) {
 		},
 	})
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	sf.CacheInsert(id, devID, MsgTypeTopoAdd)
+
 	sf.debugf("upstream GW thing <topo>: add @%d", id)
-	return id, nil
+	return sf.Insert(id), nil
 }
 
 // GwSubTopoDeleteParams 删除网关与子设备的拓扑关系参数域
@@ -66,13 +66,13 @@ type GwSubTopoDeleteParams struct {
 }
 
 // upstreamThingGwSubTopoDelete 删除网关与子设备的拓扑关系
-func (sf *Client) upstreamThingGwSubTopoDelete(devID int) (uint, error) {
+func (sf *Client) upstreamThingGwSubTopoDelete(devID int) (*Entry, error) {
 	if devID < 0 {
-		return 0, ErrInvalidParameter
+		return nil, ErrInvalidParameter
 	}
 	node, err := sf.SearchNode(devID)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 	id := sf.RequestID()
 	uri := sf.URIServiceSelf(URISysPrefix, URIThingTopoDelete)
@@ -84,11 +84,10 @@ func (sf *Client) upstreamThingGwSubTopoDelete(devID int) (uint, error) {
 			},
 		})
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	sf.CacheInsert(id, devID, MsgTypeTopoDelete)
 	sf.debugf("upstream GW thing <topo>: delete @%d", id)
-	return id, nil
+	return sf.Insert(id), nil
 }
 
 // GwSubTopoGetData 获取网关和子设备的拓扑关系应答的数据域
@@ -103,18 +102,20 @@ type GwSubTopoGetResponse struct {
 	Data []GwSubTopoGetData `json:"data"`
 }
 
-// upstreamThingGwSubTopoGet 获取该网关和子设备的拓扑关系
+// UpstreamThingGwSubTopoGet 获取该网关和子设备的拓扑关系
 // request:   /sys/{productKey}/{deviceName}/thing/topo/get
 // response:  /sys/{productKey}/{deviceName}/thing/topo/get_reply
-func (sf *Client) upstreamThingGwSubTopoGet() error {
+func (sf *Client) UpstreamThingGwSubTopoGet() (*Entry, error) {
+	if !sf.isGateway {
+		return nil, ErrNotSupportFeature
+	}
 	id := sf.RequestID()
 	uri := sf.URIServiceSelf(URISysPrefix, URIThingTopoGet)
 	if err := sf.SendRequest(uri, id, MethodTopoGet, "{}"); err != nil {
-		return err
+		return nil, err
 	}
-	sf.CacheInsert(id, DevNodeLocal, MsgTypeTopoGet)
 	sf.debugf("upstream GW thing <topo>: Get @%d", id)
-	return nil
+	return sf.Insert(id), nil
 }
 
 // GwSubListFoundParams 发现设备列表上报参数域
@@ -126,13 +127,13 @@ type GwSubListFoundParams struct {
 // UpstreamThingGwListFound 发现设备列表上报
 // 场景,网关可以发现新接入的子设备,发现后,需将新接入的子设备的信息上报云端,
 // 然后转到第三方应用,选择哪些子设备可以接入该网关
-func (sf *Client) UpstreamThingGwListFound(devID int) error {
+func (sf *Client) UpstreamThingGwListFound(devID int) (*Entry, error) {
 	if devID < 0 {
-		return ErrInvalidParameter
+		return nil, ErrInvalidParameter
 	}
 	node, err := sf.SearchNode(devID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	id := sf.RequestID()
 	uri := sf.URIServiceSelf(URISysPrefix, URIThingListFound)
@@ -144,11 +145,11 @@ func (sf *Client) UpstreamThingGwListFound(devID int) error {
 			},
 		})
 	if err != nil {
-		return err
+		return nil, err
 	}
-	sf.CacheInsert(id, DevNodeLocal, MsgTypeDevListFound)
+	sf.Insert(id)
 	sf.debugf("upstream GW thing <list>: found @%d", id)
-	return nil
+	return sf.Insert(id), nil
 }
 
 // ProcThingGwSubTopoAddReply 处理网络拓扑添加
@@ -162,19 +163,20 @@ func ProcThingGwSubTopoAddReply(c *Client, rawURI string, payload []byte) error 
 		return ErrInvalidURI
 	}
 
-	rsp := ResponseRawData{}
-	err := json.Unmarshal(payload, &rsp)
+	rsp := &ResponseRawData{}
+	err := json.Unmarshal(payload, rsp)
 	if err != nil {
 		return err
 	}
 
+	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
-	} else if devID, ok := c.CacheGet(rsp.ID); ok {
-		_ = c.SetDevStatusByID(devID, DevStatusAttached)
+	} else {
+		_ = c.SetDevStatusByPkDn(pk, dn, DevStatusAttached)
 	}
 
-	c.CacheDone(rsp.ID, err)
+	c.done(rsp.ID, err, nil)
 	c.debugf("downstream GW thing <topo>: add reply @%d", rsp.ID)
 	return nil
 }
@@ -195,13 +197,14 @@ func ProcThingGwSubTopoDeleteReply(c *Client, rawURI string, payload []byte) err
 		return err
 	}
 
+	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
-	} else if devID, ok := c.CacheGet(rsp.ID); ok {
-		_ = c.SetDevStatusByID(devID, DevStatusRegistered)
+	} else {
+		c.SetDevStatusByPkDn(pk, dn, DevStatusRegistered) // nolint: errcheck
 	}
 
-	c.CacheDone(rsp.ID, err)
+	c.done(rsp.ID, err, nil)
 	c.debugf("downstream GW thing <topo>: delete reply @%d", rsp.ID)
 	return nil
 }
@@ -225,14 +228,14 @@ func ProcThingGwSubTopoGetReply(c *Client, rawURI string, payload []byte) error 
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.CacheDone(rsp.ID, err)
+	c.done(rsp.ID, err, nil)
 	c.debugf("downstream GW thing <topo>: get reply @%d", rsp.ID)
 	return c.eventGwProc.EvtThingGwSubTopoGetReply(c, err, rsp.Data)
 }
 
 // ProcThingGwSubListFoundReply 处理发现设备列表上报应答
 // 上行
-// request:  /sys/{productKey}/{deviceName}/thing/list/found
+// request:   /sys/{productKey}/{deviceName}/thing/list/found
 // response:  /sys/{productKey}/{deviceName}/thing/list/found_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/list/found_reply
 func ProcThingGwSubListFoundReply(c *Client, rawURI string, payload []byte) error {
@@ -251,7 +254,7 @@ func ProcThingGwSubListFoundReply(c *Client, rawURI string, payload []byte) erro
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.CacheDone(rsp.ID, err)
+	c.done(rsp.ID, err, nil)
 	c.debugf("downstream GW thing <list>: found reply @%d", rsp.ID)
 	return c.eventGwProc.EvtThingListFoundReply(c, err)
 }

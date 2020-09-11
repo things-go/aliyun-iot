@@ -32,13 +32,13 @@ type GwSubRegisterResponse struct {
 // 以通过上行请求为子设备发起动态注册，返回成功注册的子设备的设备证书
 // request:   /sys/{productKey}/{deviceName}/thing/sub/register
 // response:  /sys/{productKey}/{deviceName}/thing/sub/register_reply
-func (sf *Client) upstreamThingGwSubRegister(devID int) (uint, error) {
+func (sf *Client) upstreamThingGwSubRegister(devID int) (*Entry, error) {
 	if devID < 0 {
-		return 0, ErrInvalidParameter
+		return nil, ErrInvalidParameter
 	}
 	node, err := sf.SearchNode(devID)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
 	id := sf.RequestID()
@@ -48,12 +48,11 @@ func (sf *Client) upstreamThingGwSubRegister(devID int) (uint, error) {
 			{node.ProductKey(), node.DeviceName()},
 		})
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
-	sf.CacheInsert(id, devID, MsgTypeSubDevRegister)
 	sf.debugf("upstream thing GW <sub>: register @%d", id)
-	return id, nil
+	return sf.Insert(id), nil
 }
 
 // ProcThingGwSubRegisterReply 子设备动态注册处理
@@ -86,7 +85,7 @@ func ProcThingGwSubRegisterReply(c *Client, rawURI string, payload []byte) error
 			_ = c.SetDevStatusByID(node.ID(), DevStatusRegistered)
 		}
 	}
-	c.CacheDone(rsp.ID, err)
+	c.done(rsp.ID, err, nil)
 	c.debugf("downstream GW thing <sub>: register reply @%d", rsp.ID)
 	return nil
 }

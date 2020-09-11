@@ -6,51 +6,49 @@ import (
 	"github.com/thinkgos/aliyun-iot/infra"
 )
 
-// upstreamThingDeviceInfoUpdate 设备信息上传(如厂商、设备型号等，可以保存为设备标签)
+// UpstreamThingDeviceInfoUpdate 设备信息上传(如厂商、设备型号等，可以保存为设备标签)
 // request: /sys/{productKey}/{deviceName}/thing/deviceinfo/update
 // response: /sys/{productKey}/{deviceName}/thing/deviceinfo/update_reply
-func (sf *Client) upstreamThingDeviceInfoUpdate(devID int, params interface{}) error {
+func (sf *Client) UpstreamThingDeviceInfoUpdate(devID int, params interface{}) (*Entry, error) {
 	if devID < 0 {
-		return ErrInvalidParameter
+		return nil, ErrInvalidParameter
 	}
 	node, err := sf.SearchNode(devID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	id := sf.RequestID()
 	err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingDeviceInfoUpdate, node.ProductKey(), node.DeviceName()),
 		id, MethodDeviceInfoUpdate, params)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	sf.CacheInsert(id, devID, MsgTypeDeviceInfoUpdate)
 	sf.debugf("upstream thing <deviceInfo>: update,@%d", id)
-	return nil
+	return sf.Insert(id), nil
 }
 
-// upstreamThingDeviceInfoDelete 设备信息删除
+// UpstreamThingDeviceInfoDelete 设备信息删除
 // request: /sys/{productKey}/{deviceName}/thing/deviceinfo/update
 // response: /sys/{productKey}/{deviceName}/thing/deviceinfo/update_reply
-func (sf *Client) upstreamThingDeviceInfoDelete(devID int, params interface{}) error {
+func (sf *Client) UpstreamThingDeviceInfoDelete(devID int, params interface{}) (*Entry, error) {
 	if devID < 0 {
-		return ErrInvalidParameter
+		return nil, ErrInvalidParameter
 	}
 	node, err := sf.SearchNode(devID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	id := sf.RequestID()
 	err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingDeviceInfoDelete, node.ProductKey(), node.DeviceName()),
 		id, MethodDeviceInfoDelete, params)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	sf.CacheInsert(id, devID, MsgTypeDeviceInfoDelete)
 	sf.debugf("upstream thing <deviceInfo>: delete,@%d", id)
-	return nil
+	return sf.Insert(id), nil
 }
 
 // ProcThingDeviceInfoUpdateReply 处理设备信息更新应答
@@ -75,7 +73,7 @@ func ProcThingDeviceInfoUpdateReply(c *Client, rawURI string, payload []byte) er
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.CacheDone(rsp.ID, err)
+	c.done(rsp.ID, err, nil)
 	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
 	return c.eventProc.EvtThingDeviceInfoUpdateReply(c, err, pk, dn)
 }
@@ -100,7 +98,7 @@ func ProcThingDeviceInfoDeleteReply(c *Client, rawURI string, payload []byte) er
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
-	c.CacheDone(rsp.ID, err)
+	c.done(rsp.ID, err, nil)
 	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
 	c.debugf("downstream thing <deviceInfo>: delete reply,@%d", rsp.ID)
 	return c.eventProc.EvtThingDeviceInfoDeleteReply(c, err, pk, dn)

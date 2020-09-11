@@ -7,74 +7,71 @@ import (
 	"github.com/thinkgos/aliyun-iot/infra"
 )
 
-// upstreamThingEventPropertyPost 上传属性数据
+// UpstreamThingEventPropertyPost 上传属性数据
 // request:  /sys/{productKey}/{deviceName}/thing/event/property/post
 // response: /sys/{productKey}/{deviceName}/thing/event/property/post_reply
-func (sf *Client) upstreamThingEventPropertyPost(devID int, params interface{}) error {
+func (sf *Client) UpstreamThingEventPropertyPost(devID int, params interface{}) (*Entry, error) {
 	if sf.hasRawModel {
-		return ErrNotSupportFeature
+		return nil, ErrNotSupportFeature
 	}
 	if devID < 0 {
-		return ErrInvalidParameter
+		return nil, ErrInvalidParameter
 	}
 	node, err := sf.SearchNode(devID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	id := sf.RequestID()
 	err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingEventPropertyPost, node.ProductKey(), node.DeviceName()),
 		id, MethodEventPropertyPost, params)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	sf.CacheInsert(id, devID, MsgTypeEventPropertyPost)
 	sf.debugf("upstream thing <event>: property post,@%d", id)
-	return nil
+	return sf.Insert(id), nil
 }
 
-// upstreamThingEventPost 事件上传
+// UpstreamThingEventPost 事件上传
 // request:  /sys/{productKey}/{deviceName}/thing/event/[{tsl.event.identifier},property]/post
 // response: /sys/{productKey}/{deviceName}/thing/event/[{tsl.event.identifier},property]/post_reply
-func (sf *Client) upstreamThingEventPost(devID int, eventID string, params interface{}) error {
+func (sf *Client) UpstreamThingEventPost(devID int, eventID string, params interface{}) (*Entry, error) {
 	if devID < 0 {
-		return ErrInvalidParameter
+		return nil, ErrInvalidParameter
 	}
 	node, err := sf.SearchNode(devID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	id := sf.RequestID()
-	err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingEventPost, node.ProductKey(), node.DeviceName(), eventID),
-		id, fmt.Sprintf(MethodEventFormatPost, eventID), params)
+	uri := sf.URIService(URISysPrefix, URIThingEventPost, node.ProductKey(), node.DeviceName(), eventID)
+	err = sf.SendRequest(uri, id, fmt.Sprintf(MethodEventFormatPost, eventID), params)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	sf.CacheInsert(id, devID, MsgTypeEventPost)
 	sf.debugf("upstream thing <event>: %s post,@%d", eventID, id)
-	return nil
+	return sf.Insert(id), nil
 }
 
-// upstreamThingEventPropertyPackPost 网关批量上报数据
+// UpstreamThingEventPropertyPackPost 网关批量上报数据
 // NOTE: 仅网关支持,一次最多200个属性,20个事件,一次最多为20个子设备上报数据
 // request:  /sys/{productKey}/{deviceName}/thing/event/property/pack/post
 // response: /sys/{productKey}/{deviceName}/thing/event/property/pack/post_reply
-func (sf *Client) upstreamThingEventPropertyPackPost(params interface{}) error {
+func (sf *Client) UpstreamThingEventPropertyPackPost(params interface{}) (*Entry, error) {
 	if !sf.isGateway {
-		return ErrNotSupportFeature
+		return nil, ErrNotSupportFeature
 	}
 	id := sf.RequestID()
 	err := sf.SendRequest(sf.URIServiceSelf(URISysPrefix, URIThingEventPropertyPackPost),
 		id, MethodEventPropertyPackPost, params)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	sf.CacheInsert(id, DevNodeLocal, MsgTypeEventPropertyPackPost)
 	sf.debugf("upstream thing <deviceInfo>: update,@%d", id)
-	return nil
+	return sf.Insert(id), nil
 }
 
 // ProcThingEventPostReply 处理ThingEvent XXX上行的应答
@@ -97,7 +94,7 @@ func ProcThingEventPostReply(c *Client, rawURI string, payload []byte) error {
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
-	c.CacheDone(rsp.ID, err)
+	c.done(rsp.ID, err, nil)
 
 	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
 	eventID := uris[c.uriOffset+5]
@@ -127,7 +124,7 @@ func ProcThingEventPropertyPackPostReply(c *Client, rawURI string, payload []byt
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.CacheDone(rsp.ID, err)
+	c.done(rsp.ID, err, nil)
 	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
 	c.debugf("downstream thing <event>: property pack post reply,@%d", rsp.ID)
 	return c.eventProc.EvtThingEventPropertyPackPostReply(c, err, pk, dn)

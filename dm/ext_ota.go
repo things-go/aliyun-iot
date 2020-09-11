@@ -15,8 +15,11 @@ type OTAFirmwareVersionParams struct {
 	Version string `json:"version"`
 }
 
-// upstreamOATFirmwareVersion 上报固件版本
-func (sf *Client) upstreamOATFirmwareVersion(devID int, params interface{}) error {
+// UpstreamOATFirmwareVersion 上报固件版本
+func (sf *Client) UpstreamOATFirmwareVersion(devID int, params interface{}) error {
+	if !sf.hasOTA {
+		return ErrNotSupportFeature
+	}
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
@@ -31,13 +34,13 @@ func (sf *Client) upstreamOATFirmwareVersion(devID int, params interface{}) erro
 	if err != nil {
 		return err
 	}
-	err = sf.Publish(sf.URIService(URIOtaDeviceInformPrefix, "", node.ProductKey(), node.DeviceName()),
-		1, req)
+	uri := sf.URIService(URIOtaDeviceInformPrefix, "", node.ProductKey(), node.DeviceName())
+	err = sf.Publish(uri, 1, req)
 	if err != nil {
 		return err
 	}
 
-	// sf.CacheInsert(id, devID, MsgTypeReportFirmwareVersion)
+	// sf.Insert(id, devID, MsgTypeReportFirmwareVersion)
 	sf.debugf("upstream version <OTA>: inform,@%d", id)
 	return nil
 }
@@ -77,7 +80,7 @@ func (sf *Client) upstreamOTAProgress(devID int, params interface{}) error {
 		return err
 	}
 
-	// sf.CacheInsert(id, devID, MsgTypeReportFirmwareVersion)
+	// sf.Insert(id, devID, MsgTypeReportFirmwareVersion)
 	sf.debugf("upstream step <OTA>: progress,@%d", id)
 	return nil
 }

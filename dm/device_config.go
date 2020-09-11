@@ -38,27 +38,29 @@ type ConfigPushRequest struct {
 	Method  string           `json:"method"`
 }
 
-// upstreamThingConfigGet 获取配置参数
+// UpstreamThingConfigGet 获取配置参数
 // request:  /sys/{productKey}/{deviceName}/thing/config/get
 // response: /sys/{productKey}/{deviceName}/thing/config/get_reply
-func (sf *Client) upstreamThingConfigGet(devID int) error {
+func (sf *Client) UpstreamThingConfigGet(devID int) (*Entry, error) {
+	if !sf.isGateway {
+		return nil, ErrNotSupportFeature
+	}
 	if devID < 0 {
-		return ErrInvalidParameter
+		return nil, ErrInvalidParameter
 	}
 	node, err := sf.SearchNode(devID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	uri := sf.URIService(URISysPrefix, URIThingConfigGet, node.ProductKey(), node.DeviceName())
 	id := sf.RequestID()
 	err = sf.SendRequest(uri, id, MethodConfigGet, ConfigGetParams{"product", "file"})
 	if err != nil {
-		return err
+		return nil, err
 	}
-	sf.CacheInsert(id, devID, MsgTypeConfigGet)
 	sf.debugf("upstream thing <config>: get,@%d", id)
-	return nil
+	return sf.Insert(id), nil
 }
 
 // ProcThingConfigGetReply 处理获取配置的应答
@@ -82,7 +84,7 @@ func ProcThingConfigGetReply(c *Client, rawURI string, payload []byte) error {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.CacheDone(rsp.ID, err)
+	c.done(rsp.ID, err, nil)
 	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
 	c.debugf("downstream thing <config>: get reply,@%d,payload@%+v", rsp.ID, rsp)
 	return c.eventProc.EvtThingConfigGetReply(c, err, pk, dn, rsp.Data)

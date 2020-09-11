@@ -2,9 +2,13 @@ package dm
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 )
+
+// NtpRequest ntp请求payload
+type NtpRequest struct {
+	DeviceSendTime int64 `json:"deviceSendTime,string"`
+}
 
 // NtpResponse ntp回复payload
 type NtpResponse struct {
@@ -13,14 +17,17 @@ type NtpResponse struct {
 	ServerSendTime int64 `json:"serverSendTime,string"` // 平台发送时间,单位ms
 }
 
-// upstreamExtNtpRequest ntp请求
+// UpstreamExtNtpRequest ntp请求
 // 发送一条Qos = 0的消息,并带上设备当前的时间戳,平台将回复 设备的发送时间,平台的接收时间, 平台的发送时间.
 // 设备计算当前精确时间 = (平台接收时间 + 平台发送时间 + 设备接收时间 - 设备发送时间) / 2
 // 请求Topic：/ext/ntp/${YourProductKey}/${YourDeviceName}/request
 // 响应Topic：/ext/ntp/${YourProductKey}/${YourDeviceName}/response
-func (sf *Client) upstreamExtNtpRequest() error {
-	err := sf.Publish(sf.URIServiceSelf(URIExtNtpPrefix, URINtpRequest),
-		0, fmt.Sprintf(`{"deviceSendTime":"%d"}`, time.Now().Nanosecond()/1000000))
+func (sf *Client) UpstreamExtNtpRequest() error {
+	if !sf.hasNTP || sf.hasRawModel {
+		return ErrNotSupportFeature
+	}
+	err := sf.Publish(sf.URIServiceSelf(URIExtNtpPrefix, URINtpRequest), 0,
+		NtpRequest{int64(time.Now().Nanosecond()) / 1000000})
 	if err != nil {
 		return err
 	}

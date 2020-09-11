@@ -6,50 +6,54 @@ import (
 	"github.com/thinkgos/aliyun-iot/infra"
 )
 
-// upstreamThingDesiredPropertyGet 获取期望属性值
+// UpstreamThingDesiredPropertyGet 获取期望属性值
 // request:  /sys/{productKey}/{deviceName}/thing/property/desired/get
 // response: /sys/{productKey}/{deviceName}/thing/property/desired/get_reply
-func (sf *Client) upstreamThingDesiredPropertyGet(devID int, params interface{}) error {
+func (sf *Client) UpstreamThingDesiredPropertyGet(devID int, params interface{}) (*Entry, error) {
+	if !sf.hasDesired {
+		return nil, ErrNotSupportFeature
+	}
 	if devID < 0 {
-		return ErrInvalidParameter
+		return nil, ErrInvalidParameter
 	}
 	node, err := sf.SearchNode(devID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	id := sf.RequestID()
 	err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingDesiredPropertyGet, node.ProductKey(), node.DeviceName()),
 		id, MethodDesiredPropertyGet, params)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	sf.CacheInsert(id, devID, MsgTypeDesiredPropertyGet)
 	sf.debugf("upstream thing <desired>: property get,@%d", id)
-	return nil
+	return sf.Insert(id), nil
 }
 
-// upstreamThingDesiredPropertyDelete 清空期望属性值
+// UpstreamThingDesiredPropertyDelete 清空期望属性值
 // request:  /sys/{productKey}/{deviceName}/thing/property/desired/delete
 // response: /sys/{productKey}/{deviceName}/thing/property/desired/delete_reply
-func (sf *Client) upstreamThingDesiredPropertyDelete(devID int, params interface{}) error {
+func (sf *Client) UpstreamThingDesiredPropertyDelete(devID int, params interface{}) (*Entry, error) {
+	if !sf.hasDesired {
+		return nil, ErrNotSupportFeature
+	}
 	if devID < 0 {
-		return ErrInvalidParameter
+		return nil, ErrInvalidParameter
 	}
 	node, err := sf.SearchNode(devID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	id := sf.RequestID()
 	err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingDesiredPropertyDelete, node.ProductKey(), node.DeviceName()),
 		id, MethodDesiredPropertyDelete, params)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	sf.CacheInsert(id, devID, MsgTypeDesiredPropertyDelete)
 	sf.debugf("upstream thing <desired>: property delete,@%d", id)
-	return nil
+	return sf.Insert(id), nil
 }
 
 // ProcThingDesiredPropertyGetReply 处理获取期望属性值的应答
@@ -73,7 +77,7 @@ func ProcThingDesiredPropertyGetReply(c *Client, rawURI string, payload []byte) 
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.CacheDone(rsp.ID, err)
+	c.done(rsp.ID, err, nil)
 	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
 	c.debugf("downstream thing <desired>: property get reply,@%d", rsp.ID)
 	return c.eventProc.EvtThingDesiredPropertyGetReply(c, err, pk, dn, rsp.Data)
@@ -97,7 +101,7 @@ func ProcThingDesiredPropertyDeleteReply(c *Client, rawURI string, payload []byt
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
-	c.CacheDone(rsp.ID, err)
+	c.done(rsp.ID, err, nil)
 	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
 	c.debugf("downstream thing <desired>: property delete reply,@%d", rsp.ID)
 	return c.eventProc.EvtThingDesiredPropertyDeleteReply(c, err, pk, dn)

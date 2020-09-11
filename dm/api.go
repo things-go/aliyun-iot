@@ -104,7 +104,6 @@ type Client struct {
 
 	*DevMgr
 	msgCache *cache.Cache
-	pool     *pool
 	Conn
 	eventProc   EventProc
 	eventGwProc EventGwProc
@@ -128,8 +127,10 @@ func New(meta infra.MetaInfo, opts ...Option) *Client {
 	for _, opt := range opts {
 		opt(c)
 	}
-	c.cacheInit()
-	err := c.insert(DevNodeLocal, DevTypeSingle, c.MetaInfo)
+	if c.workOnWho != WorkOnHTTP {
+		c.msgCache = cache.New(c.cacheExpiration, c.cacheCleanupInterval)
+	}
+	err := c.DevMgr.insert(DevNodeLocal, DevTypeSingle, c.MetaInfo)
 	if err != nil {
 		panic(fmt.Sprintf("device local duplicate,cause: %+v", err))
 	}
@@ -217,146 +218,67 @@ func (sf *Client) AlinkSubDeviceConnect(devID int) error {
 	}
 	if node.DeviceSecret() == "" { // 需要注册
 		// 子设备注册
-		if err := sf.linKitGwSubDevRegister(devID); err != nil {
+		if err := sf.LinKitGwSubRegister(devID); err != nil {
 			return err
 		}
 	}
 
 	// 子设备添加到拓扑
-	return sf.linkKitGwSubDevTopoAdd(devID)
+	return sf.LinkKitGwSubTopoAdd(devID)
 }
 
-// AlinkReport 上报消息
-// msgType 消息类型,支持:
-//	- MsgTypeModelUpRaw
-//  - MsgTypeEventPropertyPost
-//  - MsgTypeEventPropertyPackPost
-//  - MsgTypeDesiredPropertyGet
-//  - MsgTypeDesiredPropertyDelete
-//  - MsgTypeEventPropertyPost
-//  - MsgTypeDesiredPropertyGet
-//  - MsgTypeDeviceInfoUpdate
-//  - MsgTypeDeviceInfoDelete
-// devID 设备ID,独立设备或网关发送使用DevLocal
-func (sf *Client) AlinkReport(msgType MsgType, devID int, params interface{}) error {
-	if devID < 0 {
-		return ErrInvalidParameter
+func (sf *Client) LinKitGwSubRegister(devID int) error {
+	entry, err := sf.upstreamThingGwSubRegister(devID)
+	if err != nil {
+		return err
 	}
-	if sf.workOnWho == WorkOnHTTP &&
-		!(msgType == MsgTypeModelUpRaw ||
-			msgType == MsgTypeEventPropertyPost ||
-			msgType == MsgTypeDeviceInfoUpdate ||
-			msgType == MsgTypeDeviceInfoDelete) {
-		return ErrNotSupportWork
-	}
-
-	switch msgType {
-	case MsgTypeModelUpRaw:
-		return sf.upstreamThingModelUpRaw(devID, params)
-	case MsgTypeEventPropertyPost:
-		return sf.upstreamThingEventPropertyPost(devID, params)
-	case MsgTypeEventPropertyPackPost:
-		return sf.upstreamThingEventPropertyPackPost(params)
-	case MsgTypeDesiredPropertyGet:
-		if !sf.hasDesired {
-			return ErrNotSupportFeature
-		}
-		return sf.upstreamThingDesiredPropertyGet(devID, params)
-	case MsgTypeDesiredPropertyDelete:
-		if !sf.hasDesired {
-			return ErrNotSupportFeature
-		}
-		return sf.upstreamThingDesiredPropertyDelete(devID, params)
-	case MsgTypeDeviceInfoUpdate:
-		return sf.upstreamThingDeviceInfoUpdate(devID, params)
-	case MsgTypeDeviceInfoDelete:
-		return sf.upstreamThingDeviceInfoDelete(devID, params)
-
-	case MsgTypeReportFirmwareVersion:
-		if !sf.hasOTA {
-			return ErrNotSupportFeature
-		}
-
-		return sf.upstreamOATFirmwareVersion(devID, params)
-	}
-	return ErrNotSupportMsgType
+	_, _, err = entry.Wait(time.Second)
+	return err
 }
 
-// AlinkRequest 同步请求
-// msgType 消息类型,支持:
-//  MsgTypeSubDevLogin
-//  MsgTypeSubDevLogout
-//  MsgTypeSubDevDeleteTopo
-func (sf *Client) AlinkRequest(msgType MsgType, devID int) error {
-	if devID < 0 {
-		return ErrInvalidParameter
+func (sf *Client) LinkKitGwSubTopoAdd(devID int) error {
+	entry, err := sf.upstreamThingGwSubTopoAdd(devID)
+	if err != nil {
+		return err
 	}
-	if sf.workOnWho == WorkOnHTTP {
+	_, _, err = entry.Wait(time.Second)
+	return err
+}
+
+// LinkKitGwSubTopoDelete 删除网关与子设备的拓扑关系
+func (sf *Client) LinkKitGwSubTopoDelete(devID int) error {
+	if !sf.isGateway {
 		return ErrNotSupportFeature
 	}
-
-	switch msgType {
-	case MsgTypeSubDevLogin:
-		if !sf.isGateway {
-			return ErrNotSupportFeature
-		}
-		return sf.linkKitGwSubDevCombineLogin(devID)
-	case MsgTypeSubDevLogout:
-		if !sf.isGateway {
-			return ErrNotSupportFeature
-		}
-		return sf.linkKitGwSubDevCombineLogout(devID)
-	case MsgTypeSubDevDeleteTopo:
-		if !sf.isGateway {
-			return ErrNotSupportFeature
-		}
-		return sf.linkKitGwSubDevTopoDelete(devID)
+	entry, err := sf.upstreamThingGwSubTopoDelete(devID)
+	if err != nil {
+		return err
 	}
-	return ErrNotSupportMsgType
+	_, _, err = entry.Wait(time.Second)
+	return err
 }
 
-// AlinkQuery 请求查询
-// msgType 消息类型,支持:
-//  - MsgTypeExtNtpRequest
-//  - MsgTypeDsltemplateGet
-//  - MsgTypeConfigGet
-func (sf *Client) AlinkQuery(msgType MsgType, devID int, _ ...interface{}) error {
-	if devID < 0 {
-		return ErrInvalidParameter
+func (sf *Client) LinkKitGwSubCombineLogin(devID int) error {
+	if !sf.isGateway {
+		return ErrNotSupportFeature
 	}
-	if sf.workOnWho == WorkOnHTTP {
-		return ErrNotSupportWork
+	entry, err := sf.upstreamExtGwCombineLogin(devID)
+	if err != nil {
+		return err
 	}
-
-	switch msgType {
-	case MsgTypeDsltemplateGet:
-		return sf.upstreamThingDsltemplateGet(devID)
-	case MsgTypeDynamictslGet:
-		return sf.upstreamThingDynamictslGet(devID)
-	case MsgTypeExtNtpRequest:
-		if !sf.hasNTP || sf.hasRawModel {
-			return ErrNotSupportFeature
-		}
-		return sf.upstreamExtNtpRequest()
-	case MsgTypeConfigGet:
-		if !sf.isGateway {
-			return ErrNotSupportFeature
-		}
-		return sf.upstreamThingConfigGet(devID)
-	case MsgTypeTopoGet:
-		if !sf.isGateway {
-			return ErrNotSupportFeature
-		}
-		return sf.upstreamThingGwSubTopoGet()
-	case MsgTypeQueryCOTAData:
-	case MsgTypeQueryFOTAData:
-	case MsgTypeRequestCOTA:
-	case MsgTypeRequestFOTAImage:
-	}
-	return ErrNotSupportMsgType
+	_, _, err = entry.Wait(time.Second)
+	return err
 }
 
-// AlinkTriggerEvent 事件上报
-func (sf *Client) AlinkTriggerEvent(devID int, eventID string, payload interface{}) error {
-	return sf.upstreamThingEventPost(devID, eventID, payload)
+func (sf *Client) LinkKitGwSubCombineLogout(devID int) error {
+	if !sf.isGateway {
+		return ErrNotSupportFeature
+	}
+	entry, err := sf.upstreamExtGwCombineLogout(devID)
+	if err != nil {
+		return err
+	}
+
+	_, _, err = entry.Wait(time.Second)
+	return err
 }
