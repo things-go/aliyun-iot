@@ -51,9 +51,9 @@ type EventProc interface {
 type EventGwProc interface {
 	// 520错误已做自动登陆回复
 	EvtExtErrorResponse(c *Client, err error, productKey, deviceName string) error
-	EvtThingGwSubTopoGetReply(c *Client, err error, params []GwSubTopoGetData) error
+	EvtThingGwSubTopoGetReply(c *Client, err error, params []GwTopoGetData) error
 	EvtThingListFoundReply(c *Client, err error) error
-	EvtThingTopoAddNotify(c *Client, params []GwSubTopoAddNotifyParams) error
+	EvtThingTopoAddNotify(c *Client, params []GwTopoAddNotifyParams) error
 	EvtThingTopoChange(c *Client, params GwTopoChangeParams) error
 	EvtThingDisable(c *Client, productKey, deviceName string) error
 	EvtThingEnable(c *Client, productKey, deviceName string) error

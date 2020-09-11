@@ -6,10 +6,10 @@ import (
 	"github.com/thinkgos/aliyun-iot/infra"
 )
 
-// UpstreamThingDeviceInfoUpdate 设备信息上传(如厂商、设备型号等，可以保存为设备标签)
-// request: /sys/{productKey}/{deviceName}/thing/deviceinfo/update
+// ThingDeviceInfoUpdate 设备信息上传(如厂商、设备型号等，可以保存为设备标签)
+// request:  /sys/{productKey}/{deviceName}/thing/deviceinfo/update
 // response: /sys/{productKey}/{deviceName}/thing/deviceinfo/update_reply
-func (sf *Client) UpstreamThingDeviceInfoUpdate(devID int, params interface{}) (*Entry, error) {
+func (sf *Client) ThingDeviceInfoUpdate(devID int, params interface{}) (*Entry, error) {
 	if devID < 0 {
 		return nil, ErrInvalidParameter
 	}
@@ -29,10 +29,10 @@ func (sf *Client) UpstreamThingDeviceInfoUpdate(devID int, params interface{}) (
 	return sf.Insert(id), nil
 }
 
-// UpstreamThingDeviceInfoDelete 设备信息删除
-// request: /sys/{productKey}/{deviceName}/thing/deviceinfo/update
-// response: /sys/{productKey}/{deviceName}/thing/deviceinfo/update_reply
-func (sf *Client) UpstreamThingDeviceInfoDelete(devID int, params interface{}) (*Entry, error) {
+// ThingDeviceInfoDelete 设备信息删除
+// request: /sys/{productKey}/{deviceName}/thing/deviceinfo/delete
+// response: /sys/{productKey}/{deviceName}/thing/deviceinfo/delete_reply
+func (sf *Client) ThingDeviceInfoDelete(devID int, params interface{}) (*Entry, error) {
 	if devID < 0 {
 		return nil, ErrInvalidParameter
 	}

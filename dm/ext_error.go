@@ -47,7 +47,7 @@ func ProcExtErrorResponse(c *Client, rawURI string, payload []byte) error {
 		if err != nil {
 			return err
 		}
-		_, _ = c.upstreamExtGwCombineLogin(node.ID())
+		_, _ = c.ExtCombineLogin(node.ID())
 	}
 	return c.eventGwProc.EvtExtErrorResponse(c, err, pk, dn)
 }

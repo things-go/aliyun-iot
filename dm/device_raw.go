@@ -1,9 +1,9 @@
 package dm
 
-// UpstreamThingModelUpRaw 上传透传数据
+// ThingModelUpRaw 上传透传数据
 // request: /sys/{productKey}/{deviceName}/thing/model/up_raw
 // response: /sys/{productKey}/{deviceName}/thing/model/up_raw_reply
-func (sf *Client) UpstreamThingModelUpRaw(devID int, payload interface{}) error {
+func (sf *Client) ThingModelUpRaw(devID int, payload interface{}) error {
 	if !sf.hasRawModel {
 		return ErrNotSupportFeature
 	}

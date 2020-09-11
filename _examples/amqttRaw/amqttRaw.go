@@ -72,7 +72,7 @@ func main() {
 	}
 
 	for {
-		err = dmClient.AlinkReport(dm.MsgTypeModelUpRaw, dm.DevNodeLocal, bPayload)
+		err = dmClient.ThingModelUpRaw(dm.DevNodeLocal, bPayload)
 		if err != nil {
 			log.Printf("error: %#v", err)
 		}

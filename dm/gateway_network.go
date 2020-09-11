@@ -9,8 +9,8 @@ import (
 	"github.com/thinkgos/aliyun-iot/sign"
 )
 
-// GwSubTopoAddParams 添加设备拓扑关系参数域
-type GwSubTopoAddParams struct {
+// GwTopoAddParams 添加设备拓扑关系参数域
+type GwTopoAddParams struct {
 	ProductKey string `json:"productKey"`
 	DeviceName string `json:"deviceName"`
 	ClientID   string `json:"clientId"`
@@ -19,11 +19,11 @@ type GwSubTopoAddParams struct {
 	Sign       string `json:"sign"`
 }
 
-// upstreamThingGwSubTopoAdd 添加设备拓扑关系
+// ThingGwTopoAdd 添加设备拓扑关系
 // 子设备身份注册后,需网关上报与子设备的关系,然后才进行子设备上线
 // request:   /sys/{productKey}/{deviceName}/thing/topo/add
 // response:  /sys/{productKey}/{deviceName}/thing/topo/add_reply
-func (sf *Client) upstreamThingGwSubTopoAdd(devID int) (*Entry, error) {
+func (sf *Client) ThingGwTopoAdd(devID int) (*Entry, error) {
 	if devID < 0 {
 		return nil, ErrInvalidParameter
 	}
@@ -41,7 +41,7 @@ func (sf *Client) upstreamThingGwSubTopoAdd(devID int) (*Entry, error) {
 	}
 	id := sf.RequestID()
 	uri := sf.URIServiceSelf(URISysPrefix, URIThingTopoAdd)
-	err = sf.SendRequest(uri, id, MethodTopoAdd, []GwSubTopoAddParams{
+	err = sf.SendRequest(uri, id, MethodTopoAdd, []GwTopoAddParams{
 		{
 			node.ProductKey(),
 			node.DeviceName(),
@@ -59,14 +59,14 @@ func (sf *Client) upstreamThingGwSubTopoAdd(devID int) (*Entry, error) {
 	return sf.Insert(id), nil
 }
 
-// GwSubTopoDeleteParams 删除网关与子设备的拓扑关系参数域
-type GwSubTopoDeleteParams struct {
+// GwTopoDeleteParams 删除网关与子设备的拓扑关系参数域
+type GwTopoDeleteParams struct {
 	ProductKey string `json:"productKey"`
 	DeviceName string `json:"deviceName"`
 }
 
-// upstreamThingGwSubTopoDelete 删除网关与子设备的拓扑关系
-func (sf *Client) upstreamThingGwSubTopoDelete(devID int) (*Entry, error) {
+// ThingGwTopoDelete 删除网关与子设备的拓扑关系
+func (sf *Client) ThingGwTopoDelete(devID int) (*Entry, error) {
 	if devID < 0 {
 		return nil, ErrInvalidParameter
 	}
@@ -77,7 +77,7 @@ func (sf *Client) upstreamThingGwSubTopoDelete(devID int) (*Entry, error) {
 	id := sf.RequestID()
 	uri := sf.URIServiceSelf(URISysPrefix, URIThingTopoDelete)
 	err = sf.SendRequest(uri, id, MethodTopoDelete,
-		[]GwSubTopoDeleteParams{
+		[]GwTopoDeleteParams{
 			{
 				node.ProductKey(),
 				node.DeviceName(),
@@ -90,22 +90,22 @@ func (sf *Client) upstreamThingGwSubTopoDelete(devID int) (*Entry, error) {
 	return sf.Insert(id), nil
 }
 
-// GwSubTopoGetData 获取网关和子设备的拓扑关系应答的数据域
-type GwSubTopoGetData struct {
+// GwTopoGetData 获取网关和子设备的拓扑关系应答的数据域
+type GwTopoGetData struct {
 	ProductKey string `json:"productKey"`
 	DeviceName string `json:"deviceName"`
 }
 
-// GwSubTopoGetResponse 获取网关和子设备的拓扑关系应答
-type GwSubTopoGetResponse struct {
+// GwTopoGetResponse 获取网关和子设备的拓扑关系应答
+type GwTopoGetResponse struct {
 	ResponseRawData
-	Data []GwSubTopoGetData `json:"data"`
+	Data []GwTopoGetData `json:"data"`
 }
 
-// UpstreamThingGwSubTopoGet 获取该网关和子设备的拓扑关系
+// ThingGwTopoGet 获取该网关和子设备的拓扑关系
 // request:   /sys/{productKey}/{deviceName}/thing/topo/get
 // response:  /sys/{productKey}/{deviceName}/thing/topo/get_reply
-func (sf *Client) UpstreamThingGwSubTopoGet() (*Entry, error) {
+func (sf *Client) ThingGwTopoGet() (*Entry, error) {
 	if !sf.isGateway {
 		return nil, ErrNotSupportFeature
 	}
@@ -118,16 +118,16 @@ func (sf *Client) UpstreamThingGwSubTopoGet() (*Entry, error) {
 	return sf.Insert(id), nil
 }
 
-// GwSubListFoundParams 发现设备列表上报参数域
-type GwSubListFoundParams struct {
+// GwListFoundParams 发现设备列表上报参数域
+type GwListFoundParams struct {
 	ProductKey string `json:"productKey"`
 	DeviceName string `json:"deviceName"`
 }
 
-// UpstreamThingGwListFound 发现设备列表上报
+// ThingGwListFound 发现设备列表上报
 // 场景,网关可以发现新接入的子设备,发现后,需将新接入的子设备的信息上报云端,
 // 然后转到第三方应用,选择哪些子设备可以接入该网关
-func (sf *Client) UpstreamThingGwListFound(devID int) (*Entry, error) {
+func (sf *Client) ThingGwListFound(devID int) (*Entry, error) {
 	if devID < 0 {
 		return nil, ErrInvalidParameter
 	}
@@ -138,7 +138,7 @@ func (sf *Client) UpstreamThingGwListFound(devID int) (*Entry, error) {
 	id := sf.RequestID()
 	uri := sf.URIServiceSelf(URISysPrefix, URIThingListFound)
 	err = sf.SendRequest(uri, id, MethodListFound,
-		[]GwSubListFoundParams{
+		[]GwListFoundParams{
 			{
 				node.ProductKey(),
 				node.DeviceName(),
@@ -152,12 +152,12 @@ func (sf *Client) UpstreamThingGwListFound(devID int) (*Entry, error) {
 	return sf.Insert(id), nil
 }
 
-// ProcThingGwSubTopoAddReply 处理网络拓扑添加
+// ProcThingGwTopoAddReply 处理网络拓扑添加
 // 上行
 // request:   /sys/{productKey}/{deviceName}/thing/topo/add
 // response:  /sys/{productKey}/{deviceName}/thing/topo/add_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/topo/add_reply
-func ProcThingGwSubTopoAddReply(c *Client, rawURI string, payload []byte) error {
+func ProcThingGwTopoAddReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
@@ -181,12 +181,12 @@ func ProcThingGwSubTopoAddReply(c *Client, rawURI string, payload []byte) error 
 	return nil
 }
 
-// ProcThingGwSubTopoDeleteReply 处理删除网络拓扑
+// ProcThingGwTopoDeleteReply 处理删除网络拓扑
 // 上行
-// request:  /sys/{productKey}/{deviceName}/thing/topo/delete
+// request:   /sys/{productKey}/{deviceName}/thing/topo/delete
 // response:  /sys/{productKey}/{deviceName}/thing/topo/delete_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/topo/delete_reply
-func ProcThingGwSubTopoDeleteReply(c *Client, rawURI string, payload []byte) error {
+func ProcThingGwTopoDeleteReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
@@ -209,17 +209,17 @@ func ProcThingGwSubTopoDeleteReply(c *Client, rawURI string, payload []byte) err
 	return nil
 }
 
-// ProcThingGwSubTopoGetReply 处理获取该网关和子设备的拓扑关系
+// ProcThingGwTopoGetReply 处理获取该网关和子设备的拓扑关系
 // 上行
 // request:   /sys/{productKey}/{deviceName}/thing/topo/get
 // response:  /sys/{productKey}/{deviceName}/thing/topo/get_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/topo/get_reply
-func ProcThingGwSubTopoGetReply(c *Client, rawURI string, payload []byte) error {
+func ProcThingGwTopoGetReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
-	rsp := GwSubTopoGetResponse{}
+	rsp := GwTopoGetResponse{}
 	err := json.Unmarshal(payload, &rsp)
 	if err != nil {
 		return err
@@ -233,12 +233,12 @@ func ProcThingGwSubTopoGetReply(c *Client, rawURI string, payload []byte) error 
 	return c.eventGwProc.EvtThingGwSubTopoGetReply(c, err, rsp.Data)
 }
 
-// ProcThingGwSubListFoundReply 处理发现设备列表上报应答
+// ProcThingGwListFoundReply 处理发现设备列表上报应答
 // 上行
 // request:   /sys/{productKey}/{deviceName}/thing/list/found
 // response:  /sys/{productKey}/{deviceName}/thing/list/found_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/list/found_reply
-func ProcThingGwSubListFoundReply(c *Client, rawURI string, payload []byte) error {
+func ProcThingGwListFoundReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
@@ -259,23 +259,23 @@ func ProcThingGwSubListFoundReply(c *Client, rawURI string, payload []byte) erro
 	return c.eventGwProc.EvtThingListFoundReply(c, err)
 }
 
-// GwSubTopoAddNotifyParams 添加设备拓扑关系通知参数域
-type GwSubTopoAddNotifyParams struct {
+// GwTopoAddNotifyParams 添加设备拓扑关系通知参数域
+type GwTopoAddNotifyParams struct {
 	ProductKey string `json:"productKey"`
 	DeviceName string `json:"deviceName"`
 }
 
-// GwSubTopoAddNotifyRequest 添加设备拓扑关系通知请求
-type GwSubTopoAddNotifyRequest struct {
-	ID      uint                       `json:"id,string"`
-	Version string                     `json:"version"`
-	Params  []GwSubTopoAddNotifyParams `json:"params"`
-	Method  string                     `json:"method"`
+// GwTopoAddNotifyRequest 添加设备拓扑关系通知请求
+type GwTopoAddNotifyRequest struct {
+	ID      uint                    `json:"id,string"`
+	Version string                  `json:"version"`
+	Params  []GwTopoAddNotifyParams `json:"params"`
+	Method  string                  `json:"method"`
 }
 
 // ProcThingGwTopoAddNotify 通知网关添加设备拓扑关系
 // 下行
-// request:  /sys/{productKey}/{deviceName}/thing/topo/add/notify
+// request:   /sys/{productKey}/{deviceName}/thing/topo/add/notify
 // response:  /sys/{productKey}/{deviceName}/thing/topo/add/notify_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/topo/add/notify
 func ProcThingGwTopoAddNotify(c *Client, rawURI string, payload []byte) error {
@@ -285,7 +285,7 @@ func ProcThingGwTopoAddNotify(c *Client, rawURI string, payload []byte) error {
 	}
 	c.debugf("downstream GW thing <topo>: add notify")
 
-	req := &GwSubTopoAddNotifyRequest{}
+	req := &GwTopoAddNotifyRequest{}
 	if err := json.Unmarshal(payload, req); err != nil {
 		return err
 	}
@@ -296,16 +296,16 @@ func ProcThingGwTopoAddNotify(c *Client, rawURI string, payload []byte) error {
 	return c.SendResponse(URIServiceReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
 }
 
-// GwSubTopoChange 网络拓扑关系变化请求参数域 设备结构
-type GwSubTopoChange struct {
+// GwTopoChange 网络拓扑关系变化请求参数域的设备结构
+type GwTopoChange struct {
 	ProductKey string `json:"productKey"`
 	DeviceName string `json:"deviceName"`
 }
 
 // GwTopoChangeParams 网络拓扑关系变化请求参数域
 type GwTopoChangeParams struct {
-	Status  int               `json:"status"` // 0: 创建 1:删除 2: 启用 8: 禁用
-	SubList []GwSubTopoChange `json:"subList"`
+	Status  int            `json:"status"` // 0: 创建 1:删除 2: 启用 8: 禁用
+	SubList []GwTopoChange `json:"subList"`
 }
 
 // GwTopoChangeRequest 网络拓扑关系变化请求

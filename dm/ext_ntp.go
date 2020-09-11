@@ -17,12 +17,12 @@ type NtpResponse struct {
 	ServerSendTime int64 `json:"serverSendTime,string"` // 平台发送时间,单位ms
 }
 
-// UpstreamExtNtpRequest ntp请求
+// ExtNtpRequest ntp请求
 // 发送一条Qos = 0的消息,并带上设备当前的时间戳,平台将回复 设备的发送时间,平台的接收时间, 平台的发送时间.
 // 设备计算当前精确时间 = (平台接收时间 + 平台发送时间 + 设备接收时间 - 设备发送时间) / 2
 // 请求Topic：/ext/ntp/${YourProductKey}/${YourDeviceName}/request
 // 响应Topic：/ext/ntp/${YourProductKey}/${YourDeviceName}/response
-func (sf *Client) UpstreamExtNtpRequest() error {
+func (sf *Client) ExtNtpRequest() error {
 	if !sf.hasNTP || sf.hasRawModel {
 		return ErrNotSupportFeature
 	}

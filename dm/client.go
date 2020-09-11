@@ -111,25 +111,25 @@ func (sf *Client) SubscribeAllTopic(devType DevType, productKey, deviceName stri
 
 			// 添加该网关和子设备的拓扑关系
 			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingTopoAddReply, productKey, deviceName),
-				ProcThingGwSubTopoAddReply); err != nil {
+				ProcThingGwTopoAddReply); err != nil {
 				sf.warnf(err.Error())
 			}
 
 			// 删除该网关和子设备的拓扑关系
 			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingTopoDeleteReply, productKey, deviceName),
-				ProcThingGwSubTopoDeleteReply); err != nil {
+				ProcThingGwTopoDeleteReply); err != nil {
 				sf.warnf(err.Error())
 			}
 
 			// 获取该网关和子设备的拓扑关系
 			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingTopoGetReply, productKey, deviceName),
-				ProcThingGwSubTopoGetReply); err != nil {
+				ProcThingGwTopoGetReply); err != nil {
 				sf.warnf(err.Error())
 			}
 
 			// 发现设备列表上报
 			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingListFoundReply, productKey, deviceName),
-				ProcThingGwSubListFoundReply); err != nil {
+				ProcThingGwListFoundReply); err != nil {
 				sf.warnf(err.Error())
 			}
 
@@ -157,22 +157,22 @@ func (sf *Client) SubscribeAllTopic(devType DevType, productKey, deviceName stri
 				sf.warnf(err.Error())
 			}
 			if err = sf.Subscribe(sf.URIService(URIExtSessionPrefix, URICombineLogoutReply, productKey, deviceName),
-				ProcExtCombineLogoutReply); err != nil {
+				ProcExtCombineLoginoutReply); err != nil {
 				sf.warnf(err.Error())
 			}
 		}
 		if devType == DevTypeSubDev {
 			// 子设备禁用,启用,删除
 			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingDisable, productKey, deviceName),
-				ProcThingDisable); err != nil {
+				ProcThingGwDisable); err != nil {
 				sf.warnf(err.Error())
 			}
 			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingEnable, productKey, deviceName),
-				ProcThingEnable); err != nil {
+				ProcThingGwEnable); err != nil {
 				sf.warnf(err.Error())
 			}
 			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingDelete, productKey, deviceName),
-				ProcThingDelete); err != nil {
+				ProcThingGwDelete); err != nil {
 				sf.warnf(err.Error())
 			}
 		}

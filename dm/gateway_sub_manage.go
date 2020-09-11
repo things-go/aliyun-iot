@@ -6,12 +6,12 @@ import (
 	"github.com/thinkgos/aliyun-iot/infra"
 )
 
-// ProcThingDisable 禁用子设备
+// ProcThingGwDisable 禁用子设备
 // 下行
-// request: /sys/{productKey}/{deviceName}/thing/disable
-// response: /sys/{productKey}/{deviceName}/thing/disable_reply
+// request:   /sys/{productKey}/{deviceName}/thing/disable
+// response:  /sys/{productKey}/{deviceName}/thing/disable_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/disable
-func ProcThingDisable(c *Client, rawURI string, payload []byte) error {
+func ProcThingGwDisable(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (c.uriOffset + 5) {
 		return ErrInvalidURI
@@ -35,12 +35,12 @@ func ProcThingDisable(c *Client, rawURI string, payload []byte) error {
 	return c.SendResponse(URIServiceReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
 }
 
-// ProcThingEnable 启用子设备
+// ProcThingGwEnable 启用子设备
 // 下行
-// request: /sys/{productKey}/{deviceName}/thing/enable
-// response: /sys/{productKey}/{deviceName}/thing/enable_reply
+// request:   /sys/{productKey}/{deviceName}/thing/enable
+// response:  /sys/{productKey}/{deviceName}/thing/enable_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/enable
-func ProcThingEnable(c *Client, rawURI string, payload []byte) error {
+func ProcThingGwEnable(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (c.uriOffset + 5) {
 		return ErrInvalidURI
@@ -64,12 +64,12 @@ func ProcThingEnable(c *Client, rawURI string, payload []byte) error {
 	return c.SendResponse(URIServiceReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
 }
 
-// ProcThingDelete 子设备删除,网关类型设备
+// ProcThingGwDelete 子设备删除,网关类型设备
 // 下行
-// request: /sys/{productKey}/{deviceName}/thing/delete
-// response: /sys/{productKey}/{deviceName}/thing/delete_reply
+// request:   /sys/{productKey}/{deviceName}/thing/delete
+// response:  /sys/{productKey}/{deviceName}/thing/delete_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/delete
-func ProcThingDelete(c *Client, rawURI string, payload []byte) error {
+func ProcThingGwDelete(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (c.uriOffset + 5) {
 		return ErrInvalidURI

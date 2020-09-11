@@ -6,10 +6,10 @@ import (
 	"github.com/thinkgos/aliyun-iot/infra"
 )
 
-// UpstreamThingDesiredPropertyGet 获取期望属性值
+// ThingDesiredPropertyGet 获取期望属性值
 // request:  /sys/{productKey}/{deviceName}/thing/property/desired/get
 // response: /sys/{productKey}/{deviceName}/thing/property/desired/get_reply
-func (sf *Client) UpstreamThingDesiredPropertyGet(devID int, params interface{}) (*Entry, error) {
+func (sf *Client) ThingDesiredPropertyGet(devID int, params interface{}) (*Entry, error) {
 	if !sf.hasDesired {
 		return nil, ErrNotSupportFeature
 	}
@@ -31,10 +31,10 @@ func (sf *Client) UpstreamThingDesiredPropertyGet(devID int, params interface{})
 	return sf.Insert(id), nil
 }
 
-// UpstreamThingDesiredPropertyDelete 清空期望属性值
+// ThingDesiredPropertyDelete 清空期望属性值
 // request:  /sys/{productKey}/{deviceName}/thing/property/desired/delete
 // response: /sys/{productKey}/{deviceName}/thing/property/desired/delete_reply
-func (sf *Client) UpstreamThingDesiredPropertyDelete(devID int, params interface{}) (*Entry, error) {
+func (sf *Client) ThingDesiredPropertyDelete(devID int, params interface{}) (*Entry, error) {
 	if !sf.hasDesired {
 		return nil, ErrNotSupportFeature
 	}

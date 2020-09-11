@@ -26,39 +26,6 @@ const (
 	WorkOnHTTP
 )
 
-// MsgType 消息类型
-type MsgType byte
-
-// 消息类型定义
-const (
-	MsgTypeModelUpRaw            MsgType = iota // post raw data to cloud
-	MsgTypeEventPropertyPost                    // post property value to cloud
-	MsgTypeEventPost                            // post event identifies value to cloud
-	MsgTypeEventPropertyPackPost                //
-	MsgTypeDesiredPropertyGet                   // get a device's desired property
-	MsgTypeDesiredPropertyDelete                // delete a device's desired property
-	MsgTypeDeviceInfoUpdate                     // post device info update message to cloud
-	MsgTypeDeviceInfoDelete                     // post device info delete message to cloud
-	MsgTypeDsltemplateGet                       // get a device's dsltemplate
-	MsgTypeDynamictslGet                        //
-	MsgTypeExtNtpRequest                        // query ntp time from cloud
-	MsgTypeConfigGet                            // 获取配置
-
-	MsgTypeTopoAdd               // 网关,添加设备拓扑关系
-	MsgTypeTopoDelete            // 网关,删除设备拓扑关系
-	MsgTypeTopoGet               // 网关,查询设备拓扑关系
-	MsgTypeDevListFound          // 网关,设备发现链表上报
-	MsgTypeSubDevRegister        // 子设备,动态注册
-	MsgTypeSubDevLogin           // only for slave device, send login request to cloud
-	MsgTypeSubDevLogout          // only for slave device, send logout request to cloud
-	MsgTypeSubDevDeleteTopo      // only for slave device, send delete topo request to cloud
-	MsgTypeQueryFOTAData         // only for master device, query firmware ota data
-	MsgTypeQueryCOTAData         // only for master device, query config ota data
-	MsgTypeRequestCOTA           // only for master device, request config ota data from cloud
-	MsgTypeRequestFOTAImage      // only for master device, request FOTA image from cloud
-	MsgTypeReportFirmwareVersion // report firmware version
-)
-
 // Request 请求
 type Request struct {
 	ID      uint        `json:"id,string"`
@@ -228,7 +195,7 @@ func (sf *Client) AlinkSubDeviceConnect(devID int) error {
 }
 
 func (sf *Client) LinKitGwSubRegister(devID int) error {
-	entry, err := sf.upstreamThingGwSubRegister(devID)
+	entry, err := sf.ThingGwSubRegister(devID)
 	if err != nil {
 		return err
 	}
@@ -237,7 +204,7 @@ func (sf *Client) LinKitGwSubRegister(devID int) error {
 }
 
 func (sf *Client) LinkKitGwSubTopoAdd(devID int) error {
-	entry, err := sf.upstreamThingGwSubTopoAdd(devID)
+	entry, err := sf.ThingGwTopoAdd(devID)
 	if err != nil {
 		return err
 	}
@@ -250,7 +217,7 @@ func (sf *Client) LinkKitGwSubTopoDelete(devID int) error {
 	if !sf.isGateway {
 		return ErrNotSupportFeature
 	}
-	entry, err := sf.upstreamThingGwSubTopoDelete(devID)
+	entry, err := sf.ThingGwTopoDelete(devID)
 	if err != nil {
 		return err
 	}
@@ -262,7 +229,7 @@ func (sf *Client) LinkKitGwSubCombineLogin(devID int) error {
 	if !sf.isGateway {
 		return ErrNotSupportFeature
 	}
-	entry, err := sf.upstreamExtGwCombineLogin(devID)
+	entry, err := sf.ExtCombineLogin(devID)
 	if err != nil {
 		return err
 	}
@@ -274,7 +241,7 @@ func (sf *Client) LinkKitGwSubCombineLogout(devID int) error {
 	if !sf.isGateway {
 		return ErrNotSupportFeature
 	}
-	entry, err := sf.upstreamExtGwCombineLogout(devID)
+	entry, err := sf.ExtCombineLogout(devID)
 	if err != nil {
 		return err
 	}

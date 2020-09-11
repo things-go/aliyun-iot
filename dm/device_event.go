@@ -7,10 +7,10 @@ import (
 	"github.com/thinkgos/aliyun-iot/infra"
 )
 
-// UpstreamThingEventPropertyPost 上传属性数据
+// ThingEventPropertyPost 上传属性数据
 // request:  /sys/{productKey}/{deviceName}/thing/event/property/post
 // response: /sys/{productKey}/{deviceName}/thing/event/property/post_reply
-func (sf *Client) UpstreamThingEventPropertyPost(devID int, params interface{}) (*Entry, error) {
+func (sf *Client) ThingEventPropertyPost(devID int, params interface{}) (*Entry, error) {
 	if sf.hasRawModel {
 		return nil, ErrNotSupportFeature
 	}
@@ -33,10 +33,10 @@ func (sf *Client) UpstreamThingEventPropertyPost(devID int, params interface{}) 
 	return sf.Insert(id), nil
 }
 
-// UpstreamThingEventPost 事件上传
-// request:  /sys/{productKey}/{deviceName}/thing/event/[{tsl.event.identifier},property]/post
-// response: /sys/{productKey}/{deviceName}/thing/event/[{tsl.event.identifier},property]/post_reply
-func (sf *Client) UpstreamThingEventPost(devID int, eventID string, params interface{}) (*Entry, error) {
+// ThingEventPost 事件上传
+// request:  /sys/{productKey}/{deviceName}/thing/event/{tsl.event.identifier}/post
+// response: /sys/{productKey}/{deviceName}/thing/event/{tsl.event.identifier}/post_reply
+func (sf *Client) ThingEventPost(devID int, eventID string, params interface{}) (*Entry, error) {
 	if devID < 0 {
 		return nil, ErrInvalidParameter
 	}
@@ -55,11 +55,11 @@ func (sf *Client) UpstreamThingEventPost(devID int, eventID string, params inter
 	return sf.Insert(id), nil
 }
 
-// UpstreamThingEventPropertyPackPost 网关批量上报数据
+// ThingEventPropertyPackPost 网关批量上报数据
 // NOTE: 仅网关支持,一次最多200个属性,20个事件,一次最多为20个子设备上报数据
 // request:  /sys/{productKey}/{deviceName}/thing/event/property/pack/post
 // response: /sys/{productKey}/{deviceName}/thing/event/property/pack/post_reply
-func (sf *Client) UpstreamThingEventPropertyPackPost(params interface{}) (*Entry, error) {
+func (sf *Client) ThingEventPropertyPackPost(params interface{}) (*Entry, error) {
 	if !sf.isGateway {
 		return nil, ErrNotSupportFeature
 	}

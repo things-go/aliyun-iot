@@ -65,11 +65,11 @@ type GwCombineBatchLoginResponse struct {
 	Message string               `json:"message,omitempty"`
 }
 
-// upstreamExtGwCombineLogin 子设备上线
+// ExtCombineLogin 子设备上线
 // NOTE: topic 应使用网关的productKey和deviceName,且只支持qos = 0
 // request： /ext/session/${productKey}/${deviceName}/combine/login
 // response：/ext/session/${productKey}/${deviceName}/combine/login_reply
-func (sf *Client) upstreamExtGwCombineLogin(devID int) (*Entry, error) {
+func (sf *Client) ExtCombineLogin(devID int) (*Entry, error) {
 	if devID < 0 {
 		return nil, ErrInvalidParameter
 	}
@@ -109,11 +109,11 @@ func (sf *Client) upstreamExtGwCombineLogin(devID int) (*Entry, error) {
 	return sf.Insert(id), nil
 }
 
-// upstreamExtGwCombineLogin 子设备批量上线
+// ExtCombineBatchLogin 子设备批量上线
 // NOTE: topic 应使用网关的productKey和deviceName,且只支持qos = 0
 // request： /ext/session/${productKey}/${deviceName}/combine/batch_login
 // response：/ext/session/${productKey}/${deviceName}/combine/batch_login_reply
-func (sf *Client) upstreamExtGwCombineBatchLogin(devID ...int) (*Entry, error) {
+func (sf *Client) ExtCombineBatchLogin(devID ...int) (*Entry, error) {
 	// TODO:
 	return nil, nil
 }
@@ -136,11 +136,11 @@ type GwCombineBatchLogoutRequest struct {
 	Params []GwCombineLogoutParams `json:"params"`
 }
 
-// upstreamExtGwCombineLogout 子设备下线
+// ExtCombineLogout 子设备下线
 // NOTE: topic 应使用网关的productKey和deviceName,且只支持qos = 0
 // request:   /ext/session/{productKey}/{deviceName}/combine/logout
 // response:  /ext/session/{productKey}/{deviceName}/combine/logout_reply
-func (sf *Client) upstreamExtGwCombineLogout(devID int) (*Entry, error) {
+func (sf *Client) ExtCombineLogout(devID int) (*Entry, error) {
 	if devID < 0 {
 		return nil, ErrInvalidParameter
 	}
@@ -169,11 +169,11 @@ func (sf *Client) upstreamExtGwCombineLogout(devID int) (*Entry, error) {
 	return sf.Insert(id), nil
 }
 
-// upstreamExtGwCombineBatchLogout 子设备批量下线
+// ExtCombineBatchLogout 子设备批量下线
 // NOTE: topic 应使用网关的productKey和deviceName,且只支持qos = 0
 // request:   /ext/session/{productKey}/{deviceName}/combine/batch_logout
 // response:  /ext/session/{productKey}/{deviceName}/combine/batch_logout_reply
-func (sf *Client) upstreamExtGwCombineBatchLogout(devID ...int) (*Entry, error) {
+func (sf *Client) ExtCombineBatchLogout(devID ...int) (*Entry, error) {
 	// TODO
 	return nil, nil
 }
@@ -216,12 +216,12 @@ func ProcExtCombineBatchLoginReply(c *Client, rawURI string, payload []byte) err
 	return nil
 }
 
-// ProcExtCombineLogoutReply 子设备下线应答处理
+// ProcExtCombineLoginoutReply 子设备下线应答处理
 // 上行
 // request:   /ext/session/{productKey}/{deviceName}/combine/logout
 // response:  /ext/session/{productKey}/{deviceName}/combine/logout_reply
 // subscribe: /ext/session/{productKey}/{deviceName}/combine/logout_reply
-func ProcExtCombineLogoutReply(c *Client, rawURI string, payload []byte) error {
+func ProcExtCombineLoginoutReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
 	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI

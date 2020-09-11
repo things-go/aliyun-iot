@@ -38,10 +38,10 @@ type ConfigPushRequest struct {
 	Method  string           `json:"method"`
 }
 
-// UpstreamThingConfigGet 获取配置参数
+// ThingConfigGet 获取配置参数
 // request:  /sys/{productKey}/{deviceName}/thing/config/get
 // response: /sys/{productKey}/{deviceName}/thing/config/get_reply
-func (sf *Client) UpstreamThingConfigGet(devID int) (*Entry, error) {
+func (sf *Client) ThingConfigGet(devID int) (*Entry, error) {
 	if !sf.isGateway {
 		return nil, ErrNotSupportFeature
 	}

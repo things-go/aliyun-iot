@@ -28,11 +28,11 @@ type GwSubRegisterResponse struct {
 	Message string              `json:"message,omitempty"`
 }
 
-// upstreamThingGwSubRegister 子设备动态注册
+// ThingGwSubRegister 子设备动态注册
 // 以通过上行请求为子设备发起动态注册，返回成功注册的子设备的设备证书
 // request:   /sys/{productKey}/{deviceName}/thing/sub/register
 // response:  /sys/{productKey}/{deviceName}/thing/sub/register_reply
-func (sf *Client) upstreamThingGwSubRegister(devID int) (*Entry, error) {
+func (sf *Client) ThingGwSubRegister(devID int) (*Entry, error) {
 	if devID < 0 {
 		return nil, ErrInvalidParameter
 	}

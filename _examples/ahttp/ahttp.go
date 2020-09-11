@@ -21,7 +21,7 @@ func main() {
 	uri := dm.URICOAPHTTPPrePrefix + dm.URIService(dm.URISysPrefix, dm.URIThingEventPropertyPost, testmeta.ProductKey, testmeta.DeviceName)
 	bPayload, err := json.Marshal(
 		dm.Request{
-			ID:      rand.Int(),
+			ID:      uint(rand.Int()),
 			Version: dm.Version,
 			Params: map[string]interface{}{
 				"Temp":         rand.Intn(200),

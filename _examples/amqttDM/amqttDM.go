@@ -71,7 +71,7 @@ func main() {
 func EventPostTest() {
 	go func() {
 		for {
-			err := dmClient.AlinkTriggerEvent(dm.DevNodeLocal, "tempAlarm", map[string]interface{}{
+			_, err := dmClient.ThingEventPost(dm.DevNodeLocal, "tempAlarm", map[string]interface{}{
 				"high": 1,
 			})
 			if err != nil {
@@ -83,7 +83,7 @@ func EventPostTest() {
 	}()
 
 	for {
-		err := dmClient.AlinkReport(dm.MsgTypeEventPropertyPost, dm.DevNodeLocal, map[string]interface{}{
+		_, err := dmClient.ThingEventPropertyPost(dm.DevNodeLocal, map[string]interface{}{
 			"Temp":         rand.Intn(200),
 			"Humi":         rand.Intn(100),
 			"switchStatus": rand.Intn(1),
@@ -96,7 +96,7 @@ func EventPostTest() {
 }
 
 func DeviceInfoTest() {
-	if err := dmClient.AlinkReport(dm.MsgTypeDeviceInfoUpdate, dm.DevNodeLocal,
+	if _, err := dmClient.ThingDeviceInfoUpdate(dm.DevNodeLocal,
 		[]dmd.DevInfoLabelUpdate{
 			{AttrKey: "attrKey", AttrValue: "attrValue"},
 		}); err != nil {
@@ -104,7 +104,7 @@ func DeviceInfoTest() {
 		return
 	}
 	time.Sleep(time.Minute * 1)
-	if err := dmClient.AlinkReport(dm.MsgTypeDeviceInfoDelete, dm.DevNodeLocal,
+	if _, err := dmClient.ThingDeviceInfoDelete(dm.DevNodeLocal,
 		[]dmd.DevInfoLabelDelete{
 			{AttrKey: "attrKey"},
 		}); err != nil {
@@ -115,7 +115,7 @@ func DeviceInfoTest() {
 }
 
 func ConfigTest() {
-	err := dmClient.AlinkQuery(dm.MsgTypeConfigGet, dm.DevNodeLocal)
+	_, err := dmClient.ThingConfigGet(dm.DevNodeLocal)
 	if err != nil {
 		log.Println(err)
 		return
@@ -123,7 +123,7 @@ func ConfigTest() {
 }
 
 func DslTemplateTest() {
-	err := dmClient.AlinkQuery(dm.MsgTypeDsltemplateGet, dm.DevNodeLocal)
+	_, err := dmClient.ThingDsltemplateGet(dm.DevNodeLocal)
 	if err != nil {
 		log.Println(err)
 		return
@@ -131,14 +131,14 @@ func DslTemplateTest() {
 }
 
 func dynamictslTest() {
-	err := dmClient.AlinkQuery(dm.MsgTypeDynamictslGet, dm.DevNodeLocal)
+	_, err := dmClient.ThingDynamictslGet(dm.DevNodeLocal)
 	if err != nil {
 		panic(err)
 	}
 }
 
 func NTPTest() {
-	err := dmClient.AlinkQuery(dm.MsgTypeExtNtpRequest, dm.DevNodeLocal)
+	err := dmClient.ExtNtpRequest()
 	if err != nil {
 		log.Println(err)
 		return
