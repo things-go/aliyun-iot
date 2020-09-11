@@ -99,10 +99,14 @@ const (
 	URIThingSubDevRegisterReply = "thing/sub/register_reply"
 
 	// 子设备登录
-	URISubDevCombineLogin       = "combine/login"
-	URISubDevCombineLoginReply  = "combine/login_reply"
-	URISubDevCombineLogout      = "combine/logout"
-	URISubDevCombineLogoutReply = "combine/logout_reply"
+	URICombineLogin           = "combine/login"
+	URICombineLoginReply      = "combine/login_reply"
+	URCombineBatchLogin       = "combine/batch_login"
+	URCombineBatchLoginReply  = "combine/batch_login_reply"
+	URCombineBatchLogout      = "combine/batch_logout"
+	URCombineBatchLogoutReply = "combine/batch_logout_reply"
+	URICombineLogout          = "combine/logout"
+	URICombineLogoutReply     = "combine/logout_reply"
 
 	// 网关网络拓扑
 	URIThingTopoAdd         = "thing/topo/add"

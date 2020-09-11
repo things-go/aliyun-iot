@@ -8,7 +8,7 @@ import (
 )
 
 // upstreamThingEventPropertyPost 上传属性数据
-// request: /sys/{productKey}/{deviceName}/thing/event/property/post
+// request:  /sys/{productKey}/{deviceName}/thing/event/property/post
 // response: /sys/{productKey}/{deviceName}/thing/event/property/post_reply
 func (sf *Client) upstreamThingEventPropertyPost(devID int, params interface{}) error {
 	if sf.hasRawModel {
@@ -35,7 +35,7 @@ func (sf *Client) upstreamThingEventPropertyPost(devID int, params interface{}) 
 }
 
 // upstreamThingEventPost 事件上传
-// request: /sys/{productKey}/{deviceName}/thing/event/[{tsl.event.identifier},property]/post
+// request:  /sys/{productKey}/{deviceName}/thing/event/[{tsl.event.identifier},property]/post
 // response: /sys/{productKey}/{deviceName}/thing/event/[{tsl.event.identifier},property]/post_reply
 func (sf *Client) upstreamThingEventPost(devID int, eventID string, params interface{}) error {
 	if devID < 0 {
@@ -59,7 +59,7 @@ func (sf *Client) upstreamThingEventPost(devID int, eventID string, params inter
 
 // upstreamThingEventPropertyPackPost 网关批量上报数据
 // NOTE: 仅网关支持,一次最多200个属性,20个事件,一次最多为20个子设备上报数据
-// request: /sys/{productKey}/{deviceName}/thing/event/property/pack/post
+// request:  /sys/{productKey}/{deviceName}/thing/event/property/pack/post
 // response: /sys/{productKey}/{deviceName}/thing/event/property/pack/post_reply
 func (sf *Client) upstreamThingEventPropertyPackPost(params interface{}) error {
 	if !sf.isGateway {
@@ -79,8 +79,8 @@ func (sf *Client) upstreamThingEventPropertyPackPost(params interface{}) error {
 
 // ProcThingEventPostReply 处理ThingEvent XXX上行的应答
 // 上行
-// request: /sys/{productKey}/{deviceName}/thing/event/[{tsl.event.identifier},property]/post
-// response: /sys/{productKey}/{deviceName}/thing/event/[{tsl.event.identifier},property]/post_reply
+// request:   /sys/{productKey}/{deviceName}/thing/event/[{tsl.event.identifier},property]/post
+// response:  /sys/{productKey}/{deviceName}/thing/event/[{tsl.event.identifier},property]/post_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/event/+/post_reply
 func ProcThingEventPostReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
@@ -110,8 +110,8 @@ func ProcThingEventPostReply(c *Client, rawURI string, payload []byte) error {
 
 // ProcThingEventPropertyPackPostReply 网关批量上报数据
 // 上行,仅网关支持
-// request: /sys/{productKey}/{deviceName}/thing/event/property/pack/post
-// response: /sys/{productKey}/{deviceName}/thing/event/property/pack/post_reply
+// request:   /sys/{productKey}/{deviceName}/thing/event/property/pack/post
+// response:  /sys/{productKey}/{deviceName}/thing/event/property/pack/post_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/event/property/pack/post_reply
 func ProcThingEventPropertyPackPostReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
@@ -135,8 +135,8 @@ func ProcThingEventPropertyPackPostReply(c *Client, rawURI string, payload []byt
 
 // ProcThingServicePropertySet 处理属性设置
 // 下行
-// request: /sys/{productKey}/{deviceName}/thing/service/property/set
-// response: /sys/{productKey}/{deviceName}/thing/service/property/set_reply
+// request:   /sys/{productKey}/{deviceName}/thing/service/property/set
+// response:  /sys/{productKey}/{deviceName}/thing/service/property/set_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/service/[+,#]
 func ProcThingServicePropertySet(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
@@ -150,8 +150,8 @@ func ProcThingServicePropertySet(c *Client, rawURI string, payload []byte) error
 
 // ProcThingServiceRequest 处理设备服务调用(异步)
 // 下行
-// request: /sys/{productKey}/{deviceName}/thing/service/{tsl.service.identifier}
-// response: /sys/{productKey}/{deviceName}/thing/service/{tsl.service.identifier}_reply
+// request:   /sys/{productKey}/{deviceName}/thing/service/{tsl.service.identifier}
+// response:  /sys/{productKey}/{deviceName}/thing/service/{tsl.service.identifier}_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/service/[+,#]
 func ProcThingServiceRequest(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)

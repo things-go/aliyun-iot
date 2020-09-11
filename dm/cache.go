@@ -26,11 +26,7 @@ func (sf *Client) cacheInit() {
 	sf.msgCache.OnEvicted(func(id string, v interface{}) { // 超时处理
 		entry := v.(*MsgCacheEntry)
 		if atomic.LoadUint32(&entry.done) == 0 {
-			if err := sf.ipcSendMessage(&ipcMessage{
-				evt:     ipcEvtRequestTimeout,
-				extend:  strconv.Itoa(entry.devID),
-				payload: entry.msgType,
-			}); err != nil {
+			if err := sf.eventProc.EvtRequestWaitResponseTimeout(sf, entry.msgType, entry.devID); err != nil {
 				sf.warnf("ipc send message cache timeout failed, %+v", err)
 			}
 		}

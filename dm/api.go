@@ -106,7 +106,6 @@ type Client struct {
 	msgCache *cache.Cache
 	pool     *pool
 	Conn
-	ipc         chan *ipcMessage
 	eventProc   EventProc
 	eventGwProc EventGwProc
 }
@@ -123,7 +122,6 @@ func New(meta infra.MetaInfo, opts ...Option) *Client {
 		cacheCleanupInterval: DefaultCacheCleanupInterval,
 
 		DevMgr:      NewDevMgr(),
-		ipc:         make(chan *ipcMessage, 1024),
 		eventProc:   NopEvt{},
 		eventGwProc: NopGwEvt{},
 	}
@@ -134,9 +132,6 @@ func New(meta infra.MetaInfo, opts ...Option) *Client {
 	err := c.insert(DevNodeLocal, DevTypeSingle, c.MetaInfo)
 	if err != nil {
 		panic(fmt.Sprintf("device local duplicate,cause: %+v", err))
-	}
-	if c.workOnWho == WorkOnMQTT {
-		go c.ipcRunMessage()
 	}
 
 	return c
@@ -352,7 +347,7 @@ func (sf *Client) AlinkQuery(msgType MsgType, devID int, _ ...interface{}) error
 		if !sf.isGateway {
 			return ErrNotSupportFeature
 		}
-		return sf.upstreamGwThingTopoGet()
+		return sf.upstreamThingGwSubTopoGet()
 	case MsgTypeQueryCOTAData:
 	case MsgTypeQueryFOTAData:
 	case MsgTypeRequestCOTA:

@@ -6,8 +6,8 @@ import (
 	"github.com/thinkgos/aliyun-iot/infra"
 )
 
-// upstreamThingDesiredPropertyGet 获取期望值
-// request: /sys/{productKey}/{deviceName}/thing/property/desired/get
+// upstreamThingDesiredPropertyGet 获取期望属性值
+// request:  /sys/{productKey}/{deviceName}/thing/property/desired/get
 // response: /sys/{productKey}/{deviceName}/thing/property/desired/get_reply
 func (sf *Client) upstreamThingDesiredPropertyGet(devID int, params interface{}) error {
 	if devID < 0 {
@@ -29,14 +29,13 @@ func (sf *Client) upstreamThingDesiredPropertyGet(devID int, params interface{})
 	return nil
 }
 
-// upstreamThingDesiredPropertyDelete 清空期望值
-// request: /sys/{productKey}/{deviceName}/thing/property/desired/delete
+// upstreamThingDesiredPropertyDelete 清空期望属性值
+// request:  /sys/{productKey}/{deviceName}/thing/property/desired/delete
 // response: /sys/{productKey}/{deviceName}/thing/property/desired/delete_reply
 func (sf *Client) upstreamThingDesiredPropertyDelete(devID int, params interface{}) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
-
 	node, err := sf.SearchNode(devID)
 	if err != nil {
 		return err
@@ -53,10 +52,10 @@ func (sf *Client) upstreamThingDesiredPropertyDelete(devID int, params interface
 	return nil
 }
 
-// ProcThingDesiredPropertyGetReply 处理期望属性获取的应答
+// ProcThingDesiredPropertyGetReply 处理获取期望属性值的应答
 // 上行
-// request: /sys/{productKey}/{deviceName}/thing/property/desired/get
-// response: /sys/{productKey}/{deviceName}/thing/property/desired/get_reply
+// request:   /sys/{productKey}/{deviceName}/thing/property/desired/get
+// response:  /sys/{productKey}/{deviceName}/thing/property/desired/get_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/property/desired/get_reply
 func ProcThingDesiredPropertyGetReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
@@ -80,10 +79,10 @@ func ProcThingDesiredPropertyGetReply(c *Client, rawURI string, payload []byte) 
 	return c.eventProc.EvtThingDesiredPropertyGetReply(c, err, pk, dn, rsp.Data)
 }
 
-// ProcThingDesiredPropertyDeleteReply 处理期望属性删除的应答
+// ProcThingDesiredPropertyDeleteReply 处理清空期望属性值的应答
 // 上行
-// request: /sys/{productKey}/{deviceName}/thing/property/desired/delete
-// response: /sys/{productKey}/{deviceName}/thing/property/desired/delete_reply
+// request:   /sys/{productKey}/{deviceName}/thing/property/desired/delete
+// response:  /sys/{productKey}/{deviceName}/thing/property/desired/delete_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/property/desired/delete_reply
 func ProcThingDesiredPropertyDeleteReply(c *Client, rawURI string, payload []byte) error {
 	uris := URIServiceSpilt(rawURI)
@@ -98,7 +97,6 @@ func ProcThingDesiredPropertyDeleteReply(c *Client, rawURI string, payload []byt
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
-
 	c.CacheDone(rsp.ID, err)
 	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
 	c.debugf("downstream thing <desired>: property delete reply,@%d", rsp.ID)

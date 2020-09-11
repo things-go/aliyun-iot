@@ -111,53 +111,53 @@ func (sf *Client) SubscribeAllTopic(devType DevType, productKey, deviceName stri
 
 			// 添加该网关和子设备的拓扑关系
 			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingTopoAddReply, productKey, deviceName),
-				ProcThingTopoAddReply); err != nil {
+				ProcThingGwSubTopoAddReply); err != nil {
 				sf.warnf(err.Error())
 			}
 
 			// 删除该网关和子设备的拓扑关系
 			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingTopoDeleteReply, productKey, deviceName),
-				ProcThingTopoDeleteReply); err != nil {
+				ProcThingGwSubTopoDeleteReply); err != nil {
 				sf.warnf(err.Error())
 			}
 
 			// 获取该网关和子设备的拓扑关系
 			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingTopoGetReply, productKey, deviceName),
-				ProcThingTopoGetReply); err != nil {
+				ProcThingGwSubTopoGetReply); err != nil {
 				sf.warnf(err.Error())
 			}
 
 			// 发现设备列表上报
 			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingListFoundReply, productKey, deviceName),
-				ProcThingListFoundReply); err != nil {
+				ProcThingGwSubListFoundReply); err != nil {
 				sf.warnf(err.Error())
 			}
 
 			// 添加设备拓扑关系通知,topic需要用网关的productKey,deviceName
 			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingTopoAddNotify, productKey, deviceName),
-				ProcThingTopoAddNotify); err != nil {
+				ProcThingGwTopoAddNotify); err != nil {
 				sf.warnf(err.Error())
 			}
 
 			// 网关网络拓扑关系变化通知,topic需要用网关的productKey,deviceName
 			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingTopoChange, productKey, deviceName),
-				ProcThingTopoChange); err != nil {
+				ProcThingGwTopoChange); err != nil {
 				sf.warnf(err.Error())
 			}
 
 			// 子设备动态注册,topic需要用网关的productKey,deviceName
 			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingSubDevRegisterReply, productKey, deviceName),
-				ProcThingSubDevRegisterReply); err != nil {
+				ProcThingGwSubRegisterReply); err != nil {
 				sf.warnf(err.Error())
 			}
 			// 子设备上线,下线,topic需要用网关的productKey,deviceName,
 			// 使用的是网关的通道,所以子设备不注册相关主题
-			if err = sf.Subscribe(sf.URIService(URIExtSessionPrefix, URISubDevCombineLoginReply, productKey, deviceName),
-				ProcExtSubDevCombineLoginReply); err != nil {
+			if err = sf.Subscribe(sf.URIService(URIExtSessionPrefix, URICombineLoginReply, productKey, deviceName),
+				ProcExtCombineLoginReply); err != nil {
 				sf.warnf(err.Error())
 			}
-			if err = sf.Subscribe(sf.URIService(URIExtSessionPrefix, URISubDevCombineLogoutReply, productKey, deviceName),
-				ProcExtSubDevCombineLogoutReply); err != nil {
+			if err = sf.Subscribe(sf.URIService(URIExtSessionPrefix, URICombineLogoutReply, productKey, deviceName),
+				ProcExtCombineLogoutReply); err != nil {
 				sf.warnf(err.Error())
 			}
 		}
@@ -232,7 +232,7 @@ func (sf *Client) UnSubscribeSubDevAllTopic(productKey, deviceName string) error
 }
 
 func (sf *Client) linKitGwSubDevRegister(devID int) error {
-	id, err := sf.upstreamThingGwSubDevRegister(devID)
+	id, err := sf.upstreamThingGwSubRegister(devID)
 	if err != nil {
 		return err
 	}
@@ -240,7 +240,7 @@ func (sf *Client) linKitGwSubDevRegister(devID int) error {
 }
 
 func (sf *Client) linkKitGwSubDevTopoAdd(devID int) error {
-	id, err := sf.upstreamGwThingTopoAdd(devID)
+	id, err := sf.upstreamThingGwSubTopoAdd(devID)
 	if err != nil {
 		return err
 	}
@@ -249,7 +249,7 @@ func (sf *Client) linkKitGwSubDevTopoAdd(devID int) error {
 
 // linkKitGwSubDevTopoDelete 删除网关与子设备的拓扑关系
 func (sf *Client) linkKitGwSubDevTopoDelete(devID int) error {
-	id, err := sf.upstreamGwThingTopoDelete(devID)
+	id, err := sf.upstreamThingGwSubTopoDelete(devID)
 	if err != nil {
 		return err
 	}
@@ -257,7 +257,7 @@ func (sf *Client) linkKitGwSubDevTopoDelete(devID int) error {
 }
 
 func (sf *Client) linkKitGwSubDevCombineLogin(devID int) error {
-	id, err := sf.upstreamExtGwSubDevCombineLogin(devID)
+	id, err := sf.upstreamExtGwCombineLogin(devID)
 	if err != nil {
 		return err
 	}
@@ -265,7 +265,7 @@ func (sf *Client) linkKitGwSubDevCombineLogin(devID int) error {
 }
 
 func (sf *Client) linkKitGwSubDevCombineLogout(devID int) error {
-	id, err := sf.upstreamExtGwSubDevCombineLogout(devID)
+	id, err := sf.upstreamExtGwCombineLogout(devID)
 	if err != nil {
 		return err
 	}

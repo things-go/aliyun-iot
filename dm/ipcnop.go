@@ -124,8 +124,8 @@ func (NopGwEvt) EvtExtErrorResponse(*Client, error, string, string) error {
 	return nil
 }
 
-// EvtThingTopoGetReply see interface EventGwProc
-func (NopGwEvt) EvtThingTopoGetReply(*Client, error, []GwTopoGetData) error {
+// EvtThingGwSubTopoGetReply see interface EventGwProc
+func (NopGwEvt) EvtThingGwSubTopoGetReply(*Client, error, []GwSubTopoGetData) error {
 	return nil
 }
 
@@ -135,7 +135,7 @@ func (NopGwEvt) EvtThingListFoundReply(*Client, error) error {
 }
 
 // EvtThingTopoAddNotify see interface EventGwProc
-func (NopGwEvt) EvtThingTopoAddNotify(*Client, []GwTopoAddNotifyParams) error {
+func (NopGwEvt) EvtThingTopoAddNotify(*Client, []GwSubTopoAddNotifyParams) error {
 	return nil
 }
 
