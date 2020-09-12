@@ -28,6 +28,9 @@ func NewWithMQTT(meta infra.MetaInfo, c mqtt.Client, opts ...dm.Option) *MQTTCli
 	return cli
 }
 
+// UnderlyingClient 获得底层的Client
+func (sf *MQTTClient) Underlying() mqtt.Client { return sf.c }
+
 // Publish 实现dm.Conn接口
 func (sf *MQTTClient) Publish(topic string, qos byte, payload interface{}) error {
 	return sf.c.Publish(topic, qos, false, payload).Error()
@@ -49,6 +52,3 @@ func (sf *MQTTClient) Subscribe(topic string, streamFunc dm.ProcDownStream) erro
 func (sf *MQTTClient) UnSubscribe(topic ...string) error {
 	return sf.c.Unsubscribe(topic...).Error()
 }
-
-// UnderlyingClient 获得底层的Client
-func (sf *MQTTClient) UnderlyingClient() mqtt.Client { return sf.c }

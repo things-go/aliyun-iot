@@ -9,6 +9,8 @@ import (
 	"github.com/thinkgos/aliyun-iot/infra"
 )
 
+// @see https://help.aliyun.com/document_detail/57697.html?spm=a2c4g.11186623.6.606.5d7a12e0FGY05a
+
 // 确保 NopCb 实现 dm.Conn 接口
 var _ dm.Conn = (*COAPClient)(nil)
 
@@ -43,19 +45,17 @@ func (sf *coapClient) UnSubscribe(...string) error { return nil }
 
 // COAPClient COAP客户端
 type COAPClient struct {
-	c *coap.ClientConn
 	*dm.Client
 }
 
 // NewWithCOAP 新建MQTTClient
 func NewWithCOAP(meta infra.MetaInfo, c *coap.ClientConn, opts ...dm.Option) *COAPClient {
 	return &COAPClient{
-		c,
 		dm.New(meta, &coapClient{c}, append(opts, dm.WithWork(dm.WorkOnCOAP))...),
 	}
 }
 
 // UnderlyingClient 获得底层的Client
-func (sf *COAPClient) UnderlyingClient() *coap.ClientConn {
-	return sf.c
+func (sf *COAPClient) Underlying() *coap.ClientConn {
+	return sf.Conn.(*coapClient).c
 }

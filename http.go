@@ -8,18 +8,17 @@ import (
 
 // HTTPClient HTTP客户端
 type HTTPClient struct {
-	c *ahttp.Client
 	*dm.Client
 }
 
 // NewWithHTTP 新建HTTP客户端
 func NewWithHTTP(meta infra.MetaInfo) *HTTPClient {
-	c := ahttp.New(meta)
 	return &HTTPClient{
-		c,
-		dm.New(meta, c, dm.WithWork(dm.WorkOnHTTP)),
+		dm.New(meta, ahttp.New(meta), dm.WithWork(dm.WorkOnHTTP)),
 	}
 }
 
 // UnderlyingClient 底层客户端
-func (sf *HTTPClient) UnderlyingClient() *ahttp.Client { return sf.c }
+func (sf *HTTPClient) Underlying() *ahttp.Client {
+	return sf.Conn.(*ahttp.Client)
+}
