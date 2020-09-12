@@ -85,7 +85,7 @@ func main() {
 }
 
 type RawProc struct {
-	dm.NopEvt
+	dm.NopCb
 }
 
 func (RawProc) ThingModelUpRawReply(_ *dm.Client, _ string, _ string, b []byte) error {

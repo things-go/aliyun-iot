@@ -24,7 +24,7 @@ type ExtErrorResponse struct {
 // response:  ext/error/{productKey}/{deviceName}
 // subscribe: ext/error/{productKey}/{deviceName}
 func ProcExtErrorResponse(c *Client, rawURI string, payload []byte) error {
-	uris := URIServiceSpilt(rawURI)
+	uris := infra.SpiltURI(rawURI)
 	if len(uris) < (c.uriOffset + 4) {
 		return ErrInvalidURI
 	}

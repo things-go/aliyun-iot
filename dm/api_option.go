@@ -6,9 +6,10 @@ import (
 	"github.com/thinkgos/go-core-package/lib/logger"
 )
 
+// Option 配置选项
 type Option func(*Client)
 
-// WithConfigCache 设备消息缓存超时时间
+// WithCache 设备消息缓存超时时间
 func WithCache(expiration, cleanupInterval time.Duration) Option {
 	return func(c *Client) {
 		c.cacheExpiration = expiration
@@ -16,7 +17,7 @@ func WithCache(expiration, cleanupInterval time.Duration) Option {
 	}
 }
 
-// WithConfigWork 工作在...之上,WorkOnCOAP,WorkOnHTTP,WorkOnMQTT(默认)
+// WithWork 工作在...之上,WorkOnCOAP,WorkOnHTTP,WorkOnMQTT(默认)
 func WithWork(on int) Option {
 	return func(c *Client) {
 		switch on {
@@ -33,42 +34,42 @@ func WithWork(on int) Option {
 	}
 }
 
-// WithConfigEnableNTP 使能NTP
+// WithEnableNTP 使能NTP
 func WithEnableNTP() Option {
 	return func(c *Client) {
 		c.hasNTP = true
 	}
 }
 
-// WithConfigEnableModelRaw 使能透传
+// WithEnableModelRaw 使能透传
 func WithEnableModelRaw() Option {
 	return func(c *Client) {
 		c.hasRawModel = true
 	}
 }
 
-// WithConfigEnableDesired 使能期望属性
+// WithEnableDesired 使能期望属性
 func WithEnableDesired() Option {
 	return func(c *Client) {
 		c.hasDesired = true
 	}
 }
 
-// WithConfigEnableExtRRPC 使能扩展RRPC功能
+// WithEnableExtRRPC 使能扩展RRPC功能
 func WithEnableExtRRPC() Option {
 	return func(c *Client) {
 		c.hasExtRRPC = true
 	}
 }
 
-// WithConfigEnableGateway 使能网关功能
+// WithEnableGateway 使能网关功能
 func WithEnableGateway() Option {
 	return func(c *Client) {
 		c.isGateway = true
 	}
 }
 
-// WithConfigEnableOTA 使能ota功能
+// WithEnableOTA 使能ota功能
 func WithEnableOTA() Option {
 	return func(c *Client) {
 		c.hasOTA = true
@@ -89,6 +90,7 @@ func WithGwCallback(cb GwCallback) Option {
 	}
 }
 
+// WithLogger 设置日志
 func WithLogger(l logger.Logger) Option {
 	return func(c *Client) {
 		c.log = l

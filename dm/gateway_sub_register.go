@@ -42,8 +42,8 @@ func (sf *Client) ThingGwSubRegister(devID int) (*Entry, error) {
 	}
 
 	id := sf.RequestID()
-	uri := sf.URIServiceSelf(URISysPrefix, URIThingSubDevRegister)
-	err = sf.SendRequest(uri, id, MethodSubDevRegister,
+	uri := sf.URIServiceSelf(infra.URISysPrefix, infra.URIThingSubDevRegister)
+	err = sf.SendRequest(uri, id, infra.MethodSubDevRegister,
 		[]GwSubRegisterParams{
 			{node.ProductKey(), node.DeviceName()},
 		})
@@ -61,7 +61,7 @@ func (sf *Client) ThingGwSubRegister(devID int) (*Entry, error) {
 // response:  /sys/{productKey}/{deviceName}/thing/sub/register_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/sub/register_reply
 func ProcThingGwSubRegisterReply(c *Client, rawURI string, payload []byte) error {
-	uris := URIServiceSpilt(rawURI)
+	uris := infra.SpiltURI(rawURI)
 	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}

@@ -1,4 +1,4 @@
-package dm
+package infra
 
 import (
 	"fmt"
@@ -61,8 +61,8 @@ func TestURIService(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := URIService(tt.args.prefix, tt.args.name, tt.args.productKey, tt.args.deviceName); got != tt.want {
-				t.Errorf("URIService() = %v, want %v", got, tt.want)
+			if got := URI(tt.args.prefix, tt.args.name, tt.args.productKey, tt.args.deviceName); got != tt.want {
+				t.Errorf("uriService() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -85,8 +85,8 @@ func TestURIServiceReplyWithRequestURI(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := URIServiceReplyWithRequestURI(tt.args.uri); got != tt.want {
-				t.Errorf("URIServiceReplyWithRequestURI() = %v, want %v", got, tt.want)
+			if got := URIReplyWithRequestURI(tt.args.uri); got != tt.want {
+				t.Errorf("URIReplyWithRequestURI() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -109,8 +109,8 @@ func TestURIServiceSpilt(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := URIServiceSpilt(tt.args.uri); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("URIServiceSpilt() = %v, want %v", got, tt.want)
+			if got := SpiltURI(tt.args.uri); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("SpiltURI() = %v, want %v", got, tt.want)
 			}
 		})
 	}

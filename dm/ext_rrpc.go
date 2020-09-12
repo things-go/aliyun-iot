@@ -2,6 +2,8 @@ package dm
 
 import (
 	"strings"
+
+	"github.com/thinkgos/aliyun-iot/infra"
 )
 
 // ProcRRPCRequest 处理RRPC请求
@@ -10,7 +12,7 @@ import (
 // response: /sys/${YourProductKey}/${YourDeviceName}/rrpc/response/${messageId}
 // subscribe: /sys/${YourProductKey}/${YourDeviceName}/rrpc/request/+
 func ProcRRPCRequest(c *Client, rawURI string, payload []byte) error {
-	uris := URIServiceSpilt(rawURI)
+	uris := infra.SpiltURI(rawURI)
 	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
@@ -27,7 +29,7 @@ func ProcRRPCRequest(c *Client, rawURI string, payload []byte) error {
 // response:  /ext/rrpc/${messageId}/${topic}
 // subscribe: /ext/rrpc/+/${topic}
 func ProcExtRRPCRequest(c *Client, rawURI string, payload []byte) error {
-	uris := strings.SplitN(strings.TrimLeft(rawURI, SEP), SEP, c.uriOffset+4)
+	uris := strings.SplitN(strings.TrimLeft(rawURI, infra.SEP), infra.SEP, c.uriOffset+4)
 	if len(uris) < (c.uriOffset + 3) {
 		return ErrInvalidParameter
 	}

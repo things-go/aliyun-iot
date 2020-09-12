@@ -1,8 +1,13 @@
 package dm
 
+import (
+	"github.com/thinkgos/aliyun-iot/infra"
+)
+
 // SubscribeAllTopic 对某个设备类型订阅相关所有主题
 func (sf *Client) SubscribeAllTopic(devType DevType, productKey, deviceName string) error {
 	var err error
+	var uri string
 
 	if sf.workOnWho == WorkOnHTTP {
 		return nil
@@ -10,169 +15,169 @@ func (sf *Client) SubscribeAllTopic(devType DevType, productKey, deviceName stri
 
 	// model raw订阅
 	if sf.hasRawModel {
-		if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingModelUpRawReply, productKey, deviceName),
-			ProcThingModelUpRawReply); err != nil {
+		uri = sf.uriService(infra.URISysPrefix, infra.URIThingModelUpRawReply, productKey, deviceName)
+		if err = sf.Subscribe(uri, ProcThingModelUpRawReply); err != nil {
 			sf.log.Warnf(err.Error())
 		}
-		if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingModelDownRaw, productKey, deviceName),
-			ProcThingModelDownRaw); err != nil {
+
+		uri = sf.uriService(infra.URISysPrefix, infra.URIThingModelDownRaw, productKey, deviceName)
+		if err = sf.Subscribe(uri, ProcThingModelDownRaw); err != nil {
 			sf.log.Warnf(err.Error())
 		}
 	} else {
 		// event 主题订阅
-		err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingEventPostReplySingleWildcard, productKey, deviceName),
-			ProcThingEventPostReply)
-		if err != nil {
+		uri = sf.uriService(infra.URISysPrefix, infra.URIThingEventPostReplySingleWildcard, productKey, deviceName)
+		if err = sf.Subscribe(uri, ProcThingEventPostReply); err != nil {
 			sf.log.Warnf(err.Error())
 		}
 	}
 
 	// desired 期望属性订阅
 	if sf.hasDesired {
-		if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingDesiredPropertyGetReply, productKey, deviceName),
-			ProcThingDesiredPropertyGetReply); err != nil {
+		uri = sf.uriService(infra.URISysPrefix, infra.URIThingDesiredPropertyGetReply, productKey, deviceName)
+		if err = sf.Subscribe(uri, ProcThingDesiredPropertyGetReply); err != nil {
 			sf.log.Warnf(err.Error())
 		}
-		if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingDesiredPropertyDelete, productKey, deviceName),
-			ProcThingDesiredPropertyDeleteReply); err != nil {
+		uri = sf.uriService(infra.URISysPrefix, infra.URIThingDesiredPropertyDelete, productKey, deviceName)
+		if err = sf.Subscribe(uri, ProcThingDesiredPropertyDeleteReply); err != nil {
 			sf.log.Warnf(err.Error())
 		}
 	}
 	// deviceInfo 主题订阅
-	if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingDeviceInfoUpdateReply, productKey, deviceName),
-		ProcThingDeviceInfoUpdateReply); err != nil {
+	uri = sf.uriService(infra.URISysPrefix, infra.URIThingDeviceInfoUpdateReply, productKey, deviceName)
+	if err = sf.Subscribe(uri, ProcThingDeviceInfoUpdateReply); err != nil {
 		sf.log.Warnf(err.Error())
 	}
-	if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingDeviceInfoDeleteReply, productKey, deviceName),
-		ProcThingDeviceInfoDeleteReply); err != nil {
+	uri = sf.uriService(infra.URISysPrefix, infra.URIThingDeviceInfoDeleteReply, productKey, deviceName)
+	if err = sf.Subscribe(uri, ProcThingDeviceInfoDeleteReply); err != nil {
 		sf.log.Warnf(err.Error())
 	}
 
 	// 服务调用
-	if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingServicePropertySet, productKey, deviceName),
-		ProcThingServicePropertySet); err != nil {
+	uri = sf.uriService(infra.URISysPrefix, infra.URIThingServicePropertySet, productKey, deviceName)
+	if err = sf.Subscribe(uri, ProcThingServicePropertySet); err != nil {
 		sf.log.Warnf(err.Error())
 	}
-	if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingServiceRequestSingleWildcard, productKey, deviceName),
-		ProcThingServiceRequest); err != nil {
+	uri = sf.uriService(infra.URISysPrefix, infra.URIThingServiceRequestSingleWildcard, productKey, deviceName)
+	if err = sf.Subscribe(uri, ProcThingServiceRequest); err != nil {
 		sf.log.Warnf(err.Error())
 	}
 
 	// dsltemplate 订阅
-	if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingDslTemplateGetReply, productKey, deviceName),
-		ProcThingDsltemplateGetReply); err != nil {
+	uri = sf.uriService(infra.URISysPrefix, infra.URIThingDslTemplateGetReply, productKey, deviceName)
+	if err = sf.Subscribe(uri, ProcThingDsltemplateGetReply); err != nil {
 		sf.log.Warnf(err.Error())
 	}
 
 	// TODO: 不使用??
 	// dynamictsl
-	// if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingDynamicTslGetReply, productKey, deviceName),
-	//	ProcThingDynamictslGetReply); err != nil {
+	// uri = sf.uriService(URISysPrefix, URIThingDynamicTslGetReply, productKey, deviceName)
+	// if err = sf.Subscribe(uri, ProcThingDynamictslGetReply); err != nil {
 	//	sf.log.Warnf(err.Error())
 	// }
 
 	// RRPC
-	if err = sf.Subscribe(sf.URIService(URISysPrefix, URIRRPCRequestSingleWildcard, productKey, deviceName),
-		ProcRRPCRequest); err != nil {
+	uri = sf.uriService(infra.URISysPrefix, infra.URIRRPCRequestSingleWildcard, productKey, deviceName)
+	if err = sf.Subscribe(uri, ProcRRPCRequest); err != nil {
 		sf.log.Warnf(err.Error())
 	}
 
 	// ntp订阅, 只有网关和独立设备支持ntp
 	if sf.hasNTP && devType != DevTypeSubDev {
-		if err = sf.Subscribe(sf.URIService(URIExtNtpPrefix, URINtpResponse, productKey, deviceName),
-			ProcExtNtpResponse); err != nil {
+		uri = sf.uriService(infra.URIExtNtpPrefix, infra.URINtpResponse, productKey, deviceName)
+		if err = sf.Subscribe(uri, ProcExtNtpResponse); err != nil {
 			sf.log.Warnf(err.Error())
 		}
 	}
 
 	// config 主题订阅
-	if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingConfigGetReply, productKey, deviceName),
-		ProcThingConfigGetReply); err != nil {
+	uri = sf.uriService(infra.URISysPrefix, infra.URIThingConfigGetReply, productKey, deviceName)
+	if err = sf.Subscribe(uri, ProcThingConfigGetReply); err != nil {
 		sf.log.Warnf(err.Error())
 	}
-	if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingConfigPush, productKey, deviceName),
-		ProcThingConfigPush); err != nil {
+	uri = sf.uriService(infra.URISysPrefix, infra.URIThingConfigPush, productKey, deviceName)
+	if err = sf.Subscribe(uri, ProcThingConfigPush); err != nil {
 		sf.log.Warnf(err.Error())
 	}
 
 	// error 订阅
-	if err = sf.Subscribe(sf.URIService(URIExtErrorPrefix, "", productKey, deviceName),
-		ProcExtErrorResponse); err != nil {
+	uri = sf.uriService(infra.URIExtErrorPrefix, "", productKey, deviceName)
+	if err = sf.Subscribe(uri, ProcExtErrorResponse); err != nil {
 		sf.log.Warnf(err.Error())
 	}
 
 	if sf.isGateway {
 		if devType == DevTypeGateway {
 			// 网关批量上报数据
-			if err = sf.Subscribe(sf.URIServiceSelf(URISysPrefix, URIThingEventPropertyPackPostReply),
-				ProcThingEventPropertyPackPostReply); err != nil {
+			uri = sf.URIServiceSelf(infra.URISysPrefix, infra.URIThingEventPropertyPackPostReply)
+			if err = sf.Subscribe(uri, ProcThingEventPropertyPackPostReply); err != nil {
 				sf.log.Warnf(err.Error())
 			}
 
 			// 添加该网关和子设备的拓扑关系
-			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingTopoAddReply, productKey, deviceName),
-				ProcThingGwTopoAddReply); err != nil {
+			uri = sf.uriService(infra.URISysPrefix, infra.URIThingTopoAddReply, productKey, deviceName)
+			if err = sf.Subscribe(uri, ProcThingGwTopoAddReply); err != nil {
 				sf.log.Warnf(err.Error())
 			}
 
 			// 删除该网关和子设备的拓扑关系
-			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingTopoDeleteReply, productKey, deviceName),
-				ProcThingGwTopoDeleteReply); err != nil {
+			uri = sf.uriService(infra.URISysPrefix, infra.URIThingTopoDeleteReply, productKey, deviceName)
+			if err = sf.Subscribe(uri, ProcThingGwTopoDeleteReply); err != nil {
 				sf.log.Warnf(err.Error())
 			}
 
 			// 获取该网关和子设备的拓扑关系
-			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingTopoGetReply, productKey, deviceName),
-				ProcThingGwTopoGetReply); err != nil {
+			uri = sf.uriService(infra.URISysPrefix, infra.URIThingTopoGetReply, productKey, deviceName)
+			if err = sf.Subscribe(uri, ProcThingGwTopoGetReply); err != nil {
 				sf.log.Warnf(err.Error())
 			}
 
 			// 发现设备列表上报
-			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingListFoundReply, productKey, deviceName),
+			if err = sf.Subscribe(sf.uriService(infra.URISysPrefix, infra.URIThingListFoundReply, productKey, deviceName),
 				ProcThingGwListFoundReply); err != nil {
 				sf.log.Warnf(err.Error())
 			}
 
 			// 添加设备拓扑关系通知,topic需要用网关的productKey,deviceName
-			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingTopoAddNotify, productKey, deviceName),
-				ProcThingGwTopoAddNotify); err != nil {
+			uri = sf.uriService(infra.URISysPrefix, infra.URIThingTopoAddNotify, productKey, deviceName)
+			if err = sf.Subscribe(uri, ProcThingGwTopoAddNotify); err != nil {
 				sf.log.Warnf(err.Error())
 			}
 
 			// 网关网络拓扑关系变化通知,topic需要用网关的productKey,deviceName
-			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingTopoChange, productKey, deviceName),
-				ProcThingGwTopoChange); err != nil {
+			uri = sf.uriService(infra.URISysPrefix, infra.URIThingTopoChange, productKey, deviceName)
+			if err = sf.Subscribe(uri, ProcThingGwTopoChange); err != nil {
 				sf.log.Warnf(err.Error())
 			}
 
 			// 子设备动态注册,topic需要用网关的productKey,deviceName
-			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingSubDevRegisterReply, productKey, deviceName),
-				ProcThingGwSubRegisterReply); err != nil {
+			uri = sf.uriService(infra.URISysPrefix, infra.URIThingSubDevRegisterReply, productKey, deviceName)
+			if err = sf.Subscribe(uri, ProcThingGwSubRegisterReply); err != nil {
 				sf.log.Warnf(err.Error())
 			}
 			// 子设备上线,下线,topic需要用网关的productKey,deviceName,
 			// 使用的是网关的通道,所以子设备不注册相关主题
-			if err = sf.Subscribe(sf.URIService(URIExtSessionPrefix, URICombineLoginReply, productKey, deviceName),
-				ProcExtCombineLoginReply); err != nil {
+			uri = sf.uriService(infra.URIExtSessionPrefix, infra.URICombineLoginReply, productKey, deviceName)
+			if err = sf.Subscribe(uri, ProcExtCombineLoginReply); err != nil {
 				sf.log.Warnf(err.Error())
 			}
-			if err = sf.Subscribe(sf.URIService(URIExtSessionPrefix, URICombineLogoutReply, productKey, deviceName),
-				ProcExtCombineLoginoutReply); err != nil {
+			uri = sf.uriService(infra.URIExtSessionPrefix, infra.URICombineLogoutReply, productKey, deviceName)
+			if err = sf.Subscribe(uri, ProcExtCombineLoginoutReply); err != nil {
 				sf.log.Warnf(err.Error())
 			}
 		}
 		if devType == DevTypeSubDev {
 			// 子设备禁用,启用,删除
-			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingDisable, productKey, deviceName),
-				ProcThingGwDisable); err != nil {
+			uri = sf.uriService(infra.URISysPrefix, infra.URIThingDisable, productKey, deviceName)
+			if err = sf.Subscribe(uri, ProcThingGwDisable); err != nil {
 				sf.log.Warnf(err.Error())
 			}
-			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingEnable, productKey, deviceName),
-				ProcThingGwEnable); err != nil {
+			uri = sf.uriService(infra.URISysPrefix, infra.URIThingEnable, productKey, deviceName)
+			if err = sf.Subscribe(uri, ProcThingGwEnable); err != nil {
 				sf.log.Warnf(err.Error())
 			}
-			if err = sf.Subscribe(sf.URIService(URISysPrefix, URIThingDelete, productKey, deviceName),
-				ProcThingGwDelete); err != nil {
+			uri = sf.uriService(infra.URISysPrefix, infra.URIThingDelete, productKey, deviceName)
+			if err = sf.Subscribe(uri, ProcThingGwDelete); err != nil {
 				sf.log.Warnf(err.Error())
 			}
 		}
@@ -196,37 +201,41 @@ func (sf *Client) UnSubscribeSubDevAllTopic(productKey, deviceName string) error
 	// model raw 取消订阅
 	if sf.hasRawModel {
 		topicList = append(topicList,
-			sf.URIService(URISysPrefix, URIThingModelUpRawReply, productKey, deviceName),
-			sf.URIService(URISysPrefix, URIThingModelDownRawReply, productKey, deviceName))
+			sf.uriService(infra.URISysPrefix, infra.URIThingModelUpRawReply, productKey, deviceName),
+			sf.uriService(infra.URISysPrefix, infra.URIThingModelDownRawReply, productKey, deviceName),
+		)
 	} else {
 		// event 取消订阅
 		topicList = append(topicList,
-			sf.URIService(URISysPrefix, URIThingEventPostReplySingleWildcard, productKey, deviceName))
+			sf.uriService(infra.URISysPrefix, infra.URIThingEventPostReplySingleWildcard, productKey, deviceName),
+		)
 	}
 
 	// desired 期望属性取消订阅
 	if sf.hasDesired {
 		topicList = append(topicList,
-			sf.URIService(URISysPrefix, URIThingDesiredPropertyGetReply, productKey, deviceName),
-			sf.URIService(URISysPrefix, URIThingDesiredPropertyDelete, productKey, deviceName))
+			sf.uriService(infra.URISysPrefix, infra.URIThingDesiredPropertyGetReply, productKey, deviceName),
+			sf.uriService(infra.URISysPrefix, infra.URIThingDesiredPropertyDelete, productKey, deviceName),
+		)
 	}
 	topicList = append(topicList,
 		// deviceInfo
-		sf.URIService(URISysPrefix, URIThingDeviceInfoUpdateReply, productKey, deviceName),
-		sf.URIService(URISysPrefix, URIThingDeviceInfoDeleteReply, productKey, deviceName),
+		sf.uriService(infra.URISysPrefix, infra.URIThingDeviceInfoUpdateReply, productKey, deviceName),
+		sf.uriService(infra.URISysPrefix, infra.URIThingDeviceInfoDeleteReply, productKey, deviceName),
 		// service
-		sf.URIService(URISysPrefix, URIThingServicePropertySet, productKey, deviceName),
-		sf.URIService(URISysPrefix, URIThingServiceRequestSingleWildcard, productKey, deviceName),
+		sf.uriService(infra.URISysPrefix, infra.URIThingServicePropertySet, productKey, deviceName),
+		sf.uriService(infra.URISysPrefix, infra.URIThingServiceRequestSingleWildcard, productKey, deviceName),
 		// dystemplate
-		sf.URIService(URISysPrefix, URIThingDslTemplateGetReply, productKey, deviceName),
+		sf.uriService(infra.URISysPrefix, infra.URIThingDslTemplateGetReply, productKey, deviceName),
 		// dynamictsl 不使用??
-		// sf.URIService(URISysPrefix, URIThingDynamicTslGetReply, productKey, deviceName),
+		// sf.uriService(URISysPrefix, URIThingDynamicTslGetReply, productKey, deviceName),
 		// RRPC
-		sf.URIService(URISysPrefix, URIRRPCRequestSingleWildcard, productKey, deviceName),
+		sf.uriService(infra.URISysPrefix, infra.URIRRPCRequestSingleWildcard, productKey, deviceName),
 		// config
-		sf.URIService(URISysPrefix, URIThingConfigGetReply, productKey, deviceName),
-		sf.URIService(URISysPrefix, URIThingConfigPush, productKey, deviceName),
+		sf.uriService(infra.URISysPrefix, infra.URIThingConfigGetReply, productKey, deviceName),
+		sf.uriService(infra.URISysPrefix, infra.URIThingConfigPush, productKey, deviceName),
 		// error
-		sf.URIService(URIExtErrorPrefix, "", productKey, deviceName))
+		sf.uriService(infra.URIExtErrorPrefix, "", productKey, deviceName),
+	)
 	return sf.UnSubscribe(topicList...)
 }

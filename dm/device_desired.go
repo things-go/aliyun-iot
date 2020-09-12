@@ -22,9 +22,8 @@ func (sf *Client) ThingDesiredPropertyGet(devID int, params interface{}) (*Entry
 	}
 
 	id := sf.RequestID()
-	err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingDesiredPropertyGet, node.ProductKey(), node.DeviceName()),
-		id, MethodDesiredPropertyGet, params)
-	if err != nil {
+	uri := sf.uriService(infra.URISysPrefix, infra.URIThingDesiredPropertyGet, node.ProductKey(), node.DeviceName())
+	if err := sf.SendRequest(uri, id, infra.MethodDesiredPropertyGet, params); err != nil {
 		return nil, err
 	}
 	sf.log.Debugf("upstream thing <desired>: property get,@%d", id)
@@ -47,8 +46,8 @@ func (sf *Client) ThingDesiredPropertyDelete(devID int, params interface{}) (*En
 	}
 
 	id := sf.RequestID()
-	err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingDesiredPropertyDelete, node.ProductKey(), node.DeviceName()),
-		id, MethodDesiredPropertyDelete, params)
+	uri := sf.uriService(infra.URISysPrefix, infra.URIThingDesiredPropertyDelete, node.ProductKey(), node.DeviceName())
+	err = sf.SendRequest(uri, id, infra.MethodDesiredPropertyDelete, params)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +61,7 @@ func (sf *Client) ThingDesiredPropertyDelete(devID int, params interface{}) (*En
 // response:  /sys/{productKey}/{deviceName}/thing/property/desired/get_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/property/desired/get_reply
 func ProcThingDesiredPropertyGetReply(c *Client, rawURI string, payload []byte) error {
-	uris := URIServiceSpilt(rawURI)
+	uris := infra.SpiltURI(rawURI)
 	if len(uris) < (c.uriOffset + 7) {
 		return ErrInvalidURI
 	}
@@ -89,7 +88,7 @@ func ProcThingDesiredPropertyGetReply(c *Client, rawURI string, payload []byte) 
 // response:  /sys/{productKey}/{deviceName}/thing/property/desired/delete_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/property/desired/delete_reply
 func ProcThingDesiredPropertyDeleteReply(c *Client, rawURI string, payload []byte) error {
-	uris := URIServiceSpilt(rawURI)
+	uris := infra.SpiltURI(rawURI)
 	if len(uris) < (c.uriOffset + 7) {
 		return ErrInvalidURI
 	}

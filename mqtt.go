@@ -14,7 +14,7 @@ type MQTTClient struct {
 	*dm.Client
 }
 
-// 确保 NopEvt 实现 dm.Conn 接口
+// 确保 NopCb 实现 dm.Conn 接口
 var _ dm.Conn = (*MQTTClient)(nil)
 
 // NewWithMQTT 新建MQTTClient

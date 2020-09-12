@@ -3,6 +3,8 @@ package dm
 import (
 	"encoding/json"
 	"time"
+
+	"github.com/thinkgos/aliyun-iot/infra"
 )
 
 // NtpRequest ntp请求payload
@@ -26,7 +28,7 @@ func (sf *Client) ExtNtpRequest() error {
 	if !sf.hasNTP || sf.hasRawModel {
 		return ErrNotSupportFeature
 	}
-	err := sf.Publish(sf.URIServiceSelf(URIExtNtpPrefix, URINtpRequest), 0,
+	err := sf.Publish(sf.URIServiceSelf(infra.URIExtNtpPrefix, infra.URINtpRequest), 0,
 		NtpRequest{int64(time.Now().Nanosecond()) / 1000000})
 	if err != nil {
 		return err
@@ -41,7 +43,7 @@ func (sf *Client) ExtNtpRequest() error {
 // response: /ext/ntp/${YourProductKey}/${YourDeviceName}/response
 // subscribe: /ext/ntp/${YourProductKey}/${YourDeviceName}/response
 func ProcExtNtpResponse(c *Client, rawURI string, payload []byte) error {
-	uris := URIServiceSpilt(rawURI)
+	uris := infra.SpiltURI(rawURI)
 	if len(uris) < (c.uriOffset + 5) {
 		return ErrInvalidURI
 	}

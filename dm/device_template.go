@@ -20,8 +20,8 @@ func (sf *Client) ThingDsltemplateGet(devID int) (*Entry, error) {
 	}
 
 	id := sf.RequestID()
-	uri := sf.URIService(URISysPrefix, URIThingDslTemplateGet, node.ProductKey(), node.DeviceName())
-	err = sf.SendRequest(uri, id, MethodDslTemplateGet, "{}")
+	uri := sf.uriService(infra.URISysPrefix, infra.URIThingDslTemplateGet, node.ProductKey(), node.DeviceName())
+	err = sf.SendRequest(uri, id, infra.MethodDslTemplateGet, "{}")
 	if err != nil {
 		return nil, err
 	}
@@ -41,8 +41,8 @@ func (sf *Client) ThingDynamictslGet(devID int) (*Entry, error) {
 	}
 
 	id := sf.RequestID()
-	uri := sf.URIService(URISysPrefix, URIThingDynamicTslGet, node.ProductKey(), node.DeviceName())
-	err = sf.SendRequest(uri, id, MethodDynamicTslGet, map[string]interface{}{
+	uri := sf.uriService(infra.URISysPrefix, infra.URIThingDynamicTslGet, node.ProductKey(), node.DeviceName())
+	err = sf.SendRequest(uri, id, infra.MethodDynamicTslGet, map[string]interface{}{
 		"nodes":      []string{"type", "identifier"},
 		"addDefault": false,
 	})
@@ -60,7 +60,7 @@ func (sf *Client) ThingDynamictslGet(devID int) (*Entry, error) {
 // response:  /sys/{productKey}/{deviceName}/thing/dsltemplate/get_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/dsltemplate/get_reply
 func ProcThingDsltemplateGetReply(c *Client, rawURI string, payload []byte) error {
-	uris := URIServiceSpilt(rawURI)
+	uris := infra.SpiltURI(rawURI)
 	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
@@ -86,7 +86,7 @@ func ProcThingDsltemplateGetReply(c *Client, rawURI string, payload []byte) erro
 // response: /sys/${YourProductKey}/${YourDeviceName}/thing/dynamicTsl/get_reply
 // subscribe: /sys/${YourProductKey}/${YourDeviceName}/thing/dynamicTsl/get_reply
 func ProcThingDynamictslGetReply(c *Client, rawURI string, payload []byte) error {
-	uris := URIServiceSpilt(rawURI)
+	uris := infra.SpiltURI(rawURI)
 	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}

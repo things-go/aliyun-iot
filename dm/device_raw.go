@@ -1,5 +1,9 @@
 package dm
 
+import (
+	"github.com/thinkgos/aliyun-iot/infra"
+)
+
 // ThingModelUpRaw 上传透传数据
 // request: /sys/{productKey}/{deviceName}/thing/model/up_raw
 // response: /sys/{productKey}/{deviceName}/thing/model/up_raw_reply
@@ -14,8 +18,8 @@ func (sf *Client) ThingModelUpRaw(devID int, payload interface{}) error {
 	if err != nil {
 		return err
 	}
-	err = sf.Publish(sf.URIService(URISysPrefix, URIThingModelUpRaw, node.ProductKey(), node.DeviceName()), 1, payload)
-	if err != nil {
+	uri := sf.uriService(infra.URISysPrefix, infra.URIThingModelUpRaw, node.ProductKey(), node.DeviceName())
+	if err = sf.Publish(uri, 1, payload); err != nil {
 		return err
 	}
 	sf.log.Debugf("upstream thing <model>: up raw")
@@ -28,7 +32,7 @@ func (sf *Client) ThingModelUpRaw(devID int, payload interface{}) error {
 // response: /sys/{productKey}/{deviceName}/thing/model/up_raw_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/model/up_raw_reply
 func ProcThingModelUpRawReply(c *Client, rawURI string, payload []byte) error {
-	uris := URIServiceSpilt(rawURI)
+	uris := infra.SpiltURI(rawURI)
 	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
@@ -43,7 +47,7 @@ func ProcThingModelUpRawReply(c *Client, rawURI string, payload []byte) error {
 // response: /sys/{productKey}/{deviceName}/thing/model/down_raw_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/model/down_raw
 func ProcThingModelDownRaw(c *Client, rawURI string, payload []byte) error {
-	uris := URIServiceSpilt(rawURI)
+	uris := infra.SpiltURI(rawURI)
 	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}

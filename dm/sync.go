@@ -17,7 +17,7 @@ type Entry struct {
 	message chan message
 }
 
-// wait the entry response,return id,data and error
+// Wait the entry response,return id,data and error
 func (sf *Entry) Wait(t time.Duration) (uint, interface{}, error) {
 	tm := time.NewTimer(t)
 	defer tm.Stop()

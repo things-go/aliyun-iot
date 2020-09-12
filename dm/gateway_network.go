@@ -40,8 +40,8 @@ func (sf *Client) ThingGwTopoAdd(devID int) (*Entry, error) {
 		return nil, err
 	}
 	id := sf.RequestID()
-	uri := sf.URIServiceSelf(URISysPrefix, URIThingTopoAdd)
-	err = sf.SendRequest(uri, id, MethodTopoAdd, []GwTopoAddParams{
+	uri := sf.URIServiceSelf(infra.URISysPrefix, infra.URIThingTopoAdd)
+	err = sf.SendRequest(uri, id, infra.MethodTopoAdd, []GwTopoAddParams{
 		{
 			node.ProductKey(),
 			node.DeviceName(),
@@ -75,8 +75,8 @@ func (sf *Client) ThingGwTopoDelete(devID int) (*Entry, error) {
 		return nil, err
 	}
 	id := sf.RequestID()
-	uri := sf.URIServiceSelf(URISysPrefix, URIThingTopoDelete)
-	err = sf.SendRequest(uri, id, MethodTopoDelete,
+	uri := sf.URIServiceSelf(infra.URISysPrefix, infra.URIThingTopoDelete)
+	err = sf.SendRequest(uri, id, infra.MethodTopoDelete,
 		[]GwTopoDeleteParams{
 			{
 				node.ProductKey(),
@@ -110,8 +110,8 @@ func (sf *Client) ThingGwTopoGet() (*Entry, error) {
 		return nil, ErrNotSupportFeature
 	}
 	id := sf.RequestID()
-	uri := sf.URIServiceSelf(URISysPrefix, URIThingTopoGet)
-	if err := sf.SendRequest(uri, id, MethodTopoGet, "{}"); err != nil {
+	uri := sf.URIServiceSelf(infra.URISysPrefix, infra.URIThingTopoGet)
+	if err := sf.SendRequest(uri, id, infra.MethodTopoGet, "{}"); err != nil {
 		return nil, err
 	}
 	sf.log.Debugf("upstream GW thing <topo>: Get @%d", id)
@@ -136,8 +136,8 @@ func (sf *Client) ThingGwListFound(devID int) (*Entry, error) {
 		return nil, err
 	}
 	id := sf.RequestID()
-	uri := sf.URIServiceSelf(URISysPrefix, URIThingListFound)
-	err = sf.SendRequest(uri, id, MethodListFound,
+	uri := sf.URIServiceSelf(infra.URISysPrefix, infra.URIThingListFound)
+	err = sf.SendRequest(uri, id, infra.MethodListFound,
 		[]GwListFoundParams{
 			{
 				node.ProductKey(),
@@ -158,7 +158,7 @@ func (sf *Client) ThingGwListFound(devID int) (*Entry, error) {
 // response:  /sys/{productKey}/{deviceName}/thing/topo/add_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/topo/add_reply
 func ProcThingGwTopoAddReply(c *Client, rawURI string, payload []byte) error {
-	uris := URIServiceSpilt(rawURI)
+	uris := infra.SpiltURI(rawURI)
 	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
@@ -187,7 +187,7 @@ func ProcThingGwTopoAddReply(c *Client, rawURI string, payload []byte) error {
 // response:  /sys/{productKey}/{deviceName}/thing/topo/delete_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/topo/delete_reply
 func ProcThingGwTopoDeleteReply(c *Client, rawURI string, payload []byte) error {
-	uris := URIServiceSpilt(rawURI)
+	uris := infra.SpiltURI(rawURI)
 	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
@@ -215,7 +215,7 @@ func ProcThingGwTopoDeleteReply(c *Client, rawURI string, payload []byte) error 
 // response:  /sys/{productKey}/{deviceName}/thing/topo/get_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/topo/get_reply
 func ProcThingGwTopoGetReply(c *Client, rawURI string, payload []byte) error {
-	uris := URIServiceSpilt(rawURI)
+	uris := infra.SpiltURI(rawURI)
 	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
@@ -239,7 +239,7 @@ func ProcThingGwTopoGetReply(c *Client, rawURI string, payload []byte) error {
 // response:  /sys/{productKey}/{deviceName}/thing/list/found_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/list/found_reply
 func ProcThingGwListFoundReply(c *Client, rawURI string, payload []byte) error {
-	uris := URIServiceSpilt(rawURI)
+	uris := infra.SpiltURI(rawURI)
 	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
@@ -279,7 +279,7 @@ type GwTopoAddNotifyRequest struct {
 // response:  /sys/{productKey}/{deviceName}/thing/topo/add/notify_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/topo/add/notify
 func ProcThingGwTopoAddNotify(c *Client, rawURI string, payload []byte) error {
-	uris := URIServiceSpilt(rawURI)
+	uris := infra.SpiltURI(rawURI)
 	if len(uris) < (c.uriOffset + 7) {
 		return ErrInvalidURI
 	}
@@ -293,7 +293,7 @@ func ProcThingGwTopoAddNotify(c *Client, rawURI string, payload []byte) error {
 	if err := c.gwCb.ThingGwTopoAddNotify(c, req.Params); err != nil {
 		c.log.Warnf("ipc send message failed, %+v", err)
 	}
-	return c.SendResponse(URIServiceReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
+	return c.SendResponse(infra.URIReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
 }
 
 // GwTopoChange 网络拓扑关系变化请求参数域的设备结构
@@ -322,7 +322,7 @@ type GwTopoChangeRequest struct {
 // response:  /sys/{productKey}/{deviceName}/thing/topo/change_reply
 // subscribe:  /sys/{productKey}/{deviceName}/thing/topo/change
 func ProcThingGwTopoChange(c *Client, rawURI string, payload []byte) error {
-	uris := URIServiceSpilt(rawURI)
+	uris := infra.SpiltURI(rawURI)
 	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
@@ -336,5 +336,5 @@ func ProcThingGwTopoChange(c *Client, rawURI string, payload []byte) error {
 	if err := c.gwCb.ThingGwTopoChange(c, req.Params); err != nil {
 		c.log.Warnf("ipc send message failed, %+v", err)
 	}
-	return c.SendResponse(URIServiceReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
+	return c.SendResponse(infra.URIReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
 }

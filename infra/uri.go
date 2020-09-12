@@ -1,4 +1,4 @@
-package dm
+package infra
 
 import (
 	"fmt"
@@ -127,13 +127,13 @@ const (
 	URIThingDeleteReply     = "thing/delete_reply"
 )
 
-// URIService 生成URI
+// URI 生成URI
 // prefix: 主题前缀
 // name: 可为空字符串
 // productKey: 产品key
 // deviceName: 设备名
 // inName的作用是有一些需要格式化到name里.
-func URIService(prefix, name, productKey, deviceName string, inName ...string) string {
+func URI(prefix, name, productKey, deviceName string, inName ...string) string {
 	str := strings.Builder{}
 	str.Grow(len(prefix) + len(name) + len(productKey) + len(deviceName))
 	if prefix != "" {
@@ -149,12 +149,12 @@ func URIService(prefix, name, productKey, deviceName string, inName ...string) s
 	return str.String()
 }
 
-// URIServiceReplyWithRequestURI 根据请求的URI生成应答的URI
-func URIServiceReplyWithRequestURI(uri string) string {
+// URIReplyWithRequestURI 根据请求的URI生成应答的URI
+func URIReplyWithRequestURI(uri string) string {
 	return uri + "_" + URIReplySuffix
 }
 
-// URIServiceSpilt 分隔URI,会去除左边的SEP分隔符
-func URIServiceSpilt(uri string) []string {
+// SpiltURI 分隔URI,会去除左边的SEP分隔符
+func SpiltURI(uri string) []string {
 	return strings.Split(strings.TrimLeft(uri, SEP), SEP)
 }

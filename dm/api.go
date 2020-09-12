@@ -79,6 +79,9 @@ type Client struct {
 	log logger.Logger
 }
 
+// Version 平台通信版本
+var Version = "1.0"
+
 // New 创建一个物管理客户端
 func New(meta infra.MetaInfo, conn Conn, opts ...Option) *Client {
 	c := &Client{
@@ -92,8 +95,8 @@ func New(meta infra.MetaInfo, conn Conn, opts ...Option) *Client {
 
 		DevMgr: NewDevMgr(),
 		Conn:   conn,
-		cb:     NopEvt{},
-		gwCb:   NopGwEvt{},
+		cb:     NopCb{},
+		gwCb:   NopGwCb{},
 		log:    logger.NewDiscard(),
 	}
 	for _, opt := range opts {
@@ -124,7 +127,7 @@ func (sf *Client) RequestID() uint {
 }
 
 // SendRequest 发送请求,API内部已实现json序列化
-// URIService 唯一定位服务器或(topic)
+// uriService 唯一定位服务器或(topic)
 // requestID: 请求ID
 // method: 方法
 // params: 消息体Request的params

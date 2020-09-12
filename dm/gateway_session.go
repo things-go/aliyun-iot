@@ -100,7 +100,7 @@ func (sf *Client) ExtCombineLogin(devID int) (*Entry, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = sf.Publish(sf.URIServiceSelf(URIExtSessionPrefix, URICombineLogin), 0, req)
+	err = sf.Publish(sf.URIServiceSelf(infra.URIExtSessionPrefix, infra.URICombineLogin), 0, req)
 	if err != nil {
 		return nil, err
 	}
@@ -161,7 +161,7 @@ func (sf *Client) ExtCombineLogout(devID int) (*Entry, error) {
 		return nil, err
 	}
 
-	err = sf.Publish(sf.URIServiceSelf(URIExtSessionPrefix, URICombineLogout), 0, req)
+	err = sf.Publish(sf.URIServiceSelf(infra.URIExtSessionPrefix, infra.URICombineLogout), 0, req)
 	if err != nil {
 		return nil, err
 	}
@@ -184,7 +184,7 @@ func (sf *Client) ExtCombineBatchLogout(devID ...int) (*Entry, error) {
 // response:  /ext/session/{productKey}/{deviceName}/combine/login_reply
 // subscribe: /ext/session/{productKey}/{deviceName}/combine/login_reply
 func ProcExtCombineLoginReply(c *Client, rawURI string, payload []byte) error {
-	uris := URIServiceSpilt(rawURI)
+	uris := infra.SpiltURI(rawURI)
 	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
@@ -222,7 +222,7 @@ func ProcExtCombineBatchLoginReply(c *Client, rawURI string, payload []byte) err
 // response:  /ext/session/{productKey}/{deviceName}/combine/logout_reply
 // subscribe: /ext/session/{productKey}/{deviceName}/combine/logout_reply
 func ProcExtCombineLoginoutReply(c *Client, rawURI string, payload []byte) error {
-	uris := URIServiceSpilt(rawURI)
+	uris := infra.SpiltURI(rawURI)
 	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}

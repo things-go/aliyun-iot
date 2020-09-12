@@ -19,9 +19,8 @@ func (sf *Client) ThingDeviceInfoUpdate(devID int, params interface{}) (*Entry, 
 	}
 
 	id := sf.RequestID()
-	err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingDeviceInfoUpdate, node.ProductKey(), node.DeviceName()),
-		id, MethodDeviceInfoUpdate, params)
-	if err != nil {
+	uri := sf.uriService(infra.URISysPrefix, infra.URIThingDeviceInfoUpdate, node.ProductKey(), node.DeviceName())
+	if err := sf.SendRequest(uri, id, infra.MethodDeviceInfoUpdate, params); err != nil {
 		return nil, err
 	}
 
@@ -42,9 +41,8 @@ func (sf *Client) ThingDeviceInfoDelete(devID int, params interface{}) (*Entry, 
 	}
 
 	id := sf.RequestID()
-	err = sf.SendRequest(sf.URIService(URISysPrefix, URIThingDeviceInfoDelete, node.ProductKey(), node.DeviceName()),
-		id, MethodDeviceInfoDelete, params)
-	if err != nil {
+	uri := sf.uriService(infra.URISysPrefix, infra.URIThingDeviceInfoDelete, node.ProductKey(), node.DeviceName())
+	if err := sf.SendRequest(uri, id, infra.MethodDeviceInfoDelete, params); err != nil {
 		return nil, err
 	}
 	sf.log.Debugf("upstream thing <deviceInfo>: delete,@%d", id)
@@ -57,7 +55,7 @@ func (sf *Client) ThingDeviceInfoDelete(devID int, params interface{}) (*Entry, 
 // response: /sys/{productKey}/{deviceName}/thing/deviceinfo/update_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/deviceinfo/update_reply
 func ProcThingDeviceInfoUpdateReply(c *Client, rawURI string, payload []byte) error {
-	uris := URIServiceSpilt(rawURI)
+	uris := infra.SpiltURI(rawURI)
 	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
@@ -84,7 +82,7 @@ func ProcThingDeviceInfoUpdateReply(c *Client, rawURI string, payload []byte) er
 // response: /sys/{productKey}/{deviceName}/thing/deviceinfo/delete_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/deviceinfo/delete_reply
 func ProcThingDeviceInfoDeleteReply(c *Client, rawURI string, payload []byte) error {
-	uris := URIServiceSpilt(rawURI)
+	uris := infra.SpiltURI(rawURI)
 	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}

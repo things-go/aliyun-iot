@@ -53,9 +53,9 @@ func (sf *Client) ThingConfigGet(devID int) (*Entry, error) {
 		return nil, err
 	}
 
-	uri := sf.URIService(URISysPrefix, URIThingConfigGet, node.ProductKey(), node.DeviceName())
+	uri := sf.uriService(infra.URISysPrefix, infra.URIThingConfigGet, node.ProductKey(), node.DeviceName())
 	id := sf.RequestID()
-	err = sf.SendRequest(uri, id, MethodConfigGet, ConfigGetParams{"product", "file"})
+	err = sf.SendRequest(uri, id, infra.MethodConfigGet, ConfigGetParams{"product", "file"})
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +69,7 @@ func (sf *Client) ThingConfigGet(devID int) (*Entry, error) {
 // response:  /sys/{productKey}/{deviceName}/thing/config/get_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/config/get_reply
 func ProcThingConfigGetReply(c *Client, rawURI string, payload []byte) error {
-	uris := URIServiceSpilt(rawURI)
+	uris := infra.SpiltURI(rawURI)
 	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
@@ -96,7 +96,7 @@ func ProcThingConfigGetReply(c *Client, rawURI string, payload []byte) error {
 // response:  /sys/{productKey}/{deviceName}/thing/config/push_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/config/push
 func ProcThingConfigPush(c *Client, rawURI string, payload []byte) error {
-	uris := URIServiceSpilt(rawURI)
+	uris := infra.SpiltURI(rawURI)
 	if len(uris) < (c.uriOffset + 6) {
 		return ErrInvalidURI
 	}
@@ -104,7 +104,7 @@ func ProcThingConfigPush(c *Client, rawURI string, payload []byte) error {
 	if err := json.Unmarshal(payload, &req); err != nil {
 		return err
 	}
-	err := c.SendResponse(URIServiceReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
+	err := c.SendResponse(infra.URIReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
 	if err != nil {
 		return err
 	}

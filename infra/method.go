@@ -1,7 +1,4 @@
-package dm
-
-// Version 平台通信版本
-var Version = "1.0"
+package infra
 
 // method 定义
 const (
