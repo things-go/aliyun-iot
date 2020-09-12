@@ -14,15 +14,15 @@ func WithSignMethod(method string) Option {
 	return func(ms *Sign) {
 		switch method {
 		case hmacsha1:
-			ms.clientIDkv["signmethod"] = hmacsha1
+			ms.extParams["signmethod"] = hmacsha1
 			ms.hfc = sha1.New
 		case hmacsha256:
-			ms.clientIDkv["signmethod"] = hmacsha256
+			ms.extParams["signmethod"] = hmacsha256
 			ms.hfc = sha256.New
 		case hmacmd5:
 			fallthrough
 		default:
-			ms.clientIDkv["signmethod"] = hmacmd5
+			ms.extParams["signmethod"] = hmacmd5
 			ms.hfc = md5.New
 		}
 	}
@@ -34,33 +34,33 @@ func WithSecureMode(mode SecureMode) Option {
 		switch mode {
 		case SecureModeTLSGuider:
 			ms.enableTLS = true
-			ms.clientIDkv["securemode"] = modeTLSGuider
+			ms.extParams["securemode"] = modeTLSGuider
 		case SecureModeTLSDirect:
 			ms.enableTLS = true
-			ms.clientIDkv["securemode"] = modeTLSDirect
+			ms.extParams["securemode"] = modeTLSDirect
 		case SecureModeITLSDNSID2:
 			ms.enableTLS = true
-			ms.clientIDkv["securemode"] = modeITLSDNSID2
+			ms.extParams["securemode"] = modeITLSDNSID2
 		case SecureModeTCPDirectPlain:
 			fallthrough
 		default:
 			ms.enableTLS = false
-			ms.clientIDkv["securemode"] = modeTCPDirectPlain
+			ms.extParams["securemode"] = modeTCPDirectPlain
 		}
 	}
 }
 
-// WithDeviceModel 设置支持物模型
-func WithDeviceModel(enable bool) Option {
+// WithEnableDeviceModel 设置是否支持物模型
+func WithEnableDeviceModel(enable bool) Option {
 	return func(ms *Sign) {
 		if enable {
-			ms.clientIDkv["v"] = alinkVersion
-			delete(ms.clientIDkv, "gw")
-			delete(ms.clientIDkv, "ext")
+			ms.extParams["v"] = alinkVersion
+			delete(ms.extParams, "gw")
+			delete(ms.extParams, "ext")
 		} else {
-			ms.clientIDkv["gw"] = "0"
-			ms.clientIDkv["ext"] = "0"
-			delete(ms.clientIDkv, "v")
+			ms.extParams["gw"] = "0"
+			ms.extParams["ext"] = "0"
+			delete(ms.extParams, "v")
 		}
 	}
 }
@@ -68,8 +68,8 @@ func WithDeviceModel(enable bool) Option {
 // WithExtRRPC 支持扩展RRPC 仅物模型下支持
 func WithExtRRPC() Option {
 	return func(ms *Sign) {
-		if _, ok := ms.clientIDkv["v"]; ok {
-			ms.clientIDkv["ext"] = "1"
+		if _, ok := ms.extParams["v"]; ok {
+			ms.extParams["ext"] = "1"
 		}
 	}
 }
@@ -77,13 +77,13 @@ func WithExtRRPC() Option {
 // WithSDKVersion 设备SDK版本
 func WithSDKVersion(ver string) Option {
 	return func(ms *Sign) {
-		ms.clientIDkv["_v"] = ver
+		ms.extParams["_v"] = ver
 	}
 }
 
-// WithCustomKV 添加一个用户的键值对,键值对将被添加到clientID上
-func WithCustomKV(key, value string) Option {
+// WithExtParamsKV 添加一个扩展参数的键值对,键值对将被添加到clientID的扩展参数上
+func WithExtParamsKV(key, value string) Option {
 	return func(ms *Sign) {
-		ms.clientIDkv[key] = value
+		ms.extParams[key] = value
 	}
 }

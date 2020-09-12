@@ -20,7 +20,7 @@ func TestMQTTSign(t *testing.T) {
 			WithSignMethod("hmacsha256"),
 			WithExtRRPC(),
 			WithSDKVersion("SDK-Golang-v1.13.3"),
-			WithCustomKV("testKey", "testValue"),
+			WithExtParamsKV("testKey", "testValue"),
 		)
 		signout, err := ms.Generate(
 			&infra.MetaInfo{

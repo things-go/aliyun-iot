@@ -34,7 +34,7 @@ func (sf *Client) ThingGwTopoAdd(devID int) (*Entry, error) {
 	}
 
 	timestamp := int64(time.Now().Nanosecond()) / 1000000
-	clientID := fmt.Sprintf("%s.%s|_v=%s|", node.ProductKey(), node.DeviceName(), sign.AlinkSDKVersion)
+	clientID := fmt.Sprintf("%s.%s|_v=%s|", node.ProductKey(), node.DeviceName(), sign.SDKVersion)
 	signs, err := generateSign(node.ProductKey(), node.DeviceName(), node.deviceSecret, clientID, timestamp)
 	if err != nil {
 		return nil, err

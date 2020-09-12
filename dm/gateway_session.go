@@ -78,7 +78,7 @@ func (sf *Client) ExtCombineLogin(devID int) (*Entry, error) {
 		return nil, err
 	}
 
-	clientID := fmt.Sprintf("%s.%s|_v=%s|", node.ProductKey(), node.DeviceName(), sign.AlinkSDKVersion)
+	clientID := fmt.Sprintf("%s.%s|_v=%s|", node.ProductKey(), node.DeviceName(), sign.SDKVersion)
 	timestamp := int64(time.Now().Nanosecond()) / 1000000
 	signs, err := generateSign(node.ProductKey(), node.DeviceName(), node.DeviceSecret(), clientID, timestamp)
 	if err != nil {

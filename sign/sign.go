@@ -47,11 +47,12 @@ const (
 
 // SignInfo 签名后的信息
 type SignInfo struct {
-	HostName string
-	Port     uint16
-	ClientID string
-	UserName string
-	Password string
+	HostName  string
+	Port      uint16
+	ClientID  string
+	extParams string // clientID的扩展参数
+	UserName  string // deviceName & productKey
+	Password  string
 }
 
 // Addr address like host:port
@@ -59,29 +60,39 @@ func (sf *SignInfo) Addr() string {
 	return fmt.Sprintf("%s:%d", sf.HostName, sf.Port)
 }
 
-// Sign MQTT签名主要设置
-type Sign struct {
-	enableTLS   bool
-	deviceModel bool
-	clientIDkv  map[string]string
-	hfc         func() hash.Hash
+// ClientIDWithExt 登录使用的 client + "| 扩展参数 |"
+func (sf SignInfo) ClientIDWithExt() string {
+	return sf.ClientID + sf.extParams
 }
 
-// AlinkSDKVersion alink sdk version
-var AlinkSDKVersion = "sdk-golang-v0.0.1"
+// Sign MQTT签名主要设置
+type Sign struct {
+	enableTLS bool              // 使能tls
+	enableDM  bool              // 使能物模型
+	extParams map[string]string // clientID扩展参数
+	hfc       func() hash.Hash
+}
 
-// New 新建一个签名,默认不支持PreAUTH也不支持TLS(即安全模式为SecureModeTcpDirectPlain)
-// 默认支持物模型,默认hmacmd5签名加密
+// SDKVersion alink sdk version
+var SDKVersion = "sdk-golang-v0.0.1"
+
+// New 新建一个签名
+// 默认不支持PreAUTH
+// 默认安全模式为SecureModeTcpDirectPlain)
+// 默认使能物模型
+// 默认hmacmd5签名加密
+// 默认sdk版本为 SDKVersion
 // TODO: 支持tls
 func New(opts ...Option) *Sign {
 	ms := &Sign{
-		deviceModel: true,
-		clientIDkv: map[string]string{
+		enableDM: true,
+		extParams: map[string]string{
 			"timestamp":  fixedTimestamp,
 			"securemode": modeTCPDirectPlain,
 			"signmethod": hmacmd5,
 			"lan":        "Golang",
 			"v":          alinkVersion,
+			"_v":         SDKVersion,
 		},
 		hfc: md5.New,
 	}
@@ -109,44 +120,58 @@ func (sf *Sign) Generate(meta *infra.MetaInfo, crd infra.CloudRegionDomain) (*Si
 	}
 	pwd := hex.EncodeToString(h.Sum(nil))
 
-	signOut := &SignInfo{
-		Port:     1883,
-		ClientID: generateClientID(sf.clientIDkv, clientID),
-		UserName: fmt.Sprintf("%s&%s", meta.DeviceName, meta.ProductKey),
-		Password: pwd,
+	signInfo := &SignInfo{
+		Port:      1883,
+		ClientID:  clientID,
+		extParams: generateExtParam(sf.extParams),
+		UserName:  meta.DeviceName + "&" + meta.ProductKey,
+		Password:  pwd,
 	}
 
-	// setup HostName
-	if crd.Region == infra.CloudRegionCustom {
-		signOut.HostName = crd.CustomDomain
-	} else {
-		signOut.HostName = fmt.Sprintf("%s.%s", meta.ProductKey, infra.MQTTCloudDomain[crd.Region])
+	domain := crd.CustomDomain
+	if crd.Region != infra.CloudRegionCustom {
+		domain = infra.MQTTCloudDomain[crd.Region]
 	}
+	// setup HostName
+	signInfo.HostName = meta.ProductKey + "." + domain
 	// setup Port
 	if sf.enableTLS {
-		signOut.Port = 443
+		signInfo.Port = 443
 	}
-	return signOut, nil
+	return signInfo, nil
 }
 
-// generateClientID 根据deviceID生成clientID
-func generateClientID(clientIDkv map[string]string, deviceID string) string {
+// generateExtParam 根据deviceID生成clientID
+func generateExtParam(extParams map[string]string) string {
+	var l int
+
+	if len(extParams) == 0 {
+		return ""
+	}
+
+	keys := make([]string, 0, len(extParams))
+	for k, v := range extParams {
+		keys = append(keys, k)
+		l += len(keys) + len(v) + 2 // key=value, key=value,
+	}
+	l-- // 减去多的那个','
+	// sort key
+	sort.Strings(keys)
+
 	builder := new(strings.Builder)
-	builder.WriteString(deviceID)
+	builder.Grow(2 + l)
 	builder.WriteString("|")
-
-	sKey := make([]string, 0, len(clientIDkv))
-	for k := range clientIDkv {
-		sKey = append(sKey, k)
-	}
-	// 对键进行排序
-	sort.Strings(sKey)
-
-	for _, Value := range sKey {
-		builder.WriteString(Value)
+	l = 0
+	for _, key := range keys {
+		if l == 0 {
+			l = 1
+		} else {
+			builder.WriteString(",")
+		}
+		builder.WriteString(key)
 		builder.WriteString("=")
-		builder.WriteString(clientIDkv[Value])
-		builder.WriteString(",")
+		builder.WriteString(extParams[key])
 	}
-	return strings.TrimRight(builder.String(), ",") + "|"
+	builder.WriteString("|")
+	return builder.String()
 }

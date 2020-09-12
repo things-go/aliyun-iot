@@ -21,16 +21,15 @@ var dmClient *aiot.MQTTClient
 
 func main() {
 	meta := testmeta.MetaInfo()
-	signs, err :=
-		sign.New(sign.WithSDKVersion(sign.AlinkSDKVersion)).
-			Generate(&meta, infra.CloudRegionDomain{Region: infra.CloudRegionShangHai})
+	signs, err := sign.New(sign.WithSDKVersion(sign.SDKVersion)).
+		Generate(&meta, infra.CloudRegionDomain{Region: infra.CloudRegionShangHai})
 	if err != nil {
 		panic(err)
 	}
 	opts :=
 		mqtt.NewClientOptions().
 			AddBroker(signs.Addr()).
-			SetClientID(signs.ClientID).
+			SetClientID(signs.ClientIDWithExt()).
 			SetUsername(signs.UserName).
 			SetPassword(signs.Password).
 			SetCleanSession(true).
