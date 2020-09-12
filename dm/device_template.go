@@ -74,7 +74,7 @@ func ProcThingDsltemplateGetReply(c *Client, rawURI string, payload []byte) erro
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.done(rsp.ID, err, nil)
+	c.signal(rsp.ID, err, nil)
 	pk, dn := uris[1], uris[2]
 	c.log.Debugf("downstream thing <dsl template>: get reply,@%d - %s", rsp.ID, string(rsp.Data))
 	return c.cb.ThingDsltemplateGetReply(c, err, pk, dn, rsp.Data)
@@ -100,7 +100,7 @@ func ProcThingDynamictslGetReply(c *Client, rawURI string, payload []byte) error
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.done(rsp.ID, err, nil)
+	c.signal(rsp.ID, err, nil)
 	pk, dn := uris[1], uris[2]
 	c.log.Debugf("downstream thing <dynamic tsl>: get reply,@%d - %+v", rsp.ID, rsp)
 	return c.cb.ThingDynamictslGetReply(c, err, pk, dn, rsp.Data)

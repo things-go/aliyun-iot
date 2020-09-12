@@ -94,7 +94,7 @@ func ProcThingEventPostReply(c *Client, rawURI string, payload []byte) error {
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
-	c.done(rsp.ID, err, nil)
+	c.signal(rsp.ID, err, nil)
 
 	pk, dn := uris[1], uris[2]
 	eventID := uris[5]
@@ -124,7 +124,7 @@ func ProcThingEventPropertyPackPostReply(c *Client, rawURI string, payload []byt
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.done(rsp.ID, err, nil)
+	c.signal(rsp.ID, err, nil)
 	pk, dn := uris[1], uris[2]
 	c.log.Debugf("downstream thing <event>: property pack post reply,@%d", rsp.ID)
 	return c.cb.ThingEventPropertyPackPostReply(c, err, pk, dn)

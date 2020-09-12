@@ -176,7 +176,7 @@ func ProcThingGwTopoAddReply(c *Client, rawURI string, payload []byte) error {
 		_ = c.SetDevStatusByPkDn(pk, dn, DevStatusAttached)
 	}
 
-	c.done(rsp.ID, err, nil)
+	c.signal(rsp.ID, err, nil)
 	c.log.Debugf("downstream GW thing <topo>: add reply @%d", rsp.ID)
 	return nil
 }
@@ -204,7 +204,7 @@ func ProcThingGwTopoDeleteReply(c *Client, rawURI string, payload []byte) error 
 		c.SetDevStatusByPkDn(pk, dn, DevStatusRegistered) // nolint: errcheck
 	}
 
-	c.done(rsp.ID, err, nil)
+	c.signal(rsp.ID, err, nil)
 	c.log.Debugf("downstream GW thing <topo>: delete reply @%d", rsp.ID)
 	return nil
 }
@@ -228,7 +228,7 @@ func ProcThingGwTopoGetReply(c *Client, rawURI string, payload []byte) error {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.done(rsp.ID, err, nil)
+	c.signal(rsp.ID, err, nil)
 	c.log.Debugf("downstream GW thing <topo>: get reply @%d", rsp.ID)
 	return c.gwCb.ThingGwTopoGetReply(c, err, rsp.Data)
 }
@@ -254,7 +254,7 @@ func ProcThingGwListFoundReply(c *Client, rawURI string, payload []byte) error {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.done(rsp.ID, err, nil)
+	c.signal(rsp.ID, err, nil)
 	c.log.Debugf("downstream GW thing <list>: found reply @%d", rsp.ID)
 	return c.gwCb.ThingGwListFoundReply(c, err)
 }

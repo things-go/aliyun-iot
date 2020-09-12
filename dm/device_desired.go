@@ -76,7 +76,7 @@ func ProcThingDesiredPropertyGetReply(c *Client, rawURI string, payload []byte) 
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.done(rsp.ID, err, nil)
+	c.signal(rsp.ID, err, nil)
 	pk, dn := uris[1], uris[2]
 	c.log.Debugf("downstream thing <desired>: property get reply,@%d", rsp.ID)
 	return c.cb.ThingDesiredPropertyGetReply(c, err, pk, dn, rsp.Data)
@@ -100,7 +100,7 @@ func ProcThingDesiredPropertyDeleteReply(c *Client, rawURI string, payload []byt
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
-	c.done(rsp.ID, err, nil)
+	c.signal(rsp.ID, err, nil)
 	pk, dn := uris[1], uris[2]
 	c.log.Debugf("downstream thing <desired>: property delete reply,@%d", rsp.ID)
 	return c.cb.ThingDesiredPropertyDeleteReply(c, err, pk, dn)

@@ -201,7 +201,7 @@ func ProcExtCombineLoginReply(c *Client, rawURI string, payload []byte) error {
 	} else {
 		c.SetDevStatusByPkDn(pk, dn, DevStatusLogined) // nolint: errcheck
 	}
-	c.done(rsp.ID, err, nil)
+	c.signal(rsp.ID, err, nil)
 	c.log.Debugf("downstream Ext GW <sub>: login reply @%d", rsp.ID)
 	return nil
 }
@@ -239,7 +239,7 @@ func ProcExtCombineLoginoutReply(c *Client, rawURI string, payload []byte) error
 	} else {
 		c.SetDevStatusByPkDn(pk, dn, DevStatusAttached) // nolint: errcheck
 	}
-	c.done(rsp.ID, err, nil)
+	c.signal(rsp.ID, err, nil)
 	c.log.Debugf("downstream Ext GW <sub>: logout reply @%d", rsp.ID)
 	return nil
 }

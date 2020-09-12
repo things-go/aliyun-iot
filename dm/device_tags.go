@@ -71,7 +71,7 @@ func ProcThingDeviceInfoUpdateReply(c *Client, rawURI string, payload []byte) er
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.done(rsp.ID, err, nil)
+	c.signal(rsp.ID, err, nil)
 	pk, dn := uris[1], uris[2]
 	return c.cb.ThingDeviceInfoUpdateReply(c, err, pk, dn)
 }
@@ -96,7 +96,7 @@ func ProcThingDeviceInfoDeleteReply(c *Client, rawURI string, payload []byte) er
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
-	c.done(rsp.ID, err, nil)
+	c.signal(rsp.ID, err, nil)
 	pk, dn := uris[1], uris[2]
 	c.log.Debugf("downstream thing <deviceInfo>: delete reply,@%d", rsp.ID)
 	return c.cb.ThingDeviceInfoDeleteReply(c, err, pk, dn)

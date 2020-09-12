@@ -235,8 +235,8 @@ func (sf *DevMgr) DevAvailByPkDn(productKey, deviceName string) (bool, error) {
 	return node.avail, nil
 }
 
-// SetDevStatusByID 设置设备的status
-func (sf *DevMgr) SetDevStatusByID(devID int, status DevStatus) error {
+// SetDevStatus 设置设备的status
+func (sf *DevMgr) SetDevStatus(devID int, status DevStatus) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}

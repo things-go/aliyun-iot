@@ -82,10 +82,10 @@ func ProcThingGwSubRegisterReply(c *Client, rawURI string, payload []byte) error
 				continue
 			}
 			_ = c.SetDeviceSecret(node.ID(), v.DeviceSecret)
-			_ = c.SetDevStatusByID(node.ID(), DevStatusRegistered)
+			_ = c.SetDevStatus(node.ID(), DevStatusRegistered)
 		}
 	}
-	c.done(rsp.ID, err, nil)
+	c.signal(rsp.ID, err, nil)
 	c.log.Debugf("downstream GW thing <sub>: register reply @%d", rsp.ID)
 	return nil
 }

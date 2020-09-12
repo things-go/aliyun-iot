@@ -84,7 +84,7 @@ func ProcThingConfigGetReply(c *Client, rawURI string, payload []byte) error {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.done(rsp.ID, err, nil)
+	c.signal(rsp.ID, err, nil)
 	pk, dn := uris[1], uris[2]
 	c.log.Debugf("downstream thing <config>: get reply,@%d,payload@%+v", rsp.ID, rsp)
 	return c.cb.ThingConfigGetReply(c, err, pk, dn, rsp.Data)
