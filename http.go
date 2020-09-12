@@ -34,7 +34,7 @@ type HTTPClient struct {
 // NewWithHTTP 新建HTTP客户端
 func NewWithHTTP(meta infra.MetaInfo) *HTTPClient {
 	c := ahttp.New(meta)
-	return &HTTPClient{c, dm.New(meta, &httpClient{c})}
+	return &HTTPClient{c, dm.New(meta, &httpClient{c}, dm.WithWork(dm.WorkOnHTTP))}
 }
 
 // UnderlyingClient 底层客户端

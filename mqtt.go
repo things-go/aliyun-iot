@@ -19,7 +19,7 @@ var _ dm.Conn = (*MQTTClient)(nil)
 
 // NewWithMQTT 新建MQTTClient
 func NewWithMQTT(meta infra.MetaInfo, c mqtt.Client, opts ...dm.Option) *MQTTClient {
-	m := dm.New(meta, nil, append(opts, dm.WithWork(dm.WorkOnCOAP))...)
+	m := dm.New(meta, nil, append(opts, dm.WithWork(dm.WorkOnMQTT))...)
 	cli := &MQTTClient{
 		c,
 		m,

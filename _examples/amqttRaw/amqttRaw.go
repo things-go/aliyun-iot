@@ -40,7 +40,7 @@ func main() {
 
 	meta := testmeta.MetaInfo()
 	signs, err :=
-		sign.NewMQTTSign(sign.WithSDKVersion(sign.AlinkSDKVersion)).
+		sign.New(sign.WithSDKVersion(sign.AlinkSDKVersion)).
 			Generate(&meta, infra.CloudRegionDomain{Region: infra.CloudRegionShangHai})
 	if err != nil {
 		panic(err)

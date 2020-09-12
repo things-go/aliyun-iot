@@ -45,8 +45,8 @@ const (
 	SecureModeITLSDNSID2
 )
 
-// MQTTSignInfo 签名后的信息
-type MQTTSignInfo struct {
+// SignInfo 签名后的信息
+type SignInfo struct {
 	HostName string
 	Port     uint16
 	ClientID string
@@ -54,8 +54,13 @@ type MQTTSignInfo struct {
 	Password string
 }
 
-// MQTTSign MQTT签名主要设置
-type MQTTSign struct {
+// Addr address like host:port
+func (sf *SignInfo) Addr() string {
+	return fmt.Sprintf("%s:%d", sf.HostName, sf.Port)
+}
+
+// Sign MQTT签名主要设置
+type Sign struct {
 	enableTLS   bool
 	deviceModel bool
 	clientIDkv  map[string]string
@@ -65,11 +70,11 @@ type MQTTSign struct {
 // AlinkSDKVersion alink sdk version
 var AlinkSDKVersion = "sdk-golang-v0.0.1"
 
-// NewMQTTSign 新建一个签名,默认不支持PreAUTH也不支持TLS(即安全模式为SecureModeTcpDirectPlain)
+// New 新建一个签名,默认不支持PreAUTH也不支持TLS(即安全模式为SecureModeTcpDirectPlain)
 // 默认支持物模型,默认hmacmd5签名加密
 // TODO: 支持tls
-func NewMQTTSign(opts ...Option) *MQTTSign {
-	ms := &MQTTSign{
+func New(opts ...Option) *Sign {
+	ms := &Sign{
 		deviceModel: true,
 		clientIDkv: map[string]string{
 			"timestamp":  fixedTimestamp,
@@ -87,7 +92,7 @@ func NewMQTTSign(opts ...Option) *MQTTSign {
 }
 
 // Generate 根据MetaInfo和region生成签名
-func (sf *MQTTSign) Generate(meta *infra.MetaInfo, crd infra.CloudRegionDomain) (*MQTTSignInfo, error) {
+func (sf *Sign) Generate(meta *infra.MetaInfo, crd infra.CloudRegionDomain) (*SignInfo, error) {
 	if crd.Region == infra.CloudRegionCustom && crd.CustomDomain == "" {
 		return nil, errors.New("invalid custom domain")
 	}
@@ -104,7 +109,7 @@ func (sf *MQTTSign) Generate(meta *infra.MetaInfo, crd infra.CloudRegionDomain) 
 	}
 	pwd := hex.EncodeToString(h.Sum(nil))
 
-	signOut := &MQTTSignInfo{
+	signOut := &SignInfo{
 		Port:     1883,
 		ClientID: generateClientID(sf.clientIDkv, clientID),
 		UserName: fmt.Sprintf("%s&%s", meta.DeviceName, meta.ProductKey),

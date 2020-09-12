@@ -16,7 +16,7 @@ const (
 
 func TestMQTTSign(t *testing.T) {
 	t.Run("MQTT sign almost all", func(t *testing.T) {
-		ms := NewMQTTSign(
+		ms := New(
 			WithSignMethod("hmacsha256"),
 			WithExtRRPC(),
 			WithSDKVersion("SDK-Golang-v1.13.3"),
@@ -37,7 +37,7 @@ func TestMQTTSign(t *testing.T) {
 	})
 
 	t.Run("MQTT sign custom cloud region", func(t *testing.T) {
-		ms := NewMQTTSign(WithSignMethod("hmacsha1"))
+		ms := New(WithSignMethod("hmacsha1"))
 		signout, err := ms.Generate(
 			&infra.MetaInfo{
 				ProductKey:   testProductKey,
@@ -53,7 +53,7 @@ func TestMQTTSign(t *testing.T) {
 	})
 
 	t.Run("MQTT sign empty custom cloud region", func(t *testing.T) {
-		ms := NewMQTTSign()
+		ms := New()
 		_, err := ms.Generate(&infra.MetaInfo{
 			ProductKey:   testProductKey,
 			DeviceName:   testDeviceName,

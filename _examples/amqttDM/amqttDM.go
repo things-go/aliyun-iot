@@ -1,12 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"math/rand"
+	"os"
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
+	"github.com/thinkgos/go-core-package/lib/logger"
 
 	aiot "github.com/thinkgos/aliyun-iot"
 	"github.com/thinkgos/aliyun-iot/_examples/testmeta"
@@ -16,30 +17,19 @@ import (
 	"github.com/thinkgos/aliyun-iot/sign"
 )
 
-const (
-	productKey    = "a1QR3GD1Db3"
-	productSecret = ""
-	deviceName    = "MPA19GT010070140"
-	deviceSecret  = "ld9Xf2BtKGfdEC7G9nSMe1wYfgllvi3Q"
-)
-
 var dmClient *aiot.MQTTClient
 
 func main() {
+	meta := testmeta.MetaInfo()
 	signs, err :=
-		sign.NewMQTTSign(sign.WithSDKVersion(sign.AlinkSDKVersion)).
-			Generate(&infra.MetaInfo{
-				ProductKey:    productKey,
-				ProductSecret: productSecret,
-				DeviceName:    deviceName,
-				DeviceSecret:  deviceSecret},
-				infra.CloudRegionDomain{Region: infra.CloudRegionShangHai})
+		sign.New(sign.WithSDKVersion(sign.AlinkSDKVersion)).
+			Generate(&meta, infra.CloudRegionDomain{Region: infra.CloudRegionShangHai})
 	if err != nil {
 		panic(err)
 	}
 	opts :=
 		mqtt.NewClientOptions().
-			AddBroker(fmt.Sprintf("%s:%d", signs.HostName, signs.Port)).
+			AddBroker(signs.Addr()).
 			SetClientID(signs.ClientID).
 			SetUsername(signs.UserName).
 			SetPassword(signs.Password).
@@ -52,8 +42,8 @@ func main() {
 				log.Println("mqtt client connection lost, ", err)
 			})
 
-	dmClient = aiot.NewWithMQTT(testmeta.MetaInfo(), mqtt.NewClient(opts))
-	dmClient.LogMode(true)
+	dmClient = aiot.NewWithMQTT(testmeta.MetaInfo(), mqtt.NewClient(opts),
+		dm.WithLogger(logger.New(log.New(os.Stdout, "mqtt --> ", log.LstdFlags))))
 
 	dmClient.UnderlyingClient().Connect().Wait()
 	if err = dmClient.AlinkConnect(); err != nil {

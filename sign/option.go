@@ -7,11 +7,11 @@ import (
 )
 
 // Option option
-type Option func(*MQTTSign)
+type Option func(*Sign)
 
 // WithSignMethod 设置签名方法,目前只支持hmacsha1,hmacsha256,hmacmd5(默认)
 func WithSignMethod(method string) Option {
-	return func(ms *MQTTSign) {
+	return func(ms *Sign) {
 		switch method {
 		case hmacsha1:
 			ms.clientIDkv["signmethod"] = hmacsha1
@@ -30,7 +30,7 @@ func WithSignMethod(method string) Option {
 
 // WithSecureMode 设置支持的安全模式
 func WithSecureMode(mode SecureMode) Option {
-	return func(ms *MQTTSign) {
+	return func(ms *Sign) {
 		switch mode {
 		case SecureModeTLSGuider:
 			ms.enableTLS = true
@@ -52,7 +52,7 @@ func WithSecureMode(mode SecureMode) Option {
 
 // WithDeviceModel 设置支持物模型
 func WithDeviceModel(enable bool) Option {
-	return func(ms *MQTTSign) {
+	return func(ms *Sign) {
 		if enable {
 			ms.clientIDkv["v"] = alinkVersion
 			delete(ms.clientIDkv, "gw")
@@ -67,7 +67,7 @@ func WithDeviceModel(enable bool) Option {
 
 // WithExtRRPC 支持扩展RRPC 仅物模型下支持
 func WithExtRRPC() Option {
-	return func(ms *MQTTSign) {
+	return func(ms *Sign) {
 		if _, ok := ms.clientIDkv["v"]; ok {
 			ms.clientIDkv["ext"] = "1"
 		}
@@ -76,14 +76,14 @@ func WithExtRRPC() Option {
 
 // WithSDKVersion 设备SDK版本
 func WithSDKVersion(ver string) Option {
-	return func(ms *MQTTSign) {
+	return func(ms *Sign) {
 		ms.clientIDkv["_v"] = ver
 	}
 }
 
 // WithCustomKV 添加一个用户的键值对,键值对将被添加到clientID上
 func WithCustomKV(key, value string) Option {
-	return func(ms *MQTTSign) {
+	return func(ms *Sign) {
 		ms.clientIDkv[key] = value
 	}
 }
