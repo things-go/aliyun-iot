@@ -9,7 +9,9 @@ import (
 	"errors"
 	"fmt"
 	"hash"
+	"net"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/thinkgos/aliyun-iot/infra"
@@ -20,7 +22,7 @@ const (
 	fixedTimestamp = "2524608000000"
 	alinkVersion   = "20"
 
-	// sign method MQTT设备签名只支持以下签名方法
+	// config method MQTT设备签名只支持以下签名方法
 	hmacsha256 = "hmacsha256"
 	hmacsha1   = "hmacsha1"
 	hmacmd5    = "hmacmd5"
@@ -45,8 +47,8 @@ const (
 	SecureModeITLSDNSID2
 )
 
-// SignInfo 签名后的信息
-type SignInfo struct {
+// Sign 签名后的信息
+type Sign struct {
 	HostName  string
 	Port      uint16
 	ClientID  string
@@ -56,17 +58,17 @@ type SignInfo struct {
 }
 
 // Addr address like host:port
-func (sf *SignInfo) Addr() string {
-	return fmt.Sprintf("%s:%d", sf.HostName, sf.Port)
+func (ms *Sign) Addr() string {
+	return net.JoinHostPort(ms.HostName, strconv.FormatUint(uint64(ms.Port), 10))
 }
 
 // ClientIDWithExt 登录使用的 client + "| 扩展参数 |"
-func (sf SignInfo) ClientIDWithExt() string {
-	return sf.ClientID + sf.extParams
+func (ms *Sign) ClientIDWithExt() string {
+	return ms.ClientID + ms.extParams
 }
 
-// Sign MQTT签名主要设置
-type Sign struct {
+// config MQTT签名主要配置
+type config struct {
 	enableTLS bool              // 使能tls
 	enableDM  bool              // 使能物模型
 	extParams map[string]string // clientID扩展参数
@@ -77,19 +79,24 @@ type Sign struct {
 var SDKVersion = "sdk-golang-v0.0.1"
 
 // New 新建一个签名
+
+// Generate 根据MetaInfo和region生成签名
 // 默认不支持PreAUTH
 // 默认安全模式为SecureModeTcpDirectPlain)
 // 默认使能物模型
 // 默认hmacmd5签名加密
 // 默认sdk版本为 SDKVersion
 // TODO: 支持tls
-func New(opts ...Option) *Sign {
-	ms := &Sign{
+func Generate(meta *infra.MetaInfo, crd infra.CloudRegionDomain, opts ...Option) (*Sign, error) {
+	if crd.Region == infra.CloudRegionCustom && crd.CustomDomain == "" {
+		return nil, errors.New("invalid custom domain")
+	}
+	ms := &config{
 		enableDM: true,
 		extParams: map[string]string{
-			"timestamp":  fixedTimestamp,
+			"timestamp":  fixedTimestamp, // 表示当前时间的毫秒值,可以不传递
 			"securemode": modeTCPDirectPlain,
-			"signmethod": hmacmd5,
+			"signmethod": hmacsha256,
 			"lan":        "Golang",
 			"v":          alinkVersion,
 			"_v":         SDKVersion,
@@ -99,14 +106,6 @@ func New(opts ...Option) *Sign {
 	for _, opt := range opts {
 		opt(ms)
 	}
-	return ms
-}
-
-// Generate 根据MetaInfo和region生成签名
-func (sf *Sign) Generate(meta *infra.MetaInfo, crd infra.CloudRegionDomain) (*SignInfo, error) {
-	if crd.Region == infra.CloudRegionCustom && crd.CustomDomain == "" {
-		return nil, errors.New("invalid custom domain")
-	}
 
 	// setup ClientID
 	clientID := fmt.Sprintf("%s.%s", meta.ProductKey, meta.DeviceName)
@@ -114,16 +113,16 @@ func (sf *Sign) Generate(meta *infra.MetaInfo, crd infra.CloudRegionDomain) (*Si
 	signSource := fmt.Sprintf("clientId%sdeviceName%sproductKey%stimestamp%s",
 		clientID, meta.DeviceName, meta.ProductKey, fixedTimestamp)
 	// setup Password
-	h := hmac.New(sf.hfc, []byte(meta.DeviceSecret))
+	h := hmac.New(ms.hfc, []byte(meta.DeviceSecret))
 	if _, err := h.Write([]byte(signSource)); err != nil {
 		return nil, err
 	}
 	pwd := hex.EncodeToString(h.Sum(nil))
 
-	signInfo := &SignInfo{
+	info := &Sign{
 		Port:      1883,
 		ClientID:  clientID,
-		extParams: generateExtParam(sf.extParams),
+		extParams: generateExtParam(ms.extParams),
 		UserName:  meta.DeviceName + "&" + meta.ProductKey,
 		Password:  pwd,
 	}
@@ -133,12 +132,12 @@ func (sf *Sign) Generate(meta *infra.MetaInfo, crd infra.CloudRegionDomain) (*Si
 		domain = infra.MQTTCloudDomain[crd.Region]
 	}
 	// setup HostName
-	signInfo.HostName = meta.ProductKey + "." + domain
+	info.HostName = meta.ProductKey + "." + domain
 	// setup Port
-	if sf.enableTLS {
-		signInfo.Port = 443
+	if ms.enableTLS {
+		info.Port = 443
 	}
-	return signInfo, nil
+	return info, nil
 }
 
 // generateExtParam 根据deviceID生成clientID

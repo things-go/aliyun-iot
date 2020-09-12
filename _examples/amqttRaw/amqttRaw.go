@@ -40,8 +40,7 @@ func main() {
 
 	meta := testmeta.MetaInfo()
 	signs, err :=
-		sign.New(sign.WithSDKVersion(sign.SDKVersion)).
-			Generate(&meta, infra.CloudRegionDomain{Region: infra.CloudRegionShangHai})
+		sign.Generate(&meta, infra.CloudRegionDomain{Region: infra.CloudRegionShangHai})
 	if err != nil {
 		panic(err)
 	}

@@ -19,7 +19,7 @@ func main() {
 		Region: infra.CloudRegionShangHai,
 	}
 
-	info, err := sign.New().Generate(meta, crd)
+	info, err := sign.Generate(meta, crd)
 	if err != nil {
 		panic(err)
 	}
