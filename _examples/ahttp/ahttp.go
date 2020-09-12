@@ -18,7 +18,7 @@ func main() {
 
 	client := ahttp.New(testmeta.MetaInfo())
 
-	uri := infra.URICOAPHTTPPrePrefix + infra.URI(infra.URISysPrefix, infra.URIThingEventPropertyPost, testmeta.ProductKey, testmeta.DeviceName)
+	uri := infra.URI(infra.URISysPrefix, infra.URIThingEventPropertyPost, testmeta.ProductKey, testmeta.DeviceName)
 	bPayload, err := json.Marshal(
 		dm.Request{
 			ID:      uint(rand.Int()),

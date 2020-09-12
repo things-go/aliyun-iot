@@ -11,5 +11,5 @@ var (
 	ErrInvalidParameter   = errors.New("invalid parameter")
 	ErrNotSupportFeature  = errors.New("not support feature")
 	ErrWaitMessageTimeout = errors.New("wait message timeout")
-	ErrClosed             = errors.New("closed")
+	ErrEntryClosed        = errors.New("entry has closed")
 )

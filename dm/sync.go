@@ -29,11 +29,11 @@ func (sf *Entry) Wait(timeout time.Duration) (uint, interface{}, error) {
 	tm := time.NewTimer(timeout)
 	defer tm.Stop()
 	select {
-	case v, closed := <-sf.message:
-		if closed {
-			return 0, nil, ErrClosed
+	case v, ok := <-sf.message:
+		if ok {
+			return v.id, v.data, v.err
 		}
-		return v.id, v.data, v.err
+		return 0, nil, ErrEntryClosed
 	case <-tm.C:
 	}
 	return 0, nil, ErrWaitMessageTimeout

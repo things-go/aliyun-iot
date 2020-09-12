@@ -16,7 +16,7 @@ func main() {
 		_, err := dmClient.ThingEventPropertyPost(dm.DevNodeLocal, map[string]interface{}{
 			"Temp":         rand.Intn(200),
 			"Humi":         rand.Intn(100),
-			"switchStatus": rand.Intn(1),
+			"switchStatus": rand.Intn(2),
 		})
 		if err != nil {
 			fmt.Println(err)
