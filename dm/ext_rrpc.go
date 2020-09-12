@@ -12,12 +12,12 @@ import (
 // response: /sys/${YourProductKey}/${YourDeviceName}/rrpc/response/${messageId}
 // subscribe: /sys/${YourProductKey}/${YourDeviceName}/rrpc/request/+
 func ProcRRPCRequest(c *Client, rawURI string, payload []byte) error {
-	uris := infra.SpiltURI(rawURI)
-	if len(uris) < (c.uriOffset + 6) {
+	uris := infra.URISpilt(rawURI)
+	if len(uris) < 6 {
 		return ErrInvalidURI
 	}
-	messageID := uris[c.uriOffset+5]
-	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
+	messageID := uris[5]
+	pk, dn := uris[1], uris[2]
 	c.log.Debugf("downstream sys <RRPC>: request - messageID: %s", messageID)
 	return c.cb.RRPCRequest(c, messageID, pk, dn, payload)
 }
@@ -29,11 +29,11 @@ func ProcRRPCRequest(c *Client, rawURI string, payload []byte) error {
 // response:  /ext/rrpc/${messageId}/${topic}
 // subscribe: /ext/rrpc/+/${topic}
 func ProcExtRRPCRequest(c *Client, rawURI string, payload []byte) error {
-	uris := strings.SplitN(strings.TrimLeft(rawURI, infra.SEP), infra.SEP, c.uriOffset+4)
-	if len(uris) < (c.uriOffset + 3) {
+	uris := strings.SplitN(strings.TrimLeft(rawURI, infra.SEP), infra.SEP, 4)
+	if len(uris) < 3 {
 		return ErrInvalidParameter
 	}
 	c.log.Debugf("downstream extend <RRPC>: Request - URI: ", rawURI)
-	messageID, topic := uris[c.uriOffset+2], uris[c.uriOffset+3]
+	messageID, topic := uris[2], uris[3]
 	return c.cb.ExtRRPCRequest(c, messageID, topic, payload)
 }

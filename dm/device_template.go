@@ -20,7 +20,7 @@ func (sf *Client) ThingDsltemplateGet(devID int) (*Entry, error) {
 	}
 
 	id := sf.RequestID()
-	uri := sf.uriService(infra.URISysPrefix, infra.URIThingDslTemplateGet, node.ProductKey(), node.DeviceName())
+	uri := infra.URI(infra.URISysPrefix, infra.URIThingDslTemplateGet, node.ProductKey(), node.DeviceName())
 	err = sf.SendRequest(uri, id, infra.MethodDslTemplateGet, "{}")
 	if err != nil {
 		return nil, err
@@ -41,7 +41,7 @@ func (sf *Client) ThingDynamictslGet(devID int) (*Entry, error) {
 	}
 
 	id := sf.RequestID()
-	uri := sf.uriService(infra.URISysPrefix, infra.URIThingDynamicTslGet, node.ProductKey(), node.DeviceName())
+	uri := infra.URI(infra.URISysPrefix, infra.URIThingDynamicTslGet, node.ProductKey(), node.DeviceName())
 	err = sf.SendRequest(uri, id, infra.MethodDynamicTslGet, map[string]interface{}{
 		"nodes":      []string{"type", "identifier"},
 		"addDefault": false,
@@ -60,8 +60,8 @@ func (sf *Client) ThingDynamictslGet(devID int) (*Entry, error) {
 // response:  /sys/{productKey}/{deviceName}/thing/dsltemplate/get_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/dsltemplate/get_reply
 func ProcThingDsltemplateGetReply(c *Client, rawURI string, payload []byte) error {
-	uris := infra.SpiltURI(rawURI)
-	if len(uris) < (c.uriOffset + 6) {
+	uris := infra.URISpilt(rawURI)
+	if len(uris) < 6 {
 		return ErrInvalidURI
 	}
 	rsp := ResponseRawData{}
@@ -75,7 +75,7 @@ func ProcThingDsltemplateGetReply(c *Client, rawURI string, payload []byte) erro
 	}
 
 	c.done(rsp.ID, err, nil)
-	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
+	pk, dn := uris[1], uris[2]
 	c.log.Debugf("downstream thing <dsl template>: get reply,@%d - %s", rsp.ID, string(rsp.Data))
 	return c.cb.ThingDsltemplateGetReply(c, err, pk, dn, rsp.Data)
 }
@@ -86,8 +86,8 @@ func ProcThingDsltemplateGetReply(c *Client, rawURI string, payload []byte) erro
 // response: /sys/${YourProductKey}/${YourDeviceName}/thing/dynamicTsl/get_reply
 // subscribe: /sys/${YourProductKey}/${YourDeviceName}/thing/dynamicTsl/get_reply
 func ProcThingDynamictslGetReply(c *Client, rawURI string, payload []byte) error {
-	uris := infra.SpiltURI(rawURI)
-	if len(uris) < (c.uriOffset + 6) {
+	uris := infra.URISpilt(rawURI)
+	if len(uris) < 6 {
 		return ErrInvalidURI
 	}
 	rsp := ResponseRawData{}
@@ -101,7 +101,7 @@ func ProcThingDynamictslGetReply(c *Client, rawURI string, payload []byte) error
 	}
 
 	c.done(rsp.ID, err, nil)
-	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
+	pk, dn := uris[1], uris[2]
 	c.log.Debugf("downstream thing <dynamic tsl>: get reply,@%d - %+v", rsp.ID, rsp)
 	return c.cb.ThingDynamictslGetReply(c, err, pk, dn, rsp.Data)
 }

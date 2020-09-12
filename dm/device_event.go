@@ -23,7 +23,7 @@ func (sf *Client) ThingEventPropertyPost(devID int, params interface{}) (*Entry,
 	}
 
 	id := sf.RequestID()
-	uri := sf.uriService(infra.URISysPrefix, infra.URIThingEventPropertyPost, node.ProductKey(), node.DeviceName())
+	uri := infra.URI(infra.URISysPrefix, infra.URIThingEventPropertyPost, node.ProductKey(), node.DeviceName())
 	err = sf.SendRequest(uri, id, infra.MethodEventPropertyPost, params)
 	if err != nil {
 		return nil, err
@@ -46,7 +46,7 @@ func (sf *Client) ThingEventPost(devID int, eventID string, params interface{}) 
 	}
 
 	id := sf.RequestID()
-	uri := sf.uriService(infra.URISysPrefix, infra.URIThingEventPost, node.ProductKey(), node.DeviceName(), eventID)
+	uri := infra.URI(infra.URISysPrefix, infra.URIThingEventPost, node.ProductKey(), node.DeviceName(), eventID)
 	err = sf.SendRequest(uri, id, fmt.Sprintf(infra.MethodEventFormatPost, eventID), params)
 	if err != nil {
 		return nil, err
@@ -64,7 +64,7 @@ func (sf *Client) ThingEventPropertyPackPost(params interface{}) (*Entry, error)
 		return nil, ErrNotSupportFeature
 	}
 	id := sf.RequestID()
-	err := sf.SendRequest(sf.URIServiceSelf(infra.URISysPrefix, infra.URIThingEventPropertyPackPost),
+	err := sf.SendRequest(sf.URIGateway(infra.URISysPrefix, infra.URIThingEventPropertyPackPost),
 		id, infra.MethodEventPropertyPackPost, params)
 	if err != nil {
 		return nil, err
@@ -80,8 +80,8 @@ func (sf *Client) ThingEventPropertyPackPost(params interface{}) (*Entry, error)
 // response:  /sys/{productKey}/{deviceName}/thing/event/[{tsl.event.identifier},property]/post_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/event/+/post_reply
 func ProcThingEventPostReply(c *Client, rawURI string, payload []byte) error {
-	uris := infra.SpiltURI(rawURI)
-	if len(uris) < (c.uriOffset + 7) {
+	uris := infra.URISpilt(rawURI)
+	if len(uris) < 7 {
 		return ErrInvalidURI
 	}
 
@@ -96,8 +96,8 @@ func ProcThingEventPostReply(c *Client, rawURI string, payload []byte) error {
 	}
 	c.done(rsp.ID, err, nil)
 
-	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
-	eventID := uris[c.uriOffset+5]
+	pk, dn := uris[1], uris[2]
+	eventID := uris[5]
 	c.log.Debugf("downstream thing <event>: %s post reply,@%d", eventID, rsp.ID)
 	if eventID == "property" {
 		return c.cb.ThingEventPropertyPostReply(c, err, pk, dn)
@@ -111,8 +111,8 @@ func ProcThingEventPostReply(c *Client, rawURI string, payload []byte) error {
 // response:  /sys/{productKey}/{deviceName}/thing/event/property/pack/post_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/event/property/pack/post_reply
 func ProcThingEventPropertyPackPostReply(c *Client, rawURI string, payload []byte) error {
-	uris := infra.SpiltURI(rawURI)
-	if len(uris) < (c.uriOffset + 8) {
+	uris := infra.URISpilt(rawURI)
+	if len(uris) < 8 {
 		return ErrInvalidURI
 	}
 	rsp := ResponseRawData{}
@@ -125,7 +125,7 @@ func ProcThingEventPropertyPackPostReply(c *Client, rawURI string, payload []byt
 	}
 
 	c.done(rsp.ID, err, nil)
-	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
+	pk, dn := uris[1], uris[2]
 	c.log.Debugf("downstream thing <event>: property pack post reply,@%d", rsp.ID)
 	return c.cb.ThingEventPropertyPackPostReply(c, err, pk, dn)
 }
@@ -136,12 +136,12 @@ func ProcThingEventPropertyPackPostReply(c *Client, rawURI string, payload []byt
 // response:  /sys/{productKey}/{deviceName}/thing/service/property/set_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/service/[+,#]
 func ProcThingServicePropertySet(c *Client, rawURI string, payload []byte) error {
-	uris := infra.SpiltURI(rawURI)
-	if len(uris) < (c.uriOffset + 7) {
+	uris := infra.URISpilt(rawURI)
+	if len(uris) < 7 {
 		return ErrInvalidURI
 	}
 	c.log.Debugf("downstream thing <service>: property set request")
-	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
+	pk, dn := uris[1], uris[2]
 	return c.cb.ThingServicePropertySet(c, pk, dn, payload)
 }
 
@@ -151,12 +151,12 @@ func ProcThingServicePropertySet(c *Client, rawURI string, payload []byte) error
 // response:  /sys/{productKey}/{deviceName}/thing/service/{tsl.service.identifier}_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/service/[+,#]
 func ProcThingServiceRequest(c *Client, rawURI string, payload []byte) error {
-	uris := infra.SpiltURI(rawURI)
-	if len(uris) < (c.uriOffset + 6) {
+	uris := infra.URISpilt(rawURI)
+	if len(uris) < 6 {
 		return ErrInvalidURI
 	}
-	serviceID := uris[c.uriOffset+5]
-	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
+	serviceID := uris[5]
+	pk, dn := uris[1], uris[2]
 	c.log.Debugf("downstream thing <service>: %s set request", serviceID)
 	return c.cb.ThingServiceRequest(c, serviceID, pk, dn, payload)
 }

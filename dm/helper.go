@@ -9,34 +9,9 @@ import (
 	"github.com/thinkgos/aliyun-iot/infra"
 )
 
-// URIServiceSelf 获得本设备URI
-func (sf *Client) URIServiceSelf(prefix, name string) string {
+// URIGateway 获得本设备网关URI
+func (sf *Client) URIGateway(prefix, name string) string {
 	return infra.URI(prefix, name, sf.ProductKey, sf.DeviceName)
-}
-
-// uriService 生成URI, inName的作用是有一些需要格式化到name里.
-func (sf *Client) uriService(prefix, name, productKey, deviceName string, inName ...string) string {
-	if sf.uriOffset == 1 {
-		prefix = infra.URICOAPHTTPPrePrefix + prefix
-	}
-	return infra.URI(prefix, name, productKey, deviceName, inName...)
-}
-
-func (sf *Client) _URIExtRRPCService(prefix, messageID, topic string) string {
-	if sf.uriOffset == 1 {
-		return infra.URICOAPHTTPPrePrefix + fmt.Sprintf(prefix, messageID) + topic
-	}
-	return fmt.Sprintf(prefix, messageID) + topic
-}
-
-// URIExtRRPCService 生成Ext RRPC URI
-func (sf *Client) URIExtRRPCService(messageID, topic string) string {
-	return sf._URIExtRRPCService(infra.URIExtRRPCPrefix, messageID, topic)
-}
-
-// URIExtRRPCWildcardService 生成Ext RRPC 订阅 URI
-func (sf *Client) URIExtRRPCWildcardService(topic string) string {
-	return sf._URIExtRRPCService(infra.URIExtRRPCPrefix, "+", topic)
 }
 
 // 可以采用Sha256,hmacMd5,hmacSha1,hmacSha256

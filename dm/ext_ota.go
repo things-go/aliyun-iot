@@ -36,7 +36,7 @@ func (sf *Client) UpstreamOATFirmwareVersion(devID int, params interface{}) erro
 	if err != nil {
 		return err
 	}
-	uri := sf.uriService(infra.URIOtaDeviceInformPrefix, "", node.ProductKey(), node.DeviceName())
+	uri := infra.URI(infra.URIOtaDeviceInformPrefix, "", node.ProductKey(), node.DeviceName())
 	err = sf.Publish(uri, 1, req)
 	if err != nil {
 		return err
@@ -76,7 +76,7 @@ func (sf *Client) upstreamOTAProgress(devID int, params interface{}) error {
 	if err != nil {
 		return err
 	}
-	err = sf.Publish(sf.uriService(infra.URIOtaDeviceProcessPrefix, "", node.ProductKey(), node.DeviceName()),
+	err = sf.Publish(infra.URI(infra.URIOtaDeviceProcessPrefix, "", node.ProductKey(), node.DeviceName()),
 		1, req)
 	if err != nil {
 		return err

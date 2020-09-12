@@ -17,14 +17,14 @@ func WithHTTPClient(c *http.Client) Option {
 	}
 }
 
-// WithHost 设置远程主机
-func WithHost(h string) Option {
+// WithEndpoint 设置Endpoint地址,也就是Host
+func WithEndpoint(h string) Option {
 	return func(c *Client) {
 		if !strings.Contains(h, "://") {
 			h = "http://" + h
 		}
 		if h != "" {
-			c.host = h
+			c.endpoint = h
 		}
 	}
 }

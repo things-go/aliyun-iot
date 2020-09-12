@@ -15,8 +15,11 @@ import (
 	"github.com/thinkgos/go-core-package/lib/logger"
 	"golang.org/x/sync/singleflight"
 
+	"github.com/thinkgos/aliyun-iot/dm"
 	"github.com/thinkgos/aliyun-iot/infra"
 )
+
+// @see https://help.aliyun.com/document_detail/58034.html?spm=a2c4g.11186623.6.609.54316764YJj5MQ
 
 // 错误码
 const (
@@ -41,12 +44,12 @@ const (
 // AuthRequest 鉴权请求
 type AuthRequest struct {
 	Version    string `json:"version"`
-	ClientID   string `json:"clientId"`
+	ClientID   string `json:"clientId"` // 长度为64字符内，建议以MAC地址或SN码作为clientId. 目前productKey.deviceName
 	SignMethod string `json:"signmethod"`
 	Sign       string `json:"sign"`
 	ProductKey string `json:"productKey"`
 	DeviceName string `json:"deviceName"`
-	// 校验时间戳15分钟内的请求有效。时间戳格式为数值，
+	// 校验时间戳15分钟内的请求有效。时间戳格式为数值，单位ms
 	// 值为自GMT 1970年1月1日0时0分到当前时间点所经过的毫秒数。
 	Timestamp int64 `json:"timestamp"`
 }
@@ -64,7 +67,7 @@ type AuthResponse struct {
 type Client struct {
 	meta infra.MetaInfo
 
-	host       string
+	endpoint   string
 	version    string
 	signMethod string
 
@@ -75,6 +78,8 @@ type Client struct {
 	log   logger.Logger
 }
 
+var _ dm.Conn = (*Client)(nil)
+
 // New 新建alink http client
 // 默认加签算法: hmacmd5
 // 默认host: https://iot-as-http.cn-shanghai.aliyuncs.com
@@ -82,7 +87,7 @@ type Client struct {
 func New(meta infra.MetaInfo, opts ...Option) *Client {
 	c := &Client{
 		meta:       meta,
-		host:       "https://iot-as-http.cn-shanghai.aliyuncs.com",
+		endpoint:   "https://iot-as-http.cn-shanghai.aliyuncs.com",
 		version:    "default",
 		signMethod: hmacmd5,
 		httpc:      http.DefaultClient,
@@ -111,9 +116,10 @@ func (sf *Client) getToken() (string, error) {
 		if sf.signMethod == hmacsha1 {
 			method = algo.MethodSha1
 		}
-		clientID, tm := sf.meta.ProductKey+"."+sf.meta.DeviceName, time.Now().Unix()*1000
+		clientID := sf.meta.ProductKey + "." + sf.meta.DeviceName
+		timestamp := time.Now().Unix() * 1000
 		signSource := fmt.Sprintf("clientId%sdeviceName%sproductKey%stimestamp%d",
-			clientID, sf.meta.DeviceName, sf.meta.ProductKey, tm)
+			clientID, sf.meta.DeviceName, sf.meta.ProductKey, timestamp)
 		authReq := AuthRequest{
 			sf.version,
 			clientID,
@@ -121,7 +127,7 @@ func (sf *Client) getToken() (string, error) {
 			algo.Hmac(method, signSource, sf.meta.DeviceSecret),
 			sf.meta.ProductKey,
 			sf.meta.DeviceName,
-			tm,
+			timestamp,
 		}
 
 		b, err := json.Marshal(&authReq)
@@ -129,7 +135,8 @@ func (sf *Client) getToken() (string, error) {
 			return "", err
 		}
 
-		request, err := http.NewRequestWithContext(context.Background(), http.MethodPost, sf.host+"/auth", bytes.NewBuffer(b))
+		request, err := http.NewRequestWithContext(context.Background(),
+			http.MethodPost, sf.endpoint+"/auth", bytes.NewBuffer(b))
 		if err != nil {
 			return "", err
 		}
@@ -163,10 +170,9 @@ type DataResponse struct {
 	} `json:"info"`
 }
 
-// Publish push message
-func (sf *Client) Publish(uri string, payload interface{}) error {
+// Publish push message,payload support []byte and string
+func (sf *Client) Publish(uri string, _ byte, payload interface{}) error {
 	py := DataResponse{}
-
 	for retry := 0; retry < 1; retry++ {
 		token, err := sf.getToken()
 		if err != nil {
@@ -183,7 +189,8 @@ func (sf *Client) Publish(uri string, payload interface{}) error {
 			return errors.New("unknown payload type, must be string or []byte")
 		}
 
-		request, err := http.NewRequestWithContext(context.Background(), http.MethodPost, sf.host+uri, buf)
+		request, err := http.NewRequestWithContext(context.Background(),
+			http.MethodPost, sf.endpoint+infra.URICOAPHTTPPrePrefix+uri, buf)
 		if err != nil {
 			return err
 		}
@@ -203,8 +210,7 @@ func (sf *Client) Publish(uri string, payload interface{}) error {
 			return nil
 		}
 
-		if !(py.Code == CodeTokenExpired ||
-			py.Code == CodeTokenCheckFailed ||
+		if !(py.Code == CodeTokenExpired || py.Code == CodeTokenCheckFailed ||
 			py.Code == CodeTokenIsNull) {
 			sf.token.Store("")
 			return infra.NewCodeError(py.Code, py.Message)
@@ -212,3 +218,9 @@ func (sf *Client) Publish(uri string, payload interface{}) error {
 	}
 	return infra.NewCodeError(py.Code, py.Message)
 }
+
+// Subscribe 实现dm.Conn接口
+func (*Client) Subscribe(string, dm.ProcDownStream) error { return nil }
+
+// UnSubscribe 实现dm.Conn接口
+func (*Client) UnSubscribe(...string) error { return nil }

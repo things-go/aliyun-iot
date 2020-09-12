@@ -12,12 +12,12 @@ import (
 // response:  /sys/{productKey}/{deviceName}/thing/disable_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/disable
 func ProcThingGwDisable(c *Client, rawURI string, payload []byte) error {
-	uris := infra.SpiltURI(rawURI)
-	if len(uris) < (c.uriOffset + 5) {
+	uris := infra.URISpilt(rawURI)
+	if len(uris) < 5 {
 		return ErrInvalidURI
 	}
 
-	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
+	pk, dn := uris[1], uris[2]
 	c.log.Debugf("downstream <thing>: disable >> %s - %s", pk, dn)
 
 	req := &Request{}
@@ -41,11 +41,11 @@ func ProcThingGwDisable(c *Client, rawURI string, payload []byte) error {
 // response:  /sys/{productKey}/{deviceName}/thing/enable_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/enable
 func ProcThingGwEnable(c *Client, rawURI string, payload []byte) error {
-	uris := infra.SpiltURI(rawURI)
-	if len(uris) < (c.uriOffset + 5) {
+	uris := infra.URISpilt(rawURI)
+	if len(uris) < 5 {
 		return ErrInvalidURI
 	}
-	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
+	pk, dn := uris[1], uris[2]
 	c.log.Debugf("downstream <thing>: enable >> %s - %s", pk, dn)
 
 	req := &Request{}
@@ -70,11 +70,11 @@ func ProcThingGwEnable(c *Client, rawURI string, payload []byte) error {
 // response:  /sys/{productKey}/{deviceName}/thing/delete_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/delete
 func ProcThingGwDelete(c *Client, rawURI string, payload []byte) error {
-	uris := infra.SpiltURI(rawURI)
-	if len(uris) < (c.uriOffset + 5) {
+	uris := infra.URISpilt(rawURI)
+	if len(uris) < 5 {
 		return ErrInvalidURI
 	}
-	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
+	pk, dn := uris[1], uris[2]
 	c.log.Debugf("downstream <thing>: delete >> %s - %s", pk, dn)
 
 	req := &Request{}

@@ -18,7 +18,7 @@ type coapClient struct {
 }
 
 // Publish 实现dm.Conn接口
-func (sf *coapClient) Publish(topic string, _ byte, payload interface{}) error {
+func (sf *coapClient) Publish(uri string, _ byte, payload interface{}) error {
 	var buf *bytes.Buffer
 
 	switch v := payload.(type) {
@@ -31,7 +31,7 @@ func (sf *coapClient) Publish(topic string, _ byte, payload interface{}) error {
 	}
 
 	// TODO
-	_, _ = sf.c.Post(topic, coap.AppJSON, buf)
+	_, _ = sf.c.Post(infra.URICOAPHTTPPrePrefix+uri, coap.AppJSON, buf)
 	return nil
 }
 

@@ -53,7 +53,7 @@ func (sf *Client) ThingConfigGet(devID int) (*Entry, error) {
 		return nil, err
 	}
 
-	uri := sf.uriService(infra.URISysPrefix, infra.URIThingConfigGet, node.ProductKey(), node.DeviceName())
+	uri := infra.URI(infra.URISysPrefix, infra.URIThingConfigGet, node.ProductKey(), node.DeviceName())
 	id := sf.RequestID()
 	err = sf.SendRequest(uri, id, infra.MethodConfigGet, ConfigGetParams{"product", "file"})
 	if err != nil {
@@ -69,8 +69,8 @@ func (sf *Client) ThingConfigGet(devID int) (*Entry, error) {
 // response:  /sys/{productKey}/{deviceName}/thing/config/get_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/config/get_reply
 func ProcThingConfigGetReply(c *Client, rawURI string, payload []byte) error {
-	uris := infra.SpiltURI(rawURI)
-	if len(uris) < (c.uriOffset + 6) {
+	uris := infra.URISpilt(rawURI)
+	if len(uris) < 6 {
 		return ErrInvalidURI
 	}
 
@@ -85,7 +85,7 @@ func ProcThingConfigGetReply(c *Client, rawURI string, payload []byte) error {
 	}
 
 	c.done(rsp.ID, err, nil)
-	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
+	pk, dn := uris[1], uris[2]
 	c.log.Debugf("downstream thing <config>: get reply,@%d,payload@%+v", rsp.ID, rsp)
 	return c.cb.ThingConfigGetReply(c, err, pk, dn, rsp.Data)
 }
@@ -96,8 +96,8 @@ func ProcThingConfigGetReply(c *Client, rawURI string, payload []byte) error {
 // response:  /sys/{productKey}/{deviceName}/thing/config/push_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/config/push
 func ProcThingConfigPush(c *Client, rawURI string, payload []byte) error {
-	uris := infra.SpiltURI(rawURI)
-	if len(uris) < (c.uriOffset + 6) {
+	uris := infra.URISpilt(rawURI)
+	if len(uris) < 6 {
 		return ErrInvalidURI
 	}
 	req := ConfigPushRequest{}
@@ -108,7 +108,7 @@ func ProcThingConfigPush(c *Client, rawURI string, payload []byte) error {
 	if err != nil {
 		return err
 	}
-	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
+	pk, dn := uris[1], uris[2]
 	c.log.Debugf("downstream thing <config>: push request")
 	return c.cb.ThingConfigPush(c, pk, dn, req.Params)
 }

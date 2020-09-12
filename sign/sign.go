@@ -108,7 +108,7 @@ func Generate(meta *infra.MetaInfo, crd infra.CloudRegionDomain, opts ...Option)
 	}
 
 	// setup ClientID
-	clientID := fmt.Sprintf("%s.%s", meta.ProductKey, meta.DeviceName)
+	clientID := meta.ProductKey + "." + meta.DeviceName
 
 	signSource := fmt.Sprintf("clientId%sdeviceName%sproductKey%stimestamp%s",
 		clientID, meta.DeviceName, meta.ProductKey, fixedTimestamp)

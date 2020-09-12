@@ -109,8 +109,8 @@ func TestURIServiceSpilt(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := SpiltURI(tt.args.uri); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("SpiltURI() = %v, want %v", got, tt.want)
+			if got := URISpilt(tt.args.uri); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("URISpilt() = %v, want %v", got, tt.want)
 			}
 		})
 	}

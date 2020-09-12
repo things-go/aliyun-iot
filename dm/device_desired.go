@@ -22,7 +22,7 @@ func (sf *Client) ThingDesiredPropertyGet(devID int, params interface{}) (*Entry
 	}
 
 	id := sf.RequestID()
-	uri := sf.uriService(infra.URISysPrefix, infra.URIThingDesiredPropertyGet, node.ProductKey(), node.DeviceName())
+	uri := infra.URI(infra.URISysPrefix, infra.URIThingDesiredPropertyGet, node.ProductKey(), node.DeviceName())
 	if err := sf.SendRequest(uri, id, infra.MethodDesiredPropertyGet, params); err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (sf *Client) ThingDesiredPropertyDelete(devID int, params interface{}) (*En
 	}
 
 	id := sf.RequestID()
-	uri := sf.uriService(infra.URISysPrefix, infra.URIThingDesiredPropertyDelete, node.ProductKey(), node.DeviceName())
+	uri := infra.URI(infra.URISysPrefix, infra.URIThingDesiredPropertyDelete, node.ProductKey(), node.DeviceName())
 	err = sf.SendRequest(uri, id, infra.MethodDesiredPropertyDelete, params)
 	if err != nil {
 		return nil, err
@@ -61,8 +61,8 @@ func (sf *Client) ThingDesiredPropertyDelete(devID int, params interface{}) (*En
 // response:  /sys/{productKey}/{deviceName}/thing/property/desired/get_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/property/desired/get_reply
 func ProcThingDesiredPropertyGetReply(c *Client, rawURI string, payload []byte) error {
-	uris := infra.SpiltURI(rawURI)
-	if len(uris) < (c.uriOffset + 7) {
+	uris := infra.URISpilt(rawURI)
+	if len(uris) < 7 {
 		return ErrInvalidURI
 	}
 	rsp := ResponseRawData{}
@@ -77,7 +77,7 @@ func ProcThingDesiredPropertyGetReply(c *Client, rawURI string, payload []byte) 
 	}
 
 	c.done(rsp.ID, err, nil)
-	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
+	pk, dn := uris[1], uris[2]
 	c.log.Debugf("downstream thing <desired>: property get reply,@%d", rsp.ID)
 	return c.cb.ThingDesiredPropertyGetReply(c, err, pk, dn, rsp.Data)
 }
@@ -88,8 +88,8 @@ func ProcThingDesiredPropertyGetReply(c *Client, rawURI string, payload []byte) 
 // response:  /sys/{productKey}/{deviceName}/thing/property/desired/delete_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/property/desired/delete_reply
 func ProcThingDesiredPropertyDeleteReply(c *Client, rawURI string, payload []byte) error {
-	uris := infra.SpiltURI(rawURI)
-	if len(uris) < (c.uriOffset + 7) {
+	uris := infra.URISpilt(rawURI)
+	if len(uris) < 7 {
 		return ErrInvalidURI
 	}
 	rsp := ResponseRawData{}
@@ -101,7 +101,7 @@ func ProcThingDesiredPropertyDeleteReply(c *Client, rawURI string, payload []byt
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 	c.done(rsp.ID, err, nil)
-	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
+	pk, dn := uris[1], uris[2]
 	c.log.Debugf("downstream thing <desired>: property delete reply,@%d", rsp.ID)
 	return c.cb.ThingDesiredPropertyDeleteReply(c, err, pk, dn)
 }

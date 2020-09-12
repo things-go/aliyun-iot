@@ -23,13 +23,10 @@ func WithWork(on int) Option {
 		switch on {
 		case WorkOnCOAP:
 			c.workOnWho = WorkOnCOAP
-			c.uriOffset = 1
 		case WorkOnHTTP:
 			c.workOnWho = WorkOnHTTP
-			c.uriOffset = 1
 		default:
 			c.workOnWho = WorkOnMQTT
-			c.uriOffset = 0
 		}
 	}
 }

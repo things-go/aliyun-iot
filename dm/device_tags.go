@@ -19,7 +19,7 @@ func (sf *Client) ThingDeviceInfoUpdate(devID int, params interface{}) (*Entry, 
 	}
 
 	id := sf.RequestID()
-	uri := sf.uriService(infra.URISysPrefix, infra.URIThingDeviceInfoUpdate, node.ProductKey(), node.DeviceName())
+	uri := infra.URI(infra.URISysPrefix, infra.URIThingDeviceInfoUpdate, node.ProductKey(), node.DeviceName())
 	if err := sf.SendRequest(uri, id, infra.MethodDeviceInfoUpdate, params); err != nil {
 		return nil, err
 	}
@@ -41,7 +41,7 @@ func (sf *Client) ThingDeviceInfoDelete(devID int, params interface{}) (*Entry, 
 	}
 
 	id := sf.RequestID()
-	uri := sf.uriService(infra.URISysPrefix, infra.URIThingDeviceInfoDelete, node.ProductKey(), node.DeviceName())
+	uri := infra.URI(infra.URISysPrefix, infra.URIThingDeviceInfoDelete, node.ProductKey(), node.DeviceName())
 	if err := sf.SendRequest(uri, id, infra.MethodDeviceInfoDelete, params); err != nil {
 		return nil, err
 	}
@@ -55,8 +55,8 @@ func (sf *Client) ThingDeviceInfoDelete(devID int, params interface{}) (*Entry, 
 // response: /sys/{productKey}/{deviceName}/thing/deviceinfo/update_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/deviceinfo/update_reply
 func ProcThingDeviceInfoUpdateReply(c *Client, rawURI string, payload []byte) error {
-	uris := infra.SpiltURI(rawURI)
-	if len(uris) < (c.uriOffset + 6) {
+	uris := infra.URISpilt(rawURI)
+	if len(uris) < 6 {
 		return ErrInvalidURI
 	}
 
@@ -72,7 +72,7 @@ func ProcThingDeviceInfoUpdateReply(c *Client, rawURI string, payload []byte) er
 	}
 
 	c.done(rsp.ID, err, nil)
-	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
+	pk, dn := uris[1], uris[2]
 	return c.cb.ThingDeviceInfoUpdateReply(c, err, pk, dn)
 }
 
@@ -82,8 +82,8 @@ func ProcThingDeviceInfoUpdateReply(c *Client, rawURI string, payload []byte) er
 // response: /sys/{productKey}/{deviceName}/thing/deviceinfo/delete_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/deviceinfo/delete_reply
 func ProcThingDeviceInfoDeleteReply(c *Client, rawURI string, payload []byte) error {
-	uris := infra.SpiltURI(rawURI)
-	if len(uris) < (c.uriOffset + 6) {
+	uris := infra.URISpilt(rawURI)
+	if len(uris) < 6 {
 		return ErrInvalidURI
 	}
 
@@ -97,7 +97,7 @@ func ProcThingDeviceInfoDeleteReply(c *Client, rawURI string, payload []byte) er
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 	c.done(rsp.ID, err, nil)
-	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
+	pk, dn := uris[1], uris[2]
 	c.log.Debugf("downstream thing <deviceInfo>: delete reply,@%d", rsp.ID)
 	return c.cb.ThingDeviceInfoDeleteReply(c, err, pk, dn)
 }

@@ -59,7 +59,6 @@ type Client struct {
 	cacheExpiration      time.Duration
 	cacheCleanupInterval time.Duration
 
-	uriOffset int
 	workOnWho byte
 
 	// 选项功能
@@ -87,7 +86,6 @@ func New(meta infra.MetaInfo, conn Conn, opts ...Option) *Client {
 	c := &Client{
 		MetaInfo: meta,
 
-		uriOffset: 0,
 		workOnWho: WorkOnMQTT,
 
 		cacheExpiration:      DefaultCacheExpiration,

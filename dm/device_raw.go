@@ -18,7 +18,7 @@ func (sf *Client) ThingModelUpRaw(devID int, payload interface{}) error {
 	if err != nil {
 		return err
 	}
-	uri := sf.uriService(infra.URISysPrefix, infra.URIThingModelUpRaw, node.ProductKey(), node.DeviceName())
+	uri := infra.URI(infra.URISysPrefix, infra.URIThingModelUpRaw, node.ProductKey(), node.DeviceName())
 	if err = sf.Publish(uri, 1, payload); err != nil {
 		return err
 	}
@@ -32,12 +32,12 @@ func (sf *Client) ThingModelUpRaw(devID int, payload interface{}) error {
 // response: /sys/{productKey}/{deviceName}/thing/model/up_raw_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/model/up_raw_reply
 func ProcThingModelUpRawReply(c *Client, rawURI string, payload []byte) error {
-	uris := infra.SpiltURI(rawURI)
-	if len(uris) < (c.uriOffset + 6) {
+	uris := infra.URISpilt(rawURI)
+	if len(uris) < 6 {
 		return ErrInvalidURI
 	}
 	c.log.Debugf("downstream thing <model>: up raw reply")
-	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
+	pk, dn := uris[1], uris[2]
 	return c.cb.ThingModelUpRawReply(c, pk, dn, payload)
 }
 
@@ -47,11 +47,11 @@ func ProcThingModelUpRawReply(c *Client, rawURI string, payload []byte) error {
 // response: /sys/{productKey}/{deviceName}/thing/model/down_raw_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/model/down_raw
 func ProcThingModelDownRaw(c *Client, rawURI string, payload []byte) error {
-	uris := infra.SpiltURI(rawURI)
-	if len(uris) < (c.uriOffset + 6) {
+	uris := infra.URISpilt(rawURI)
+	if len(uris) < 6 {
 		return ErrInvalidURI
 	}
 	c.log.Debugf("downstream thing <model>: down raw request")
-	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
+	pk, dn := uris[1], uris[2]
 	return c.cb.ThingModelDownRaw(c, pk, dn, payload)
 }

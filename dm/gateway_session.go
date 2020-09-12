@@ -100,7 +100,7 @@ func (sf *Client) ExtCombineLogin(devID int) (*Entry, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = sf.Publish(sf.URIServiceSelf(infra.URIExtSessionPrefix, infra.URICombineLogin), 0, req)
+	err = sf.Publish(sf.URIGateway(infra.URIExtSessionPrefix, infra.URICombineLogin), 0, req)
 	if err != nil {
 		return nil, err
 	}
@@ -161,7 +161,7 @@ func (sf *Client) ExtCombineLogout(devID int) (*Entry, error) {
 		return nil, err
 	}
 
-	err = sf.Publish(sf.URIServiceSelf(infra.URIExtSessionPrefix, infra.URICombineLogout), 0, req)
+	err = sf.Publish(sf.URIGateway(infra.URIExtSessionPrefix, infra.URICombineLogout), 0, req)
 	if err != nil {
 		return nil, err
 	}
@@ -184,8 +184,8 @@ func (sf *Client) ExtCombineBatchLogout(devID ...int) (*Entry, error) {
 // response:  /ext/session/{productKey}/{deviceName}/combine/login_reply
 // subscribe: /ext/session/{productKey}/{deviceName}/combine/login_reply
 func ProcExtCombineLoginReply(c *Client, rawURI string, payload []byte) error {
-	uris := infra.SpiltURI(rawURI)
-	if len(uris) < (c.uriOffset + 6) {
+	uris := infra.URISpilt(rawURI)
+	if len(uris) < 6 {
 		return ErrInvalidURI
 	}
 
@@ -195,7 +195,7 @@ func ProcExtCombineLoginReply(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 
-	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
+	pk, dn := uris[1], uris[2]
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	} else {
@@ -222,8 +222,8 @@ func ProcExtCombineBatchLoginReply(c *Client, rawURI string, payload []byte) err
 // response:  /ext/session/{productKey}/{deviceName}/combine/logout_reply
 // subscribe: /ext/session/{productKey}/{deviceName}/combine/logout_reply
 func ProcExtCombineLoginoutReply(c *Client, rawURI string, payload []byte) error {
-	uris := infra.SpiltURI(rawURI)
-	if len(uris) < (c.uriOffset + 6) {
+	uris := infra.URISpilt(rawURI)
+	if len(uris) < 6 {
 		return ErrInvalidURI
 	}
 
@@ -233,7 +233,7 @@ func ProcExtCombineLoginoutReply(c *Client, rawURI string, payload []byte) error
 		return err
 	}
 
-	pk, dn := uris[c.uriOffset+1], uris[c.uriOffset+2]
+	pk, dn := uris[1], uris[2]
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	} else {

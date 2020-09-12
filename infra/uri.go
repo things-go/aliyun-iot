@@ -154,7 +154,21 @@ func URIReplyWithRequestURI(uri string) string {
 	return uri + "_" + URIReplySuffix
 }
 
-// SpiltURI 分隔URI,会去除左边的SEP分隔符
-func SpiltURI(uri string) []string {
+// URISpilt 分隔URI,会去除左边的SEP分隔符
+func URISpilt(uri string) []string {
 	return strings.Split(strings.TrimLeft(uri, SEP), SEP)
+}
+
+func uriExtRRPC(prefix, messageID, topic string) string {
+	return fmt.Sprintf(prefix, messageID) + topic
+}
+
+// URIExtRRPCService 生成Ext RRPC URI
+func URIExtRRPC(messageID, _uri string) string {
+	return uriExtRRPC(URIExtRRPCPrefix, messageID, _uri)
+}
+
+// URIExtRRPCWildcardService 生成Ext RRPC 订阅 URI
+func URIExtRRPCWildcard(_uri string) string {
+	return uriExtRRPC(URIExtRRPCPrefix, "+", _uri)
 }

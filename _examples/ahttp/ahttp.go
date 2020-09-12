@@ -16,8 +16,7 @@ import (
 func main() {
 	var err error
 
-	client := ahttp.New((testmeta.MetaInfo()))
-	client.LogMode(true)
+	client := ahttp.New(testmeta.MetaInfo())
 
 	uri := infra.URICOAPHTTPPrePrefix + infra.URI(infra.URISysPrefix, infra.URIThingEventPropertyPost, testmeta.ProductKey, testmeta.DeviceName)
 	bPayload, err := json.Marshal(
@@ -32,7 +31,7 @@ func main() {
 			Method: infra.MethodEventPropertyPost,
 		})
 	for {
-		err = client.Publish(uri, bPayload)
+		err = client.Publish(uri, 1, bPayload)
 		if err != nil {
 			log.Println(err)
 		}

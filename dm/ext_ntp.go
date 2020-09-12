@@ -28,7 +28,7 @@ func (sf *Client) ExtNtpRequest() error {
 	if !sf.hasNTP || sf.hasRawModel {
 		return ErrNotSupportFeature
 	}
-	err := sf.Publish(sf.URIServiceSelf(infra.URIExtNtpPrefix, infra.URINtpRequest), 0,
+	err := sf.Publish(sf.URIGateway(infra.URIExtNtpPrefix, infra.URINtpRequest), 0,
 		NtpRequest{int64(time.Now().Nanosecond()) / 1000000})
 	if err != nil {
 		return err
@@ -43,8 +43,8 @@ func (sf *Client) ExtNtpRequest() error {
 // response: /ext/ntp/${YourProductKey}/${YourDeviceName}/response
 // subscribe: /ext/ntp/${YourProductKey}/${YourDeviceName}/response
 func ProcExtNtpResponse(c *Client, rawURI string, payload []byte) error {
-	uris := infra.SpiltURI(rawURI)
-	if len(uris) < (c.uriOffset + 5) {
+	uris := infra.URISpilt(rawURI)
+	if len(uris) < 5 {
 		return ErrInvalidURI
 	}
 	rsp := NtpResponse{}
@@ -52,5 +52,5 @@ func ProcExtNtpResponse(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 	c.log.Debugf("downstream extend <ntp>: response - %+v", rsp)
-	return c.cb.ExtNtpResponse(c, uris[c.uriOffset+2], uris[c.uriOffset+3], rsp)
+	return c.cb.ExtNtpResponse(c, uris[2], uris[3], rsp)
 }
