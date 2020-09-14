@@ -35,7 +35,7 @@ func (sf *coapClient) Publish(uri string, _ byte, payload interface{}) error {
 	}
 
 	// TODO
-	_, _ = sf.c.Post(uri2.CoapHttpPrePrefix+uri, coap.AppJSON, buf)
+	_, _ = sf.c.Post(uri2.TopicPrefix+uri, coap.AppJSON, buf)
 	return nil
 }
 

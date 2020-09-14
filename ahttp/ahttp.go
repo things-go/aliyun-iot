@@ -191,7 +191,7 @@ func (sf *Client) Publish(uri string, _ byte, payload interface{}) error {
 		}
 
 		request, err := http.NewRequestWithContext(context.Background(),
-			http.MethodPost, sf.endpoint+uri2.CoapHttpPrePrefix+uri, buf)
+			http.MethodPost, sf.endpoint+uri2.TopicPrefix+uri, buf)
 		if err != nil {
 			return err
 		}

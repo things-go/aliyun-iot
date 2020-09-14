@@ -24,6 +24,7 @@ type Callback interface {
 	ThingEventPropertyPostReply(c *Client, err error, productKey, deviceName string) error
 	ThingEventPostReply(c *Client, err error, eventID, productKey, deviceName string) error
 	ThingEventPropertyPackPostReply(c *Client, err error, productKey, deviceName string) error
+	ThingEventPropertyHistoryPostReply(c *Client, err error, productKey, deviceName string) error
 	ThingDeviceInfoUpdateReply(c *Client, err error, productKey, deviceName string) error
 	ThingDeviceInfoDeleteReply(c *Client, err error, productKey, deviceName string) error
 	ThingDesiredPropertyGetReply(c *Client, err error, productKey, deviceName string, data json.RawMessage) error

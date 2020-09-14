@@ -41,8 +41,8 @@ func (sf *Client) ThingGwTopoAdd(devID int) (*Entry, error) {
 		return nil, err
 	}
 	id := sf.RequestID()
-	uri := sf.GatewayURI(uri.SysPrefix, uri.ThingTopoAdd)
-	err = sf.SendRequest(uri, id, infra.MethodTopoAdd, []GwTopoAddParams{
+	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingTopoAdd)
+	err = sf.SendRequest(_uri, id, infra.MethodTopoAdd, []GwTopoAddParams{
 		{
 			node.ProductKey(),
 			node.DeviceName(),
@@ -76,8 +76,8 @@ func (sf *Client) ThingGwTopoDelete(devID int) (*Entry, error) {
 		return nil, err
 	}
 	id := sf.RequestID()
-	uri := sf.GatewayURI(uri.SysPrefix, uri.ThingTopoDelete)
-	err = sf.SendRequest(uri, id, infra.MethodTopoDelete,
+	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingTopoDelete)
+	err = sf.SendRequest(_uri, id, infra.MethodTopoDelete,
 		[]GwTopoDeleteParams{
 			{
 				node.ProductKey(),
@@ -111,8 +111,8 @@ func (sf *Client) ThingGwTopoGet() (*Entry, error) {
 		return nil, ErrNotSupportFeature
 	}
 	id := sf.RequestID()
-	uri := sf.GatewayURI(uri.SysPrefix, uri.ThingTopoGet)
-	if err := sf.SendRequest(uri, id, infra.MethodTopoGet, "{}"); err != nil {
+	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingTopoGet)
+	if err := sf.SendRequest(_uri, id, infra.MethodTopoGet, "{}"); err != nil {
 		return nil, err
 	}
 	sf.log.Debugf("upstream GW thing <topo>: Get @%d", id)
@@ -137,8 +137,8 @@ func (sf *Client) ThingGwListFound(devID int) (*Entry, error) {
 		return nil, err
 	}
 	id := sf.RequestID()
-	uri := sf.GatewayURI(uri.SysPrefix, uri.ThingListFound)
-	err = sf.SendRequest(uri, id, infra.MethodListFound,
+	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingListFound)
+	err = sf.SendRequest(_uri, id, infra.MethodListFound,
 		[]GwListFoundParams{
 			{
 				node.ProductKey(),

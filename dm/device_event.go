@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/thinkgos/aliyun-iot/infra"
-	uri2 "github.com/thinkgos/aliyun-iot/uri"
+	"github.com/thinkgos/aliyun-iot/uri"
 )
 
 // ThingEventPropertyPost 上传属性数据
@@ -24,8 +24,8 @@ func (sf *Client) ThingEventPropertyPost(devID int, params interface{}) (*Entry,
 	}
 
 	id := sf.RequestID()
-	uri := uri2.URI(uri2.SysPrefix, uri2.ThingEventPropertyPost, node.ProductKey(), node.DeviceName())
-	err = sf.SendRequest(uri, id, infra.MethodEventPropertyPost, params)
+	_uri := uri.URI(uri.SysPrefix, uri.ThingEventPropertyPost, node.ProductKey(), node.DeviceName())
+	err = sf.SendRequest(_uri, id, infra.MethodEventPropertyPost, params)
 	if err != nil {
 		return nil, err
 	}
@@ -46,8 +46,8 @@ func (sf *Client) ThingEventPost(devID int, eventID string, params interface{}) 
 	}
 
 	id := sf.RequestID()
-	uri := uri2.URI(uri2.SysPrefix, uri2.ThingEventPost, node.ProductKey(), node.DeviceName(), eventID)
-	err = sf.SendRequest(uri, id, fmt.Sprintf(infra.MethodEventFormatPost, eventID), params)
+	_uri := uri.URI(uri.SysPrefix, uri.ThingEventPost, node.ProductKey(), node.DeviceName(), eventID)
+	err = sf.SendRequest(_uri, id, fmt.Sprintf(infra.MethodEventFormatPost, eventID), params)
 	if err != nil {
 		return nil, err
 	}
@@ -64,13 +64,26 @@ func (sf *Client) ThingEventPropertyPackPost(params interface{}) (*Entry, error)
 		return nil, ErrNotSupportFeature
 	}
 	id := sf.RequestID()
-	err := sf.SendRequest(sf.GatewayURI(uri2.SysPrefix, uri2.ThingEventPropertyPackPost),
-		id, infra.MethodEventPropertyPackPost, params)
+	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingEventPropertyPackPost)
+	err := sf.SendRequest(_uri, id, infra.MethodEventPropertyPackPost, params)
 	if err != nil {
 		return nil, err
 	}
-
 	sf.log.Debugf("thing <event>: property pack post, @%d", id)
+	return sf.Insert(id), nil
+}
+
+// ThingEventPropertyHistoryPost 直连设备仅能上报自己的物模型历史数据,网关设备可以上报其子设备的物模型历史数据
+// request： /sys/{productKey}/{deviceName}/thing/event/property/history/post
+// response：/sys/{productKey}/{deviceName}/thing/event/property/history/post_reply
+func (sf *Client) ThingEventPropertyHistoryPost(params interface{}) (*Entry, error) {
+	id := sf.RequestID()
+	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingEventPropertyHistoryPost)
+	err := sf.SendRequest(_uri, id, infra.MethodEventPropertyHistoryPost, params)
+	if err != nil {
+		return nil, err
+	}
+	sf.log.Debugf("thing <event>: property history post, @%d", id)
 	return sf.Insert(id), nil
 }
 
@@ -80,13 +93,13 @@ func (sf *Client) ThingEventPropertyPackPost(params interface{}) (*Entry, error)
 // response:  /sys/{productKey}/{deviceName}/thing/event/[{tsl.event.identifier},property]/post_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/event/+/post_reply
 func ProcThingEventPostReply(c *Client, rawURI string, payload []byte) error {
-	uris := uri2.Spilt(rawURI)
+	uris := uri.Spilt(rawURI)
 	if len(uris) < 7 {
 		return ErrInvalidURI
 	}
 
-	rsp := Response{}
-	err := json.Unmarshal(payload, &rsp)
+	rsp := &Response{}
+	err := json.Unmarshal(payload, rsp)
 	if err != nil {
 		return err
 	}
@@ -111,12 +124,12 @@ func ProcThingEventPostReply(c *Client, rawURI string, payload []byte) error {
 // response:  /sys/{productKey}/{deviceName}/thing/event/property/pack/post_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/event/property/pack/post_reply
 func ProcThingEventPropertyPackPostReply(c *Client, rawURI string, payload []byte) error {
-	uris := uri2.Spilt(rawURI)
+	uris := uri.Spilt(rawURI)
 	if len(uris) < 8 {
 		return ErrInvalidURI
 	}
-	rsp := ResponseRawData{}
-	err := json.Unmarshal(payload, &rsp)
+	rsp := &Response{}
+	err := json.Unmarshal(payload, rsp)
 	if err != nil {
 		return err
 	}
@@ -130,33 +143,26 @@ func ProcThingEventPropertyPackPostReply(c *Client, rawURI string, payload []byt
 	return c.cb.ThingEventPropertyPackPostReply(c, err, pk, dn)
 }
 
-// ProcThingServicePropertySet 处理属性设置
-// 下行
-// request:   /sys/{productKey}/{deviceName}/thing/service/property/set
-// response:  /sys/{productKey}/{deviceName}/thing/service/property/set_reply
-// subscribe: /sys/{productKey}/{deviceName}/thing/service/[+,#]
-func ProcThingServicePropertySet(c *Client, rawURI string, payload []byte) error {
-	uris := uri2.Spilt(rawURI)
-	if len(uris) < 7 {
+// ProcThingEventPropertyHistoryPostReply 物模型历史数据上报应答
+// request：  /sys/{productKey}/{deviceName}/thing/event/property/history/post
+// response： /sys/{productKey}/{deviceName}/thing/event/property/history/post_reply
+// subscribe: /sys/{productKey}/{deviceName}/thing/event/property/history/post_reply
+func ProcThingEventPropertyHistoryPostReply(c *Client, rawURI string, payload []byte) error {
+	uris := uri.Spilt(rawURI)
+	if len(uris) < 8 {
 		return ErrInvalidURI
 	}
-	c.log.Debugf("downstream thing <service>: property set request")
-	pk, dn := uris[1], uris[2]
-	return c.cb.ThingServicePropertySet(c, pk, dn, payload)
-}
+	rsp := &Response{}
+	err := json.Unmarshal(payload, rsp)
+	if err != nil {
+		return err
+	}
+	if rsp.Code != infra.CodeSuccess {
+		err = infra.NewCodeError(rsp.Code, rsp.Message)
+	}
 
-// ProcThingServiceRequest 处理设备服务调用(异步)
-// 下行
-// request:   /sys/{productKey}/{deviceName}/thing/service/{tsl.service.identifier}
-// response:  /sys/{productKey}/{deviceName}/thing/service/{tsl.service.identifier}_reply
-// subscribe: /sys/{productKey}/{deviceName}/thing/service/[+,#]
-func ProcThingServiceRequest(c *Client, rawURI string, payload []byte) error {
-	uris := uri2.Spilt(rawURI)
-	if len(uris) < 6 {
-		return ErrInvalidURI
-	}
-	serviceID := uris[5]
+	c.signal(rsp.ID, err, nil)
 	pk, dn := uris[1], uris[2]
-	c.log.Debugf("downstream thing <service>: %s set request", serviceID)
-	return c.cb.ThingServiceRequest(c, serviceID, pk, dn, payload)
+	c.log.Debugf("thing <event>: property pack post reply,@%d", rsp.ID)
+	return c.cb.ThingEventPropertyHistoryPostReply(c, err, pk, dn)
 }

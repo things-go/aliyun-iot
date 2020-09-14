@@ -12,7 +12,7 @@ const (
 
 // URI 前缀定义
 const (
-	CoapHttpPrePrefix = "/topic"
+	TopicPrefix = "/topic"
 
 	SysPrefix              = "/sys/%s/%s/"
 	ExtSessionPrefix       = "/ext/session/%s/%s/"
@@ -45,11 +45,13 @@ const (
 	ThingModelUpRawReply   = "thing/model/up_raw_reply"
 
 	// 事件上行,下行云端
-	ThingEventPropertyPost         = "thing/event/property/post"
-	ThingEventPropertyPostReply    = "thing/event/property/post_reply"
-	ThingEventPost                 = "thing/event/%s/post"
-	ThingEventPostReply            = "thing/event/%s/post_reply"
-	ThingEventPostReplyWildcardOne = "thing/event/+/post_reply"
+	ThingEventPropertyPost             = "thing/event/property/post"
+	ThingEventPropertyPostReply        = "thing/event/property/post_reply"
+	ThingEventPost                     = "thing/event/%s/post"
+	ThingEventPostReply                = "thing/event/%s/post_reply"
+	ThingEventPostReplyWildcardOne     = "thing/event/+/post_reply"
+	ThingEventPropertyHistoryPost      = "thing/event/property/history/post"
+	ThingEventPropertyHistoryPostReply = "thing/event/property/history/post_reply"
 
 	// 设备信息上行,下行云端
 	ThingDeviceInfoUpdate      = "thing/deviceinfo/update"
