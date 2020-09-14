@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"math/rand"
 	"os"
@@ -44,6 +45,8 @@ func main() {
 		mock.MetaInfo(),
 		mqtt.NewClient(opts),
 		dm.WithEnableNTP(),
+		dm.WithEnableDesired(),
+		dm.WithCallback(mockCb{}),
 		dm.WithLogger(logger.New(log.New(os.Stdout, "mqtt --> ", log.LstdFlags), logger.WithEnable(true))),
 	)
 
@@ -53,12 +56,14 @@ func main() {
 	}
 
 	//go DslTemplateTest()
-	//go ConfigTest()
+	// go DesiredGetTest() // done
+	// go DesiredDeleteTest()
+	// go ConfigTest() // done
 	// NTPTest() // done
 	// DeviceInfoTest()  // done
 	// ThingEventPost() // done
 	for {
-		time.Sleep(time.Second * 10)
+		time.Sleep(time.Second * 15)
 		entry, err := dmClient.ThingEventPropertyPost(dm.DevNodeLocal,
 			mock.Instance{
 				rand.Intn(200),
@@ -113,12 +118,19 @@ func DeviceInfoTest() {
 	}
 }
 
+// done
 func ConfigTest() {
-	_, err := dmClient.ThingConfigGet(dm.DevNodeLocal)
+	tk, err := dmClient.ThingConfigGet(dm.DevNodeLocal)
 	if err != nil {
 		log.Println(err)
 		return
 	}
+	msg, err := tk.Wait(time.Second * 5)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	log.Println(msg.Data.(dm.ConfigParamsData))
 }
 
 func DslTemplateTest() {
@@ -143,4 +155,45 @@ func NTPTest() {
 		log.Println(err)
 		return
 	}
+}
+
+func DesiredGetTest() {
+	tk, err := dmClient.ThingDesiredPropertyGet(dm.DevNodeLocal, []string{"temp", "humi"})
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	msg, err := tk.Wait(time.Second * 5)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	log.Printf("%+v", msg)
+	log.Printf("%+v", string(msg.Data.(json.RawMessage)))
+}
+
+func DesiredDeleteTest() {
+	tk, err := dmClient.ThingDesiredPropertyDelete(dm.DevNodeLocal, "{}")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	msg, err := tk.Wait(time.Second * 5)
+	if err != nil {
+		log.Printf("wait failed, %+v", err)
+		return
+	}
+
+	log.Printf("%+v", msg.ID)
+	log.Printf("%+v %+v", msg.Data)
+}
+
+type mockCb struct {
+	dm.NopCb
+}
+
+func (sf mockCb) RRPCRequest(c *dm.Client, messageID, productKey, deviceName string, payload []byte) error {
+	log.Println(string(payload))
+	return nil
 }

@@ -4,6 +4,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha1"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 
 	"github.com/thinkgos/aliyun-iot/uri"
@@ -25,4 +26,10 @@ func generateSign(productKey, deviceName, deviceSecret, clientID string, timesta
 		return "", err
 	}
 	return hex.EncodeToString(h.Sum(nil)), nil
+}
+
+func cloneJSONRawMessage(d json.RawMessage) json.RawMessage {
+	v := make(json.RawMessage, len(d))
+	copy(v, d)
+	return v
 }

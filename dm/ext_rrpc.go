@@ -16,9 +16,10 @@ func ProcRRPCRequest(c *Client, rawURI string, payload []byte) error {
 	if len(uris) < 6 {
 		return ErrInvalidURI
 	}
-	messageID := uris[5]
+
 	pk, dn := uris[1], uris[2]
-	c.log.Debugf("downstream sys <RRPC>: request - messageID: %s", messageID)
+	messageID := uris[5]
+	c.log.Debugf("sys <RRPC>: request - messageID: %s", messageID)
 	return c.cb.RRPCRequest(c, messageID, pk, dn, payload)
 }
 
@@ -33,7 +34,7 @@ func ProcExtRRPCRequest(c *Client, rawURI string, payload []byte) error {
 	if len(uris) < 3 {
 		return ErrInvalidParameter
 	}
-	c.log.Debugf("downstream extend <RRPC>: Request - URI: ", rawURI)
+	c.log.Debugf("ext <RRPC>: request - URI: ", rawURI)
 	messageID, topic := uris[2], uris[3]
 	return c.cb.ExtRRPCRequest(c, messageID, topic, payload)
 }

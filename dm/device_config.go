@@ -45,9 +45,6 @@ type ConfigPushRequest struct {
 // request:  /sys/{productKey}/{deviceName}/thing/config/get
 // response: /sys/{productKey}/{deviceName}/thing/config/get_reply
 func (sf *Client) ThingConfigGet(devID int) (*Token, error) {
-	if !sf.isGateway {
-		return nil, ErrNotSupportFeature
-	}
 	if devID < 0 {
 		return nil, ErrInvalidParameter
 	}
@@ -77,8 +74,8 @@ func ProcThingConfigGetReply(c *Client, rawURI string, payload []byte) error {
 		return ErrInvalidURI
 	}
 
-	rsp := ConfigGetResponse{}
-	err := json.Unmarshal(payload, &rsp)
+	rsp := &ConfigGetResponse{}
+	err := json.Unmarshal(payload, rsp)
 	if err != nil {
 		return err
 	}
@@ -87,9 +84,9 @@ func ProcThingConfigGetReply(c *Client, rawURI string, payload []byte) error {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.signalPending(Message{rsp.ID, nil, err})
+	c.signalPending(Message{rsp.ID, rsp.Data, err})
 	pk, dn := uris[1], uris[2]
-	c.log.Debugf("thing <config>: get reply, @%d, Data -> %+v", rsp.ID, rsp)
+	c.log.Debugf("thing <config>: get reply, @%d", rsp.ID)
 	return c.cb.ThingConfigGetReply(c, err, pk, dn, rsp.Data)
 }
 
@@ -103,8 +100,8 @@ func ProcThingConfigPush(c *Client, rawURI string, payload []byte) error {
 	if len(uris) < 6 {
 		return ErrInvalidURI
 	}
-	req := ConfigPushRequest{}
-	if err := json.Unmarshal(payload, &req); err != nil {
+	req := &ConfigPushRequest{}
+	if err := json.Unmarshal(payload, req); err != nil {
 		return err
 	}
 	err := c.SendResponse(uri.ReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")

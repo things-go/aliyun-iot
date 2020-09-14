@@ -7,10 +7,12 @@ import (
 	"github.com/thinkgos/aliyun-iot/uri"
 )
 
+// @see https://help.aliyun.com/document_detail/109807.html?spm=a2c4g.11186623.6.707.31c552ceZhSvWp
+
 // ThingDesiredPropertyGet 获取期望属性值
 // request:  /sys/{productKey}/{deviceName}/thing/property/desired/get
 // response: /sys/{productKey}/{deviceName}/thing/property/desired/get_reply
-func (sf *Client) ThingDesiredPropertyGet(devID int, params interface{}) (*Token, error) {
+func (sf *Client) ThingDesiredPropertyGet(devID int, params []string) (*Token, error) {
 	if !sf.hasDesired {
 		return nil, ErrNotSupportFeature
 	}
@@ -76,7 +78,7 @@ func ProcThingDesiredPropertyGetReply(c *Client, rawURI string, payload []byte) 
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.signalPending(Message{rsp.ID, nil, err})
+	c.signalPending(Message{rsp.ID, cloneJSONRawMessage(rsp.Data), err})
 	pk, dn := uris[1], uris[2]
 	c.log.Debugf("thing <desired>: get reply, @%d", rsp.ID)
 	return c.cb.ThingDesiredPropertyGetReply(c, err, pk, dn, rsp.Data)
