@@ -24,7 +24,6 @@ func (sf *Client) ThingDeviceInfoUpdate(devID int, params interface{}) (*Token, 
 	if err := sf.SendRequest(_uri, id, infra.MethodDeviceInfoUpdate, params); err != nil {
 		return nil, err
 	}
-
 	sf.log.Debugf("thing <deviceInfo>: update, @%d", id)
 	return sf.putPending(id), nil
 }

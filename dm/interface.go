@@ -2,6 +2,7 @@ package dm
 
 import (
 	"encoding/json"
+	"time"
 )
 
 // @see https://help.aliyun.com/document_detail/89301.html?spm=a2c4g.11186623.6.706.570f3f69J3fW5z
@@ -31,7 +32,7 @@ type Callback interface {
 	ThingDesiredPropertyDeleteReply(c *Client, err error, productKey, deviceName string) error
 	ThingDsltemplateGetReply(c *Client, err error, productKey, deviceName string, data json.RawMessage) error
 	ThingDynamictslGetReply(c *Client, err error, productKey, deviceName string, data json.RawMessage) error
-	ExtNtpResponse(c *Client, productKey, deviceName string, payload NtpResponse) error
+	ExtNtpResponse(c *Client, productKey, deviceName string, exact time.Time) error
 	ThingConfigGetReply(c *Client, err error, productKey, deviceName string, data ConfigParamsData) error
 	// 下行
 	// 透传请求,需要用户自己处理及应答

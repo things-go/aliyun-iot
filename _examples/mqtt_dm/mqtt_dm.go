@@ -43,6 +43,7 @@ func main() {
 	dmClient = aiot.NewWithMQTT(
 		mock.MetaInfo(),
 		mqtt.NewClient(opts),
+		dm.WithEnableNTP(),
 		dm.WithLogger(logger.New(log.New(os.Stdout, "mqtt --> ", log.LstdFlags), logger.WithEnable(true))),
 	)
 
@@ -53,9 +54,9 @@ func main() {
 
 	//go DslTemplateTest()
 	//go ConfigTest()
-	//go DeviceInfoTest()
-	//go NTPTest()
-	ThingEventPost()
+	// NTPTest() // done
+	// DeviceInfoTest()  // done
+	// ThingEventPost() // done
 	for {
 		time.Sleep(time.Second * 10)
 		entry, err := dmClient.ThingEventPropertyPost(dm.DevNodeLocal,
@@ -77,6 +78,7 @@ func main() {
 	}
 }
 
+// done
 func ThingEventPost() {
 	for {
 		_, err := dmClient.ThingEventPost(dm.DevNodeLocal, "tempAlarm", map[string]interface{}{
@@ -89,23 +91,26 @@ func ThingEventPost() {
 	}
 }
 
+// done
 func DeviceInfoTest() {
-	if _, err := dmClient.ThingDeviceInfoUpdate(dm.DevNodeLocal,
-		[]dmd.DevInfoLabelUpdate{
-			{AttrKey: "attrKey", AttrValue: "attrValue"},
-		}); err != nil {
+	tk, err := dmClient.ThingDeviceInfoUpdate(dm.DevNodeLocal,
+		[]dmd.DeviceInfoLabel{{AttrKey: "attrKey", AttrValue: "attrValue"}})
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	_, err = tk.Wait(time.Second * 5)
+	if err != nil {
 		log.Println(err)
 		return
 	}
 	time.Sleep(time.Minute * 1)
-	if _, err := dmClient.ThingDeviceInfoDelete(dm.DevNodeLocal,
-		[]dmd.DevInfoLabelDelete{
-			{AttrKey: "attrKey"},
-		}); err != nil {
+	_, err = dmClient.ThingDeviceInfoDelete(dm.DevNodeLocal,
+		[]dmd.DeviceLabelKey{{AttrKey: "attrKey"}})
+	if err != nil {
 		log.Println(err)
 		return
 	}
-
 }
 
 func ConfigTest() {
@@ -131,6 +136,7 @@ func dynamictslTest() {
 	}
 }
 
+// done
 func NTPTest() {
 	err := dmClient.ExtNtpRequest()
 	if err != nil {

@@ -2,6 +2,7 @@ package dm
 
 import (
 	"encoding/json"
+	"time"
 )
 
 // NopCb 实现Callback接口的空实现
@@ -50,7 +51,7 @@ func (NopCb) ThingDynamictslGetReply(*Client, error, string, string, json.RawMes
 }
 
 // ExtNtpResponse see interface Callback
-func (NopCb) ExtNtpResponse(*Client, string, string, NtpResponse) error { return nil }
+func (NopCb) ExtNtpResponse(*Client, string, string, time.Time) error { return nil }
 
 // ThingConfigGetReply see interface Callback
 func (NopCb) ThingConfigGetReply(*Client, error, string, string, ConfigParamsData) error { return nil }

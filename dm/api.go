@@ -5,6 +5,7 @@ package dm
 import (
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"sync/atomic"
 	"time"
 
@@ -84,7 +85,8 @@ var Version = "1.0"
 // New 创建一个物管理客户端
 func New(meta infra.MetaInfo, conn Conn, opts ...Option) *Client {
 	c := &Client{
-		MetaInfo: meta,
+		requestID: rand.Uint32(),
+		MetaInfo:  meta,
 
 		workOnWho: WorkOnMQTT,
 

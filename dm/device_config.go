@@ -7,6 +7,8 @@ import (
 	"github.com/thinkgos/aliyun-iot/uri"
 )
 
+// @see https://help.aliyun.com/document_detail/89308.html?spm=a2c4g.11186623.6.713.63661dcfgclzYs
+
 // ConfigGetParams 获取配置的参数域
 type ConfigGetParams struct {
 	ConfigScope string `json:"configScope"` // 配置范围, 目前只支持产品维度配置. 取值: product

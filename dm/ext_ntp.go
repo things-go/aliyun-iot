@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/thinkgos/aliyun-iot/infra"
 	"github.com/thinkgos/aliyun-iot/uri"
 )
 
@@ -30,7 +31,11 @@ func (sf *Client) ExtNtpRequest() error {
 	}
 	sf.log.Debugf("ext <ntp>: request")
 	_uri := sf.GatewayURI(uri.ExtNtpPrefix, uri.NtpRequest)
-	return sf.Publish(_uri, 0, NtpRequest{int64(time.Now().Nanosecond()) / 1000000})
+	py, err := json.Marshal(NtpRequest{infra.Millisecond(time.Now())})
+	if err != nil {
+		return err
+	}
+	return sf.Publish(_uri, 0, py)
 }
 
 // ProcExtNtpResponse 处理ntp请求的应答
@@ -47,7 +52,9 @@ func ProcExtNtpResponse(c *Client, rawURI string, payload []byte) error {
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
-	c.log.Debugf("ext <ntp>: response -> %+v", rsp)
+	tm := (rsp.ServerRecvTime + rsp.ServerSendTime + infra.Millisecond(time.Now()) - rsp.DeviceSendTime) / 2
+	exact := infra.Time(tm)
+	c.log.Debugf("ext <ntp>: response -> %+v", exact)
 	pk, dn := uris[2], uris[3]
-	return c.cb.ExtNtpResponse(c, pk, dn, rsp)
+	return c.cb.ExtNtpResponse(c, pk, dn, exact)
 }
