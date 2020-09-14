@@ -90,7 +90,7 @@ func (sf *Client) OtaProgress(devID int, params interface{}) error {
 // module: 不指定则表示请求默认（default）模块的固件信息
 // request： /sys/{productKey}/{deviceName}/thing/ota/firmware/get
 // response：/sys/{productKey}/{deviceName}/thing/ota/firmware/get_reply
-func (sf *Client) ThingOtaFirmwareGet(devID int, module string) (*Entry, error) {
+func (sf *Client) ThingOtaFirmwareGet(devID int, module string) (*Token, error) {
 	if !sf.hasOTA {
 		return nil, ErrNotSupportFeature
 	}

@@ -10,7 +10,7 @@ import (
 // ThingDesiredPropertyGet 获取期望属性值
 // request:  /sys/{productKey}/{deviceName}/thing/property/desired/get
 // response: /sys/{productKey}/{deviceName}/thing/property/desired/get_reply
-func (sf *Client) ThingDesiredPropertyGet(devID int, params interface{}) (*Entry, error) {
+func (sf *Client) ThingDesiredPropertyGet(devID int, params interface{}) (*Token, error) {
 	if !sf.hasDesired {
 		return nil, ErrNotSupportFeature
 	}
@@ -34,7 +34,7 @@ func (sf *Client) ThingDesiredPropertyGet(devID int, params interface{}) (*Entry
 // ThingDesiredPropertyDelete 清空期望属性值
 // request:  /sys/{productKey}/{deviceName}/thing/property/desired/delete
 // response: /sys/{productKey}/{deviceName}/thing/property/desired/delete_reply
-func (sf *Client) ThingDesiredPropertyDelete(devID int, params interface{}) (*Entry, error) {
+func (sf *Client) ThingDesiredPropertyDelete(devID int, params interface{}) (*Token, error) {
 	if !sf.hasDesired {
 		return nil, ErrNotSupportFeature
 	}

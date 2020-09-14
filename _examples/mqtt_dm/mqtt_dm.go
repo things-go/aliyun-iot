@@ -10,7 +10,7 @@ import (
 	"github.com/thinkgos/go-core-package/lib/logger"
 
 	aiot "github.com/thinkgos/aliyun-iot"
-	"github.com/thinkgos/aliyun-iot/_examples/testmeta"
+	"github.com/thinkgos/aliyun-iot/_examples/mock"
 	"github.com/thinkgos/aliyun-iot/dm"
 	"github.com/thinkgos/aliyun-iot/dmd"
 	"github.com/thinkgos/aliyun-iot/infra"
@@ -20,7 +20,7 @@ import (
 var dmClient *aiot.MQTTClient
 
 func main() {
-	meta := testmeta.MetaInfo()
+	meta := mock.MetaInfo()
 	signs, err := sign.Generate(&meta, infra.CloudRegionDomain{Region: infra.CloudRegionShangHai})
 	if err != nil {
 		panic(err)
@@ -41,9 +41,9 @@ func main() {
 			})
 
 	dmClient = aiot.NewWithMQTT(
-		testmeta.MetaInfo(),
+		mock.MetaInfo(),
 		mqtt.NewClient(opts),
-		dm.WithLogger(logger.New(log.New(os.Stdout, "mqtt --> ", log.LstdFlags))),
+		dm.WithLogger(logger.New(log.New(os.Stdout, "mqtt --> ", log.LstdFlags), logger.WithEnable(true))),
 	)
 
 	dmClient.Underlying().Connect().Wait()
@@ -56,27 +56,31 @@ func main() {
 	//go DeviceInfoTest()
 	//go NTPTest()
 
-	EventPostTest()
+	for {
+		time.Sleep(time.Second * 10)
+		entry, err := dmClient.ThingEventPropertyPost(dm.DevNodeLocal,
+			mock.Instance{
+				rand.Intn(200),
+				rand.Intn(100),
+				rand.Intn(2),
+			})
+		if err != nil {
+			log.Printf("error: %#v", err)
+			continue
+		}
+		id, err := entry.WaitID(time.Second)
+		if err != nil {
+			log.Printf("error: %#v", err)
+			continue
+		}
+		log.Printf("wait and got id: %d", id)
+	}
 }
 
-func EventPostTest() {
-	go func() {
-		for {
-			_, err := dmClient.ThingEventPost(dm.DevNodeLocal, "tempAlarm", map[string]interface{}{
-				"high": 1,
-			})
-			if err != nil {
-				log.Printf("error: %#v", err)
-			}
-			time.Sleep(time.Second * 10)
-		}
-	}()
-
+func ThingEventPost() {
 	for {
-		_, err := dmClient.ThingEventPropertyPost(dm.DevNodeLocal, map[string]interface{}{
-			"Temp":         rand.Intn(200),
-			"Humi":         rand.Intn(100),
-			"switchStatus": rand.Intn(2),
+		_, err := dmClient.ThingEventPost(dm.DevNodeLocal, "tempAlarm", map[string]interface{}{
+			"high": 1,
 		})
 		if err != nil {
 			log.Printf("error: %#v", err)

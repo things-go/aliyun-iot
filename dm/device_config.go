@@ -42,7 +42,7 @@ type ConfigPushRequest struct {
 // ThingConfigGet 获取配置参数
 // request:  /sys/{productKey}/{deviceName}/thing/config/get
 // response: /sys/{productKey}/{deviceName}/thing/config/get_reply
-func (sf *Client) ThingConfigGet(devID int) (*Entry, error) {
+func (sf *Client) ThingConfigGet(devID int) (*Token, error) {
 	if !sf.isGateway {
 		return nil, ErrNotSupportFeature
 	}

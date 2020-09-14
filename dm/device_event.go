@@ -11,7 +11,7 @@ import (
 // ThingEventPropertyPost 上传属性数据
 // request:  /sys/{productKey}/{deviceName}/thing/event/property/post
 // response: /sys/{productKey}/{deviceName}/thing/event/property/post_reply
-func (sf *Client) ThingEventPropertyPost(devID int, params interface{}) (*Entry, error) {
+func (sf *Client) ThingEventPropertyPost(devID int, params interface{}) (*Token, error) {
 	if sf.hasRawModel {
 		return nil, ErrNotSupportFeature
 	}
@@ -36,7 +36,7 @@ func (sf *Client) ThingEventPropertyPost(devID int, params interface{}) (*Entry,
 // ThingEventPost 事件上传
 // request:  /sys/{productKey}/{deviceName}/thing/event/{tsl.event.identifier}/post
 // response: /sys/{productKey}/{deviceName}/thing/event/{tsl.event.identifier}/post_reply
-func (sf *Client) ThingEventPost(devID int, eventID string, params interface{}) (*Entry, error) {
+func (sf *Client) ThingEventPost(devID int, eventID string, params interface{}) (*Token, error) {
 	if devID < 0 {
 		return nil, ErrInvalidParameter
 	}
@@ -59,7 +59,7 @@ func (sf *Client) ThingEventPost(devID int, eventID string, params interface{}) 
 // NOTE: 仅网关支持,一次最多200个属性,20个事件,一次最多为20个子设备上报数据
 // request:  /sys/{productKey}/{deviceName}/thing/event/property/pack/post
 // response: /sys/{productKey}/{deviceName}/thing/event/property/pack/post_reply
-func (sf *Client) ThingEventPropertyPackPost(params interface{}) (*Entry, error) {
+func (sf *Client) ThingEventPropertyPackPost(params interface{}) (*Token, error) {
 	if !sf.isGateway {
 		return nil, ErrNotSupportFeature
 	}
@@ -76,7 +76,7 @@ func (sf *Client) ThingEventPropertyPackPost(params interface{}) (*Entry, error)
 // ThingEventPropertyHistoryPost 直连设备仅能上报自己的物模型历史数据,网关设备可以上报其子设备的物模型历史数据
 // request： /sys/{productKey}/{deviceName}/thing/event/property/history/post
 // response：/sys/{productKey}/{deviceName}/thing/event/property/history/post_reply
-func (sf *Client) ThingEventPropertyHistoryPost(params interface{}) (*Entry, error) {
+func (sf *Client) ThingEventPropertyHistoryPost(params interface{}) (*Token, error) {
 	id := sf.RequestID()
 	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingEventPropertyHistoryPost)
 	err := sf.SendRequest(_uri, id, infra.MethodEventPropertyHistoryPost, params)

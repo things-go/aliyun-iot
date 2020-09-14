@@ -24,7 +24,7 @@ type GwTopoAddParams struct {
 // 子设备身份注册后,需网关上报与子设备的关系,然后才进行子设备上线
 // request:   /sys/{productKey}/{deviceName}/thing/topo/add
 // response:  /sys/{productKey}/{deviceName}/thing/topo/add_reply
-func (sf *Client) ThingGwTopoAdd(devID int) (*Entry, error) {
+func (sf *Client) ThingGwTopoAdd(devID int) (*Token, error) {
 	if devID < 0 {
 		return nil, ErrInvalidParameter
 	}
@@ -67,7 +67,7 @@ type GwTopoDeleteParams struct {
 }
 
 // ThingGwTopoDelete 删除网关与子设备的拓扑关系
-func (sf *Client) ThingGwTopoDelete(devID int) (*Entry, error) {
+func (sf *Client) ThingGwTopoDelete(devID int) (*Token, error) {
 	if devID < 0 {
 		return nil, ErrInvalidParameter
 	}
@@ -106,7 +106,7 @@ type GwTopoGetResponse struct {
 // ThingGwTopoGet 获取该网关和子设备的拓扑关系
 // request:   /sys/{productKey}/{deviceName}/thing/topo/get
 // response:  /sys/{productKey}/{deviceName}/thing/topo/get_reply
-func (sf *Client) ThingGwTopoGet() (*Entry, error) {
+func (sf *Client) ThingGwTopoGet() (*Token, error) {
 	if !sf.isGateway {
 		return nil, ErrNotSupportFeature
 	}
@@ -128,7 +128,7 @@ type GwListFoundParams struct {
 // ThingGwListFound 发现设备列表上报
 // 场景,网关可以发现新接入的子设备,发现后,需将新接入的子设备的信息上报云端,
 // 然后转到第三方应用,选择哪些子设备可以接入该网关
-func (sf *Client) ThingGwListFound(devID int) (*Entry, error) {
+func (sf *Client) ThingGwListFound(devID int) (*Token, error) {
 	if devID < 0 {
 		return nil, ErrInvalidParameter
 	}

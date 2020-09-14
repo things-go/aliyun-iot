@@ -3,16 +3,16 @@ package main
 import (
 	"log"
 
-	"github.com/thinkgos/aliyun-iot/_examples/testmeta"
+	"github.com/thinkgos/aliyun-iot/_examples/mock"
 	"github.com/thinkgos/aliyun-iot/dynamic"
 	"github.com/thinkgos/aliyun-iot/infra"
 )
 
 func main() {
 	meta := &infra.MetaInfo{
-		ProductKey:    testmeta.ProductKey,
-		ProductSecret: testmeta.ProductSecret,
-		DeviceName:    testmeta.DeviceName,
+		ProductKey:    mock.ProductKey,
+		ProductSecret: mock.ProductSecret,
+		DeviceName:    mock.DeviceName,
 	}
 	crd := infra.CloudRegionDomain{
 		Region:       infra.CloudRegionShangHai,

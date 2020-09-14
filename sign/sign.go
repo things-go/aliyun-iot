@@ -4,7 +4,7 @@ package sign
 
 import (
 	"crypto/hmac"
-	"crypto/md5"
+	"crypto/sha256"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -101,7 +101,7 @@ func Generate(meta *infra.MetaInfo, crd infra.CloudRegionDomain, opts ...Option)
 			"v":          alinkVersion,
 			"_v":         SDKVersion,
 		},
-		hfc: md5.New,
+		hfc: sha256.New,
 	}
 	for _, opt := range opts {
 		opt(ms)

@@ -11,7 +11,7 @@ import (
 // see https://help.aliyun.com/document_detail/89305.html?spm=a2c4g.11186623.6.672.5d3d70374hpPcx
 // request:   /sys/{productKey}/{deviceName}/thing/dsltemplate/get
 // response:  /sys/{productKey}/{deviceName}/thing/dsltemplate/get_reply
-func (sf *Client) ThingDsltemplateGet(devID int) (*Entry, error) {
+func (sf *Client) ThingDsltemplateGet(devID int) (*Token, error) {
 	if devID < 0 {
 		return nil, ErrInvalidParameter
 	}
@@ -32,7 +32,7 @@ func (sf *Client) ThingDsltemplateGet(devID int) (*Entry, error) {
 }
 
 // ThingDynamictslGet 获取动态tsl
-func (sf *Client) ThingDynamictslGet(devID int) (*Entry, error) {
+func (sf *Client) ThingDynamictslGet(devID int) (*Token, error) {
 	if devID < 0 {
 		return nil, ErrInvalidParameter
 	}

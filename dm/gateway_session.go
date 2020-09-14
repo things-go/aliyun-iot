@@ -70,7 +70,7 @@ type GwCombineBatchLoginResponse struct {
 // NOTE: topic 应使用网关的productKey和deviceName,且只支持qos = 0
 // request： /ext/session/${productKey}/${deviceName}/combine/login
 // response：/ext/session/${productKey}/${deviceName}/combine/login_reply
-func (sf *Client) ExtCombineLogin(devID int) (*Entry, error) {
+func (sf *Client) ExtCombineLogin(devID int) (*Token, error) {
 	if devID < 0 {
 		return nil, ErrInvalidParameter
 	}
@@ -114,7 +114,7 @@ func (sf *Client) ExtCombineLogin(devID int) (*Entry, error) {
 // NOTE: topic 应使用网关的productKey和deviceName,且只支持qos = 0
 // request： /ext/session/${productKey}/${deviceName}/combine/batch_login
 // response：/ext/session/${productKey}/${deviceName}/combine/batch_login_reply
-func (sf *Client) ExtCombineBatchLogin(devID ...int) (*Entry, error) {
+func (sf *Client) ExtCombineBatchLogin(devID ...int) (*Token, error) {
 	// TODO:
 	return nil, nil
 }
@@ -141,7 +141,7 @@ type GwCombineBatchLogoutRequest struct {
 // NOTE: topic 应使用网关的productKey和deviceName,且只支持qos = 0
 // request:   /ext/session/{productKey}/{deviceName}/combine/logout
 // response:  /ext/session/{productKey}/{deviceName}/combine/logout_reply
-func (sf *Client) ExtCombineLogout(devID int) (*Entry, error) {
+func (sf *Client) ExtCombineLogout(devID int) (*Token, error) {
 	if devID < 0 {
 		return nil, ErrInvalidParameter
 	}
@@ -174,7 +174,7 @@ func (sf *Client) ExtCombineLogout(devID int) (*Entry, error) {
 // NOTE: topic 应使用网关的productKey和deviceName,且只支持qos = 0
 // request:   /ext/session/{productKey}/{deviceName}/combine/batch_logout
 // response:  /ext/session/{productKey}/{deviceName}/combine/batch_logout_reply
-func (sf *Client) ExtCombineBatchLogout(devID ...int) (*Entry, error) {
+func (sf *Client) ExtCombineBatchLogout(devID ...int) (*Token, error) {
 	// TODO
 	return nil, nil
 }

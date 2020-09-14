@@ -10,7 +10,7 @@ import (
 	"github.com/thinkgos/go-core-package/lib/logger"
 
 	aiot "github.com/thinkgos/aliyun-iot"
-	"github.com/thinkgos/aliyun-iot/_examples/testmeta"
+	"github.com/thinkgos/aliyun-iot/_examples/mock"
 	"github.com/thinkgos/aliyun-iot/dm"
 	"github.com/thinkgos/aliyun-iot/infra"
 	"github.com/thinkgos/aliyun-iot/sign"
@@ -40,7 +40,7 @@ func main() {
 		0x53, 0x51, 0x09, 0x51, 0x2b, 0x4e, 0x61, 0x43, 0x09, 0x2a, 0x14, 0x4d,
 		0x42, 0x1f, 0x47, 0x38, 0x52, 0x47}
 
-	meta := testmeta.MetaInfo()
+	meta := mock.MetaInfo()
 	signs, err :=
 		sign.Generate(&meta, infra.CloudRegionDomain{Region: infra.CloudRegionShangHai})
 	if err != nil {
@@ -63,7 +63,7 @@ func main() {
 			})
 
 	dmClient := aiot.NewWithMQTT(
-		testmeta.MetaInfo(),
+		mock.MetaInfo(),
 		mqtt.NewClient(opts),
 		dm.WithEnableModelRaw(),
 		dm.WithCallback(RawProc{}),

@@ -6,7 +6,7 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/thinkgos/aliyun-iot/_examples/testmeta"
+	"github.com/thinkgos/aliyun-iot/_examples/mock"
 	"github.com/thinkgos/aliyun-iot/ahttp"
 	"github.com/thinkgos/aliyun-iot/dm"
 	"github.com/thinkgos/aliyun-iot/infra"
@@ -17,9 +17,9 @@ import (
 func main() {
 	var err error
 
-	client := ahttp.New(testmeta.MetaInfo())
+	client := ahttp.New(mock.MetaInfo())
 
-	uri := uri2.URI(uri2.SysPrefix, uri2.ThingEventPropertyPost, testmeta.ProductKey, testmeta.DeviceName)
+	uri := uri2.URI(uri2.SysPrefix, uri2.ThingEventPropertyPost, mock.ProductKey, mock.DeviceName)
 	bPayload, err := json.Marshal(
 		dm.Request{
 			ID:      uint(rand.Int()),

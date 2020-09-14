@@ -1,4 +1,4 @@
-package testmeta
+package mock
 
 import (
 	"github.com/thinkgos/aliyun-iot/infra"
@@ -19,4 +19,14 @@ func MetaInfo() infra.MetaInfo {
 		DeviceName,
 		DeviceSecret,
 	}
+}
+
+type Instance struct {
+	Temp         int `json:"temp"`
+	Humi         int `json:"humi"`
+	SwitchStatus int `json:"switchStatus"`
+}
+
+type Alarm struct {
+	High int `json:"high"`
 }
