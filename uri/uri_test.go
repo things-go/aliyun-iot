@@ -1,4 +1,4 @@
-package infra
+package uri
 
 import (
 	"fmt"
@@ -23,32 +23,32 @@ func TestURI(t *testing.T) {
 		{
 			"all",
 			args{
-				prefix:     URISysPrefix,
-				name:       URIThingEventPropertyPost,
+				prefix:     SysPrefix,
+				name:       ThingEventPropertyPost,
 				productKey: "productKey",
 				deviceName: "deviceName",
 			},
-			fmt.Sprintf(URISysPrefix+URIThingEventPropertyPost, "productKey", "deviceName"),
+			fmt.Sprintf(SysPrefix+ThingEventPropertyPost, "productKey", "deviceName"),
 		},
 		{
 			"空prefix",
 			args{
 				prefix:     "",
-				name:       URIThingEventPropertyPost,
+				name:       ThingEventPropertyPost,
 				productKey: "productKey",
 				deviceName: "deviceName",
 			},
-			URIThingEventPropertyPost,
+			ThingEventPropertyPost,
 		},
 		{
 			"空name",
 			args{
-				prefix:     URISysPrefix,
+				prefix:     SysPrefix,
 				name:       "",
 				productKey: "productKey",
 				deviceName: "deviceName",
 			},
-			fmt.Sprintf(URISysPrefix, "productKey", "deviceName"),
+			fmt.Sprintf(SysPrefix, "productKey", "deviceName"),
 		},
 		{
 			"空prefix和name",
@@ -84,8 +84,8 @@ func TestURIReplyWithRequestURI(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := URIReplyWithRequestURI(tt.uri); got != tt.want {
-				t.Errorf("URIReplyWithRequestURI() = %v, want %v", got, tt.want)
+			if got := ReplyWithRequestURI(tt.uri); got != tt.want {
+				t.Errorf("ReplyWithRequestURI() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -105,14 +105,14 @@ func TestURISpilt(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := URISpilt(tt.uri); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("URISpilt() = %v, want %v", got, tt.want)
+			if got := Spilt(tt.uri); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Spilt() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
 func TestExtRRPC(t *testing.T) {
-	require.Equal(t, "/ext/rrpc/+/a/b/c", URIExtRRPC("+", "/a/b/c"))
-	require.Equal(t, "/ext/rrpc/+/a/b/c", URIExtRRPCWildcardOne("/a/b/c"))
+	require.Equal(t, "/ext/rrpc/+/a/b/c", ExtRRPC("+", "/a/b/c"))
+	require.Equal(t, "/ext/rrpc/+/a/b/c", ExtRRPCWildcardOne("/a/b/c"))
 }

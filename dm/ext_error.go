@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/thinkgos/aliyun-iot/infra"
+	"github.com/thinkgos/aliyun-iot/uri"
 )
 
 // ExtErrorData 子设备错误回复数据域
@@ -24,7 +25,7 @@ type ExtErrorResponse struct {
 // response:  ext/error/{productKey}/{deviceName}
 // subscribe: ext/error/{productKey}/{deviceName}
 func ProcExtErrorResponse(c *Client, rawURI string, payload []byte) error {
-	uris := infra.URISpilt(rawURI)
+	uris := uri.Spilt(rawURI)
 	if len(uris) < 4 {
 		return ErrInvalidURI
 	}

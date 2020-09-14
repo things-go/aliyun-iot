@@ -6,12 +6,12 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	"github.com/thinkgos/aliyun-iot/infra"
+	"github.com/thinkgos/aliyun-iot/uri"
 )
 
 // GatewayURI 获得本设备网关URI
 func (sf *Client) GatewayURI(prefix, name string) string {
-	return infra.URI(prefix, name, sf.ProductKey, sf.DeviceName)
+	return uri.URI(prefix, name, sf.ProductKey, sf.DeviceName)
 }
 
 // 可以采用Sha256,hmacMd5,hmacSha1,hmacSha256

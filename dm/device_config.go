@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/thinkgos/aliyun-iot/infra"
+	uri2 "github.com/thinkgos/aliyun-iot/uri"
 )
 
 // ConfigGetParams 获取配置的参数域
@@ -53,7 +54,7 @@ func (sf *Client) ThingConfigGet(devID int) (*Entry, error) {
 		return nil, err
 	}
 
-	uri := infra.URI(infra.URISysPrefix, infra.URIThingConfigGet, node.ProductKey(), node.DeviceName())
+	uri := uri2.URI(uri2.SysPrefix, uri2.ThingConfigGet, node.ProductKey(), node.DeviceName())
 	id := sf.RequestID()
 	err = sf.SendRequest(uri, id, infra.MethodConfigGet, ConfigGetParams{"product", "file"})
 	if err != nil {
@@ -69,7 +70,7 @@ func (sf *Client) ThingConfigGet(devID int) (*Entry, error) {
 // response:  /sys/{productKey}/{deviceName}/thing/config/get_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/config/get_reply
 func ProcThingConfigGetReply(c *Client, rawURI string, payload []byte) error {
-	uris := infra.URISpilt(rawURI)
+	uris := uri2.Spilt(rawURI)
 	if len(uris) < 6 {
 		return ErrInvalidURI
 	}
@@ -96,7 +97,7 @@ func ProcThingConfigGetReply(c *Client, rawURI string, payload []byte) error {
 // response:  /sys/{productKey}/{deviceName}/thing/config/push_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/config/push
 func ProcThingConfigPush(c *Client, rawURI string, payload []byte) error {
-	uris := infra.URISpilt(rawURI)
+	uris := uri2.Spilt(rawURI)
 	if len(uris) < 6 {
 		return ErrInvalidURI
 	}
@@ -104,7 +105,7 @@ func ProcThingConfigPush(c *Client, rawURI string, payload []byte) error {
 	if err := json.Unmarshal(payload, &req); err != nil {
 		return err
 	}
-	err := c.SendResponse(infra.URIReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
+	err := c.SendResponse(uri2.ReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
 	if err != nil {
 		return err
 	}

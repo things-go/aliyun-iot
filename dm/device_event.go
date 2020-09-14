@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/thinkgos/aliyun-iot/infra"
+	uri2 "github.com/thinkgos/aliyun-iot/uri"
 )
 
 // ThingEventPropertyPost 上传属性数据
@@ -23,13 +24,12 @@ func (sf *Client) ThingEventPropertyPost(devID int, params interface{}) (*Entry,
 	}
 
 	id := sf.RequestID()
-	uri := infra.URI(infra.URISysPrefix, infra.URIThingEventPropertyPost, node.ProductKey(), node.DeviceName())
+	uri := uri2.URI(uri2.SysPrefix, uri2.ThingEventPropertyPost, node.ProductKey(), node.DeviceName())
 	err = sf.SendRequest(uri, id, infra.MethodEventPropertyPost, params)
 	if err != nil {
 		return nil, err
 	}
-
-	sf.log.Debugf("upstream thing <event>: property post,@%d", id)
+	sf.log.Debugf("thing <event>: property post, @%d", id)
 	return sf.Insert(id), nil
 }
 
@@ -46,12 +46,12 @@ func (sf *Client) ThingEventPost(devID int, eventID string, params interface{}) 
 	}
 
 	id := sf.RequestID()
-	uri := infra.URI(infra.URISysPrefix, infra.URIThingEventPost, node.ProductKey(), node.DeviceName(), eventID)
+	uri := uri2.URI(uri2.SysPrefix, uri2.ThingEventPost, node.ProductKey(), node.DeviceName(), eventID)
 	err = sf.SendRequest(uri, id, fmt.Sprintf(infra.MethodEventFormatPost, eventID), params)
 	if err != nil {
 		return nil, err
 	}
-	sf.log.Debugf("upstream thing <event>: %s post,@%d", eventID, id)
+	sf.log.Debugf("thing <event>: %s post, @%d", eventID, id)
 	return sf.Insert(id), nil
 }
 
@@ -64,13 +64,13 @@ func (sf *Client) ThingEventPropertyPackPost(params interface{}) (*Entry, error)
 		return nil, ErrNotSupportFeature
 	}
 	id := sf.RequestID()
-	err := sf.SendRequest(sf.GatewayURI(infra.URISysPrefix, infra.URIThingEventPropertyPackPost),
+	err := sf.SendRequest(sf.GatewayURI(uri2.SysPrefix, uri2.ThingEventPropertyPackPost),
 		id, infra.MethodEventPropertyPackPost, params)
 	if err != nil {
 		return nil, err
 	}
 
-	sf.log.Debugf("upstream thing <deviceInfo>: update,@%d", id)
+	sf.log.Debugf("thing <event>: property pack post, @%d", id)
 	return sf.Insert(id), nil
 }
 
@@ -80,12 +80,12 @@ func (sf *Client) ThingEventPropertyPackPost(params interface{}) (*Entry, error)
 // response:  /sys/{productKey}/{deviceName}/thing/event/[{tsl.event.identifier},property]/post_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/event/+/post_reply
 func ProcThingEventPostReply(c *Client, rawURI string, payload []byte) error {
-	uris := infra.URISpilt(rawURI)
+	uris := uri2.Spilt(rawURI)
 	if len(uris) < 7 {
 		return ErrInvalidURI
 	}
 
-	rsp := ResponseRawData{}
+	rsp := Response{}
 	err := json.Unmarshal(payload, &rsp)
 	if err != nil {
 		return err
@@ -98,7 +98,7 @@ func ProcThingEventPostReply(c *Client, rawURI string, payload []byte) error {
 
 	pk, dn := uris[1], uris[2]
 	eventID := uris[5]
-	c.log.Debugf("downstream thing <event>: %s post reply,@%d", eventID, rsp.ID)
+	c.log.Debugf("thing <event>: %s post reply, @%d", eventID, rsp.ID)
 	if eventID == "property" {
 		return c.cb.ThingEventPropertyPostReply(c, err, pk, dn)
 	}
@@ -111,7 +111,7 @@ func ProcThingEventPostReply(c *Client, rawURI string, payload []byte) error {
 // response:  /sys/{productKey}/{deviceName}/thing/event/property/pack/post_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/event/property/pack/post_reply
 func ProcThingEventPropertyPackPostReply(c *Client, rawURI string, payload []byte) error {
-	uris := infra.URISpilt(rawURI)
+	uris := uri2.Spilt(rawURI)
 	if len(uris) < 8 {
 		return ErrInvalidURI
 	}
@@ -126,7 +126,7 @@ func ProcThingEventPropertyPackPostReply(c *Client, rawURI string, payload []byt
 
 	c.signal(rsp.ID, err, nil)
 	pk, dn := uris[1], uris[2]
-	c.log.Debugf("downstream thing <event>: property pack post reply,@%d", rsp.ID)
+	c.log.Debugf("thing <event>: property pack post reply,@%d", rsp.ID)
 	return c.cb.ThingEventPropertyPackPostReply(c, err, pk, dn)
 }
 
@@ -136,7 +136,7 @@ func ProcThingEventPropertyPackPostReply(c *Client, rawURI string, payload []byt
 // response:  /sys/{productKey}/{deviceName}/thing/service/property/set_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/service/[+,#]
 func ProcThingServicePropertySet(c *Client, rawURI string, payload []byte) error {
-	uris := infra.URISpilt(rawURI)
+	uris := uri2.Spilt(rawURI)
 	if len(uris) < 7 {
 		return ErrInvalidURI
 	}
@@ -151,7 +151,7 @@ func ProcThingServicePropertySet(c *Client, rawURI string, payload []byte) error
 // response:  /sys/{productKey}/{deviceName}/thing/service/{tsl.service.identifier}_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/service/[+,#]
 func ProcThingServiceRequest(c *Client, rawURI string, payload []byte) error {
-	uris := infra.URISpilt(rawURI)
+	uris := uri2.Spilt(rawURI)
 	if len(uris) < 6 {
 		return ErrInvalidURI
 	}

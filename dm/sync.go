@@ -36,7 +36,7 @@ func (sf *Entry) Wait(timeout time.Duration) (uint, interface{}, error) {
 		return 0, nil, ErrEntryClosed
 	case <-tm.C:
 	}
-	return 0, nil, ErrWaitMessageTimeout
+	return 0, nil, ErrWaitTimeout
 }
 
 // Insert 缓存插入指定ID3

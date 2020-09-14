@@ -3,7 +3,7 @@ package dm
 import (
 	"encoding/json"
 
-	"github.com/thinkgos/aliyun-iot/infra"
+	uri2 "github.com/thinkgos/aliyun-iot/uri"
 )
 
 // OTARequest OTA请求体
@@ -36,7 +36,7 @@ func (sf *Client) UpstreamOATFirmwareVersion(devID int, params interface{}) erro
 	if err != nil {
 		return err
 	}
-	uri := infra.URI(infra.URIOtaDeviceInformPrefix, "", node.ProductKey(), node.DeviceName())
+	uri := uri2.URI(uri2.OtaDeviceInformPrefix, "", node.ProductKey(), node.DeviceName())
 	err = sf.Publish(uri, 1, req)
 	if err != nil {
 		return err
@@ -76,7 +76,7 @@ func (sf *Client) upstreamOTAProgress(devID int, params interface{}) error {
 	if err != nil {
 		return err
 	}
-	err = sf.Publish(infra.URI(infra.URIOtaDeviceProcessPrefix, "", node.ProductKey(), node.DeviceName()),
+	err = sf.Publish(uri2.URI(uri2.OtaDeviceProcessPrefix, "", node.ProductKey(), node.DeviceName()),
 		1, req)
 	if err != nil {
 		return err

@@ -5,8 +5,10 @@ import (
 	"errors"
 
 	"github.com/go-ocf/go-coap"
+
 	"github.com/thinkgos/aliyun-iot/dm"
 	"github.com/thinkgos/aliyun-iot/infra"
+	uri2 "github.com/thinkgos/aliyun-iot/uri"
 )
 
 // @see https://help.aliyun.com/document_detail/57697.html?spm=a2c4g.11186623.6.606.5d7a12e0FGY05a
@@ -33,7 +35,7 @@ func (sf *coapClient) Publish(uri string, _ byte, payload interface{}) error {
 	}
 
 	// TODO
-	_, _ = sf.c.Post(infra.URICOAPHTTPPrePrefix+uri, coap.AppJSON, buf)
+	_, _ = sf.c.Post(uri2.CoapHttpPrePrefix+uri, coap.AppJSON, buf)
 	return nil
 }
 

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/thinkgos/aliyun-iot/infra"
+	uri2 "github.com/thinkgos/aliyun-iot/uri"
 )
 
 // ThingDeviceInfoUpdate 设备信息上传(如厂商、设备型号等，可以保存为设备标签)
@@ -19,7 +20,7 @@ func (sf *Client) ThingDeviceInfoUpdate(devID int, params interface{}) (*Entry, 
 	}
 
 	id := sf.RequestID()
-	uri := infra.URI(infra.URISysPrefix, infra.URIThingDeviceInfoUpdate, node.ProductKey(), node.DeviceName())
+	uri := uri2.URI(uri2.SysPrefix, uri2.ThingDeviceInfoUpdate, node.ProductKey(), node.DeviceName())
 	if err := sf.SendRequest(uri, id, infra.MethodDeviceInfoUpdate, params); err != nil {
 		return nil, err
 	}
@@ -41,7 +42,7 @@ func (sf *Client) ThingDeviceInfoDelete(devID int, params interface{}) (*Entry, 
 	}
 
 	id := sf.RequestID()
-	uri := infra.URI(infra.URISysPrefix, infra.URIThingDeviceInfoDelete, node.ProductKey(), node.DeviceName())
+	uri := uri2.URI(uri2.SysPrefix, uri2.ThingDeviceInfoDelete, node.ProductKey(), node.DeviceName())
 	if err := sf.SendRequest(uri, id, infra.MethodDeviceInfoDelete, params); err != nil {
 		return nil, err
 	}
@@ -55,7 +56,7 @@ func (sf *Client) ThingDeviceInfoDelete(devID int, params interface{}) (*Entry, 
 // response: /sys/{productKey}/{deviceName}/thing/deviceinfo/update_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/deviceinfo/update_reply
 func ProcThingDeviceInfoUpdateReply(c *Client, rawURI string, payload []byte) error {
-	uris := infra.URISpilt(rawURI)
+	uris := uri2.Spilt(rawURI)
 	if len(uris) < 6 {
 		return ErrInvalidURI
 	}
@@ -82,7 +83,7 @@ func ProcThingDeviceInfoUpdateReply(c *Client, rawURI string, payload []byte) er
 // response: /sys/{productKey}/{deviceName}/thing/deviceinfo/delete_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/deviceinfo/delete_reply
 func ProcThingDeviceInfoDeleteReply(c *Client, rawURI string, payload []byte) error {
-	uris := infra.URISpilt(rawURI)
+	uris := uri2.Spilt(rawURI)
 	if len(uris) < 6 {
 		return ErrInvalidURI
 	}

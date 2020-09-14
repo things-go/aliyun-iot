@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/thinkgos/aliyun-iot/infra"
+	"github.com/thinkgos/aliyun-iot/uri"
 )
 
 // GwSubRegisterParams 子设备注册参数域
@@ -42,7 +43,7 @@ func (sf *Client) ThingGwSubRegister(devID int) (*Entry, error) {
 	}
 
 	id := sf.RequestID()
-	uri := sf.GatewayURI(infra.URISysPrefix, infra.URIThingSubDevRegister)
+	uri := sf.GatewayURI(uri.SysPrefix, uri.ThingSubRegister)
 	err = sf.SendRequest(uri, id, infra.MethodSubDevRegister,
 		[]GwSubRegisterParams{
 			{node.ProductKey(), node.DeviceName()},
@@ -61,7 +62,7 @@ func (sf *Client) ThingGwSubRegister(devID int) (*Entry, error) {
 // response:  /sys/{productKey}/{deviceName}/thing/sub/register_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/sub/register_replyc.uriOffset+
 func ProcThingGwSubRegisterReply(c *Client, rawURI string, payload []byte) error {
-	uris := infra.URISpilt(rawURI)
+	uris := uri.Spilt(rawURI)
 	if len(uris) < 6 {
 		return ErrInvalidURI
 	}

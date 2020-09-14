@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/thinkgos/aliyun-iot/infra"
+	"github.com/thinkgos/aliyun-iot/uri"
 )
 
 // ProcThingGwDisable 禁用子设备
@@ -12,7 +13,7 @@ import (
 // response:  /sys/{productKey}/{deviceName}/thing/disable_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/disable
 func ProcThingGwDisable(c *Client, rawURI string, payload []byte) error {
-	uris := infra.URISpilt(rawURI)
+	uris := uri.Spilt(rawURI)
 	if len(uris) < 5 {
 		return ErrInvalidURI
 	}
@@ -32,7 +33,7 @@ func ProcThingGwDisable(c *Client, rawURI string, payload []byte) error {
 	if err = c.gwCb.ThingGwDisable(c, pk, dn); err != nil {
 		c.log.Warnf("<thing> disable, ipc send message failed, %+v", err)
 	}
-	return c.SendResponse(infra.URIReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
+	return c.SendResponse(uri.ReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
 }
 
 // ProcThingGwEnable 启用子设备
@@ -41,7 +42,7 @@ func ProcThingGwDisable(c *Client, rawURI string, payload []byte) error {
 // response:  /sys/{productKey}/{deviceName}/thing/enable_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/enable
 func ProcThingGwEnable(c *Client, rawURI string, payload []byte) error {
-	uris := infra.URISpilt(rawURI)
+	uris := uri.Spilt(rawURI)
 	if len(uris) < 5 {
 		return ErrInvalidURI
 	}
@@ -61,7 +62,7 @@ func ProcThingGwEnable(c *Client, rawURI string, payload []byte) error {
 	if err = c.gwCb.ThingGwEnable(c, pk, dn); err != nil {
 		c.log.Warnf("<thing> enable, ipc send message failed, %+v", err)
 	}
-	return c.SendResponse(infra.URIReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
+	return c.SendResponse(uri.ReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
 }
 
 // ProcThingGwDelete 子设备删除,网关类型设备
@@ -70,7 +71,7 @@ func ProcThingGwEnable(c *Client, rawURI string, payload []byte) error {
 // response:  /sys/{productKey}/{deviceName}/thing/delete_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/delete
 func ProcThingGwDelete(c *Client, rawURI string, payload []byte) error {
-	uris := infra.URISpilt(rawURI)
+	uris := uri.Spilt(rawURI)
 	if len(uris) < 5 {
 		return ErrInvalidURI
 	}
@@ -86,5 +87,5 @@ func ProcThingGwDelete(c *Client, rawURI string, payload []byte) error {
 	if err := c.gwCb.ThingGwDelete(c, pk, dn); err != nil {
 		c.log.Warnf("<thing> delete, ipc send message failed, %+v", err)
 	}
-	return c.SendResponse(infra.URIReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
+	return c.SendResponse(uri.ReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
 }

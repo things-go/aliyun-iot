@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/thinkgos/aliyun-iot/infra"
+	uri2 "github.com/thinkgos/aliyun-iot/uri"
 )
 
 // ThingDesiredPropertyGet 获取期望属性值
@@ -22,7 +23,7 @@ func (sf *Client) ThingDesiredPropertyGet(devID int, params interface{}) (*Entry
 	}
 
 	id := sf.RequestID()
-	uri := infra.URI(infra.URISysPrefix, infra.URIThingDesiredPropertyGet, node.ProductKey(), node.DeviceName())
+	uri := uri2.URI(uri2.SysPrefix, uri2.ThingDesiredPropertyGet, node.ProductKey(), node.DeviceName())
 	if err := sf.SendRequest(uri, id, infra.MethodDesiredPropertyGet, params); err != nil {
 		return nil, err
 	}
@@ -46,7 +47,7 @@ func (sf *Client) ThingDesiredPropertyDelete(devID int, params interface{}) (*En
 	}
 
 	id := sf.RequestID()
-	uri := infra.URI(infra.URISysPrefix, infra.URIThingDesiredPropertyDelete, node.ProductKey(), node.DeviceName())
+	uri := uri2.URI(uri2.SysPrefix, uri2.ThingDesiredPropertyDelete, node.ProductKey(), node.DeviceName())
 	err = sf.SendRequest(uri, id, infra.MethodDesiredPropertyDelete, params)
 	if err != nil {
 		return nil, err
@@ -61,7 +62,7 @@ func (sf *Client) ThingDesiredPropertyDelete(devID int, params interface{}) (*En
 // response:  /sys/{productKey}/{deviceName}/thing/property/desired/get_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/property/desired/get_reply
 func ProcThingDesiredPropertyGetReply(c *Client, rawURI string, payload []byte) error {
-	uris := infra.URISpilt(rawURI)
+	uris := uri2.Spilt(rawURI)
 	if len(uris) < 7 {
 		return ErrInvalidURI
 	}
@@ -88,7 +89,7 @@ func ProcThingDesiredPropertyGetReply(c *Client, rawURI string, payload []byte) 
 // response:  /sys/{productKey}/{deviceName}/thing/property/desired/delete_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/property/desired/delete_reply
 func ProcThingDesiredPropertyDeleteReply(c *Client, rawURI string, payload []byte) error {
-	uris := infra.URISpilt(rawURI)
+	uris := uri2.Spilt(rawURI)
 	if len(uris) < 7 {
 		return ErrInvalidURI
 	}

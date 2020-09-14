@@ -10,6 +10,7 @@ import (
 	"github.com/thinkgos/aliyun-iot/ahttp"
 	"github.com/thinkgos/aliyun-iot/dm"
 	"github.com/thinkgos/aliyun-iot/infra"
+	uri2 "github.com/thinkgos/aliyun-iot/uri"
 )
 
 // 采用物模型测试
@@ -18,7 +19,7 @@ func main() {
 
 	client := ahttp.New(testmeta.MetaInfo())
 
-	uri := infra.URI(infra.URISysPrefix, infra.URIThingEventPropertyPost, testmeta.ProductKey, testmeta.DeviceName)
+	uri := uri2.URI(uri2.SysPrefix, uri2.ThingEventPropertyPost, testmeta.ProductKey, testmeta.DeviceName)
 	bPayload, err := json.Marshal(
 		dm.Request{
 			ID:      uint(rand.Int()),

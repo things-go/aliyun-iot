@@ -17,6 +17,7 @@ import (
 
 	"github.com/thinkgos/aliyun-iot/dm"
 	"github.com/thinkgos/aliyun-iot/infra"
+	uri2 "github.com/thinkgos/aliyun-iot/uri"
 )
 
 // @see https://help.aliyun.com/document_detail/58034.html?spm=a2c4g.11186623.6.609.54316764YJj5MQ
@@ -190,7 +191,7 @@ func (sf *Client) Publish(uri string, _ byte, payload interface{}) error {
 		}
 
 		request, err := http.NewRequestWithContext(context.Background(),
-			http.MethodPost, sf.endpoint+infra.URICOAPHTTPPrePrefix+uri, buf)
+			http.MethodPost, sf.endpoint+uri2.CoapHttpPrePrefix+uri, buf)
 		if err != nil {
 			return err
 		}

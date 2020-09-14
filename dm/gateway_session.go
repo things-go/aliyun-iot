@@ -7,6 +7,7 @@ import (
 
 	"github.com/thinkgos/aliyun-iot/infra"
 	"github.com/thinkgos/aliyun-iot/sign"
+	"github.com/thinkgos/aliyun-iot/uri"
 )
 
 /*
@@ -100,7 +101,7 @@ func (sf *Client) ExtCombineLogin(devID int) (*Entry, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = sf.Publish(sf.GatewayURI(infra.URIExtSessionPrefix, infra.URICombineLogin), 0, req)
+	err = sf.Publish(sf.GatewayURI(uri.ExtSessionPrefix, uri.CombineLogin), 0, req)
 	if err != nil {
 		return nil, err
 	}
@@ -161,7 +162,7 @@ func (sf *Client) ExtCombineLogout(devID int) (*Entry, error) {
 		return nil, err
 	}
 
-	err = sf.Publish(sf.GatewayURI(infra.URIExtSessionPrefix, infra.URICombineLogout), 0, req)
+	err = sf.Publish(sf.GatewayURI(uri.ExtSessionPrefix, uri.CombineLogout), 0, req)
 	if err != nil {
 		return nil, err
 	}
@@ -184,7 +185,7 @@ func (sf *Client) ExtCombineBatchLogout(devID ...int) (*Entry, error) {
 // response:  /ext/session/{productKey}/{deviceName}/combine/login_reply
 // subscribe: /ext/session/{productKey}/{deviceName}/combine/login_reply
 func ProcExtCombineLoginReply(c *Client, rawURI string, payload []byte) error {
-	uris := infra.URISpilt(rawURI)
+	uris := uri.Spilt(rawURI)
 	if len(uris) < 6 {
 		return ErrInvalidURI
 	}
@@ -222,7 +223,7 @@ func ProcExtCombineBatchLoginReply(c *Client, rawURI string, payload []byte) err
 // response:  /ext/session/{productKey}/{deviceName}/combine/logout_reply
 // subscribe: /ext/session/{productKey}/{deviceName}/combine/logout_reply
 func ProcExtCombineLoginoutReply(c *Client, rawURI string, payload []byte) error {
-	uris := infra.URISpilt(rawURI)
+	uris := uri.Spilt(rawURI)
 	if len(uris) < 6 {
 		return ErrInvalidURI
 	}
