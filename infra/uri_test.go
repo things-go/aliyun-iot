@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"reflect"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
-func TestURIService(t *testing.T) {
+func TestURI(t *testing.T) {
 	type args struct {
 		prefix     string
 		name       string
@@ -68,50 +70,49 @@ func TestURIService(t *testing.T) {
 	}
 }
 
-func TestURIServiceReplyWithRequestURI(t *testing.T) {
-	type args struct {
-		uri string
-	}
+func TestURIReplyWithRequestURI(t *testing.T) {
 	tests := []struct {
 		name string
-		args args
+		uri  string
 		want string
 	}{
 		{
 			"/topic",
-			args{uri: "/topic"},
+			"/topic",
 			"/topic_reply",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := URIReplyWithRequestURI(tt.args.uri); got != tt.want {
+			if got := URIReplyWithRequestURI(tt.uri); got != tt.want {
 				t.Errorf("URIReplyWithRequestURI() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestURIServiceSpilt(t *testing.T) {
-	type args struct {
-		uri string
-	}
+func TestURISpilt(t *testing.T) {
 	tests := []struct {
 		name string
-		args args
+		uri  string
 		want []string
 	}{
 		{
 			"/a/b/c",
-			args{"/a/b/c"},
+			"/a/b/c",
 			[]string{"a", "b", "c"},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := URISpilt(tt.args.uri); !reflect.DeepEqual(got, tt.want) {
+			if got := URISpilt(tt.uri); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("URISpilt() = %v, want %v", got, tt.want)
 			}
 		})
 	}
+}
+
+func TestExtRRPC(t *testing.T) {
+	require.Equal(t, "/ext/rrpc/+/a/b/c", URIExtRRPC("+", "/a/b/c"))
+	require.Equal(t, "/ext/rrpc/+/a/b/c", URIExtRRPCWildcardOne("/a/b/c"))
 }

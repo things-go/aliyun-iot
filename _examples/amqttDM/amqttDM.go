@@ -44,7 +44,7 @@ func main() {
 		dm.WithLogger(logger.New(log.New(os.Stdout, "mqtt --> ", log.LstdFlags))))
 
 	dmClient.UnderlyingClient().Connect().Wait()
-	if err = dmClient.AlinkConnect(); err != nil {
+	if err = dmClient.Connect(); err != nil {
 		panic(err)
 	}
 

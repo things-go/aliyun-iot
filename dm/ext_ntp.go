@@ -28,7 +28,7 @@ func (sf *Client) ExtNtpRequest() error {
 	if !sf.hasNTP || sf.hasRawModel {
 		return ErrNotSupportFeature
 	}
-	err := sf.Publish(sf.URIGateway(infra.URIExtNtpPrefix, infra.URINtpRequest), 0,
+	err := sf.Publish(sf.GatewayURI(infra.URIExtNtpPrefix, infra.URINtpRequest), 0,
 		NtpRequest{int64(time.Now().Nanosecond()) / 1000000})
 	if err != nil {
 		return err

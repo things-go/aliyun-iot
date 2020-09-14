@@ -64,7 +64,7 @@ func (sf *Client) ThingEventPropertyPackPost(params interface{}) (*Entry, error)
 		return nil, ErrNotSupportFeature
 	}
 	id := sf.RequestID()
-	err := sf.SendRequest(sf.URIGateway(infra.URISysPrefix, infra.URIThingEventPropertyPackPost),
+	err := sf.SendRequest(sf.GatewayURI(infra.URISysPrefix, infra.URIThingEventPropertyPackPost),
 		id, infra.MethodEventPropertyPackPost, params)
 	if err != nil {
 		return nil, err

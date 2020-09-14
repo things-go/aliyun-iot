@@ -100,7 +100,7 @@ func (sf *Client) ExtCombineLogin(devID int) (*Entry, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = sf.Publish(sf.URIGateway(infra.URIExtSessionPrefix, infra.URICombineLogin), 0, req)
+	err = sf.Publish(sf.GatewayURI(infra.URIExtSessionPrefix, infra.URICombineLogin), 0, req)
 	if err != nil {
 		return nil, err
 	}
@@ -161,7 +161,7 @@ func (sf *Client) ExtCombineLogout(devID int) (*Entry, error) {
 		return nil, err
 	}
 
-	err = sf.Publish(sf.URIGateway(infra.URIExtSessionPrefix, infra.URICombineLogout), 0, req)
+	err = sf.Publish(sf.GatewayURI(infra.URIExtSessionPrefix, infra.URICombineLogout), 0, req)
 	if err != nil {
 		return nil, err
 	}

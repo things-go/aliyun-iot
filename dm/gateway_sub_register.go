@@ -42,7 +42,7 @@ func (sf *Client) ThingGwSubRegister(devID int) (*Entry, error) {
 	}
 
 	id := sf.RequestID()
-	uri := sf.URIGateway(infra.URISysPrefix, infra.URIThingSubDevRegister)
+	uri := sf.GatewayURI(infra.URISysPrefix, infra.URIThingSubDevRegister)
 	err = sf.SendRequest(uri, id, infra.MethodSubDevRegister,
 		[]GwSubRegisterParams{
 			{node.ProductKey(), node.DeviceName()},

@@ -151,8 +151,8 @@ func (sf *Client) SendResponse(uriService string, responseID uint, code int, dat
 	return sf.Publish(uriService, 1, out)
 }
 
-// AlinkConnect 将订阅所有相关主题,主题有config配置
-func (sf *Client) AlinkConnect() error {
+// Connect 将订阅所有相关主题,主题有config配置
+func (sf *Client) Connect() error {
 	var devType DevType = DevTypeSingle
 
 	if sf.isGateway {
@@ -161,8 +161,8 @@ func (sf *Client) AlinkConnect() error {
 	return sf.SubscribeAllTopic(devType, sf.ProductKey, sf.DeviceName)
 }
 
-// AlinkSubDeviceConnect 子设备连接注册并添加到网关拓扑关系
-func (sf *Client) AlinkSubDeviceConnect(devID int) error {
+// SubDeviceConnect 子设备连接注册并添加到网关拓扑关系
+func (sf *Client) SubDeviceConnect(devID int) error {
 	if devID < 0 {
 		return ErrInvalidParameter
 	}

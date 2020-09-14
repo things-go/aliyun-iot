@@ -9,8 +9,8 @@ import (
 	"github.com/thinkgos/aliyun-iot/infra"
 )
 
-// URIGateway 获得本设备网关URI
-func (sf *Client) URIGateway(prefix, name string) string {
+// GatewayURI 获得本设备网关URI
+func (sf *Client) GatewayURI(prefix, name string) string {
 	return infra.URI(prefix, name, sf.ProductKey, sf.DeviceName)
 }
 

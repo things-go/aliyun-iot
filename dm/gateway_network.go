@@ -40,7 +40,7 @@ func (sf *Client) ThingGwTopoAdd(devID int) (*Entry, error) {
 		return nil, err
 	}
 	id := sf.RequestID()
-	uri := sf.URIGateway(infra.URISysPrefix, infra.URIThingTopoAdd)
+	uri := sf.GatewayURI(infra.URISysPrefix, infra.URIThingTopoAdd)
 	err = sf.SendRequest(uri, id, infra.MethodTopoAdd, []GwTopoAddParams{
 		{
 			node.ProductKey(),
@@ -75,7 +75,7 @@ func (sf *Client) ThingGwTopoDelete(devID int) (*Entry, error) {
 		return nil, err
 	}
 	id := sf.RequestID()
-	uri := sf.URIGateway(infra.URISysPrefix, infra.URIThingTopoDelete)
+	uri := sf.GatewayURI(infra.URISysPrefix, infra.URIThingTopoDelete)
 	err = sf.SendRequest(uri, id, infra.MethodTopoDelete,
 		[]GwTopoDeleteParams{
 			{
@@ -110,7 +110,7 @@ func (sf *Client) ThingGwTopoGet() (*Entry, error) {
 		return nil, ErrNotSupportFeature
 	}
 	id := sf.RequestID()
-	uri := sf.URIGateway(infra.URISysPrefix, infra.URIThingTopoGet)
+	uri := sf.GatewayURI(infra.URISysPrefix, infra.URIThingTopoGet)
 	if err := sf.SendRequest(uri, id, infra.MethodTopoGet, "{}"); err != nil {
 		return nil, err
 	}
@@ -136,7 +136,7 @@ func (sf *Client) ThingGwListFound(devID int) (*Entry, error) {
 		return nil, err
 	}
 	id := sf.RequestID()
-	uri := sf.URIGateway(infra.URISysPrefix, infra.URIThingListFound)
+	uri := sf.GatewayURI(infra.URISysPrefix, infra.URIThingListFound)
 	err = sf.SendRequest(uri, id, infra.MethodListFound,
 		[]GwListFoundParams{
 			{

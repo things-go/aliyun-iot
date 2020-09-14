@@ -26,7 +26,7 @@ func (sf *Client) SubscribeAllTopic(devType DevType, productKey, deviceName stri
 		}
 	} else {
 		// event 主题订阅
-		uri = infra.URI(infra.URISysPrefix, infra.URIThingEventPostReplySingleWildcard, productKey, deviceName)
+		uri = infra.URI(infra.URISysPrefix, infra.URIThingEventPostReplyWildcardOne, productKey, deviceName)
 		if err = sf.Subscribe(uri, ProcThingEventPostReply); err != nil {
 			sf.log.Warnf(err.Error())
 		}
@@ -58,7 +58,7 @@ func (sf *Client) SubscribeAllTopic(devType DevType, productKey, deviceName stri
 	if err = sf.Subscribe(uri, ProcThingServicePropertySet); err != nil {
 		sf.log.Warnf(err.Error())
 	}
-	uri = infra.URI(infra.URISysPrefix, infra.URIThingServiceRequestSingleWildcard, productKey, deviceName)
+	uri = infra.URI(infra.URISysPrefix, infra.URIThingServiceRequestWildcardOne, productKey, deviceName)
 	if err = sf.Subscribe(uri, ProcThingServiceRequest); err != nil {
 		sf.log.Warnf(err.Error())
 	}
@@ -77,7 +77,7 @@ func (sf *Client) SubscribeAllTopic(devType DevType, productKey, deviceName stri
 	// }
 
 	// RRPC
-	uri = infra.URI(infra.URISysPrefix, infra.URIRRPCRequestSingleWildcard, productKey, deviceName)
+	uri = infra.URI(infra.URISysPrefix, infra.URIRRPCRequestWildcardOne, productKey, deviceName)
 	if err = sf.Subscribe(uri, ProcRRPCRequest); err != nil {
 		sf.log.Warnf(err.Error())
 	}
@@ -109,7 +109,7 @@ func (sf *Client) SubscribeAllTopic(devType DevType, productKey, deviceName stri
 	if sf.isGateway {
 		if devType == DevTypeGateway {
 			// 网关批量上报数据
-			uri = sf.URIGateway(infra.URISysPrefix, infra.URIThingEventPropertyPackPostReply)
+			uri = sf.GatewayURI(infra.URISysPrefix, infra.URIThingEventPropertyPackPostReply)
 			if err = sf.Subscribe(uri, ProcThingEventPropertyPackPostReply); err != nil {
 				sf.log.Warnf(err.Error())
 			}
@@ -207,7 +207,7 @@ func (sf *Client) UnSubscribeSubDevAllTopic(productKey, deviceName string) error
 	} else {
 		// event 取消订阅
 		topicList = append(topicList,
-			infra.URI(infra.URISysPrefix, infra.URIThingEventPostReplySingleWildcard, productKey, deviceName),
+			infra.URI(infra.URISysPrefix, infra.URIThingEventPostReplyWildcardOne, productKey, deviceName),
 		)
 	}
 
@@ -224,13 +224,13 @@ func (sf *Client) UnSubscribeSubDevAllTopic(productKey, deviceName string) error
 		infra.URI(infra.URISysPrefix, infra.URIThingDeviceInfoDeleteReply, productKey, deviceName),
 		// service
 		infra.URI(infra.URISysPrefix, infra.URIThingServicePropertySet, productKey, deviceName),
-		infra.URI(infra.URISysPrefix, infra.URIThingServiceRequestSingleWildcard, productKey, deviceName),
+		infra.URI(infra.URISysPrefix, infra.URIThingServiceRequestWildcardOne, productKey, deviceName),
 		// dystemplate
 		infra.URI(infra.URISysPrefix, infra.URIThingDslTemplateGetReply, productKey, deviceName),
 		// dynamictsl 不使用??
 		// infra.URI(URISysPrefix, URIThingDynamicTslGetReply, productKey, deviceName),
 		// RRPC
-		infra.URI(infra.URISysPrefix, infra.URIRRPCRequestSingleWildcard, productKey, deviceName),
+		infra.URI(infra.URISysPrefix, infra.URIRRPCRequestWildcardOne, productKey, deviceName),
 		// config
 		infra.URI(infra.URISysPrefix, infra.URIThingConfigGetReply, productKey, deviceName),
 		infra.URI(infra.URISysPrefix, infra.URIThingConfigPush, productKey, deviceName),

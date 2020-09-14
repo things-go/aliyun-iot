@@ -28,12 +28,12 @@ const (
 // RRPC URI定义
 const (
 	//  系统RRPC调用
-	URIRRPCRequestSingleWildcard = "rrpc/request/+"
-	URIRRPCResponse              = "rrpc/response/%s"
+	URIRRPCResponsePrefix     = "rrpc/response/%s"
+	URIRRPCRequestWildcardOne = "rrpc/request/+"
 
 	// 自定义RRPC
-	URIExtRRPCPrefix         = "/ext/rrpc/%s/"
-	URIExtRRPCSingleWildcard = "/ext/rrpc/+/"
+	URIExtRRPCPrefix            = "/ext/rrpc/%s"
+	URIExtRRPCWildcardOnePrefix = "/ext/rrpc/+"
 )
 
 // 设备URI 定义
@@ -45,11 +45,11 @@ const (
 	URIThingModelUpRawReply   = "thing/model/up_raw_reply"
 
 	// 事件上行,下行云端
-	URIThingEventPropertyPost            = "thing/event/property/post"
-	URIThingEventPropertyPostReply       = "thing/event/property/post_reply"
-	URIThingEventPost                    = "thing/event/%s/post"
-	URIThingEventPostReply               = "thing/event/%s/post_reply"
-	URIThingEventPostReplySingleWildcard = "thing/event/+/post_reply"
+	URIThingEventPropertyPost         = "thing/event/property/post"
+	URIThingEventPropertyPostReply    = "thing/event/property/post_reply"
+	URIThingEventPost                 = "thing/event/%s/post"
+	URIThingEventPostReply            = "thing/event/%s/post_reply"
+	URIThingEventPostReplyWildcardOne = "thing/event/+/post_reply"
 
 	// 设备信息上行,下行云端
 	URIThingDeviceInfoUpdate      = "thing/deviceinfo/update"
@@ -64,22 +64,22 @@ const (
 	URIThingDesiredPropertyDeleteReply = "thing/property/desired/delete_reply"
 
 	// 服务调用上行,下行云端
-	URIThingServicePropertySet           = "thing/service/property/set"
-	URIThingServicePropertySetReply      = "thing/service/property/set_reply"
-	URIThingServiceRequest               = "thing/service/%s"
-	URIThingServiceResponse              = "thing/service/%s_reply"
-	URIThingServiceRequestSingleWildcard = "thing/service/+"
-	URIThingServiceRequestMultiWildcard2 = "thing/service/#"
+	URIThingServicePropertySet         = "thing/service/property/set"
+	URIThingServicePropertySetReply    = "thing/service/property/set_reply"
+	URIThingServiceRequest             = "thing/service/%s"
+	URIThingServiceResponse            = "thing/service/%s_reply"
+	URIThingServiceRequestWildcardOne  = "thing/service/+"
+	URIThingServiceRequestWildcardSome = "thing/service/#"
 
-	/* dsl template From Local To Cloud Request And ResponseRawData */
+	// dsl template From Local To Cloud Request And ResponseRawData
 	URIThingDslTemplateGet      = "thing/dsltemplate/get"
 	URIThingDslTemplateGetReply = "thing/dsltemplate/get_reply"
 
-	/* dynamic tsl From Local To Cloud Request And ResponseRawData */
+	// dynamic tsl From Local To Cloud Request And ResponseRawData
 	URIThingDynamicTslGet      = "thing/dynamicTsl/get"
 	URIThingDynamicTslGetReply = "thing/dynamicTsl/get_reply"
 
-	/* ntp From Local To Cloud Request And ResponseRawData */
+	// ntp From Local To Cloud Request And ResponseRawData
 	URINtpRequest  = "request"
 	URINtpResponse = "response"
 
@@ -99,14 +99,14 @@ const (
 	URIThingSubDevRegisterReply = "thing/sub/register_reply"
 
 	// 子设备登录
-	URICombineLogin           = "combine/login"
-	URICombineLoginReply      = "combine/login_reply"
-	URCombineBatchLogin       = "combine/batch_login"
-	URCombineBatchLoginReply  = "combine/batch_login_reply"
-	URCombineBatchLogout      = "combine/batch_logout"
-	URCombineBatchLogoutReply = "combine/batch_logout_reply"
-	URICombineLogout          = "combine/logout"
-	URICombineLogoutReply     = "combine/logout_reply"
+	URICombineLogin            = "combine/login"
+	URICombineLoginReply       = "combine/login_reply"
+	URICombineBatchLogin       = "combine/batch_login"
+	URICombineBatchLoginReply  = "combine/batch_login_reply"
+	URICombineBatchLogout      = "combine/batch_logout"
+	URICombineBatchLogoutReply = "combine/batch_logout_reply"
+	URICombineLogout           = "combine/logout"
+	URICombineLogoutReply      = "combine/logout_reply"
 
 	// 网关网络拓扑
 	URIThingTopoAdd         = "thing/topo/add"
@@ -159,16 +159,12 @@ func URISpilt(uri string) []string {
 	return strings.Split(strings.TrimLeft(uri, SEP), SEP)
 }
 
-func uriExtRRPC(prefix, messageID, topic string) string {
-	return fmt.Sprintf(prefix, messageID) + topic
-}
-
-// URIExtRRPCService 生成Ext RRPC URI
+// URIExtRRPC 生成Ext RRPC URI
 func URIExtRRPC(messageID, _uri string) string {
-	return uriExtRRPC(URIExtRRPCPrefix, messageID, _uri)
+	return fmt.Sprintf(URIExtRRPCPrefix, messageID) + _uri
 }
 
-// URIExtRRPCWildcardService 生成Ext RRPC 订阅 URI
-func URIExtRRPCWildcard(_uri string) string {
-	return uriExtRRPC(URIExtRRPCPrefix, "+", _uri)
+// URIExtRRPCWildcardOne 生成Ext RRPC 订阅 URI
+func URIExtRRPCWildcardOne(_uri string) string {
+	return URIExtRRPCWildcardOnePrefix + _uri
 }
