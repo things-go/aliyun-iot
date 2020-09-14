@@ -40,10 +40,13 @@ func main() {
 				log.Println("mqtt client connection lost, ", err)
 			})
 
-	dmClient = aiot.NewWithMQTT(testmeta.MetaInfo(), mqtt.NewClient(opts),
-		dm.WithLogger(logger.New(log.New(os.Stdout, "mqtt --> ", log.LstdFlags))))
+	dmClient = aiot.NewWithMQTT(
+		testmeta.MetaInfo(),
+		mqtt.NewClient(opts),
+		dm.WithLogger(logger.New(log.New(os.Stdout, "mqtt --> ", log.LstdFlags))),
+	)
 
-	dmClient.UnderlyingClient().Connect().Wait()
+	dmClient.Underlying().Connect().Wait()
 	if err = dmClient.Connect(); err != nil {
 		panic(err)
 	}
@@ -65,21 +68,20 @@ func EventPostTest() {
 			if err != nil {
 				log.Printf("error: %#v", err)
 			}
-			time.Sleep(time.Second * 30)
+			time.Sleep(time.Second * 10)
 		}
-
 	}()
 
 	for {
 		_, err := dmClient.ThingEventPropertyPost(dm.DevNodeLocal, map[string]interface{}{
 			"Temp":         rand.Intn(200),
 			"Humi":         rand.Intn(100),
-			"switchStatus": rand.Intn(1),
+			"switchStatus": rand.Intn(2),
 		})
 		if err != nil {
 			log.Printf("error: %#v", err)
 		}
-		time.Sleep(time.Second * 30)
+		time.Sleep(time.Second * 10)
 	}
 }
 

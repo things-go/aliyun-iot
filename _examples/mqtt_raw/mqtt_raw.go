@@ -3,9 +3,11 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
+	"github.com/thinkgos/go-core-package/lib/logger"
 
 	aiot "github.com/thinkgos/aliyun-iot"
 	"github.com/thinkgos/aliyun-iot/_examples/testmeta"
@@ -65,10 +67,10 @@ func main() {
 		mqtt.NewClient(opts),
 		dm.WithEnableModelRaw(),
 		dm.WithCallback(RawProc{}),
+		dm.WithLogger(logger.New(log.New(os.Stdout, "mqtt --> ", log.LstdFlags))),
 	)
-	dmClient.LogMode(true)
 
-	dmClient.UnderlyingClient().Connect().Wait()
+	dmClient.Underlying().Connect().Wait()
 
 	if err = dmClient.Connect(); err != nil {
 		panic(err)
