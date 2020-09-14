@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/thinkgos/aliyun-iot/infra"
-	uri2 "github.com/thinkgos/aliyun-iot/uri"
+	"github.com/thinkgos/aliyun-iot/uri"
 )
 
 // ConfigGetParams 获取配置的参数域
@@ -54,13 +54,13 @@ func (sf *Client) ThingConfigGet(devID int) (*Entry, error) {
 		return nil, err
 	}
 
-	uri := uri2.URI(uri2.SysPrefix, uri2.ThingConfigGet, node.ProductKey(), node.DeviceName())
+	_uri := uri.URI(uri.SysPrefix, uri.ThingConfigGet, node.ProductKey(), node.DeviceName())
 	id := sf.RequestID()
-	err = sf.SendRequest(uri, id, infra.MethodConfigGet, ConfigGetParams{"product", "file"})
+	err = sf.SendRequest(_uri, id, infra.MethodConfigGet, ConfigGetParams{"product", "file"})
 	if err != nil {
 		return nil, err
 	}
-	sf.log.Debugf("upstream thing <config>: get,@%d", id)
+	sf.log.Debugf("thing <config>: get, @%d", id)
 	return sf.Insert(id), nil
 }
 
@@ -70,7 +70,7 @@ func (sf *Client) ThingConfigGet(devID int) (*Entry, error) {
 // response:  /sys/{productKey}/{deviceName}/thing/config/get_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/config/get_reply
 func ProcThingConfigGetReply(c *Client, rawURI string, payload []byte) error {
-	uris := uri2.Spilt(rawURI)
+	uris := uri.Spilt(rawURI)
 	if len(uris) < 6 {
 		return ErrInvalidURI
 	}
@@ -87,17 +87,17 @@ func ProcThingConfigGetReply(c *Client, rawURI string, payload []byte) error {
 
 	c.signal(rsp.ID, err, nil)
 	pk, dn := uris[1], uris[2]
-	c.log.Debugf("downstream thing <config>: get reply,@%d,payload@%+v", rsp.ID, rsp)
+	c.log.Debugf("thing <config>: get reply, @%d, data -> %+v", rsp.ID, rsp)
 	return c.cb.ThingConfigGetReply(c, err, pk, dn, rsp.Data)
 }
 
-// ProcThingConfigPush 处理配置推送
+// ProcThingConfigPush 处理配置推送,已做回复
 // 下行
 // request:   /sys/{productKey}/{deviceName}/thing/config/push
 // response:  /sys/{productKey}/{deviceName}/thing/config/push_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/config/push
 func ProcThingConfigPush(c *Client, rawURI string, payload []byte) error {
-	uris := uri2.Spilt(rawURI)
+	uris := uri.Spilt(rawURI)
 	if len(uris) < 6 {
 		return ErrInvalidURI
 	}
@@ -105,11 +105,11 @@ func ProcThingConfigPush(c *Client, rawURI string, payload []byte) error {
 	if err := json.Unmarshal(payload, &req); err != nil {
 		return err
 	}
-	err := c.SendResponse(uri2.ReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
+	err := c.SendResponse(uri.ReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
 	if err != nil {
 		return err
 	}
 	pk, dn := uris[1], uris[2]
-	c.log.Debugf("downstream thing <config>: push request")
+	c.log.Debugf("thing <config>: push")
 	return c.cb.ThingConfigPush(c, pk, dn, req.Params)
 }

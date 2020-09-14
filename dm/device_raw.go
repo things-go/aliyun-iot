@@ -1,7 +1,7 @@
 package dm
 
 import (
-	uri2 "github.com/thinkgos/aliyun-iot/uri"
+	uri "github.com/thinkgos/aliyun-iot/uri"
 )
 
 // @see https://help.aliyun.com/document_detail/89301.html?spm=a2c4g.11186623.6.706.570f3f69J3fW5z
@@ -21,8 +21,8 @@ func (sf *Client) ThingModelUpRaw(devID int, payload interface{}) error {
 		return err
 	}
 	sf.log.Debugf("thing <model>: up raw")
-	uri := uri2.URI(uri2.SysPrefix, uri2.ThingModelUpRaw, node.ProductKey(), node.DeviceName())
-	return sf.Publish(uri, 1, payload)
+	_uri := uri.URI(uri.SysPrefix, uri.ThingModelUpRaw, node.ProductKey(), node.DeviceName())
+	return sf.Publish(_uri, 1, payload)
 }
 
 // ProcThingModelUpRawReply 处理透传上行的应答
@@ -30,7 +30,7 @@ func (sf *Client) ThingModelUpRaw(devID int, payload interface{}) error {
 // response: /sys/{productKey}/{deviceName}/thing/model/up_raw_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/model/up_raw_reply
 func ProcThingModelUpRawReply(c *Client, rawURI string, payload []byte) error {
-	uris := uri2.Spilt(rawURI)
+	uris := uri.Spilt(rawURI)
 	if len(uris) < 6 {
 		return ErrInvalidURI
 	}
@@ -45,7 +45,7 @@ func ProcThingModelUpRawReply(c *Client, rawURI string, payload []byte) error {
 // response: /sys/{productKey}/{deviceName}/thing/model/down_raw_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/model/down_raw
 func ProcThingModelDownRaw(c *Client, rawURI string, payload []byte) error {
-	uris := uri2.Spilt(rawURI)
+	uris := uri.Spilt(rawURI)
 	if len(uris) < 6 {
 		return ErrInvalidURI
 	}

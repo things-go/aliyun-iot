@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/thinkgos/aliyun-iot/infra"
-	uri2 "github.com/thinkgos/aliyun-iot/uri"
+	"github.com/thinkgos/aliyun-iot/uri"
 )
 
 // ThingDsltemplateGet 设备可以通过上行请求获取设备的TSL模板（包含属性、服务和事件的定义）
@@ -21,13 +21,13 @@ func (sf *Client) ThingDsltemplateGet(devID int) (*Entry, error) {
 	}
 
 	id := sf.RequestID()
-	uri := uri2.URI(uri2.SysPrefix, uri2.ThingDslTemplateGet, node.ProductKey(), node.DeviceName())
-	err = sf.SendRequest(uri, id, infra.MethodDslTemplateGet, "{}")
+	_uri := uri.URI(uri.SysPrefix, uri.ThingDslTemplateGet, node.ProductKey(), node.DeviceName())
+	err = sf.SendRequest(_uri, id, infra.MethodDslTemplateGet, "{}")
 	if err != nil {
 		return nil, err
 	}
 
-	sf.log.Debugf("upstream thing <dsl template>: get,@%d", id)
+	sf.log.Debugf("thing <dsl template>: get, @%d", id)
 	return sf.Insert(id), nil
 }
 
@@ -42,8 +42,8 @@ func (sf *Client) ThingDynamictslGet(devID int) (*Entry, error) {
 	}
 
 	id := sf.RequestID()
-	uri := uri2.URI(uri2.SysPrefix, uri2.ThingDynamicTslGet, node.ProductKey(), node.DeviceName())
-	err = sf.SendRequest(uri, id, infra.MethodDynamicTslGet, map[string]interface{}{
+	_uri := uri.URI(uri.SysPrefix, uri.ThingDynamicTslGet, node.ProductKey(), node.DeviceName())
+	err = sf.SendRequest(_uri, id, infra.MethodDynamicTslGet, map[string]interface{}{
 		"nodes":      []string{"type", "identifier"},
 		"addDefault": false,
 	})
@@ -51,7 +51,7 @@ func (sf *Client) ThingDynamictslGet(devID int) (*Entry, error) {
 		return nil, err
 	}
 
-	sf.log.Debugf("upstream thing <dynamic tsl>: get,@%d", id)
+	sf.log.Debugf("thing <dynamic tsl>: get, @%d", id)
 	return sf.Insert(id), nil
 }
 
@@ -61,7 +61,7 @@ func (sf *Client) ThingDynamictslGet(devID int) (*Entry, error) {
 // response:  /sys/{productKey}/{deviceName}/thing/dsltemplate/get_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/dsltemplate/get_reply
 func ProcThingDsltemplateGetReply(c *Client, rawURI string, payload []byte) error {
-	uris := uri2.Spilt(rawURI)
+	uris := uri.Spilt(rawURI)
 	if len(uris) < 6 {
 		return ErrInvalidURI
 	}
@@ -77,7 +77,7 @@ func ProcThingDsltemplateGetReply(c *Client, rawURI string, payload []byte) erro
 
 	c.signal(rsp.ID, err, nil)
 	pk, dn := uris[1], uris[2]
-	c.log.Debugf("downstream thing <dsl template>: get reply,@%d - %s", rsp.ID, string(rsp.Data))
+	c.log.Debugf("thing <dsl template>: get reply, @%d - %s", rsp.ID, string(rsp.Data))
 	return c.cb.ThingDsltemplateGetReply(c, err, pk, dn, rsp.Data)
 }
 
@@ -87,7 +87,7 @@ func ProcThingDsltemplateGetReply(c *Client, rawURI string, payload []byte) erro
 // response: /sys/${YourProductKey}/${YourDeviceName}/thing/dynamicTsl/get_reply
 // subscribe: /sys/${YourProductKey}/${YourDeviceName}/thing/dynamicTsl/get_reply
 func ProcThingDynamictslGetReply(c *Client, rawURI string, payload []byte) error {
-	uris := uri2.Spilt(rawURI)
+	uris := uri.Spilt(rawURI)
 	if len(uris) < 6 {
 		return ErrInvalidURI
 	}
@@ -103,6 +103,6 @@ func ProcThingDynamictslGetReply(c *Client, rawURI string, payload []byte) error
 
 	c.signal(rsp.ID, err, nil)
 	pk, dn := uris[1], uris[2]
-	c.log.Debugf("downstream thing <dynamic tsl>: get reply,@%d - %+v", rsp.ID, rsp)
+	c.log.Debugf("thing <dynamic tsl>: get reply, @%d - %+v", rsp.ID, rsp)
 	return c.cb.ThingDynamictslGetReply(c, err, pk, dn, rsp.Data)
 }

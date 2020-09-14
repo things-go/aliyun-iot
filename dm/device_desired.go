@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/thinkgos/aliyun-iot/infra"
-	uri2 "github.com/thinkgos/aliyun-iot/uri"
+	"github.com/thinkgos/aliyun-iot/uri"
 )
 
 // ThingDesiredPropertyGet 获取期望属性值
@@ -23,11 +23,11 @@ func (sf *Client) ThingDesiredPropertyGet(devID int, params interface{}) (*Entry
 	}
 
 	id := sf.RequestID()
-	uri := uri2.URI(uri2.SysPrefix, uri2.ThingDesiredPropertyGet, node.ProductKey(), node.DeviceName())
-	if err := sf.SendRequest(uri, id, infra.MethodDesiredPropertyGet, params); err != nil {
+	_uri := uri.URI(uri.SysPrefix, uri.ThingDesiredPropertyGet, node.ProductKey(), node.DeviceName())
+	if err := sf.SendRequest(_uri, id, infra.MethodDesiredPropertyGet, params); err != nil {
 		return nil, err
 	}
-	sf.log.Debugf("upstream thing <desired>: property get,@%d", id)
+	sf.log.Debugf("thing <desired>: get, @%d", id)
 	return sf.Insert(id), nil
 }
 
@@ -47,12 +47,12 @@ func (sf *Client) ThingDesiredPropertyDelete(devID int, params interface{}) (*En
 	}
 
 	id := sf.RequestID()
-	uri := uri2.URI(uri2.SysPrefix, uri2.ThingDesiredPropertyDelete, node.ProductKey(), node.DeviceName())
-	err = sf.SendRequest(uri, id, infra.MethodDesiredPropertyDelete, params)
+	_uri := uri.URI(uri.SysPrefix, uri.ThingDesiredPropertyDelete, node.ProductKey(), node.DeviceName())
+	err = sf.SendRequest(_uri, id, infra.MethodDesiredPropertyDelete, params)
 	if err != nil {
 		return nil, err
 	}
-	sf.log.Debugf("upstream thing <desired>: property delete,@%d", id)
+	sf.log.Debugf("thing <desired>: delete, @%d", id)
 	return sf.Insert(id), nil
 }
 
@@ -62,7 +62,7 @@ func (sf *Client) ThingDesiredPropertyDelete(devID int, params interface{}) (*En
 // response:  /sys/{productKey}/{deviceName}/thing/property/desired/get_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/property/desired/get_reply
 func ProcThingDesiredPropertyGetReply(c *Client, rawURI string, payload []byte) error {
-	uris := uri2.Spilt(rawURI)
+	uris := uri.Spilt(rawURI)
 	if len(uris) < 7 {
 		return ErrInvalidURI
 	}
@@ -72,14 +72,13 @@ func ProcThingDesiredPropertyGetReply(c *Client, rawURI string, payload []byte) 
 		return err
 	}
 
-	c.log.Debugf("downstream thing <desired>: property get reply,@%d", rsp.ID)
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
 	c.signal(rsp.ID, err, nil)
 	pk, dn := uris[1], uris[2]
-	c.log.Debugf("downstream thing <desired>: property get reply,@%d", rsp.ID)
+	c.log.Debugf("thing <desired>: get reply, @%d", rsp.ID)
 	return c.cb.ThingDesiredPropertyGetReply(c, err, pk, dn, rsp.Data)
 }
 
@@ -89,12 +88,12 @@ func ProcThingDesiredPropertyGetReply(c *Client, rawURI string, payload []byte) 
 // response:  /sys/{productKey}/{deviceName}/thing/property/desired/delete_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/property/desired/delete_reply
 func ProcThingDesiredPropertyDeleteReply(c *Client, rawURI string, payload []byte) error {
-	uris := uri2.Spilt(rawURI)
+	uris := uri.Spilt(rawURI)
 	if len(uris) < 7 {
 		return ErrInvalidURI
 	}
-	rsp := ResponseRawData{}
-	err := json.Unmarshal(payload, &rsp)
+	rsp := &Response{}
+	err := json.Unmarshal(payload, rsp)
 	if err != nil {
 		return err
 	}
@@ -103,6 +102,6 @@ func ProcThingDesiredPropertyDeleteReply(c *Client, rawURI string, payload []byt
 	}
 	c.signal(rsp.ID, err, nil)
 	pk, dn := uris[1], uris[2]
-	c.log.Debugf("downstream thing <desired>: property delete reply,@%d", rsp.ID)
+	c.log.Debugf("thing <desired>: delete reply,@%d", rsp.ID)
 	return c.cb.ThingDesiredPropertyDeleteReply(c, err, pk, dn)
 }

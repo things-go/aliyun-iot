@@ -22,6 +22,7 @@ func (NopCb) ThingEventPostReply(*Client, error, string, string, string) error {
 // ThingEventPropertyPackPostReply see interface Callback
 func (NopCb) ThingEventPropertyPackPostReply(*Client, error, string, string) error { return nil }
 
+// ThingEventPropertyHistoryPostReply see interface Callback
 func (NopCb) ThingEventPropertyHistoryPostReply(*Client, error, string, string) error { return nil }
 
 // ThingDeviceInfoUpdateReply see interface Callback
