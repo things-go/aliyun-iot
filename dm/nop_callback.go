@@ -73,6 +73,13 @@ func (NopCb) RRPCRequest(*Client, string, string, string, []byte) error { return
 // ExtRRPCRequest see interface Callback
 func (NopCb) ExtRRPCRequest(*Client, string, string, []byte) error { return nil }
 
+func (NopCb) OtaUpgrade(*Client, string, string, *OtaFirmware) error {
+	return nil
+}
+func (NopCb) ThingOtaFirmwareGetReply(*Client, string, string, OtaFirmwareData) error {
+	return nil
+}
+
 /********************************  gateway callback ************************************************************/
 
 // 确保 NopGwCb 实现 GwCallback 接口

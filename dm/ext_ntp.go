@@ -28,19 +28,15 @@ func (sf *Client) ExtNtpRequest() error {
 	if !sf.hasNTP || sf.hasRawModel {
 		return ErrNotSupportFeature
 	}
-	err := sf.Publish(sf.GatewayURI(uri.ExtNtpPrefix, uri.NtpRequest), 0,
-		NtpRequest{int64(time.Now().Nanosecond()) / 1000000})
-	if err != nil {
-		return err
-	}
-	sf.log.Debugf("upstream ext <ntp>: request")
-	return nil
+	sf.log.Debugf("ext <ntp>: request")
+	_uri := sf.GatewayURI(uri.ExtNtpPrefix, uri.NtpRequest)
+	return sf.Publish(_uri, 0, NtpRequest{int64(time.Now().Nanosecond()) / 1000000})
 }
 
 // ProcExtNtpResponse 处理ntp请求的应答
 // 上行
-// request: /ext/ntp/${YourProductKey}/${YourDeviceName}/request
-// response: /ext/ntp/${YourProductKey}/${YourDeviceName}/response
+// request:   /ext/ntp/${YourProductKey}/${YourDeviceName}/request
+// response:  /ext/ntp/${YourProductKey}/${YourDeviceName}/response
 // subscribe: /ext/ntp/${YourProductKey}/${YourDeviceName}/response
 func ProcExtNtpResponse(c *Client, rawURI string, payload []byte) error {
 	uris := uri.Spilt(rawURI)
@@ -51,6 +47,7 @@ func ProcExtNtpResponse(c *Client, rawURI string, payload []byte) error {
 	if err := json.Unmarshal(payload, &rsp); err != nil {
 		return err
 	}
-	c.log.Debugf("downstream extend <ntp>: response - %+v", rsp)
-	return c.cb.ExtNtpResponse(c, uris[2], uris[3], rsp)
+	c.log.Debugf("ext <ntp>: response -> %+v", rsp)
+	pk, dn := uris[2], uris[3]
+	return c.cb.ExtNtpResponse(c, pk, dn, rsp)
 }

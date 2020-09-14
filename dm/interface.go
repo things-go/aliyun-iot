@@ -46,6 +46,9 @@ type Callback interface {
 	RRPCRequest(c *Client, messageID, productKey, deviceName string, payload []byte) error
 	// 自定义RRPC调用,仅支持设备端Qos = 0的回复, 需用户自行做回复
 	ExtRRPCRequest(c *Client, messageID, topic string, payload []byte) error
+	// ota
+	OtaUpgrade(c *Client, productKey, deviceName string, rsp *OtaFirmware) error
+	ThingOtaFirmwareGetReply(c *Client, productKey, deviceName string, data OtaFirmwareData) error
 }
 
 // GwCallback 网关事件接口

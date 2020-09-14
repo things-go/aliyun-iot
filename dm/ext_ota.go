@@ -3,22 +3,27 @@ package dm
 import (
 	"encoding/json"
 
-	uri2 "github.com/thinkgos/aliyun-iot/uri"
+	"github.com/thinkgos/aliyun-iot/infra"
+	uri "github.com/thinkgos/aliyun-iot/uri"
 )
 
-// OTARequest OTA请求体
-type OTARequest struct {
+// OtaRequest OTA请求体
+type OtaRequest struct {
 	ID     uint        `json:"id,string"`
 	Params interface{} `json:"params"`
 }
 
-// OTAFirmwareVersionParams OTA固件参数域
-type OTAFirmwareVersionParams struct {
+// OtaFirmwareVersionParams OTA固件参数域
+type OtaFirmwareVersionParams struct {
 	Version string `json:"version"`
+	// 上报默认（default）模块的固件版本号时,可以不上报module参数.
+	// 设备的默认（default）模块的固件版本号等同于整个设备的固件版本号.
+	Module string `json:"module"`
 }
 
-// UpstreamOATFirmwareVersion 上报固件版本
-func (sf *Client) UpstreamOATFirmwareVersion(devID int, params interface{}) error {
+// OtaInform 上报固件版本
+// request：/ota/device/inform/${YourProductKey}/${YourDeviceName}。
+func (sf *Client) OtaInform(devID int, params interface{}) error {
 	if !sf.hasOTA {
 		return ErrNotSupportFeature
 	}
@@ -32,36 +37,36 @@ func (sf *Client) UpstreamOATFirmwareVersion(devID int, params interface{}) erro
 	}
 
 	id := sf.RequestID()
-	req, err := json.Marshal(OTARequest{id, params})
+	req, err := json.Marshal(OtaRequest{id, params})
 	if err != nil {
 		return err
 	}
-	uri := uri2.URI(uri2.OtaDeviceInformPrefix, "", node.ProductKey(), node.DeviceName())
-	err = sf.Publish(uri, 1, req)
-	if err != nil {
-		return err
-	}
-
-	// sf.Insert(id, devID, MsgTypeReportFirmwareVersion)
-	sf.log.Debugf("upstream version <OTA>: inform,@%d", id)
-	return nil
+	_uri := uri.URI(uri.OtaDeviceInformPrefix, "", node.ProductKey(), node.DeviceName())
+	sf.log.Debugf("ota <inform>: @%d", id)
+	return sf.Publish(_uri, 1, req)
 }
 
 // OTA下载进度比
 const (
-	OTAProgressStepUpgradeFailed  = -1
-	OTAProgressStepDownloadFailed = -2
-	OTAProgressStepVerifyFailed   = -3
-	OTAProgressStepProgramFailed  = -4
+	OtaProgressStepUpgradeFailed  = -1
+	OtaProgressStepDownloadFailed = -2
+	OtaProgressStepVerifyFailed   = -3
+	OtaProgressStepProgramFailed  = -4
 )
 
-// OTAProgressParams 下载过程上报参数域
-type OTAProgressParams struct {
-	Step int    `json:"step,string"`
-	Desc string `json:"desc"`
+// OtaProgressParams 下载过程上报参数域
+type OtaProgressParams struct {
+	Step   int    `json:"step,string"` // 固件升级进度信息 [1，100] 之间的数字：表示升级进度百分比,其它见上
+	Desc   string `json:"desc"`
+	Module string `json:"module"`
 }
 
-func (sf *Client) upstreamOTAProgress(devID int, params interface{}) error {
+// OtaProgress 固件升级过程中，设备可以通过这个Topic上报固件升级的进度百分比
+// request：/ota/device/progress/${YourProductKey}/${YourDeviceName
+func (sf *Client) OtaProgress(devID int, params interface{}) error {
+	if !sf.hasOTA {
+		return ErrNotSupportFeature
+	}
 	if devID < 0 {
 		return ErrInvalidParameter
 	}
@@ -72,33 +77,95 @@ func (sf *Client) upstreamOTAProgress(devID int, params interface{}) error {
 	}
 
 	id := sf.RequestID()
-	req, err := json.Marshal(OTARequest{id, params})
+	req, err := json.Marshal(OtaRequest{id, params})
 	if err != nil {
 		return err
 	}
-	err = sf.Publish(uri2.URI(uri2.OtaDeviceProcessPrefix, "", node.ProductKey(), node.DeviceName()),
-		1, req)
+	sf.log.Debugf("ota <process>: @%d", id)
+	_uri := uri.URI(uri.OtaDeviceProcessPrefix, "", node.ProductKey(), node.DeviceName())
+	return sf.Publish(_uri, 1, req)
+}
+
+// ThingOtaFirmwareGet 请求固件信息
+// module: 不指定则表示请求默认（default）模块的固件信息
+// request： /sys/{productKey}/{deviceName}/thing/ota/firmware/get
+// response：/sys/{productKey}/{deviceName}/thing/ota/firmware/get_reply
+func (sf *Client) ThingOtaFirmwareGet(devID int, module string) (*Entry, error) {
+	if !sf.hasOTA {
+		return nil, ErrNotSupportFeature
+	}
+	if devID < 0 {
+		return nil, ErrInvalidParameter
+	}
+
+	node, err := sf.SearchNode(devID)
+	if err != nil {
+		return nil, err
+	}
+	id := sf.RequestID()
+	_uri := uri.URI(uri.SysPrefix, uri.ThingOtaFirmwareGet, node.ProductKey(), node.DeviceName())
+	err = sf.SendRequest(_uri, id, infra.MethodOtaFirmwareGet, map[string]interface{}{"module": module})
+	if err != nil {
+		return nil, err
+	}
+	sf.log.Debugf("thing <ota>: firmware get, @%d", id)
+	return sf.Insert(id), nil
+}
+
+type OtaFirmwareData struct {
+	Size       int64  `json:"size"`
+	Sign       string `json:"sign"`
+	Version    string `json:"version"`
+	IsDiff     int    `json:"isDiff"`
+	URL        string `json:"url"`
+	SignMethod string `json:"signMethod"`
+	MD5        string `json:"md5"`
+	Module     string `json:"module"`
+}
+
+type OtaFirmware struct {
+	ID      uint            `json:"id,string"`
+	Code    int             `json:"code"`
+	Data    OtaFirmwareData `json:"data"`
+	Message string          `json:"message"`
+}
+
+// ProcThingOtaFirmwareGetReply 处理请求固件信息应答
+// request：  /sys/{productKey}/{deviceName}/thing/ota/firmware/get
+// response： /sys/{productKey}/{deviceName}/thing/ota/firmware/get_reply
+// subscribe：/sys/{productKey}/{deviceName}/thing/ota/firmware/get_reply
+func ProcThingOtaFirmwareGetReply(c *Client, rawURI string, payload []byte) error {
+	uris := uri.Spilt(rawURI)
+	if len(uris) < 7 {
+		return ErrInvalidURI
+	}
+	rsp := &OtaFirmware{}
+	err := json.Unmarshal(payload, rsp)
 	if err != nil {
 		return err
 	}
-
-	// sf.Insert(id, devID, MsgTypeReportFirmwareVersion)
-	sf.log.Debugf("upstream step <OTA>: progress,@%d", id)
-	return nil
+	if rsp.Code != infra.CodeSuccess {
+		err = infra.NewCodeError(rsp.Code, rsp.Message)
+	}
+	c.log.Debugf("thing <ota>: firmware get reply, @%d", rsp.ID)
+	c.signal(rsp.ID, err, nil)
+	pk, dn := uris[1], uris[2]
+	return c.cb.ThingOtaFirmwareGetReply(c, pk, dn, rsp.Data)
 }
 
-// OTAUpgradeData OTA upgrade 数据域
-type OTAUpgradeData struct {
-	Size    int    `json:"size"`
-	Version string `json:"version"`
-	URL     string `json:"url"`
-	MD5     string `json:"md5"`
-}
-
-// OTAUpgradeRequest OTA upgrade 请求
-type OTAUpgradeRequest struct {
-	Code    int            `json:"code,string"`
-	Data    OTAUpgradeData `json:"data"`
-	ID      int            `json:"id"`
-	Message string         `json:"message"`
+// ProcOtaUpgrade 处理物联网平台推送固件信息
+// request：  /ota/device/upgrade/${YourProductKey}/${YourDeviceName}
+// subscribe：/ota/device/upgrade/${YourProductKey}/${YourDeviceName}
+func ProcOtaUpgrade(c *Client, rawURI string, payload []byte) error {
+	uris := uri.Spilt(rawURI)
+	if len(uris) < 5 {
+		return ErrInvalidURI
+	}
+	rsp := &OtaFirmware{}
+	err := json.Unmarshal(payload, rsp)
+	if err != nil {
+		return err
+	}
+	pk, dn := uris[3], uris[4]
+	return c.cb.OtaUpgrade(c, pk, dn, rsp)
 }

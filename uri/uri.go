@@ -14,13 +14,10 @@ const (
 const (
 	TopicPrefix = "/topic"
 
-	SysPrefix              = "/sys/%s/%s/"
-	ExtSessionPrefix       = "/ext/session/%s/%s/"
-	ExtNtpPrefix           = "/ext/ntp/%s/%s/"
-	ExtErrorPrefix         = "/ext/errorf/%s/%s"
-	OtaDeviceInformPrefix  = "/ota/device/inform/%s/%s"
-	OtaDeviceUpgradePrefix = "/ota/device/upgrade/%s/%s"
-	OtaDeviceProcessPrefix = "/ota/device/progress/%s/%s"
+	SysPrefix        = "/sys/%s/%s/"
+	ExtSessionPrefix = "/ext/session/%s/%s/"
+	ExtNtpPrefix     = "/ext/ntp/%s/%s/"
+	ExtErrorPrefix   = "/ext/errorf/%s/%s"
 
 	ReplySuffix = "reply"
 )
@@ -34,6 +31,15 @@ const (
 	// 自定义RRPC
 	ExtRRPCPrefix            = "/ext/rrpc/%s"
 	ExtRRPCWildcardOnePrefix = "/ext/rrpc/+"
+)
+
+// ota uri定义
+const (
+	OtaDeviceInformPrefix    = "/ota/device/inform/%s/%s"
+	OtaDeviceUpgradePrefix   = "/ota/device/upgrade/%s/%s"
+	OtaDeviceProcessPrefix   = "/ota/device/progress/%s/%s"
+	ThingOtaFirmwareGet      = "thing/ota/firmware/get"
+	ThingOtaFirmwareGetReply = "thing/ota/firmware/get_reply"
 )
 
 // 设备URI 定义

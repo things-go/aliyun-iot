@@ -10,6 +10,7 @@ const (
 	MethodDeviceInfoDelete         = "thing.deviceinfo.delete"
 	MethodDesiredPropertyGet       = "thing.property.desired.get"
 	MethodDesiredPropertyDelete    = "thing.property.desired.delete"
+	MethodOtaFirmwareGet           = "thing.ota.firmware.get"
 	MethodDslTemplateGet           = "thing.dsltemplate.get"
 	MethodDynamicTslGet            = "thing.dynamicTsl.get"
 	MethodConfigGet                = "thing.config.get"
