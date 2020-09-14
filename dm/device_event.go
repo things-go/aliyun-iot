@@ -30,7 +30,7 @@ func (sf *Client) ThingEventPropertyPost(devID int, params interface{}) (*Token,
 		return nil, err
 	}
 	sf.log.Debugf("thing <event>: property post, @%d", id)
-	return sf.Insert(id), nil
+	return sf.putPending(id), nil
 }
 
 // ThingEventPost 事件上传
@@ -52,7 +52,7 @@ func (sf *Client) ThingEventPost(devID int, eventID string, params interface{}) 
 		return nil, err
 	}
 	sf.log.Debugf("thing <event>: %s post, @%d", eventID, id)
-	return sf.Insert(id), nil
+	return sf.putPending(id), nil
 }
 
 // ThingEventPropertyPackPost 网关批量上报数据
@@ -70,7 +70,7 @@ func (sf *Client) ThingEventPropertyPackPost(params interface{}) (*Token, error)
 		return nil, err
 	}
 	sf.log.Debugf("thing <event>: property pack post, @%d", id)
-	return sf.Insert(id), nil
+	return sf.putPending(id), nil
 }
 
 // ThingEventPropertyHistoryPost 直连设备仅能上报自己的物模型历史数据,网关设备可以上报其子设备的物模型历史数据
@@ -84,7 +84,7 @@ func (sf *Client) ThingEventPropertyHistoryPost(params interface{}) (*Token, err
 		return nil, err
 	}
 	sf.log.Debugf("thing <event>: property history post, @%d", id)
-	return sf.Insert(id), nil
+	return sf.putPending(id), nil
 }
 
 // ProcThingEventPostReply 处理ThingEvent XXX上行的应答
@@ -107,7 +107,7 @@ func ProcThingEventPostReply(c *Client, rawURI string, payload []byte) error {
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
-	c.signal(rsp.ID, err, nil)
+	c.signalPending(Message{rsp.ID, nil, err})
 
 	pk, dn := uris[1], uris[2]
 	eventID := uris[5]
@@ -137,9 +137,9 @@ func ProcThingEventPropertyPackPostReply(c *Client, rawURI string, payload []byt
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.signal(rsp.ID, err, nil)
+	c.signalPending(Message{rsp.ID, nil, err})
 	pk, dn := uris[1], uris[2]
-	c.log.Debugf("thing <event>: property pack post reply,@%d", rsp.ID)
+	c.log.Debugf("thing <event>: property pack post reply, @%d", rsp.ID)
 	return c.cb.ThingEventPropertyPackPostReply(c, err, pk, dn)
 }
 
@@ -161,8 +161,8 @@ func ProcThingEventPropertyHistoryPostReply(c *Client, rawURI string, payload []
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.signal(rsp.ID, err, nil)
+	c.signalPending(Message{rsp.ID, nil, err})
 	pk, dn := uris[1], uris[2]
-	c.log.Debugf("thing <event>: property pack post reply,@%d", rsp.ID)
+	c.log.Debugf("thing <event>: property pack post reply, @%d", rsp.ID)
 	return c.cb.ThingEventPropertyHistoryPostReply(c, err, pk, dn)
 }

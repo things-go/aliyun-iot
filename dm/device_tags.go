@@ -26,7 +26,7 @@ func (sf *Client) ThingDeviceInfoUpdate(devID int, params interface{}) (*Token, 
 	}
 
 	sf.log.Debugf("thing <deviceInfo>: update, @%d", id)
-	return sf.Insert(id), nil
+	return sf.putPending(id), nil
 }
 
 // ThingDeviceInfoDelete 设备信息删除
@@ -47,7 +47,7 @@ func (sf *Client) ThingDeviceInfoDelete(devID int, params interface{}) (*Token, 
 		return nil, err
 	}
 	sf.log.Debugf("thing <deviceInfo>: delete, @%d", id)
-	return sf.Insert(id), nil
+	return sf.putPending(id), nil
 }
 
 // ProcThingDeviceInfoUpdateReply 处理设备信息更新应答
@@ -71,7 +71,7 @@ func ProcThingDeviceInfoUpdateReply(c *Client, rawURI string, payload []byte) er
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.signal(rsp.ID, err, nil)
+	c.signalPending(Message{rsp.ID, nil, err})
 	pk, dn := uris[1], uris[2]
 	return c.cb.ThingDeviceInfoUpdateReply(c, err, pk, dn)
 }
@@ -95,7 +95,7 @@ func ProcThingDeviceInfoDeleteReply(c *Client, rawURI string, payload []byte) er
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
-	c.signal(rsp.ID, err, nil)
+	c.signalPending(Message{rsp.ID, nil, err})
 	pk, dn := uris[1], uris[2]
 	c.log.Debugf("thing <deviceInfo>: delete reply, @%d", rsp.ID)
 	return c.cb.ThingDeviceInfoDeleteReply(c, err, pk, dn)

@@ -107,7 +107,7 @@ func (sf *Client) ExtCombineLogin(devID int) (*Token, error) {
 	}
 
 	sf.log.Debugf("upstream Ext GW <sub>: login @%d", id)
-	return sf.Insert(id), nil
+	return sf.putPending(id), nil
 }
 
 // ExtCombineBatchLogin 子设备批量上线
@@ -167,7 +167,7 @@ func (sf *Client) ExtCombineLogout(devID int) (*Token, error) {
 		return nil, err
 	}
 	sf.log.Debugf("upstream Ext GW <sub>: logout @%d", id)
-	return sf.Insert(id), nil
+	return sf.putPending(id), nil
 }
 
 // ExtCombineBatchLogout 子设备批量下线
@@ -202,7 +202,7 @@ func ProcExtCombineLoginReply(c *Client, rawURI string, payload []byte) error {
 	} else {
 		c.SetDevStatusByPkDn(pk, dn, DevStatusLogined) // nolint: errcheck
 	}
-	c.signal(rsp.ID, err, nil)
+	c.signalPending(Message{rsp.ID, nil, err})
 	c.log.Debugf("downstream Ext GW <sub>: login reply @%d", rsp.ID)
 	return nil
 }
@@ -240,7 +240,7 @@ func ProcExtCombineLoginoutReply(c *Client, rawURI string, payload []byte) error
 	} else {
 		c.SetDevStatusByPkDn(pk, dn, DevStatusAttached) // nolint: errcheck
 	}
-	c.signal(rsp.ID, err, nil)
+	c.signalPending(Message{rsp.ID, nil, err})
 	c.log.Debugf("downstream Ext GW <sub>: logout reply @%d", rsp.ID)
 	return nil
 }

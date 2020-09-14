@@ -5,75 +5,58 @@ import (
 	"time"
 )
 
-// message message
-type message struct {
-	err  error
-	id   uint
-	data interface{}
+// Message 回复的消息
+type Message struct {
+	ID   uint
+	Data interface{}
+
+	err error
 }
 
 // Token defines the interface for the tokens used to indicate when actions have completed.
 type Token struct {
-	message chan message
+	message chan Message
 }
 
 // closedchan is a reusable closed channel.
-var closedchan = make(chan message)
+var closedchan = make(chan Message)
 
 func init() {
 	close(closedchan)
 }
 
-// WaitErr 等待同步回复,成功回复,只返回error
-func (sf *Token) WaitErr(timeout time.Duration) error {
-	_, _, err := sf.Wait(timeout)
-	return err
-}
-
-// WaitData 等待同步回复,成功回复,返回data和error
-func (sf *Token) WaitData(timeout time.Duration) (interface{}, error) {
-	_, data, err := sf.Wait(timeout)
-	return data, err
-}
-
-// WaitId 等待同步回复,成功回复,返回id和error
-func (sf *Token) WaitID(timeout time.Duration) (uint, error) {
-	id, _, err := sf.Wait(timeout)
-	return id, err
-}
-
-// Wait the entry response,return id,data and error
-func (sf *Token) Wait(timeout time.Duration) (uint, interface{}, error) {
+// Wait the entry response,return ID,Data and error
+func (sf *Token) Wait(timeout time.Duration) (m Message, err error) {
 	tm := time.NewTimer(timeout)
 	defer tm.Stop()
 	select {
-	case v, ok := <-sf.message:
+	case m, ok := <-sf.message:
 		if ok {
-			return v.id, v.data, v.err
+			return m, m.err
 		}
-		return 0, nil, ErrEntryClosed
+		return m, ErrEntryClosed
 	case <-tm.C:
 	}
-	return 0, nil, ErrWaitTimeout
+	return m, ErrWaitTimeout
 }
 
-// Insert 缓存插入指定ID3
-func (sf *Client) Insert(id uint) *Token {
+// putPending 缓存插入指定ID3
+func (sf *Client) putPending(id uint) *Token {
 	if sf.workOnWho != WorkOnMQTT {
 		return &Token{closedchan}
 	}
-	entry := &Token{make(chan message, 1)}
+	entry := &Token{make(chan Message, 1)}
 	sf.msgCache.SetDefault(strconv.FormatUint(uint64(id), 10), entry)
 	return entry
 }
 
-// signal 指定缓存id收到回复,并发出同步通知
-func (sf *Client) signal(id uint, err error, data interface{}) {
-	key := strconv.FormatUint(uint64(id), 10)
+// signalPending 指定缓存id收到回复,并发出同步通知
+func (sf *Client) signalPending(msg Message) {
+	key := strconv.FormatUint(uint64(msg.ID), 10)
 	if v, ok := sf.msgCache.Get(key); ok {
 		sf.msgCache.Delete(key)
 		select {
-		case v.(*Token).message <- message{err, id, data}:
+		case v.(*Token).message <- msg:
 		default:
 		}
 	}

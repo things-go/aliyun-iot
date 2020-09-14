@@ -55,7 +55,7 @@ func main() {
 	//go ConfigTest()
 	//go DeviceInfoTest()
 	//go NTPTest()
-
+	ThingEventPost()
 	for {
 		time.Sleep(time.Second * 10)
 		entry, err := dmClient.ThingEventPropertyPost(dm.DevNodeLocal,
@@ -68,12 +68,12 @@ func main() {
 			log.Printf("error: %#v", err)
 			continue
 		}
-		id, err := entry.WaitID(time.Second)
+		msg, err := entry.Wait(time.Second)
 		if err != nil {
 			log.Printf("error: %#v", err)
 			continue
 		}
-		log.Printf("wait and got id: %d", id)
+		log.Printf("wait and got id: %d", msg.ID)
 	}
 }
 

@@ -108,7 +108,7 @@ func (sf *DevMgr) Create(types DevType, meta infra.MetaInfo) (int, error) {
 	return node.id, nil
 }
 
-// Insert
+// putPending
 func (sf *DevMgr) insert(devID int, types DevType, meta infra.MetaInfo) error {
 	if meta.ProductKey == "" || meta.DeviceName == "" ||
 		meta.DeviceSecret == "" || devID < 0 {

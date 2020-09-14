@@ -28,7 +28,7 @@ func (sf *Client) ThingDsltemplateGet(devID int) (*Token, error) {
 	}
 
 	sf.log.Debugf("thing <dsl template>: get, @%d", id)
-	return sf.Insert(id), nil
+	return sf.putPending(id), nil
 }
 
 // ThingDynamictslGet 获取动态tsl
@@ -52,7 +52,7 @@ func (sf *Client) ThingDynamictslGet(devID int) (*Token, error) {
 	}
 
 	sf.log.Debugf("thing <dynamic tsl>: get, @%d", id)
-	return sf.Insert(id), nil
+	return sf.putPending(id), nil
 }
 
 // ProcThingDsltemplateGetReply 处理dsltemplate获取的应答
@@ -75,7 +75,7 @@ func ProcThingDsltemplateGetReply(c *Client, rawURI string, payload []byte) erro
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.signal(rsp.ID, err, nil)
+	c.signalPending(Message{rsp.ID, nil, err})
 	pk, dn := uris[1], uris[2]
 	c.log.Debugf("thing <dsl template>: get reply, @%d - %s", rsp.ID, string(rsp.Data))
 	return c.cb.ThingDsltemplateGetReply(c, err, pk, dn, rsp.Data)
@@ -101,7 +101,7 @@ func ProcThingDynamictslGetReply(c *Client, rawURI string, payload []byte) error
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.signal(rsp.ID, err, nil)
+	c.signalPending(Message{rsp.ID, nil, err})
 	pk, dn := uris[1], uris[2]
 	c.log.Debugf("thing <dynamic tsl>: get reply, @%d - %+v", rsp.ID, rsp)
 	return c.cb.ThingDynamictslGetReply(c, err, pk, dn, rsp.Data)

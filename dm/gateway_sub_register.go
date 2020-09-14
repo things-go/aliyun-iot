@@ -53,7 +53,7 @@ func (sf *Client) ThingGwSubRegister(devID int) (*Token, error) {
 	}
 
 	sf.log.Debugf("upstream thing GW <sub>: register @%d", id)
-	return sf.Insert(id), nil
+	return sf.putPending(id), nil
 }
 
 // ProcThingGwSubRegisterReply 子设备动态注册处理
@@ -86,7 +86,7 @@ func ProcThingGwSubRegisterReply(c *Client, rawURI string, payload []byte) error
 			_ = c.SetDevStatus(node.ID(), DevStatusRegistered)
 		}
 	}
-	c.signal(rsp.ID, err, nil)
+	c.signalPending(Message{rsp.ID, nil, err})
 	c.log.Debugf("downstream GW thing <sub>: register reply @%d", rsp.ID)
 	return nil
 }

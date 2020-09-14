@@ -141,7 +141,7 @@ func (sf *Client) SendRequest(uriService string, requestID uint, method string, 
 // uriService 唯一定位服务器或(topic)
 // responseID: 回复ID
 // code: 回复code
-// data: 数据域
+// Data: 数据域
 // API内部已实现json序列化
 func (sf *Client) SendResponse(uriService string, responseID uint, code int, data interface{}) error {
 	out, err := json.Marshal(&Response{ID: responseID, Code: code, Data: data})
@@ -187,7 +187,7 @@ func (sf *Client) LinKitGwSubRegister(devID int) error {
 	if err != nil {
 		return err
 	}
-	_, _, err = entry.Wait(time.Second)
+	_, err = entry.Wait(time.Second)
 	return err
 }
 
@@ -196,7 +196,7 @@ func (sf *Client) LinkKitGwTopoAdd(devID int) error {
 	if err != nil {
 		return err
 	}
-	_, _, err = entry.Wait(time.Second)
+	_, err = entry.Wait(time.Second)
 	return err
 }
 
@@ -209,7 +209,7 @@ func (sf *Client) LinkKitGwTopoDelete(devID int) error {
 	if err != nil {
 		return err
 	}
-	_, _, err = entry.Wait(time.Second)
+	_, err = entry.Wait(time.Second)
 	return err
 }
 
@@ -221,7 +221,7 @@ func (sf *Client) LinkKitExtCombineLogin(devID int) error {
 	if err != nil {
 		return err
 	}
-	_, _, err = entry.Wait(time.Second)
+	_, err = entry.Wait(time.Second)
 	return err
 }
 
@@ -234,6 +234,6 @@ func (sf *Client) LinkKitExtCombineLogout(devID int) error {
 		return err
 	}
 
-	_, _, err = entry.Wait(time.Second)
+	_, err = entry.Wait(time.Second)
 	return err
 }

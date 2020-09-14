@@ -109,7 +109,7 @@ func (sf *Client) ThingOtaFirmwareGet(devID int, module string) (*Token, error) 
 		return nil, err
 	}
 	sf.log.Debugf("thing <ota>: firmware get, @%d", id)
-	return sf.Insert(id), nil
+	return sf.putPending(id), nil
 }
 
 type OtaFirmwareData struct {
@@ -148,7 +148,7 @@ func ProcThingOtaFirmwareGetReply(c *Client, rawURI string, payload []byte) erro
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 	c.log.Debugf("thing <ota>: firmware get reply, @%d", rsp.ID)
-	c.signal(rsp.ID, err, nil)
+	c.signalPending(Message{rsp.ID, nil, err})
 	pk, dn := uris[1], uris[2]
 	return c.cb.ThingOtaFirmwareGetReply(c, pk, dn, rsp.Data)
 }

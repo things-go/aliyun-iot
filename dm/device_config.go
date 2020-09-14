@@ -61,7 +61,7 @@ func (sf *Client) ThingConfigGet(devID int) (*Token, error) {
 		return nil, err
 	}
 	sf.log.Debugf("thing <config>: get, @%d", id)
-	return sf.Insert(id), nil
+	return sf.putPending(id), nil
 }
 
 // ProcThingConfigGetReply 处理获取配置的应答
@@ -85,9 +85,9 @@ func ProcThingConfigGetReply(c *Client, rawURI string, payload []byte) error {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.signal(rsp.ID, err, nil)
+	c.signalPending(Message{rsp.ID, nil, err})
 	pk, dn := uris[1], uris[2]
-	c.log.Debugf("thing <config>: get reply, @%d, data -> %+v", rsp.ID, rsp)
+	c.log.Debugf("thing <config>: get reply, @%d, Data -> %+v", rsp.ID, rsp)
 	return c.cb.ThingConfigGetReply(c, err, pk, dn, rsp.Data)
 }
 

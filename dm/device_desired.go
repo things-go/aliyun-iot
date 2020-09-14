@@ -28,7 +28,7 @@ func (sf *Client) ThingDesiredPropertyGet(devID int, params interface{}) (*Token
 		return nil, err
 	}
 	sf.log.Debugf("thing <desired>: get, @%d", id)
-	return sf.Insert(id), nil
+	return sf.putPending(id), nil
 }
 
 // ThingDesiredPropertyDelete 清空期望属性值
@@ -53,7 +53,7 @@ func (sf *Client) ThingDesiredPropertyDelete(devID int, params interface{}) (*To
 		return nil, err
 	}
 	sf.log.Debugf("thing <desired>: delete, @%d", id)
-	return sf.Insert(id), nil
+	return sf.putPending(id), nil
 }
 
 // ProcThingDesiredPropertyGetReply 处理获取期望属性值的应答
@@ -76,7 +76,7 @@ func ProcThingDesiredPropertyGetReply(c *Client, rawURI string, payload []byte) 
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.signal(rsp.ID, err, nil)
+	c.signalPending(Message{rsp.ID, nil, err})
 	pk, dn := uris[1], uris[2]
 	c.log.Debugf("thing <desired>: get reply, @%d", rsp.ID)
 	return c.cb.ThingDesiredPropertyGetReply(c, err, pk, dn, rsp.Data)
@@ -100,7 +100,7 @@ func ProcThingDesiredPropertyDeleteReply(c *Client, rawURI string, payload []byt
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
-	c.signal(rsp.ID, err, nil)
+	c.signalPending(Message{rsp.ID, nil, err})
 	pk, dn := uris[1], uris[2]
 	c.log.Debugf("thing <desired>: delete reply,@%d", rsp.ID)
 	return c.cb.ThingDesiredPropertyDeleteReply(c, err, pk, dn)
