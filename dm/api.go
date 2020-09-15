@@ -154,7 +154,7 @@ func (sf *Client) Connect() error {
 
 // SubDeviceConnect 子设备连接注册并添加到网关拓扑关系
 func (sf *Client) SubDeviceConnect(pk, dn string) error {
-	node, err := sf.SearchDevNode(pk, dn)
+	node, err := sf.Search(pk, dn)
 	if err != nil {
 		return err
 	}
@@ -170,20 +170,20 @@ func (sf *Client) SubDeviceConnect(pk, dn string) error {
 }
 
 func (sf *Client) LinKitGwSubRegister(pk, dn string) error {
-	entry, err := sf.ThingGwSubRegister(pk, dn)
+	token, err := sf.ThingGwSubRegister(pk, dn)
 	if err != nil {
 		return err
 	}
-	_, err = entry.Wait(time.Second)
+	_, err = token.Wait(time.Second)
 	return err
 }
 
 func (sf *Client) LinkKitGwTopoAdd(pk, dn string) error {
-	entry, err := sf.ThingGwTopoAdd(pk, dn)
+	token, err := sf.ThingGwTopoAdd(pk, dn)
 	if err != nil {
 		return err
 	}
-	_, err = entry.Wait(time.Second)
+	_, err = token.Wait(time.Second)
 	return err
 }
 
@@ -192,11 +192,11 @@ func (sf *Client) LinkKitGwTopoDelete(pk, dn string) error {
 	if !sf.isGateway {
 		return ErrNotSupportFeature
 	}
-	entry, err := sf.ThingGwTopoDelete(pk, dn)
+	token, err := sf.ThingGwTopoDelete(pk, dn)
 	if err != nil {
 		return err
 	}
-	_, err = entry.Wait(time.Second)
+	_, err = token.Wait(time.Second)
 	return err
 }
 
@@ -204,11 +204,11 @@ func (sf *Client) LinkKitExtCombineLogin(pk, dn string) error {
 	if !sf.isGateway {
 		return ErrNotSupportFeature
 	}
-	entry, err := sf.ExtCombineLogin(pk, dn)
+	token, err := sf.ExtCombineLogin(pk, dn)
 	if err != nil {
 		return err
 	}
-	_, err = entry.Wait(time.Second)
+	_, err = token.Wait(time.Second)
 	return err
 }
 
@@ -216,11 +216,10 @@ func (sf *Client) LinkKitExtCombineLogout(pk, dn string) error {
 	if !sf.isGateway {
 		return ErrNotSupportFeature
 	}
-	entry, err := sf.ExtCombineLogout(pk, dn)
+	token, err := sf.ExtCombineLogout(pk, dn)
 	if err != nil {
 		return err
 	}
-
-	_, err = entry.Wait(time.Second)
+	_, err = token.Wait(time.Second)
 	return err
 }

@@ -6,7 +6,7 @@ import (
 	"github.com/thinkgos/aliyun-iot/infra"
 )
 
-// DevStatus 设备状态
+// DeviceStatus 设备状态
 type DevStatus byte
 
 // 设备状态
@@ -104,59 +104,59 @@ func (sf *DevMgr) Create(meta infra.MetaTetrad) error {
 }
 
 // Delete 删除一个子设备
-func (sf *DevMgr) Delete(productKey, deviceName string) {
+func (sf *DevMgr) Delete(pk, dn string) {
 	sf.rw.Lock()
 	defer sf.rw.Unlock()
-	delete(sf.nodes, FormatKey(productKey, deviceName))
+	delete(sf.nodes, FormatKey(pk, dn))
 }
 
-func (sf *DevMgr) searchDevNodeLocked(productKey, deviceName string) (*DevNode, error) {
-	if sf.root.productKey == productKey && sf.root.deviceName == deviceName {
+func (sf *DevMgr) searchLocked(pk, dn string) (*DevNode, error) {
+	if sf.root.productKey == pk && sf.root.deviceName == dn {
 		return &sf.root, nil
 	}
-	node, ok := sf.nodes[FormatKey(productKey, deviceName)]
+	node, ok := sf.nodes[FormatKey(pk, dn)]
 	if !ok {
 		return nil, ErrNotFound
 	}
 	return node, nil
 }
 
-// SearchDevNode 使用productKey deviceName查找一个设备节点信息
-func (sf *DevMgr) SearchDevNode(productKey, deviceName string) (*DevNode, error) {
+// Search 使用productKey deviceName查找一个设备节点信息
+func (sf *DevMgr) Search(pk, dn string) (*DevNode, error) {
 	sf.rw.RLock()
 	defer sf.rw.RUnlock()
-	return sf.searchDevNodeLocked(productKey, deviceName)
+	return sf.searchLocked(pk, dn)
 }
 
 // SetDeviceSecret 设置设备的密钥
-func (sf *DevMgr) SetDeviceSecret(productKey, deviceName, deviceSecret string) error {
+func (sf *DevMgr) SetDeviceSecret(pk, dn, ds string) error {
 	sf.rw.Lock()
 	defer sf.rw.Unlock()
-	node, err := sf.searchDevNodeLocked(productKey, deviceName)
+	node, err := sf.searchLocked(pk, dn)
 	if err != nil {
 		return err
 	}
-	node.deviceSecret = deviceSecret
+	node.deviceSecret = ds
 	return nil
 }
 
-func (sf *DevMgr) DeviceSecret(productKey, deviceName string) (string, error) {
+func (sf *DevMgr) DeviceSecret(pk, dn string) (string, error) {
 	sf.rw.RLock()
 	defer sf.rw.RUnlock()
 
-	node, err := sf.searchDevNodeLocked(productKey, deviceName)
+	node, err := sf.searchLocked(pk, dn)
 	if err != nil {
 		return "", err
 	}
 	return node.deviceSecret, nil
 }
 
-// SetDevAvail 设置avail
-func (sf *DevMgr) SetDevAvail(productKey, deviceName string, enable bool) error {
+// SetDeviceAvail 设置avail
+func (sf *DevMgr) SetDeviceAvail(pk, dn string, enable bool) error {
 	sf.rw.Lock()
 	defer sf.rw.Unlock()
 
-	node, err := sf.searchDevNodeLocked(productKey, deviceName)
+	node, err := sf.searchLocked(pk, dn)
 	if err != nil {
 		return err
 	}
@@ -164,24 +164,24 @@ func (sf *DevMgr) SetDevAvail(productKey, deviceName string, enable bool) error 
 	return nil
 }
 
-// DevAvail 获取avail
-func (sf *DevMgr) DevAvail(productKey, deviceName string) (bool, error) {
+// DeviceAvail 获取avail
+func (sf *DevMgr) DeviceAvail(pk, dn string) (bool, error) {
 	sf.rw.RLock()
 	defer sf.rw.RUnlock()
 
-	node, err := sf.searchDevNodeLocked(productKey, deviceName)
+	node, err := sf.searchLocked(pk, dn)
 	if err != nil {
 		return false, err
 	}
 	return node.avail, nil
 }
 
-// SetDevStatus 设置设备的状态
-func (sf *DevMgr) SetDevStatus(productKey, deviceName string, status DevStatus) error {
+// SetDeviceStatus 设置设备的状态
+func (sf *DevMgr) SetDeviceStatus(pk, dn string, status DevStatus) error {
 	sf.rw.Lock()
 	defer sf.rw.Unlock()
 
-	node, err := sf.searchDevNodeLocked(productKey, deviceName)
+	node, err := sf.searchLocked(pk, dn)
 	if err != nil {
 		return err
 	}
@@ -189,12 +189,12 @@ func (sf *DevMgr) SetDevStatus(productKey, deviceName string, status DevStatus) 
 	return nil
 }
 
-// SetDevStatus 获取设备的状态
-func (sf *DevMgr) DevStatus(productKey, deviceName string, status DevStatus) error {
+// SetDeviceStatus 获取设备的状态
+func (sf *DevMgr) DeviceStatus(pk, dn string, status DevStatus) error {
 	sf.rw.Lock()
 	defer sf.rw.Unlock()
 
-	node, err := sf.searchDevNodeLocked(productKey, deviceName)
+	node, err := sf.searchLocked(pk, dn)
 	if err != nil {
 		return err
 	}
@@ -202,6 +202,7 @@ func (sf *DevMgr) DevStatus(productKey, deviceName string, status DevStatus) err
 	return nil
 }
 
-func FormatKey(productKey, deviceName string) string {
-	return productKey + "." + deviceName
+// FormatKey format pk dn --> {pk}.{dn}
+func FormatKey(pk, dn string) string {
+	return pk + "." + dn
 }

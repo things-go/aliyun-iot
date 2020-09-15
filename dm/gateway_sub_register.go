@@ -7,12 +7,6 @@ import (
 	"github.com/thinkgos/aliyun-iot/uri"
 )
 
-// GwSubRegisterParams 子设备注册参数域
-type GwSubRegisterParams struct {
-	ProductKey string `json:"productKey"`
-	DeviceName string `json:"deviceName"`
-}
-
 // GwSubRegisterData 子设备注册应答数据域
 type GwSubRegisterData struct {
 	IotID        int64  `json:"iotId,string"`
@@ -37,9 +31,7 @@ func (sf *Client) ThingGwSubRegister(pk, dn string) (*Token, error) {
 	id := sf.RequestID()
 	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingSubRegister)
 	err := sf.SendRequest(_uri, id, infra.MethodSubDevRegister,
-		[]GwSubRegisterParams{
-			{pk, dn},
-		})
+		[]infra.MetaPair{{ProductKey: pk, DeviceName: dn}})
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +61,7 @@ func ProcThingGwSubRegisterReply(c *Client, rawURI string, payload []byte) error
 	} else {
 		for _, v := range rsp.Data {
 			_ = c.SetDeviceSecret(v.ProductKey, v.DeviceName, v.DeviceSecret)
-			_ = c.SetDevStatus(v.ProductKey, v.DeviceName, DevStatusRegistered)
+			_ = c.SetDeviceStatus(v.ProductKey, v.DeviceName, DevStatusRegistered)
 		}
 	}
 	c.signalPending(Message{rsp.ID, nil, err})

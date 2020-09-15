@@ -3,6 +3,8 @@ package dm
 import (
 	"encoding/json"
 	"time"
+
+	"github.com/thinkgos/aliyun-iot/infra"
 )
 
 // @see https://help.aliyun.com/document_detail/89301.html?spm=a2c4g.11186623.6.706.570f3f69J3fW5z
@@ -56,7 +58,7 @@ type Callback interface {
 type GwCallback interface {
 	// 520错误已做自动登陆回复
 	ExtErrorResponse(c *Client, err error, productKey, deviceName string) error
-	ThingGwTopoGetReply(c *Client, err error, params []GwTopoGetData) error
+	ThingGwTopoGetReply(c *Client, err error, params []infra.MetaPair) error
 	ThingGwListFoundReply(c *Client, err error) error
 	ThingGwTopoAddNotify(c *Client, params []GwTopoAddNotifyParams) error
 	ThingGwTopoChange(c *Client, params GwTopoChangeParams) error

@@ -77,16 +77,12 @@ func (sf *Client) ThingGwTopoDelete(pk, dn string) (*Token, error) {
 	return sf.putPending(id), nil
 }
 
-// GwTopoGetData 获取网关和子设备的拓扑关系应答的数据域
-type GwTopoGetData struct {
-	ProductKey string `json:"productKey"`
-	DeviceName string `json:"deviceName"`
-}
-
 // GwTopoGetResponse 获取网关和子设备的拓扑关系应答
 type GwTopoGetResponse struct {
-	ResponseRawData
-	Data []GwTopoGetData `json:"Data"`
+	ID      uint             `json:"id,string"`
+	Code    int              `json:"code"`
+	Data    []infra.MetaPair `json:"Data"`
+	Message string           `json:"message,omitempty"`
 }
 
 // ThingGwTopoGet 获取该网关和子设备的拓扑关系
@@ -105,12 +101,6 @@ func (sf *Client) ThingGwTopoGet() (*Token, error) {
 	return sf.putPending(id), nil
 }
 
-// GwListFoundParams 发现设备列表上报参数域
-type GwListFoundParams struct {
-	ProductKey string `json:"productKey"`
-	DeviceName string `json:"deviceName"`
-}
-
 // ThingGwListFound 发现设备列表上报
 // 场景,网关可以发现新接入的子设备,发现后,需将新接入的子设备的信息上报云端,
 // 然后转到第三方应用,选择哪些子设备可以接入该网关
@@ -118,8 +108,8 @@ func (sf *Client) ThingGwListFound(pk, dn string) (*Token, error) {
 	id := sf.RequestID()
 	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingListFound)
 	err := sf.SendRequest(_uri, id, infra.MethodListFound,
-		[]GwListFoundParams{
-			{pk, dn},
+		[]infra.MetaPair{
+			{ProductKey: pk, DeviceName: dn},
 		})
 	if err != nil {
 		return nil, err
@@ -150,7 +140,7 @@ func ProcThingGwTopoAddReply(c *Client, rawURI string, payload []byte) error {
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	} else {
-		_ = c.SetDevStatus(pk, dn, DevStatusAttached)
+		_ = c.SetDeviceStatus(pk, dn, DevStatusAttached)
 	}
 
 	c.signalPending(Message{rsp.ID, nil, err})
@@ -178,7 +168,7 @@ func ProcThingGwTopoDeleteReply(c *Client, rawURI string, payload []byte) error 
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	} else {
-		c.SetDevStatus(pk, dn, DevStatusRegistered) // nolint: errcheck
+		c.SetDeviceStatus(pk, dn, DevStatusRegistered) // nolint: errcheck
 	}
 
 	c.signalPending(Message{rsp.ID, nil, err})
@@ -273,16 +263,10 @@ func ProcThingGwTopoAddNotify(c *Client, rawURI string, payload []byte) error {
 	return c.SendResponse(uri.ReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
 }
 
-// GwTopoChange 网络拓扑关系变化请求参数域的设备结构
-type GwTopoChange struct {
-	ProductKey string `json:"productKey"`
-	DeviceName string `json:"deviceName"`
-}
-
 // GwTopoChangeParams 网络拓扑关系变化请求参数域
 type GwTopoChangeParams struct {
-	Status  int            `json:"status"` // 0: 创建 1:删除 2: 启用 8: 禁用
-	SubList []GwTopoChange `json:"subList"`
+	Status  int              `json:"status"` // 0: 创建 1:删除 2: 启用 8: 禁用
+	SubList []infra.MetaPair `json:"subList"`
 }
 
 // GwTopoChangeRequest 网络拓扑关系变化请求

@@ -3,6 +3,8 @@ package dm
 import (
 	"encoding/json"
 	"time"
+
+	"github.com/thinkgos/aliyun-iot/infra"
 )
 
 // NopCb 实现Callback接口的空实现
@@ -93,7 +95,7 @@ type NopGwCb struct{}
 func (NopGwCb) ExtErrorResponse(*Client, error, string, string) error { return nil }
 
 // ThingGwTopoGetReply see interface GwCallback
-func (NopGwCb) ThingGwTopoGetReply(*Client, error, []GwTopoGetData) error { return nil }
+func (NopGwCb) ThingGwTopoGetReply(*Client, error, []infra.MetaPair) error { return nil }
 
 // ThingGwListFoundReply see interface GwCallback
 func (NopGwCb) ThingGwListFoundReply(*Client, error) error { return nil }

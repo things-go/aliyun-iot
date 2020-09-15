@@ -111,27 +111,21 @@ func (sf *Client) ExtCombineLogin(pk, dn string) (*Token, error) {
 // NOTE: topic 应使用网关的productKey和deviceName,且只支持qos = 0
 // request： /ext/session/${productKey}/${deviceName}/combine/batch_login
 // response：/ext/session/${productKey}/${deviceName}/combine/batch_login_reply
-func (sf *Client) ExtCombineBatchLogin(devID ...int) (*Token, error) {
+func (sf *Client) ExtCombineBatchLogin(pair ...infra.MetaPair) (*Token, error) {
 	// TODO:
 	return nil, nil
 }
 
-// GwCombineLogoutParams 子设备下线参数域
-type GwCombineLogoutParams struct {
-	ProductKey string `json:"productKey"` // 子设备所属产品的ProductKey
-	DeviceName string `json:"deviceName"` // 子设备的设备名称
-}
-
 // GwCombineLogoutRequest 子设备下线请求
 type GwCombineLogoutRequest struct {
-	ID     uint                  `json:"id,string"`
-	Params GwCombineLogoutParams `json:"params"`
+	ID     uint           `json:"id,string"`
+	Params infra.MetaPair `json:"params"`
 }
 
 // GwCombineBatchLogoutRequest 子设备批量下线请求
 type GwCombineBatchLogoutRequest struct {
-	ID     uint                    `json:"id,string"`
-	Params []GwCombineLogoutParams `json:"params"`
+	ID     uint             `json:"id,string"`
+	Params []infra.MetaPair `json:"params"`
 }
 
 // ExtCombineLogout 子设备下线
@@ -142,7 +136,7 @@ func (sf *Client) ExtCombineLogout(pk, dn string) (*Token, error) {
 	id := sf.RequestID()
 	req, err := json.Marshal(&GwCombineLogoutRequest{
 		id,
-		GwCombineLogoutParams{pk, dn},
+		infra.MetaPair{ProductKey: pk, DeviceName: dn},
 	})
 	if err != nil {
 		return nil, err
@@ -160,7 +154,7 @@ func (sf *Client) ExtCombineLogout(pk, dn string) (*Token, error) {
 // NOTE: topic 应使用网关的productKey和deviceName,且只支持qos = 0
 // request:   /ext/session/{productKey}/{deviceName}/combine/batch_logout
 // response:  /ext/session/{productKey}/{deviceName}/combine/batch_logout_reply
-func (sf *Client) ExtCombineBatchLogout(devID ...int) (*Token, error) {
+func (sf *Client) ExtCombineBatchLogout(pair ...infra.MetaPair) (*Token, error) {
 	// TODO
 	return nil, nil
 }
@@ -186,7 +180,7 @@ func ProcExtCombineLoginReply(c *Client, rawURI string, payload []byte) error {
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	} else {
-		c.SetDevStatus(pk, dn, DevStatusLogined) // nolint: errcheck
+		c.SetDeviceStatus(pk, dn, DevStatusLogined) // nolint: errcheck
 	}
 	c.signalPending(Message{rsp.ID, nil, err})
 	c.log.Debugf("downstream Ext GW <sub>: login reply @%d", rsp.ID)
@@ -224,7 +218,7 @@ func ProcExtCombineLoginoutReply(c *Client, rawURI string, payload []byte) error
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	} else {
-		c.SetDevStatus(pk, dn, DevStatusAttached) // nolint: errcheck
+		c.SetDeviceStatus(pk, dn, DevStatusAttached) // nolint: errcheck
 	}
 	c.signalPending(Message{rsp.ID, nil, err})
 	c.log.Debugf("downstream Ext GW <sub>: logout reply @%d", rsp.ID)

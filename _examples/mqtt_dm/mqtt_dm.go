@@ -21,7 +21,7 @@ import (
 var dmClient *aiot.MQTTClient
 
 func main() {
-	signs, err := sign.Generate(&mock.MetaTriad, infra.CloudRegionDomain{Region: infra.CloudRegionShangHai})
+	signs, err := sign.Generate(mock.MetaTriad, infra.CloudRegionDomain{Region: infra.CloudRegionShangHai})
 	if err != nil {
 		panic(err)
 	}
