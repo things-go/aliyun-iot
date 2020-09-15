@@ -80,11 +80,9 @@ func (sf *Client) ThingGwTopoGet() (*Token, error) {
 // 然后转到第三方应用,选择哪些子设备可以接入该网关
 func (sf *Client) ThingGwListFound(pk, dn string) (*Token, error) {
 	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingListFound)
-	return sf.SendRequest(_uri, infra.MethodListFound,
-		[]infra.MetaPair{
-			{ProductKey: pk, DeviceName: dn},
-		},
-	)
+	return sf.SendRequest(_uri, infra.MethodListFound, []infra.MetaPair{
+		{ProductKey: pk, DeviceName: dn},
+	})
 }
 
 // ProcThingGwTopoAddReply 处理网络拓扑添加
@@ -112,7 +110,7 @@ func ProcThingGwTopoAddReply(c *Client, rawURI string, payload []byte) error {
 	}
 
 	c.signalPending(Message{rsp.ID, nil, err})
-	c.log.Debugf("downstream GW thing <topo>: add reply @%d", rsp.ID)
+	c.log.Debugf("thing.topo.add.reply @%d", rsp.ID)
 	return nil
 }
 
@@ -140,7 +138,7 @@ func ProcThingGwTopoDeleteReply(c *Client, rawURI string, payload []byte) error 
 	}
 
 	c.signalPending(Message{rsp.ID, nil, err})
-	c.log.Debugf("downstream GW thing <topo>: delete reply @%d", rsp.ID)
+	c.log.Debugf("thing.topo.delete.reply @%d", rsp.ID)
 	return nil
 }
 
@@ -164,7 +162,7 @@ func ProcThingGwTopoGetReply(c *Client, rawURI string, payload []byte) error {
 	}
 
 	c.signalPending(Message{rsp.ID, nil, err})
-	c.log.Debugf("downstream GW thing <topo>: get reply @%d", rsp.ID)
+	c.log.Debugf("thing.topo.get.reply @%d", rsp.ID)
 	return c.gwCb.ThingGwTopoGetReply(c, err, rsp.Data)
 }
 
@@ -190,22 +188,16 @@ func ProcThingGwListFoundReply(c *Client, rawURI string, payload []byte) error {
 	}
 
 	c.signalPending(Message{rsp.ID, nil, err})
-	c.log.Debugf("downstream GW thing <list>: found reply @%d", rsp.ID)
+	c.log.Debugf("thing.list.found.reply @%d", rsp.ID)
 	return c.gwCb.ThingGwListFoundReply(c, err)
-}
-
-// GwTopoAddNotifyParams 添加设备拓扑关系通知参数域
-type GwTopoAddNotifyParams struct {
-	ProductKey string `json:"productKey"`
-	DeviceName string `json:"deviceName"`
 }
 
 // GwTopoAddNotifyRequest 添加设备拓扑关系通知请求
 type GwTopoAddNotifyRequest struct {
-	ID      uint                    `json:"id,string"`
-	Version string                  `json:"version"`
-	Params  []GwTopoAddNotifyParams `json:"params"`
-	Method  string                  `json:"method"`
+	ID      uint             `json:"id,string"`
+	Version string           `json:"version"`
+	Params  []infra.MetaPair `json:"params"`
+	Method  string           `json:"method"`
 }
 
 // ProcThingGwTopoAddNotify 通知网关添加设备拓扑关系
@@ -218,17 +210,18 @@ func ProcThingGwTopoAddNotify(c *Client, rawURI string, payload []byte) error {
 	if len(uris) < 7 {
 		return ErrInvalidURI
 	}
-	c.log.Debugf("downstream GW thing <topo>: add notify")
+	c.log.Debugf("thing.topo.add.notify")
 
 	req := &GwTopoAddNotifyRequest{}
 	if err := json.Unmarshal(payload, req); err != nil {
 		return err
 	}
 
-	if err := c.gwCb.ThingGwTopoAddNotify(c, req.Params); err != nil {
-		c.log.Warnf("ipc send Message failed, %+v", err)
+	err := c.Response(uri.ReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
+	if err != nil {
+		c.log.Warnf("thing.topo.add.notify.response, %+v", err)
 	}
-	return c.Response(uri.ReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
+	return c.gwCb.ThingGwTopoAddNotify(c, req.Params)
 }
 
 // GwTopoChangeParams 网络拓扑关系变化请求参数域
@@ -255,15 +248,16 @@ func ProcThingGwTopoChange(c *Client, rawURI string, payload []byte) error {
 	if len(uris) < 6 {
 		return ErrInvalidURI
 	}
-	c.log.Debugf("downstream GW thing <topo>: change")
+	c.log.Debugf("thing.topo.change")
 
 	req := &GwTopoChangeRequest{}
 	if err := json.Unmarshal(payload, req); err != nil {
 		return err
 	}
 
-	if err := c.gwCb.ThingGwTopoChange(c, req.Params); err != nil {
-		c.log.Warnf("ipc send Message failed, %+v", err)
+	err := c.Response(uri.ReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
+	if err != nil {
+		c.log.Warnf("thing.topo.change.response, %+v", err)
 	}
-	return c.Response(uri.ReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
+	return c.gwCb.ThingGwTopoChange(c, req.Params)
 }

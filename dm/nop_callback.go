@@ -101,7 +101,7 @@ func (NopGwCb) ThingGwTopoGetReply(*Client, error, []infra.MetaPair) error { ret
 func (NopGwCb) ThingGwListFoundReply(*Client, error) error { return nil }
 
 // ThingGwTopoAddNotify see interface GwCallback
-func (NopGwCb) ThingGwTopoAddNotify(*Client, []GwTopoAddNotifyParams) error { return nil }
+func (NopGwCb) ThingGwTopoAddNotify(*Client, []infra.MetaPair) error { return nil }
 
 // ThingGwTopoChange see interface GwCallback
 func (NopGwCb) ThingGwTopoChange(*Client, GwTopoChangeParams) error { return nil }

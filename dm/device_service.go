@@ -12,7 +12,7 @@ func ProcThingServicePropertySet(c *Client, rawURI string, payload []byte) error
 	if len(uris) < 7 {
 		return ErrInvalidURI
 	}
-	c.log.Debugf("thing <service>: property set request")
+	c.log.Debugf("thing.service.property.set")
 	pk, dn := uris[1], uris[2]
 	return c.cb.ThingServicePropertySet(c, pk, dn, payload)
 }
@@ -30,6 +30,6 @@ func ProcThingServiceRequest(c *Client, rawURI string, payload []byte) error {
 
 	pk, dn := uris[1], uris[2]
 	serviceID := uris[5]
-	c.log.Debugf("thing <service>: %s set request", serviceID)
+	c.log.Debugf("thing.service.%s", serviceID)
 	return c.cb.ThingServiceRequest(c, serviceID, pk, dn, payload)
 }

@@ -40,7 +40,7 @@ func ProcExtErrorResponse(c *Client, rawURI string, payload []byte) error {
 	}
 
 	c.signalPending(Message{rsp.ID, nil, err})
-	c.log.Debugf("downstream extend <Error>: response,@%d", rsp.ID)
+	c.log.Debugf("ext.error.response @%d", rsp.ID)
 
 	pk, dn := rsp.Data.ProductKey, rsp.Data.DeviceName
 	if rsp.Code == infra.CodeSubDevSessionError {

@@ -43,8 +43,8 @@ func ProcThingDesiredPropertyGetReply(c *Client, rawURI string, payload []byte) 
 	if len(uris) < 7 {
 		return ErrInvalidURI
 	}
-	rsp := ResponseRawData{}
-	err := json.Unmarshal(payload, &rsp)
+	rsp := &ResponseRawData{}
+	err := json.Unmarshal(payload, rsp)
 	if err != nil {
 		return err
 	}
@@ -55,7 +55,7 @@ func ProcThingDesiredPropertyGetReply(c *Client, rawURI string, payload []byte) 
 
 	c.signalPending(Message{rsp.ID, cloneJSONRawMessage(rsp.Data), err})
 	pk, dn := uris[1], uris[2]
-	c.log.Debugf("thing <desired>: get reply, @%d", rsp.ID)
+	c.log.Debugf("thing.property.desired.get.reply @%d", rsp.ID)
 	return c.cb.ThingDesiredPropertyGetReply(c, err, pk, dn, rsp.Data)
 }
 
@@ -79,6 +79,6 @@ func ProcThingDesiredPropertyDeleteReply(c *Client, rawURI string, payload []byt
 	}
 	c.signalPending(Message{rsp.ID, nil, err})
 	pk, dn := uris[1], uris[2]
-	c.log.Debugf("thing <desired>: delete reply,@%d", rsp.ID)
+	c.log.Debugf("thing.property.desired.delete.reply @%d", rsp.ID)
 	return c.cb.ThingDesiredPropertyDeleteReply(c, err, pk, dn)
 }

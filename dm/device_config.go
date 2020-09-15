@@ -46,7 +46,10 @@ type ConfigPushRequest struct {
 // response: /sys/{productKey}/{deviceName}/thing/config/get_reply
 func (sf *Client) ThingConfigGet(pk, dn string) (*Token, error) {
 	_uri := uri.URI(uri.SysPrefix, uri.ThingConfigGet, pk, dn)
-	return sf.SendRequest(_uri, infra.MethodConfigGet, ConfigGetParams{"product", "file"})
+	return sf.SendRequest(_uri, infra.MethodConfigGet, ConfigGetParams{
+		"product",
+		"file",
+	})
 }
 
 // ProcThingConfigGetReply 处理获取配置的应答
@@ -71,7 +74,7 @@ func ProcThingConfigGetReply(c *Client, rawURI string, payload []byte) error {
 	}
 	c.signalPending(Message{rsp.ID, rsp.Data, err})
 	pk, dn := uris[1], uris[2]
-	c.log.Debugf("thing <config>: get reply, @%d", rsp.ID)
+	c.log.Debugf("thing.config.get.reply @%d", rsp.ID)
 	return c.cb.ThingConfigGetReply(c, err, pk, dn, rsp.Data)
 }
 
@@ -94,6 +97,6 @@ func ProcThingConfigPush(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 	pk, dn := uris[1], uris[2]
-	c.log.Debugf("thing <config>: push")
+	c.log.Debugf("thing.config.push")
 	return c.cb.ThingConfigPush(c, pk, dn, req.Params)
 }

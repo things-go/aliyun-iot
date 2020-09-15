@@ -13,7 +13,7 @@ func (sf *Client) ThingModelUpRaw(pk, dn string, payload interface{}) error {
 	if !sf.hasRawModel {
 		return ErrNotSupportFeature
 	}
-	sf.log.Debugf("thing <model>: up raw")
+	sf.log.Debugf("thing.model.up.raw")
 	_uri := uri.URI(uri.SysPrefix, uri.ThingModelUpRaw, pk, dn)
 	return sf.Publish(_uri, 1, payload)
 }
@@ -27,7 +27,7 @@ func ProcThingModelUpRawReply(c *Client, rawURI string, payload []byte) error {
 	if len(uris) < 6 {
 		return ErrInvalidURI
 	}
-	c.log.Debugf("thing <model>: up raw reply")
+	c.log.Debugf("thing.model.up.raw.reply")
 	pk, dn := uris[1], uris[2]
 	return c.cb.ThingModelUpRawReply(c, pk, dn, payload)
 }
@@ -42,7 +42,7 @@ func ProcThingModelDownRaw(c *Client, rawURI string, payload []byte) error {
 	if len(uris) < 6 {
 		return ErrInvalidURI
 	}
-	c.log.Debugf("thing <model>: down raw")
+	c.log.Debugf("thing.model.down.raw")
 	pk, dn := uris[1], uris[2]
 	return c.cb.ThingModelDownRaw(c, pk, dn, payload)
 }

@@ -59,6 +59,6 @@ func ProcThingGwSubRegisterReply(c *Client, rawURI string, payload []byte) error
 		}
 	}
 	c.signalPending(Message{rsp.ID, nil, err})
-	c.log.Debugf("downstream GW thing <sub>: register reply @%d", rsp.ID)
+	c.log.Debugf("thing.sub.register.reply @%d", rsp.ID)
 	return nil
 }

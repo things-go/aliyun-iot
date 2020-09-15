@@ -39,7 +39,7 @@ func ProcThingDeviceInfoUpdateReply(c *Client, rawURI string, payload []byte) er
 		return err
 	}
 
-	c.log.Debugf("thing <deviceInfo>: update reply, @%d", rsp.ID)
+	c.log.Debugf("thing.deviceinfo.update.reply @%d", rsp.ID)
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
@@ -70,6 +70,6 @@ func ProcThingDeviceInfoDeleteReply(c *Client, rawURI string, payload []byte) er
 	}
 	c.signalPending(Message{rsp.ID, nil, err})
 	pk, dn := uris[1], uris[2]
-	c.log.Debugf("thing <deviceInfo>: delete reply, @%d", rsp.ID)
+	c.log.Debugf("thing.deviceinfo.delete.reply @%d", rsp.ID)
 	return c.cb.ThingDeviceInfoDeleteReply(c, err, pk, dn)
 }

@@ -47,7 +47,7 @@ func ProcThingDsltemplateGetReply(c *Client, rawURI string, payload []byte) erro
 
 	c.signalPending(Message{rsp.ID, nil, err})
 	pk, dn := uris[1], uris[2]
-	c.log.Debugf("thing <dsl template>: get reply, @%d - %s", rsp.ID, string(rsp.Data))
+	c.log.Debugf("thing.dsltemplate.get.reply @%d", rsp.ID)
 	return c.cb.ThingDsltemplateGetReply(c, err, pk, dn, rsp.Data)
 }
 
@@ -73,6 +73,6 @@ func ProcThingDynamictslGetReply(c *Client, rawURI string, payload []byte) error
 
 	c.signalPending(Message{rsp.ID, nil, err})
 	pk, dn := uris[1], uris[2]
-	c.log.Debugf("thing <dynamic tsl>: get reply, @%d - %+v", rsp.ID, rsp)
+	c.log.Debugf("thing.dynamictsl.get.reply @%d", rsp.ID)
 	return c.cb.ThingDynamictslGetReply(c, err, pk, dn, rsp.Data)
 }

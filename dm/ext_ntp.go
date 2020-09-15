@@ -29,7 +29,7 @@ func (sf *Client) ExtNtpRequest() error {
 	if !sf.hasNTP || sf.hasRawModel {
 		return ErrNotSupportFeature
 	}
-	sf.log.Debugf("ext <ntp>: request")
+	sf.log.Debugf("ext.ntp.request")
 	_uri := sf.GatewayURI(uri.ExtNtpPrefix, uri.NtpRequest)
 	py, err := json.Marshal(NtpRequest{infra.Millisecond(time.Now())})
 	if err != nil {
@@ -54,7 +54,7 @@ func ProcExtNtpResponse(c *Client, rawURI string, payload []byte) error {
 	}
 	tm := (rsp.ServerRecvTime + rsp.ServerSendTime + infra.Millisecond(time.Now()) - rsp.DeviceSendTime) / 2
 	exact := infra.Time(tm)
-	c.log.Debugf("ext <ntp>: response -> %+v", exact)
+	c.log.Debugf("ext.ntp.response")
 	pk, dn := uris[2], uris[3]
 	return c.cb.ExtNtpResponse(c, pk, dn, exact)
 }

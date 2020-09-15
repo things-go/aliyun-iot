@@ -60,7 +60,7 @@ type GwCallback interface {
 	ExtErrorResponse(c *Client, err error, productKey, deviceName string) error
 	ThingGwTopoGetReply(c *Client, err error, params []infra.MetaPair) error
 	ThingGwListFoundReply(c *Client, err error) error
-	ThingGwTopoAddNotify(c *Client, params []GwTopoAddNotifyParams) error
+	ThingGwTopoAddNotify(c *Client, params []infra.MetaPair) error
 	ThingGwTopoChange(c *Client, params GwTopoChangeParams) error
 	ThingGwDisable(c *Client, productKey, deviceName string) error
 	ThingGwEnable(c *Client, productKey, deviceName string) error
