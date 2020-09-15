@@ -46,8 +46,8 @@ type ConfigPushRequest struct {
 // response: /sys/{productKey}/{deviceName}/thing/config/get_reply
 func (sf *Client) ThingConfigGet(pk, dn string) (*Token, error) {
 	_uri := uri.URI(uri.SysPrefix, uri.ThingConfigGet, pk, dn)
-	id := sf.RequestID()
-	err := sf.SendRequest(_uri, id, infra.MethodConfigGet, ConfigGetParams{"product", "file"})
+	id := sf.nextRequestID()
+	err := sf.Request(_uri, id, infra.MethodConfigGet, ConfigGetParams{"product", "file"})
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func ProcThingConfigPush(c *Client, rawURI string, payload []byte) error {
 	if err := json.Unmarshal(payload, req); err != nil {
 		return err
 	}
-	err := c.SendResponse(uri.ReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
+	err := c.Response(uri.ReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
 	if err != nil {
 		return err
 	}

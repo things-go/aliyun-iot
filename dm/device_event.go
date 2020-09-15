@@ -16,9 +16,9 @@ func (sf *Client) ThingEventPropertyPost(pk, dn string, params interface{}) (*To
 		return nil, ErrNotSupportFeature
 	}
 
-	id := sf.RequestID()
+	id := sf.nextRequestID()
 	_uri := uri.URI(uri.SysPrefix, uri.ThingEventPropertyPost, pk, dn)
-	err := sf.SendRequest(_uri, id, infra.MethodEventPropertyPost, params)
+	err := sf.Request(_uri, id, infra.MethodEventPropertyPost, params)
 	if err != nil {
 		return nil, err
 	}
@@ -30,9 +30,9 @@ func (sf *Client) ThingEventPropertyPost(pk, dn string, params interface{}) (*To
 // request:  /sys/{productKey}/{deviceName}/thing/event/{tsl.event.identifier}/post
 // response: /sys/{productKey}/{deviceName}/thing/event/{tsl.event.identifier}/post_reply
 func (sf *Client) ThingEventPost(pk, dn, eventID string, params interface{}) (*Token, error) {
-	id := sf.RequestID()
+	id := sf.nextRequestID()
 	_uri := uri.URI(uri.SysPrefix, uri.ThingEventPost, pk, dn, eventID)
-	err := sf.SendRequest(_uri, id, fmt.Sprintf(infra.MethodEventFormatPost, eventID), params)
+	err := sf.Request(_uri, id, fmt.Sprintf(infra.MethodEventFormatPost, eventID), params)
 	if err != nil {
 		return nil, err
 	}
@@ -48,9 +48,9 @@ func (sf *Client) ThingEventPropertyPackPost(params interface{}) (*Token, error)
 	if !sf.isGateway {
 		return nil, ErrNotSupportFeature
 	}
-	id := sf.RequestID()
+	id := sf.nextRequestID()
 	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingEventPropertyPackPost)
-	err := sf.SendRequest(_uri, id, infra.MethodEventPropertyPackPost, params)
+	err := sf.Request(_uri, id, infra.MethodEventPropertyPackPost, params)
 	if err != nil {
 		return nil, err
 	}
@@ -62,9 +62,9 @@ func (sf *Client) ThingEventPropertyPackPost(params interface{}) (*Token, error)
 // request： /sys/{productKey}/{deviceName}/thing/event/property/history/post
 // response：/sys/{productKey}/{deviceName}/thing/event/property/history/post_reply
 func (sf *Client) ThingEventPropertyHistoryPost(params interface{}) (*Token, error) {
-	id := sf.RequestID()
+	id := sf.nextRequestID()
 	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingEventPropertyHistoryPost)
-	err := sf.SendRequest(_uri, id, infra.MethodEventPropertyHistoryPost, params)
+	err := sf.Request(_uri, id, infra.MethodEventPropertyHistoryPost, params)
 	if err != nil {
 		return nil, err
 	}

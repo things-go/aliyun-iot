@@ -28,9 +28,9 @@ type GwSubRegisterResponse struct {
 // request:   /sys/{productKey}/{deviceName}/thing/sub/register
 // response:  /sys/{productKey}/{deviceName}/thing/sub/register_reply
 func (sf *Client) ThingGwSubRegister(pk, dn string) (*Token, error) {
-	id := sf.RequestID()
+	id := sf.nextRequestID()
 	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingSubRegister)
-	err := sf.SendRequest(_uri, id, infra.MethodSubDevRegister,
+	err := sf.Request(_uri, id, infra.MethodSubDevRegister,
 		[]infra.MetaPair{{ProductKey: pk, DeviceName: dn}})
 	if err != nil {
 		return nil, err

@@ -27,7 +27,7 @@ func (sf *Client) OtaInform(pk, dn string, params interface{}) error {
 	if !sf.hasOTA {
 		return ErrNotSupportFeature
 	}
-	id := sf.RequestID()
+	id := sf.nextRequestID()
 	req, err := json.Marshal(OtaRequest{id, params})
 	if err != nil {
 		return err
@@ -58,7 +58,7 @@ func (sf *Client) OtaProgress(pk, dn string, params interface{}) error {
 	if !sf.hasOTA {
 		return ErrNotSupportFeature
 	}
-	id := sf.RequestID()
+	id := sf.nextRequestID()
 	req, err := json.Marshal(OtaRequest{id, params})
 	if err != nil {
 		return err
@@ -76,9 +76,9 @@ func (sf *Client) ThingOtaFirmwareGet(pk, dn, module string) (*Token, error) {
 	if !sf.hasOTA {
 		return nil, ErrNotSupportFeature
 	}
-	id := sf.RequestID()
+	id := sf.nextRequestID()
 	_uri := uri.URI(uri.SysPrefix, uri.ThingOtaFirmwareGet, pk, dn)
-	err := sf.SendRequest(_uri, id, infra.MethodOtaFirmwareGet, map[string]interface{}{"module": module})
+	err := sf.Request(_uri, id, infra.MethodOtaFirmwareGet, map[string]interface{}{"module": module})
 	if err != nil {
 		return nil, err
 	}

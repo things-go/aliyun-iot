@@ -33,7 +33,7 @@ func ProcThingGwDisable(c *Client, rawURI string, payload []byte) error {
 	if err = c.gwCb.ThingGwDisable(c, pk, dn); err != nil {
 		c.log.Warnf("<thing> disable, ipc send Message failed, %+v", err)
 	}
-	return c.SendResponse(uri.ReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
+	return c.Response(uri.ReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
 }
 
 // ProcThingGwEnable 启用子设备
@@ -62,7 +62,7 @@ func ProcThingGwEnable(c *Client, rawURI string, payload []byte) error {
 	if err = c.gwCb.ThingGwEnable(c, pk, dn); err != nil {
 		c.log.Warnf("<thing> enable, ipc send Message failed, %+v", err)
 	}
-	return c.SendResponse(uri.ReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
+	return c.Response(uri.ReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
 }
 
 // ProcThingGwDelete 子设备删除,网关类型设备
@@ -87,5 +87,5 @@ func ProcThingGwDelete(c *Client, rawURI string, payload []byte) error {
 	if err := c.gwCb.ThingGwDelete(c, pk, dn); err != nil {
 		c.log.Warnf("<thing> delete, ipc send Message failed, %+v", err)
 	}
-	return c.SendResponse(uri.ReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
+	return c.Response(uri.ReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
 }

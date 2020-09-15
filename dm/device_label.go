@@ -11,9 +11,9 @@ import (
 // request:  /sys/{productKey}/{deviceName}/thing/deviceinfo/update
 // response: /sys/{productKey}/{deviceName}/thing/deviceinfo/update_reply
 func (sf *Client) ThingDeviceInfoUpdate(pk, dn string, params interface{}) (*Token, error) {
-	id := sf.RequestID()
+	id := sf.nextRequestID()
 	_uri := uri.URI(uri.SysPrefix, uri.ThingDeviceInfoUpdate, pk, dn)
-	if err := sf.SendRequest(_uri, id, infra.MethodDeviceInfoUpdate, params); err != nil {
+	if err := sf.Request(_uri, id, infra.MethodDeviceInfoUpdate, params); err != nil {
 		return nil, err
 	}
 	sf.log.Debugf("thing <deviceInfo>: update, @%d", id)
@@ -24,9 +24,9 @@ func (sf *Client) ThingDeviceInfoUpdate(pk, dn string, params interface{}) (*Tok
 // request:  /sys/{productKey}/{deviceName}/thing/deviceinfo/delete
 // response: /sys/{productKey}/{deviceName}/thing/deviceinfo/delete_reply
 func (sf *Client) ThingDeviceInfoDelete(pk, dn string, params interface{}) (*Token, error) {
-	id := sf.RequestID()
+	id := sf.nextRequestID()
 	_uri := uri.URI(uri.SysPrefix, uri.ThingDeviceInfoDelete, pk, dn)
-	if err := sf.SendRequest(_uri, id, infra.MethodDeviceInfoDelete, params); err != nil {
+	if err := sf.Request(_uri, id, infra.MethodDeviceInfoDelete, params); err != nil {
 		return nil, err
 	}
 	sf.log.Debugf("thing <deviceInfo>: delete, @%d", id)

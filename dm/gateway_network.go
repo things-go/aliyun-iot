@@ -36,9 +36,9 @@ func (sf *Client) ThingGwTopoAdd(pk, dn string) (*Token, error) {
 	if err != nil {
 		return nil, err
 	}
-	id := sf.RequestID()
+	id := sf.nextRequestID()
 	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingTopoAdd)
-	err = sf.SendRequest(_uri, id, infra.MethodTopoAdd, []GwTopoAddParams{
+	err = sf.Request(_uri, id, infra.MethodTopoAdd, []GwTopoAddParams{
 		{
 			pk,
 			dn,
@@ -64,9 +64,9 @@ type GwTopoDeleteParams struct {
 
 // ThingGwTopoDelete 删除网关与子设备的拓扑关系
 func (sf *Client) ThingGwTopoDelete(pk, dn string) (*Token, error) {
-	id := sf.RequestID()
+	id := sf.nextRequestID()
 	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingTopoDelete)
-	err := sf.SendRequest(_uri, id, infra.MethodTopoDelete,
+	err := sf.Request(_uri, id, infra.MethodTopoDelete,
 		[]GwTopoDeleteParams{
 			{pk, dn},
 		})
@@ -92,9 +92,9 @@ func (sf *Client) ThingGwTopoGet() (*Token, error) {
 	if !sf.isGateway {
 		return nil, ErrNotSupportFeature
 	}
-	id := sf.RequestID()
+	id := sf.nextRequestID()
 	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingTopoGet)
-	if err := sf.SendRequest(_uri, id, infra.MethodTopoGet, "{}"); err != nil {
+	if err := sf.Request(_uri, id, infra.MethodTopoGet, "{}"); err != nil {
 		return nil, err
 	}
 	sf.log.Debugf("upstream GW thing <topo>: Get @%d", id)
@@ -105,9 +105,9 @@ func (sf *Client) ThingGwTopoGet() (*Token, error) {
 // 场景,网关可以发现新接入的子设备,发现后,需将新接入的子设备的信息上报云端,
 // 然后转到第三方应用,选择哪些子设备可以接入该网关
 func (sf *Client) ThingGwListFound(pk, dn string) (*Token, error) {
-	id := sf.RequestID()
+	id := sf.nextRequestID()
 	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingListFound)
-	err := sf.SendRequest(_uri, id, infra.MethodListFound,
+	err := sf.Request(_uri, id, infra.MethodListFound,
 		[]infra.MetaPair{
 			{ProductKey: pk, DeviceName: dn},
 		})
@@ -260,7 +260,7 @@ func ProcThingGwTopoAddNotify(c *Client, rawURI string, payload []byte) error {
 	if err := c.gwCb.ThingGwTopoAddNotify(c, req.Params); err != nil {
 		c.log.Warnf("ipc send Message failed, %+v", err)
 	}
-	return c.SendResponse(uri.ReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
+	return c.Response(uri.ReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
 }
 
 // GwTopoChangeParams 网络拓扑关系变化请求参数域
@@ -297,5 +297,5 @@ func ProcThingGwTopoChange(c *Client, rawURI string, payload []byte) error {
 	if err := c.gwCb.ThingGwTopoChange(c, req.Params); err != nil {
 		c.log.Warnf("ipc send Message failed, %+v", err)
 	}
-	return c.SendResponse(uri.ReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
+	return c.Response(uri.ReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
 }

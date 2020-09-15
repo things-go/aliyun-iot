@@ -1,8 +1,43 @@
 package dm
 
 import (
+	"encoding/json"
+	"sync/atomic"
+
 	"github.com/thinkgos/aliyun-iot/uri"
 )
+
+// nextRequestID 获得下一个requestID,协程安全
+func (sf *Client) nextRequestID() uint {
+	return uint(atomic.AddUint32(&sf.requestID, 1))
+}
+
+// Request 发送请求,API内部已实现json序列化
+// uriService 唯一定位服务器或(topic)
+// requestID: 请求ID
+// method: 方法
+// params: 消息体Request的params
+func (sf *Client) Request(_uri string, requestID uint, method string, params interface{}) error {
+	out, err := json.Marshal(&Request{requestID, Version, params, method})
+	if err != nil {
+		return err
+	}
+	return sf.Publish(_uri, 1, out)
+}
+
+// Response 发送回复
+// uriService 唯一定位服务器或(topic)
+// responseID: 回复ID
+// code: 回复code
+// Data: 数据域
+// API内部已实现json序列化
+func (sf *Client) Response(_uri string, responseID uint, code int, data interface{}) error {
+	out, err := json.Marshal(&Response{ID: responseID, Code: code, Data: data})
+	if err != nil {
+		return err
+	}
+	return sf.Publish(_uri, 1, out)
+}
 
 // SubscribeAllTopic 对某个设备类型订阅相关所有主题
 func (sf *Client) SubscribeAllTopic(productKey, deviceName string, isSub bool) error {

@@ -82,7 +82,7 @@ func (sf *Client) ExtCombineLogin(pk, dn string) (*Token, error) {
 	if err != nil {
 		return nil, err
 	}
-	id := sf.RequestID()
+	id := sf.nextRequestID()
 	req, err := json.Marshal(&GwCombineLoginRequest{
 		id,
 		GwCombineLoginParams{
@@ -133,7 +133,7 @@ type GwCombineBatchLogoutRequest struct {
 // request:   /ext/session/{productKey}/{deviceName}/combine/logout
 // response:  /ext/session/{productKey}/{deviceName}/combine/logout_reply
 func (sf *Client) ExtCombineLogout(pk, dn string) (*Token, error) {
-	id := sf.RequestID()
+	id := sf.nextRequestID()
 	req, err := json.Marshal(&GwCombineLogoutRequest{
 		id,
 		infra.MetaPair{ProductKey: pk, DeviceName: dn},
