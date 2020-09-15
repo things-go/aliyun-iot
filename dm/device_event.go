@@ -15,29 +15,17 @@ func (sf *Client) ThingEventPropertyPost(pk, dn string, params interface{}) (*To
 	if sf.hasRawModel {
 		return nil, ErrNotSupportFeature
 	}
-
-	id := sf.nextRequestID()
 	_uri := uri.URI(uri.SysPrefix, uri.ThingEventPropertyPost, pk, dn)
-	err := sf.Request(_uri, id, infra.MethodEventPropertyPost, params)
-	if err != nil {
-		return nil, err
-	}
-	sf.log.Debugf("thing <event>: property post, @%d", id)
-	return sf.putPending(id), nil
+	return sf.SendRequest(_uri, infra.MethodEventPropertyPost, params)
 }
 
 // ThingEventPost 事件上传
 // request:  /sys/{productKey}/{deviceName}/thing/event/{tsl.event.identifier}/post
 // response: /sys/{productKey}/{deviceName}/thing/event/{tsl.event.identifier}/post_reply
 func (sf *Client) ThingEventPost(pk, dn, eventID string, params interface{}) (*Token, error) {
-	id := sf.nextRequestID()
 	_uri := uri.URI(uri.SysPrefix, uri.ThingEventPost, pk, dn, eventID)
-	err := sf.Request(_uri, id, fmt.Sprintf(infra.MethodEventFormatPost, eventID), params)
-	if err != nil {
-		return nil, err
-	}
-	sf.log.Debugf("thing <event>: %s post, @%d", eventID, id)
-	return sf.putPending(id), nil
+	method := fmt.Sprintf(infra.MethodEventFormatPost, eventID)
+	return sf.SendRequest(_uri, method, params)
 }
 
 // ThingEventPropertyPackPost 网关批量上报数据
@@ -48,28 +36,16 @@ func (sf *Client) ThingEventPropertyPackPost(params interface{}) (*Token, error)
 	if !sf.isGateway {
 		return nil, ErrNotSupportFeature
 	}
-	id := sf.nextRequestID()
 	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingEventPropertyPackPost)
-	err := sf.Request(_uri, id, infra.MethodEventPropertyPackPost, params)
-	if err != nil {
-		return nil, err
-	}
-	sf.log.Debugf("thing <event>: property pack post, @%d", id)
-	return sf.putPending(id), nil
+	return sf.SendRequest(_uri, infra.MethodEventPropertyPackPost, params)
 }
 
 // ThingEventPropertyHistoryPost 直连设备仅能上报自己的物模型历史数据,网关设备可以上报其子设备的物模型历史数据
 // request： /sys/{productKey}/{deviceName}/thing/event/property/history/post
 // response：/sys/{productKey}/{deviceName}/thing/event/property/history/post_reply
 func (sf *Client) ThingEventPropertyHistoryPost(params interface{}) (*Token, error) {
-	id := sf.nextRequestID()
 	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingEventPropertyHistoryPost)
-	err := sf.Request(_uri, id, infra.MethodEventPropertyHistoryPost, params)
-	if err != nil {
-		return nil, err
-	}
-	sf.log.Debugf("thing <event>: property history post, @%d", id)
-	return sf.putPending(id), nil
+	return sf.SendRequest(_uri, infra.MethodEventPropertyHistoryPost, params)
 }
 
 // ProcThingEventPostReply 处理ThingEvent XXX上行的应答

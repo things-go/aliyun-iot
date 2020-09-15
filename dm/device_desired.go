@@ -17,13 +17,8 @@ func (sf *Client) ThingDesiredPropertyGet(pk, dn string, params []string) (*Toke
 		return nil, ErrNotSupportFeature
 	}
 
-	id := sf.nextRequestID()
 	_uri := uri.URI(uri.SysPrefix, uri.ThingDesiredPropertyGet, pk, dn)
-	if err := sf.Request(_uri, id, infra.MethodDesiredPropertyGet, params); err != nil {
-		return nil, err
-	}
-	sf.log.Debugf("thing <desired>: get, @%d", id)
-	return sf.putPending(id), nil
+	return sf.SendRequest(_uri, infra.MethodDesiredPropertyGet, params)
 }
 
 // ThingDesiredPropertyDelete 清空期望属性值
@@ -34,14 +29,8 @@ func (sf *Client) ThingDesiredPropertyDelete(pk, dn string, params interface{}) 
 		return nil, ErrNotSupportFeature
 	}
 
-	id := sf.nextRequestID()
 	_uri := uri.URI(uri.SysPrefix, uri.ThingDesiredPropertyDelete, pk, dn)
-	err := sf.Request(_uri, id, infra.MethodDesiredPropertyDelete, params)
-	if err != nil {
-		return nil, err
-	}
-	sf.log.Debugf("thing <desired>: delete, @%d", id)
-	return sf.putPending(id), nil
+	return sf.SendRequest(_uri, infra.MethodDesiredPropertyDelete, params)
 }
 
 // ProcThingDesiredPropertyGetReply 处理获取期望属性值的应答

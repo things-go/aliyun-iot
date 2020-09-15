@@ -76,14 +76,8 @@ func (sf *Client) ThingOtaFirmwareGet(pk, dn, module string) (*Token, error) {
 	if !sf.hasOTA {
 		return nil, ErrNotSupportFeature
 	}
-	id := sf.nextRequestID()
 	_uri := uri.URI(uri.SysPrefix, uri.ThingOtaFirmwareGet, pk, dn)
-	err := sf.Request(_uri, id, infra.MethodOtaFirmwareGet, map[string]interface{}{"module": module})
-	if err != nil {
-		return nil, err
-	}
-	sf.log.Debugf("thing <ota>: firmware get, @%d", id)
-	return sf.putPending(id), nil
+	return sf.SendRequest(_uri, infra.MethodOtaFirmwareGet, map[string]interface{}{"module": module})
 }
 
 type OtaFirmwareData struct {

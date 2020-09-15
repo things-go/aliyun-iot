@@ -28,16 +28,10 @@ type GwSubRegisterResponse struct {
 // request:   /sys/{productKey}/{deviceName}/thing/sub/register
 // response:  /sys/{productKey}/{deviceName}/thing/sub/register_reply
 func (sf *Client) ThingGwSubRegister(pk, dn string) (*Token, error) {
-	id := sf.nextRequestID()
 	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingSubRegister)
-	err := sf.Request(_uri, id, infra.MethodSubDevRegister,
-		[]infra.MetaPair{{ProductKey: pk, DeviceName: dn}})
-	if err != nil {
-		return nil, err
-	}
-
-	sf.log.Debugf("upstream thing GW <sub>: register @%d", id)
-	return sf.putPending(id), nil
+	return sf.SendRequest(_uri, infra.MethodSubDevRegister, []infra.MetaPair{
+		{ProductKey: pk, DeviceName: dn},
+	})
 }
 
 // ProcThingGwSubRegisterReply 子设备动态注册处理

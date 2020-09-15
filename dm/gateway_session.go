@@ -44,26 +44,20 @@ type GwCombineBatchLoginRequest struct {
 	} `json:"params"`
 }
 
-// GwCombineLoginData 子设备上线应答数据域
-type GwCombineLoginData struct {
-	ProductKey string `json:"productKey"` // 子设备的产品key
-	DeviceName string `json:"deviceName"` // 子设备的设备名称
-}
-
 // GwCombineLoginResponse 子设备上线回复
 type GwCombineLoginResponse struct {
-	ID      uint               `json:"id,string"`
-	Code    int                `json:"code"`
-	Data    GwCombineLoginData `json:"data"`
-	Message string             `json:"message,omitempty"`
+	ID      uint           `json:"id,string"`
+	Code    int            `json:"code"`
+	Data    infra.MetaPair `json:"data"`
+	Message string         `json:"message,omitempty"`
 }
 
 // GwCombineBatchLoginResponse 子设备批量上线回复
 type GwCombineBatchLoginResponse struct {
-	ID      uint                 `json:"id,string"`
-	Code    int                  `json:"code"`
-	Data    []GwCombineLoginData `json:"data"`
-	Message string               `json:"message,omitempty"`
+	ID      uint             `json:"id,string"`
+	Code    int              `json:"code"`
+	Data    []infra.MetaPair `json:"data"`
+	Message string           `json:"message,omitempty"`
 }
 
 // ExtCombineLogin 子设备上线
@@ -98,12 +92,12 @@ func (sf *Client) ExtCombineLogin(pk, dn string) (*Token, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = sf.Publish(sf.GatewayURI(uri.ExtSessionPrefix, uri.CombineLogin), 0, req)
+	_uri := sf.GatewayURI(uri.ExtSessionPrefix, uri.CombineLogin)
+	err = sf.Publish(_uri, 0, req)
 	if err != nil {
 		return nil, err
 	}
-
-	sf.log.Debugf("upstream Ext GW <sub>: login @%d", id)
+	sf.log.Debugf("Ext GW <sub>: login @%d", id)
 	return sf.putPending(id), nil
 }
 
@@ -142,11 +136,12 @@ func (sf *Client) ExtCombineLogout(pk, dn string) (*Token, error) {
 		return nil, err
 	}
 
-	err = sf.Publish(sf.GatewayURI(uri.ExtSessionPrefix, uri.CombineLogout), 0, req)
+	_uri := sf.GatewayURI(uri.ExtSessionPrefix, uri.CombineLogout)
+	err = sf.Publish(_uri, 0, req)
 	if err != nil {
 		return nil, err
 	}
-	sf.log.Debugf("upstream Ext GW <sub>: logout @%d", id)
+	sf.log.Debugf("Ext GW <sub>: logout @%d", id)
 	return sf.putPending(id), nil
 }
 

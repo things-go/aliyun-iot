@@ -12,31 +12,17 @@ import (
 // request:   /sys/{productKey}/{deviceName}/thing/dsltemplate/get
 // response:  /sys/{productKey}/{deviceName}/thing/dsltemplate/get_reply
 func (sf *Client) ThingDsltemplateGet(pk, dn string) (*Token, error) {
-	id := sf.nextRequestID()
 	_uri := uri.URI(uri.SysPrefix, uri.ThingDslTemplateGet, pk, dn)
-	err := sf.Request(_uri, id, infra.MethodDslTemplateGet, "{}")
-	if err != nil {
-		return nil, err
-	}
-
-	sf.log.Debugf("thing <dsl template>: get, @%d", id)
-	return sf.putPending(id), nil
+	return sf.SendRequest(_uri, infra.MethodDslTemplateGet, "{}")
 }
 
 // ThingDynamictslGet 获取动态tsl
 func (sf *Client) ThingDynamictslGet(pk, dn string) (*Token, error) {
-	id := sf.nextRequestID()
 	_uri := uri.URI(uri.SysPrefix, uri.ThingDynamicTslGet, pk, dn)
-	err := sf.Request(_uri, id, infra.MethodDynamicTslGet, map[string]interface{}{
+	return sf.SendRequest(_uri, infra.MethodDynamicTslGet, map[string]interface{}{
 		"nodes":      []string{"type", "identifier"},
 		"addDefault": false,
 	})
-	if err != nil {
-		return nil, err
-	}
-
-	sf.log.Debugf("thing <dynamic tsl>: get, @%d", id)
-	return sf.putPending(id), nil
 }
 
 // ProcThingDsltemplateGetReply 处理dsltemplate获取的应答

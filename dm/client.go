@@ -13,7 +13,7 @@ func (sf *Client) nextRequestID() uint {
 }
 
 // Request 发送请求,API内部已实现json序列化
-// uriService 唯一定位服务器或(topic)
+// _uri 唯一定位服务器或(topic)
 // requestID: 请求ID
 // method: 方法
 // params: 消息体Request的params
@@ -25,8 +25,21 @@ func (sf *Client) Request(_uri string, requestID uint, method string, params int
 	return sf.Publish(_uri, 1, out)
 }
 
+// SendRequest 发送请求,API内部已实现json序列化,requestID内部生成
+// _uri 唯一定位服务器或(topic)
+// method: 方法
+// params: 消息体Request的params
+func (sf *Client) SendRequest(_uri, method string, params interface{}) (*Token, error) {
+	id := sf.nextRequestID()
+	sf.log.Debugf("%s @%d", method, id)
+	if err := sf.Request(_uri, id, method, params); err != nil {
+		return nil, err
+	}
+	return sf.putPending(id), nil
+}
+
 // Response 发送回复
-// uriService 唯一定位服务器或(topic)
+// _uri 唯一定位服务器或(topic)
 // responseID: 回复ID
 // code: 回复code
 // Data: 数据域

@@ -36,9 +36,8 @@ func (sf *Client) ThingGwTopoAdd(pk, dn string) (*Token, error) {
 	if err != nil {
 		return nil, err
 	}
-	id := sf.nextRequestID()
 	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingTopoAdd)
-	err = sf.Request(_uri, id, infra.MethodTopoAdd, []GwTopoAddParams{
+	return sf.SendRequest(_uri, infra.MethodTopoAdd, []GwTopoAddParams{
 		{
 			pk,
 			dn,
@@ -48,33 +47,13 @@ func (sf *Client) ThingGwTopoAdd(pk, dn string) (*Token, error) {
 			signs,
 		},
 	})
-	if err != nil {
-		return nil, err
-	}
-
-	sf.log.Debugf("upstream GW thing <topo>: add @%d", id)
-	return sf.putPending(id), nil
-}
-
-// GwTopoDeleteParams 删除网关与子设备的拓扑关系参数域
-type GwTopoDeleteParams struct {
-	ProductKey string `json:"productKey"`
-	DeviceName string `json:"deviceName"`
 }
 
 // ThingGwTopoDelete 删除网关与子设备的拓扑关系
 func (sf *Client) ThingGwTopoDelete(pk, dn string) (*Token, error) {
-	id := sf.nextRequestID()
 	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingTopoDelete)
-	err := sf.Request(_uri, id, infra.MethodTopoDelete,
-		[]GwTopoDeleteParams{
-			{pk, dn},
-		})
-	if err != nil {
-		return nil, err
-	}
-	sf.log.Debugf("upstream GW thing <topo>: delete @%d", id)
-	return sf.putPending(id), nil
+	return sf.SendRequest(_uri, infra.MethodTopoDelete,
+		[]infra.MetaPair{{ProductKey: pk, DeviceName: dn}})
 }
 
 // GwTopoGetResponse 获取网关和子设备的拓扑关系应答
@@ -92,31 +71,20 @@ func (sf *Client) ThingGwTopoGet() (*Token, error) {
 	if !sf.isGateway {
 		return nil, ErrNotSupportFeature
 	}
-	id := sf.nextRequestID()
 	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingTopoGet)
-	if err := sf.Request(_uri, id, infra.MethodTopoGet, "{}"); err != nil {
-		return nil, err
-	}
-	sf.log.Debugf("upstream GW thing <topo>: Get @%d", id)
-	return sf.putPending(id), nil
+	return sf.SendRequest(_uri, infra.MethodTopoGet, "{}")
 }
 
 // ThingGwListFound 发现设备列表上报
 // 场景,网关可以发现新接入的子设备,发现后,需将新接入的子设备的信息上报云端,
 // 然后转到第三方应用,选择哪些子设备可以接入该网关
 func (sf *Client) ThingGwListFound(pk, dn string) (*Token, error) {
-	id := sf.nextRequestID()
 	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingListFound)
-	err := sf.Request(_uri, id, infra.MethodListFound,
+	return sf.SendRequest(_uri, infra.MethodListFound,
 		[]infra.MetaPair{
 			{ProductKey: pk, DeviceName: dn},
-		})
-	if err != nil {
-		return nil, err
-	}
-	sf.putPending(id)
-	sf.log.Debugf("upstream GW thing <list>: found @%d", id)
-	return sf.putPending(id), nil
+		},
+	)
 }
 
 // ProcThingGwTopoAddReply 处理网络拓扑添加
