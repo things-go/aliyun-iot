@@ -23,25 +23,16 @@ type OtaFirmwareVersionParams struct {
 
 // OtaInform 上报固件版本
 // request：/ota/device/inform/${YourProductKey}/${YourDeviceName}。
-func (sf *Client) OtaInform(devID int, params interface{}) error {
+func (sf *Client) OtaInform(pk, dn string, params interface{}) error {
 	if !sf.hasOTA {
 		return ErrNotSupportFeature
 	}
-	if devID < 0 {
-		return ErrInvalidParameter
-	}
-
-	node, err := sf.SearchNode(devID)
-	if err != nil {
-		return err
-	}
-
 	id := sf.RequestID()
 	req, err := json.Marshal(OtaRequest{id, params})
 	if err != nil {
 		return err
 	}
-	_uri := uri.URI(uri.OtaDeviceInformPrefix, "", node.ProductKey(), node.DeviceName())
+	_uri := uri.URI(uri.OtaDeviceInformPrefix, "", pk, dn)
 	sf.log.Debugf("ota <inform>: @%d", id)
 	return sf.Publish(_uri, 1, req)
 }
@@ -63,26 +54,17 @@ type OtaProgressParams struct {
 
 // OtaProgress 固件升级过程中，设备可以通过这个Topic上报固件升级的进度百分比
 // request：/ota/device/progress/${YourProductKey}/${YourDeviceName
-func (sf *Client) OtaProgress(devID int, params interface{}) error {
+func (sf *Client) OtaProgress(pk, dn string, params interface{}) error {
 	if !sf.hasOTA {
 		return ErrNotSupportFeature
 	}
-	if devID < 0 {
-		return ErrInvalidParameter
-	}
-
-	node, err := sf.SearchNode(devID)
-	if err != nil {
-		return err
-	}
-
 	id := sf.RequestID()
 	req, err := json.Marshal(OtaRequest{id, params})
 	if err != nil {
 		return err
 	}
 	sf.log.Debugf("ota <process>: @%d", id)
-	_uri := uri.URI(uri.OtaDeviceProcessPrefix, "", node.ProductKey(), node.DeviceName())
+	_uri := uri.URI(uri.OtaDeviceProcessPrefix, "", pk, dn)
 	return sf.Publish(_uri, 1, req)
 }
 
@@ -90,21 +72,13 @@ func (sf *Client) OtaProgress(devID int, params interface{}) error {
 // module: 不指定则表示请求默认（default）模块的固件信息
 // request： /sys/{productKey}/{deviceName}/thing/ota/firmware/get
 // response：/sys/{productKey}/{deviceName}/thing/ota/firmware/get_reply
-func (sf *Client) ThingOtaFirmwareGet(devID int, module string) (*Token, error) {
+func (sf *Client) ThingOtaFirmwareGet(pk, dn, module string) (*Token, error) {
 	if !sf.hasOTA {
 		return nil, ErrNotSupportFeature
 	}
-	if devID < 0 {
-		return nil, ErrInvalidParameter
-	}
-
-	node, err := sf.SearchNode(devID)
-	if err != nil {
-		return nil, err
-	}
 	id := sf.RequestID()
-	_uri := uri.URI(uri.SysPrefix, uri.ThingOtaFirmwareGet, node.ProductKey(), node.DeviceName())
-	err = sf.SendRequest(_uri, id, infra.MethodOtaFirmwareGet, map[string]interface{}{"module": module})
+	_uri := uri.URI(uri.SysPrefix, uri.ThingOtaFirmwareGet, pk, dn)
+	err := sf.SendRequest(_uri, id, infra.MethodOtaFirmwareGet, map[string]interface{}{"module": module})
 	if err != nil {
 		return nil, err
 	}

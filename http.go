@@ -12,13 +12,13 @@ type HTTPClient struct {
 }
 
 // NewWithHTTP 新建HTTP客户端
-func NewWithHTTP(meta infra.MetaInfo) *HTTPClient {
+func NewWithHTTP(meta infra.MetaTriad) *HTTPClient {
 	return &HTTPClient{
 		dm.New(meta, ahttp.New(meta), dm.WithWork(dm.WorkOnHTTP)),
 	}
 }
 
-// UnderlyingClient 底层客户端
+// Underlying 底层客户端
 func (sf *HTTPClient) Underlying() *ahttp.Client {
 	return sf.Conn.(*ahttp.Client)
 }

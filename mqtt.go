@@ -18,7 +18,7 @@ type MQTTClient struct {
 var _ dm.Conn = (*MQTTClient)(nil)
 
 // NewWithMQTT 新建MQTTClient
-func NewWithMQTT(meta infra.MetaInfo, c mqtt.Client, opts ...dm.Option) *MQTTClient {
+func NewWithMQTT(meta infra.MetaTriad, c mqtt.Client, opts ...dm.Option) *MQTTClient {
 	m := dm.New(meta, nil, append(opts, dm.WithWork(dm.WorkOnMQTT))...)
 	cli := &MQTTClient{
 		c,
@@ -28,7 +28,7 @@ func NewWithMQTT(meta infra.MetaInfo, c mqtt.Client, opts ...dm.Option) *MQTTCli
 	return cli
 }
 
-// UnderlyingClient 获得底层的Client
+// Underlying 获得底层的Client
 func (sf *MQTTClient) Underlying() mqtt.Client { return sf.c }
 
 // Publish 实现dm.Conn接口

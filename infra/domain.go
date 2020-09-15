@@ -36,11 +36,3 @@ type CloudRegionDomain struct {
 	Region       CloudRegion
 	CustomDomain string // address:port,当Region为CloudRegionCustom需要定义此字段,其它无效
 }
-
-// MetaInfo 产品与设备三元组
-type MetaInfo struct {
-	ProductKey    string
-	ProductSecret string
-	DeviceName    string
-	DeviceSecret  string
-}

@@ -40,7 +40,7 @@ func main() {
 		0x53, 0x51, 0x09, 0x51, 0x2b, 0x4e, 0x61, 0x43, 0x09, 0x2a, 0x14, 0x4d,
 		0x42, 0x1f, 0x47, 0x38, 0x52, 0x47}
 
-	meta := mock.MetaInfo()
+	meta := mock.MetaTetrad()
 	signs, err :=
 		sign.Generate(&meta, infra.CloudRegionDomain{Region: infra.CloudRegionShangHai})
 	if err != nil {
@@ -63,7 +63,7 @@ func main() {
 			})
 
 	dmClient := aiot.NewWithMQTT(
-		mock.MetaInfo(),
+		mock.MetaTetrad(),
 		mqtt.NewClient(opts),
 		dm.WithEnableModelRaw(),
 		dm.WithCallback(RawProc{}),

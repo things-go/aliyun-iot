@@ -17,7 +17,7 @@ const (
 func TestMQTTSign(t *testing.T) {
 	t.Run("MQTT sign almost all", func(t *testing.T) {
 		signout, err := Generate(
-			&infra.MetaInfo{
+			infra.MetaTriad{
 				ProductKey:   testProductKey,
 				DeviceName:   testDeviceName,
 				DeviceSecret: testDeviceSecret,
@@ -37,7 +37,7 @@ func TestMQTTSign(t *testing.T) {
 
 	t.Run("MQTT sign custom cloud region", func(t *testing.T) {
 		signout, err := Generate(
-			&infra.MetaInfo{
+			infra.MetaTriad{
 				ProductKey:   testProductKey,
 				DeviceName:   testDeviceName,
 				DeviceSecret: testDeviceSecret,
@@ -53,7 +53,7 @@ func TestMQTTSign(t *testing.T) {
 	})
 
 	t.Run("MQTT sign empty custom cloud region", func(t *testing.T) {
-		_, err := Generate(&infra.MetaInfo{
+		_, err := Generate(infra.MetaTriad{
 			ProductKey:   testProductKey,
 			DeviceName:   testDeviceName,
 			DeviceSecret: testDeviceSecret,

@@ -87,7 +87,7 @@ var SDKVersion = "sdk-golang-v0.0.1"
 // 默认hmacmd5签名加密
 // 默认sdk版本为 SDKVersion
 // TODO: 支持tls
-func Generate(meta *infra.MetaInfo, crd infra.CloudRegionDomain, opts ...Option) (*Sign, error) {
+func Generate(triad infra.MetaTriad, crd infra.CloudRegionDomain, opts ...Option) (*Sign, error) {
 	if crd.Region == infra.CloudRegionCustom && crd.CustomDomain == "" {
 		return nil, errors.New("invalid custom domain")
 	}
@@ -108,12 +108,12 @@ func Generate(meta *infra.MetaInfo, crd infra.CloudRegionDomain, opts ...Option)
 	}
 
 	// setup ClientID
-	clientID := meta.ProductKey + "." + meta.DeviceName
+	clientID := triad.ProductKey + "." + triad.DeviceName
 
 	signSource := fmt.Sprintf("clientId%sdeviceName%sproductKey%stimestamp%s",
-		clientID, meta.DeviceName, meta.ProductKey, fixedTimestamp)
+		clientID, triad.DeviceName, triad.ProductKey, fixedTimestamp)
 	// setup Password
-	h := hmac.New(ms.hfc, []byte(meta.DeviceSecret))
+	h := hmac.New(ms.hfc, []byte(triad.DeviceSecret))
 	if _, err := h.Write([]byte(signSource)); err != nil {
 		return nil, err
 	}
@@ -123,7 +123,7 @@ func Generate(meta *infra.MetaInfo, crd infra.CloudRegionDomain, opts ...Option)
 		Port:      1883,
 		ClientID:  clientID,
 		extParams: generateExtParam(ms.extParams),
-		UserName:  meta.DeviceName + "&" + meta.ProductKey,
+		UserName:  triad.DeviceName + "&" + triad.ProductKey,
 		Password:  pwd,
 	}
 
@@ -132,7 +132,7 @@ func Generate(meta *infra.MetaInfo, crd infra.CloudRegionDomain, opts ...Option)
 		domain = infra.MQTTCloudDomain[crd.Region]
 	}
 	// setup HostName
-	info.HostName = meta.ProductKey + "." + domain
+	info.HostName = triad.ProductKey + "." + domain
 	// setup Port
 	if ms.enableTLS {
 		info.Port = 443

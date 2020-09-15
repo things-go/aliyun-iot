@@ -44,18 +44,10 @@ type ConfigPushRequest struct {
 // ThingConfigGet 获取配置参数
 // request:  /sys/{productKey}/{deviceName}/thing/config/get
 // response: /sys/{productKey}/{deviceName}/thing/config/get_reply
-func (sf *Client) ThingConfigGet(devID int) (*Token, error) {
-	if devID < 0 {
-		return nil, ErrInvalidParameter
-	}
-	node, err := sf.SearchNode(devID)
-	if err != nil {
-		return nil, err
-	}
-
-	_uri := uri.URI(uri.SysPrefix, uri.ThingConfigGet, node.ProductKey(), node.DeviceName())
+func (sf *Client) ThingConfigGet(pk, dn string) (*Token, error) {
+	_uri := uri.URI(uri.SysPrefix, uri.ThingConfigGet, pk, dn)
 	id := sf.RequestID()
-	err = sf.SendRequest(_uri, id, infra.MethodConfigGet, ConfigGetParams{"product", "file"})
+	err := sf.SendRequest(_uri, id, infra.MethodConfigGet, ConfigGetParams{"product", "file"})
 	if err != nil {
 		return nil, err
 	}

@@ -11,18 +11,10 @@ import (
 // see https://help.aliyun.com/document_detail/89305.html?spm=a2c4g.11186623.6.672.5d3d70374hpPcx
 // request:   /sys/{productKey}/{deviceName}/thing/dsltemplate/get
 // response:  /sys/{productKey}/{deviceName}/thing/dsltemplate/get_reply
-func (sf *Client) ThingDsltemplateGet(devID int) (*Token, error) {
-	if devID < 0 {
-		return nil, ErrInvalidParameter
-	}
-	node, err := sf.SearchNode(devID)
-	if err != nil {
-		return nil, err
-	}
-
+func (sf *Client) ThingDsltemplateGet(pk, dn string) (*Token, error) {
 	id := sf.RequestID()
-	_uri := uri.URI(uri.SysPrefix, uri.ThingDslTemplateGet, node.ProductKey(), node.DeviceName())
-	err = sf.SendRequest(_uri, id, infra.MethodDslTemplateGet, "{}")
+	_uri := uri.URI(uri.SysPrefix, uri.ThingDslTemplateGet, pk, dn)
+	err := sf.SendRequest(_uri, id, infra.MethodDslTemplateGet, "{}")
 	if err != nil {
 		return nil, err
 	}
@@ -32,18 +24,10 @@ func (sf *Client) ThingDsltemplateGet(devID int) (*Token, error) {
 }
 
 // ThingDynamictslGet 获取动态tsl
-func (sf *Client) ThingDynamictslGet(devID int) (*Token, error) {
-	if devID < 0 {
-		return nil, ErrInvalidParameter
-	}
-	node, err := sf.SearchNode(devID)
-	if err != nil {
-		return nil, err
-	}
-
+func (sf *Client) ThingDynamictslGet(pk, dn string) (*Token, error) {
 	id := sf.RequestID()
-	_uri := uri.URI(uri.SysPrefix, uri.ThingDynamicTslGet, node.ProductKey(), node.DeviceName())
-	err = sf.SendRequest(_uri, id, infra.MethodDynamicTslGet, map[string]interface{}{
+	_uri := uri.URI(uri.SysPrefix, uri.ThingDynamicTslGet, pk, dn)
+	err := sf.SendRequest(_uri, id, infra.MethodDynamicTslGet, map[string]interface{}{
 		"nodes":      []string{"type", "identifier"},
 		"addDefault": false,
 	})

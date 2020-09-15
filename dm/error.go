@@ -12,4 +12,6 @@ var (
 	ErrNotSupportFeature = errors.New("not support feature")
 	ErrWaitTimeout       = errors.New("wait timeout")
 	ErrEntryClosed       = errors.New("entry has closed")
+	ErrDeviceHasExist    = errors.New("device has exist")
+	ErrNotPermit         = errors.New("not permit")
 )

@@ -69,7 +69,7 @@ type Response struct {
 // crd: 指定注册的云端,地址: [https://, http://]URL/auth/register/device
 // signMethods: 可选指定签名算法hmacmd5,hmacsha1,hmacsha256(默认)
 // NOTE: 设备联网前，需要在物联网平台预注册设备DeviceName，建议采用设备的MAC地址、IMEI、SN码等作为DeviceName
-func (sf *Client) RegisterCloud(meta *infra.MetaInfo, crd infra.CloudRegionDomain, signMethods ...string) error {
+func (sf *Client) RegisterCloud(meta *infra.MetaTetrad, crd infra.CloudRegionDomain, signMethods ...string) error {
 	var domain string
 
 	if meta == nil || meta.ProductKey == "" || meta.ProductSecret == "" || meta.DeviceName == "" {
@@ -118,7 +118,7 @@ func (sf *Client) RegisterCloud(meta *infra.MetaInfo, crd infra.CloudRegionDomai
 	return nil
 }
 
-func requestBody(meta *infra.MetaInfo, signMethods ...string) (string, error) {
+func requestBody(meta *infra.MetaTetrad, signMethods ...string) (string, error) {
 	signMd := append(signMethods, hmacSHA256)[0]
 	if !(signMd == hmacMD5 || signMd == hmacSHA1 || (signMd == hmacSHA256)) {
 		signMd = hmacSHA256 // 非法签名使用默认签名方法
@@ -135,7 +135,7 @@ func requestBody(meta *infra.MetaInfo, signMethods ...string) (string, error) {
 }
 
 // calcSign 计算动态签名,以productKey为key
-func calcSign(signMethod, random string, meta *infra.MetaInfo) (string, error) {
+func calcSign(signMethod, random string, meta *infra.MetaTetrad) (string, error) {
 	var h hash.Hash
 
 	switch signMethod {

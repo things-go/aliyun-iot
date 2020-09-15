@@ -1,10 +1,8 @@
 // Package dm imp aliyun dm
-//go:generate stringer -type=MsgType
 package dm
 
 import (
 	"encoding/json"
-	"fmt"
 	"math/rand"
 	"sync/atomic"
 	"time"
@@ -55,7 +53,7 @@ type ResponseRawData struct {
 // Client 客户端
 type Client struct {
 	requestID uint32
-	infra.MetaInfo
+	tetrad    infra.MetaTriad
 
 	cacheExpiration      time.Duration
 	cacheCleanupInterval time.Duration
@@ -83,17 +81,17 @@ type Client struct {
 var Version = "1.0"
 
 // New 创建一个物管理客户端
-func New(meta infra.MetaInfo, conn Conn, opts ...Option) *Client {
+func New(meta infra.MetaTriad, conn Conn, opts ...Option) *Client {
 	c := &Client{
 		requestID: rand.Uint32(),
-		MetaInfo:  meta,
+		tetrad:    meta,
 
 		workOnWho: WorkOnMQTT,
 
 		cacheExpiration:      DefaultCacheExpiration,
 		cacheCleanupInterval: DefaultCacheCleanupInterval,
 
-		DevMgr: NewDevMgr(),
+		DevMgr: NewDevMgr(meta),
 		Conn:   conn,
 		cb:     NopCb{},
 		gwCb:   NopGwCb{},
@@ -106,19 +104,15 @@ func New(meta infra.MetaInfo, conn Conn, opts ...Option) *Client {
 		c.msgCache = cache.New(c.cacheExpiration, c.cacheCleanupInterval)
 	}
 
-	if err := c.DevMgr.insert(DevNodeLocal, DevTypeSingle, c.MetaInfo); err != nil {
-		panic(fmt.Sprintf("device local duplicate,cause: %+v", err))
-	}
-
 	return c
 }
 
 // NewSubDevice 创建一个子设备
-func (sf *Client) NewSubDevice(meta infra.MetaInfo) (int, error) {
+func (sf *Client) NewSubDevice(meta infra.MetaTetrad) error {
 	if sf.isGateway {
-		return sf.Create(DevTypeSubDev, meta)
+		return sf.Create(meta)
 	}
-	return 0, ErrNotSupportFeature
+	return ErrNotSupportFeature
 }
 
 // RequestID 获得下一个requestID,协程安全
@@ -155,37 +149,28 @@ func (sf *Client) SendResponse(uriService string, responseID uint, code int, dat
 
 // Connect 将订阅所有相关主题,主题有config配置
 func (sf *Client) Connect() error {
-	var devType DevType = DevTypeSingle
-
-	if sf.isGateway {
-		devType = DevTypeGateway
-	}
-	return sf.SubscribeAllTopic(devType, sf.ProductKey, sf.DeviceName)
+	return sf.SubscribeAllTopic(sf.tetrad.ProductKey, sf.tetrad.DeviceName, false)
 }
 
 // SubDeviceConnect 子设备连接注册并添加到网关拓扑关系
-func (sf *Client) SubDeviceConnect(devID int) error {
-	if devID < 0 {
-		return ErrInvalidParameter
-	}
-
-	node, err := sf.SearchNode(devID)
+func (sf *Client) SubDeviceConnect(pk, dn string) error {
+	node, err := sf.SearchDevNode(pk, dn)
 	if err != nil {
 		return err
 	}
 	if node.DeviceSecret() == "" { // 需要注册
 		// 子设备注册
-		if err := sf.LinKitGwSubRegister(devID); err != nil {
+		if err := sf.LinKitGwSubRegister(pk, dn); err != nil {
 			return err
 		}
 	}
 
 	// 子设备添加到拓扑
-	return sf.LinkKitGwTopoAdd(devID)
+	return sf.LinkKitGwTopoAdd(pk, dn)
 }
 
-func (sf *Client) LinKitGwSubRegister(devID int) error {
-	entry, err := sf.ThingGwSubRegister(devID)
+func (sf *Client) LinKitGwSubRegister(pk, dn string) error {
+	entry, err := sf.ThingGwSubRegister(pk, dn)
 	if err != nil {
 		return err
 	}
@@ -193,8 +178,8 @@ func (sf *Client) LinKitGwSubRegister(devID int) error {
 	return err
 }
 
-func (sf *Client) LinkKitGwTopoAdd(devID int) error {
-	entry, err := sf.ThingGwTopoAdd(devID)
+func (sf *Client) LinkKitGwTopoAdd(pk, dn string) error {
+	entry, err := sf.ThingGwTopoAdd(pk, dn)
 	if err != nil {
 		return err
 	}
@@ -203,11 +188,11 @@ func (sf *Client) LinkKitGwTopoAdd(devID int) error {
 }
 
 // LinkKitGwTopoDelete 删除网关与子设备的拓扑关系
-func (sf *Client) LinkKitGwTopoDelete(devID int) error {
+func (sf *Client) LinkKitGwTopoDelete(pk, dn string) error {
 	if !sf.isGateway {
 		return ErrNotSupportFeature
 	}
-	entry, err := sf.ThingGwTopoDelete(devID)
+	entry, err := sf.ThingGwTopoDelete(pk, dn)
 	if err != nil {
 		return err
 	}
@@ -215,11 +200,11 @@ func (sf *Client) LinkKitGwTopoDelete(devID int) error {
 	return err
 }
 
-func (sf *Client) LinkKitExtCombineLogin(devID int) error {
+func (sf *Client) LinkKitExtCombineLogin(pk, dn string) error {
 	if !sf.isGateway {
 		return ErrNotSupportFeature
 	}
-	entry, err := sf.ExtCombineLogin(devID)
+	entry, err := sf.ExtCombineLogin(pk, dn)
 	if err != nil {
 		return err
 	}
@@ -227,11 +212,11 @@ func (sf *Client) LinkKitExtCombineLogin(devID int) error {
 	return err
 }
 
-func (sf *Client) LinkKitExtCombineLogout(devID int) error {
+func (sf *Client) LinkKitExtCombineLogout(pk, dn string) error {
 	if !sf.isGateway {
 		return ErrNotSupportFeature
 	}
-	entry, err := sf.ExtCombineLogout(devID)
+	entry, err := sf.ExtCombineLogout(pk, dn)
 	if err != nil {
 		return err
 	}

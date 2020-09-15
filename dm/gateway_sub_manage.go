@@ -27,7 +27,7 @@ func ProcThingGwDisable(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 
-	if err = c.SetDevAvailByPkDN(pk, dn, false); err != nil {
+	if err = c.SetDevAvail(pk, dn, false); err != nil {
 		c.log.Warnf("<thing> disable failed, %+v", err)
 	}
 	if err = c.gwCb.ThingGwDisable(c, pk, dn); err != nil {
@@ -55,7 +55,7 @@ func ProcThingGwEnable(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 
-	if err = c.SetDevAvailByPkDN(pk, dn, true); err != nil {
+	if err = c.SetDevAvail(pk, dn, true); err != nil {
 		c.log.Warnf("<thing> enable failed, %+v", err)
 	}
 
@@ -83,7 +83,7 @@ func ProcThingGwDelete(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 
-	c.DeleteByPkDn(pk, dn)
+	c.Delete(pk, dn)
 	if err := c.gwCb.ThingGwDelete(c, pk, dn); err != nil {
 		c.log.Warnf("<thing> delete, ipc send Message failed, %+v", err)
 	}

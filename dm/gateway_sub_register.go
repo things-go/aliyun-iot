@@ -33,20 +33,12 @@ type GwSubRegisterResponse struct {
 // 以通过上行请求为子设备发起动态注册，返回成功注册的子设备的设备证书
 // request:   /sys/{productKey}/{deviceName}/thing/sub/register
 // response:  /sys/{productKey}/{deviceName}/thing/sub/register_reply
-func (sf *Client) ThingGwSubRegister(devID int) (*Token, error) {
-	if devID < 0 {
-		return nil, ErrInvalidParameter
-	}
-	node, err := sf.SearchNode(devID)
-	if err != nil {
-		return nil, err
-	}
-
+func (sf *Client) ThingGwSubRegister(pk, dn string) (*Token, error) {
 	id := sf.RequestID()
 	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingSubRegister)
-	err = sf.SendRequest(_uri, id, infra.MethodSubDevRegister,
+	err := sf.SendRequest(_uri, id, infra.MethodSubDevRegister,
 		[]GwSubRegisterParams{
-			{node.ProductKey(), node.DeviceName()},
+			{pk, dn},
 		})
 	if err != nil {
 		return nil, err
@@ -76,14 +68,8 @@ func ProcThingGwSubRegisterReply(c *Client, rawURI string, payload []byte) error
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	} else {
 		for _, v := range rsp.Data {
-			node, er := c.SearchNodeByPkDn(v.ProductKey, v.DeviceName)
-			if er != nil {
-				c.log.Warnf("downstream GW thing <sub>: register reply, %+v <%s - %s - %s>",
-					er, v.ProductKey, v.DeviceName, v.DeviceSecret)
-				continue
-			}
-			_ = c.SetDeviceSecret(node.ID(), v.DeviceSecret)
-			_ = c.SetDevStatus(node.ID(), DevStatusRegistered)
+			_ = c.SetDeviceSecret(v.ProductKey, v.DeviceName, v.DeviceSecret)
+			_ = c.SetDevStatus(v.ProductKey, v.DeviceName, DevStatusRegistered)
 		}
 	}
 	c.signalPending(Message{rsp.ID, nil, err})

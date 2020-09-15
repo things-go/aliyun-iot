@@ -11,21 +11,14 @@ import (
 // ThingEventPropertyPost 上传属性数据
 // request:  /sys/{productKey}/{deviceName}/thing/event/property/post
 // response: /sys/{productKey}/{deviceName}/thing/event/property/post_reply
-func (sf *Client) ThingEventPropertyPost(devID int, params interface{}) (*Token, error) {
+func (sf *Client) ThingEventPropertyPost(pk, dn string, params interface{}) (*Token, error) {
 	if sf.hasRawModel {
 		return nil, ErrNotSupportFeature
 	}
-	if devID < 0 {
-		return nil, ErrInvalidParameter
-	}
-	node, err := sf.SearchNode(devID)
-	if err != nil {
-		return nil, err
-	}
 
 	id := sf.RequestID()
-	_uri := uri.URI(uri.SysPrefix, uri.ThingEventPropertyPost, node.ProductKey(), node.DeviceName())
-	err = sf.SendRequest(_uri, id, infra.MethodEventPropertyPost, params)
+	_uri := uri.URI(uri.SysPrefix, uri.ThingEventPropertyPost, pk, dn)
+	err := sf.SendRequest(_uri, id, infra.MethodEventPropertyPost, params)
 	if err != nil {
 		return nil, err
 	}
@@ -36,18 +29,10 @@ func (sf *Client) ThingEventPropertyPost(devID int, params interface{}) (*Token,
 // ThingEventPost 事件上传
 // request:  /sys/{productKey}/{deviceName}/thing/event/{tsl.event.identifier}/post
 // response: /sys/{productKey}/{deviceName}/thing/event/{tsl.event.identifier}/post_reply
-func (sf *Client) ThingEventPost(devID int, eventID string, params interface{}) (*Token, error) {
-	if devID < 0 {
-		return nil, ErrInvalidParameter
-	}
-	node, err := sf.SearchNode(devID)
-	if err != nil {
-		return nil, err
-	}
-
+func (sf *Client) ThingEventPost(pk, dn, eventID string, params interface{}) (*Token, error) {
 	id := sf.RequestID()
-	_uri := uri.URI(uri.SysPrefix, uri.ThingEventPost, node.ProductKey(), node.DeviceName(), eventID)
-	err = sf.SendRequest(_uri, id, fmt.Sprintf(infra.MethodEventFormatPost, eventID), params)
+	_uri := uri.URI(uri.SysPrefix, uri.ThingEventPost, pk, dn, eventID)
+	err := sf.SendRequest(_uri, id, fmt.Sprintf(infra.MethodEventFormatPost, eventID), params)
 	if err != nil {
 		return nil, err
 	}

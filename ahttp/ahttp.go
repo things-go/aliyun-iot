@@ -66,7 +66,7 @@ type AuthResponse struct {
 
 // Client 客户端
 type Client struct {
-	meta infra.MetaInfo
+	triad infra.MetaTriad
 
 	endpoint   string
 	version    string
@@ -85,9 +85,9 @@ var _ dm.Conn = (*Client)(nil)
 // 默认加签算法: hmacmd5
 // 默认host: https://iot-as-http.cn-shanghai.aliyuncs.com
 // 默认使用 http.DefaultClient
-func New(meta infra.MetaInfo, opts ...Option) *Client {
+func New(meta infra.MetaTriad, opts ...Option) *Client {
 	c := &Client{
-		meta:       meta,
+		triad:      meta,
 		endpoint:   "https://iot-as-http.cn-shanghai.aliyuncs.com",
 		version:    "default",
 		signMethod: hmacmd5,
@@ -103,8 +103,8 @@ func New(meta infra.MetaInfo, opts ...Option) *Client {
 
 // 鉴权
 func (sf *Client) getToken() (string, error) {
-	if sf.meta.ProductKey == "" || sf.meta.DeviceName == "" || sf.meta.DeviceSecret == "" {
-		return "", errors.New("invalid device meta info")
+	if sf.triad.ProductKey == "" || sf.triad.DeviceName == "" || sf.triad.DeviceSecret == "" {
+		return "", errors.New("invalid device meta triad")
 	}
 
 	if token := sf.token.Load().(string); token != "" {
@@ -117,17 +117,17 @@ func (sf *Client) getToken() (string, error) {
 		if sf.signMethod == hmacsha1 {
 			method = algo.MethodSha1
 		}
-		clientID := sf.meta.ProductKey + "." + sf.meta.DeviceName
+		clientID := sf.triad.ProductKey + "." + sf.triad.DeviceName
 		timestamp := time.Now().Unix() * 1000
 		signSource := fmt.Sprintf("clientId%sdeviceName%sproductKey%stimestamp%d",
-			clientID, sf.meta.DeviceName, sf.meta.ProductKey, timestamp)
+			clientID, sf.triad.DeviceName, sf.triad.ProductKey, timestamp)
 		authReq := AuthRequest{
 			sf.version,
 			clientID,
 			sf.signMethod,
-			algo.Hmac(method, signSource, sf.meta.DeviceSecret),
-			sf.meta.ProductKey,
-			sf.meta.DeviceName,
+			algo.Hmac(method, signSource, sf.triad.DeviceSecret),
+			sf.triad.ProductKey,
+			sf.triad.DeviceName,
 			timestamp,
 		}
 

@@ -7,13 +7,12 @@ import (
 
 	aiot "github.com/thinkgos/aliyun-iot"
 	"github.com/thinkgos/aliyun-iot/_examples/mock"
-	"github.com/thinkgos/aliyun-iot/dm"
 )
 
 func main() {
-	dmClient := aiot.NewWithHTTP(mock.MetaInfo())
+	dmClient := aiot.NewWithHTTP(mock.MetaTriad)
 	for {
-		_, err := dmClient.ThingEventPropertyPost(dm.DevNodeLocal,
+		_, err := dmClient.ThingEventPropertyPost(mock.ProductKey, mock.DeviceName,
 			mock.Instance{
 				rand.Intn(200),
 				rand.Intn(100),

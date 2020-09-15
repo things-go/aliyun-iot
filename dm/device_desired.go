@@ -12,20 +12,13 @@ import (
 // ThingDesiredPropertyGet 获取期望属性值
 // request:  /sys/{productKey}/{deviceName}/thing/property/desired/get
 // response: /sys/{productKey}/{deviceName}/thing/property/desired/get_reply
-func (sf *Client) ThingDesiredPropertyGet(devID int, params []string) (*Token, error) {
+func (sf *Client) ThingDesiredPropertyGet(pk, dn string, params []string) (*Token, error) {
 	if !sf.hasDesired {
 		return nil, ErrNotSupportFeature
 	}
-	if devID < 0 {
-		return nil, ErrInvalidParameter
-	}
-	node, err := sf.SearchNode(devID)
-	if err != nil {
-		return nil, err
-	}
 
 	id := sf.RequestID()
-	_uri := uri.URI(uri.SysPrefix, uri.ThingDesiredPropertyGet, node.ProductKey(), node.DeviceName())
+	_uri := uri.URI(uri.SysPrefix, uri.ThingDesiredPropertyGet, pk, dn)
 	if err := sf.SendRequest(_uri, id, infra.MethodDesiredPropertyGet, params); err != nil {
 		return nil, err
 	}
@@ -36,21 +29,14 @@ func (sf *Client) ThingDesiredPropertyGet(devID int, params []string) (*Token, e
 // ThingDesiredPropertyDelete 清空期望属性值
 // request:  /sys/{productKey}/{deviceName}/thing/property/desired/delete
 // response: /sys/{productKey}/{deviceName}/thing/property/desired/delete_reply
-func (sf *Client) ThingDesiredPropertyDelete(devID int, params interface{}) (*Token, error) {
+func (sf *Client) ThingDesiredPropertyDelete(pk, dn string, params interface{}) (*Token, error) {
 	if !sf.hasDesired {
 		return nil, ErrNotSupportFeature
 	}
-	if devID < 0 {
-		return nil, ErrInvalidParameter
-	}
-	node, err := sf.SearchNode(devID)
-	if err != nil {
-		return nil, err
-	}
 
 	id := sf.RequestID()
-	_uri := uri.URI(uri.SysPrefix, uri.ThingDesiredPropertyDelete, node.ProductKey(), node.DeviceName())
-	err = sf.SendRequest(_uri, id, infra.MethodDesiredPropertyDelete, params)
+	_uri := uri.URI(uri.SysPrefix, uri.ThingDesiredPropertyDelete, pk, dn)
+	err := sf.SendRequest(_uri, id, infra.MethodDesiredPropertyDelete, params)
 	if err != nil {
 		return nil, err
 	}

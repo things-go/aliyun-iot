@@ -44,11 +44,7 @@ func ProcExtErrorResponse(c *Client, rawURI string, payload []byte) error {
 
 	pk, dn := rsp.Data.ProductKey, rsp.Data.DeviceName
 	if rsp.Code == infra.CodeSubDevSessionError {
-		node, err := c.SearchNodeByPkDn(pk, dn)
-		if err != nil {
-			return err
-		}
-		_, _ = c.ExtCombineLogin(node.ID())
+		_, _ = c.ExtCombineLogin(pk, dn)
 	}
 	return c.gwCb.ExtErrorResponse(c, err, pk, dn)
 }

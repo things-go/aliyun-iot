@@ -5,7 +5,7 @@ import (
 )
 
 // SubscribeAllTopic 对某个设备类型订阅相关所有主题
-func (sf *Client) SubscribeAllTopic(devType DevType, productKey, deviceName string) error {
+func (sf *Client) SubscribeAllTopic(productKey, deviceName string, isSub bool) error {
 	var err error
 	var _uri string
 
@@ -83,7 +83,7 @@ func (sf *Client) SubscribeAllTopic(devType DevType, productKey, deviceName stri
 	}
 
 	// ntp订阅, 只有网关和独立设备支持ntp
-	if sf.hasNTP && devType != DevTypeSubDev {
+	if sf.hasNTP && !isSub {
 		_uri = uri.URI(uri.ExtNtpPrefix, uri.NtpResponse, productKey, deviceName)
 		if err = sf.Subscribe(_uri, ProcExtNtpResponse); err != nil {
 			sf.log.Warnf(err.Error())
@@ -107,7 +107,7 @@ func (sf *Client) SubscribeAllTopic(devType DevType, productKey, deviceName stri
 	}
 
 	if sf.isGateway {
-		if devType == DevTypeGateway {
+		if !isSub {
 			// 网关批量上报数据
 			_uri = sf.GatewayURI(uri.SysPrefix, uri.ThingEventPropertyPackPostReply)
 			if err = sf.Subscribe(_uri, ProcThingEventPropertyPackPostReply); err != nil {
@@ -165,8 +165,7 @@ func (sf *Client) SubscribeAllTopic(devType DevType, productKey, deviceName stri
 			if err = sf.Subscribe(_uri, ProcExtCombineLoginoutReply); err != nil {
 				sf.log.Warnf(err.Error())
 			}
-		}
-		if devType == DevTypeSubDev {
+		} else {
 			// 子设备禁用,启用,删除
 			_uri = uri.URI(uri.SysPrefix, uri.ThingDisable, productKey, deviceName)
 			if err = sf.Subscribe(_uri, ProcThingGwDisable); err != nil {

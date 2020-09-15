@@ -9,19 +9,12 @@ import (
 // ThingModelUpRaw 上传透传数据
 // request: /sys/{productKey}/{deviceName}/thing/model/up_raw
 // response: /sys/{productKey}/{deviceName}/thing/model/up_raw_reply
-func (sf *Client) ThingModelUpRaw(devID int, payload interface{}) error {
+func (sf *Client) ThingModelUpRaw(pk, dn string, payload interface{}) error {
 	if !sf.hasRawModel {
 		return ErrNotSupportFeature
 	}
-	if devID < 0 {
-		return ErrInvalidParameter
-	}
-	node, err := sf.SearchNode(devID)
-	if err != nil {
-		return err
-	}
 	sf.log.Debugf("thing <model>: up raw")
-	_uri := uri.URI(uri.SysPrefix, uri.ThingModelUpRaw, node.ProductKey(), node.DeviceName())
+	_uri := uri.URI(uri.SysPrefix, uri.ThingModelUpRaw, pk, dn)
 	return sf.Publish(_uri, 1, payload)
 }
 

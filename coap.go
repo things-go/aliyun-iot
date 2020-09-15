@@ -51,13 +51,13 @@ type COAPClient struct {
 }
 
 // NewWithCOAP 新建MQTTClient
-func NewWithCOAP(meta infra.MetaInfo, c *coap.ClientConn, opts ...dm.Option) *COAPClient {
+func NewWithCOAP(meta infra.MetaTriad, c *coap.ClientConn, opts ...dm.Option) *COAPClient {
 	return &COAPClient{
 		dm.New(meta, &coapClient{c}, append(opts, dm.WithWork(dm.WorkOnCOAP))...),
 	}
 }
 
-// UnderlyingClient 获得底层的Client
+// Underlying 获得底层的Client
 func (sf *COAPClient) Underlying() *coap.ClientConn {
 	return sf.Conn.(*coapClient).c
 }

@@ -10,17 +10,9 @@ import (
 // ThingDeviceInfoUpdate 设备信息上传(如厂商、设备型号等，可以保存为设备标签)
 // request:  /sys/{productKey}/{deviceName}/thing/deviceinfo/update
 // response: /sys/{productKey}/{deviceName}/thing/deviceinfo/update_reply
-func (sf *Client) ThingDeviceInfoUpdate(devID int, params interface{}) (*Token, error) {
-	if devID < 0 {
-		return nil, ErrInvalidParameter
-	}
-	node, err := sf.SearchNode(devID)
-	if err != nil {
-		return nil, err
-	}
-
+func (sf *Client) ThingDeviceInfoUpdate(pk, dn string, params interface{}) (*Token, error) {
 	id := sf.RequestID()
-	_uri := uri.URI(uri.SysPrefix, uri.ThingDeviceInfoUpdate, node.ProductKey(), node.DeviceName())
+	_uri := uri.URI(uri.SysPrefix, uri.ThingDeviceInfoUpdate, pk, dn)
 	if err := sf.SendRequest(_uri, id, infra.MethodDeviceInfoUpdate, params); err != nil {
 		return nil, err
 	}
@@ -31,17 +23,9 @@ func (sf *Client) ThingDeviceInfoUpdate(devID int, params interface{}) (*Token, 
 // ThingDeviceInfoDelete 设备信息删除
 // request:  /sys/{productKey}/{deviceName}/thing/deviceinfo/delete
 // response: /sys/{productKey}/{deviceName}/thing/deviceinfo/delete_reply
-func (sf *Client) ThingDeviceInfoDelete(devID int, params interface{}) (*Token, error) {
-	if devID < 0 {
-		return nil, ErrInvalidParameter
-	}
-	node, err := sf.SearchNode(devID)
-	if err != nil {
-		return nil, err
-	}
-
+func (sf *Client) ThingDeviceInfoDelete(pk, dn string, params interface{}) (*Token, error) {
 	id := sf.RequestID()
-	_uri := uri.URI(uri.SysPrefix, uri.ThingDeviceInfoDelete, node.ProductKey(), node.DeviceName())
+	_uri := uri.URI(uri.SysPrefix, uri.ThingDeviceInfoDelete, pk, dn)
 	if err := sf.SendRequest(_uri, id, infra.MethodDeviceInfoDelete, params); err != nil {
 		return nil, err
 	}

@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	meta := &infra.MetaInfo{
+	meta := &infra.MetaTetrad{
 		ProductKey:    mock.ProductKey,
 		ProductSecret: mock.ProductSecret,
 		DeviceName:    mock.DeviceName,
@@ -19,9 +19,9 @@ func main() {
 		CustomDomain: "127.0.0.1:8080",
 	}
 
-	dclient := dynamic.New()
+	cli := dynamic.New()
 
-	err := dclient.RegisterCloud(meta, crd)
+	err := cli.RegisterCloud(meta, crd)
 	if err != nil {
 		panic(err)
 	}

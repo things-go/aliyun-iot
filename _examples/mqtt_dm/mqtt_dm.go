@@ -21,8 +21,7 @@ import (
 var dmClient *aiot.MQTTClient
 
 func main() {
-	meta := mock.MetaInfo()
-	signs, err := sign.Generate(&meta, infra.CloudRegionDomain{Region: infra.CloudRegionShangHai})
+	signs, err := sign.Generate(&mock.MetaTriad, infra.CloudRegionDomain{Region: infra.CloudRegionShangHai})
 	if err != nil {
 		panic(err)
 	}
@@ -42,7 +41,7 @@ func main() {
 			})
 
 	dmClient = aiot.NewWithMQTT(
-		mock.MetaInfo(),
+		mock.MetaTriad,
 		mqtt.NewClient(opts),
 		dm.WithEnableNTP(),
 		dm.WithEnableDesired(),
@@ -64,7 +63,7 @@ func main() {
 	// ThingEventPost() // done
 	for {
 		time.Sleep(time.Second * 15)
-		entry, err := dmClient.ThingEventPropertyPost(dm.DevNodeLocal,
+		entry, err := dmClient.ThingEventPropertyPost(mock.ProductKey, mock.DeviceName,
 			mock.Instance{
 				rand.Intn(200),
 				rand.Intn(100),
@@ -86,9 +85,10 @@ func main() {
 // done
 func ThingEventPost() {
 	for {
-		_, err := dmClient.ThingEventPost(dm.DevNodeLocal, "tempAlarm", map[string]interface{}{
-			"high": 1,
-		})
+		_, err := dmClient.ThingEventPost(mock.ProductKey, mock.DeviceName, "tempAlarm",
+			map[string]interface{}{
+				"high": 1,
+			})
 		if err != nil {
 			log.Printf("error: %#v", err)
 		}
@@ -98,7 +98,7 @@ func ThingEventPost() {
 
 // done
 func DeviceInfoTest() {
-	tk, err := dmClient.ThingDeviceInfoUpdate(dm.DevNodeLocal,
+	tk, err := dmClient.ThingDeviceInfoUpdate(mock.ProductKey, mock.DeviceName,
 		[]dmd.DeviceInfoLabel{{AttrKey: "attrKey", AttrValue: "attrValue"}})
 	if err != nil {
 		log.Println(err)
@@ -110,7 +110,7 @@ func DeviceInfoTest() {
 		return
 	}
 	time.Sleep(time.Minute * 1)
-	_, err = dmClient.ThingDeviceInfoDelete(dm.DevNodeLocal,
+	_, err = dmClient.ThingDeviceInfoDelete(mock.ProductKey, mock.DeviceName,
 		[]dmd.DeviceLabelKey{{AttrKey: "attrKey"}})
 	if err != nil {
 		log.Println(err)
@@ -120,7 +120,7 @@ func DeviceInfoTest() {
 
 // done
 func ConfigTest() {
-	tk, err := dmClient.ThingConfigGet(dm.DevNodeLocal)
+	tk, err := dmClient.ThingConfigGet(mock.ProductKey, mock.DeviceName)
 	if err != nil {
 		log.Println(err)
 		return
@@ -134,7 +134,7 @@ func ConfigTest() {
 }
 
 func DslTemplateTest() {
-	_, err := dmClient.ThingDsltemplateGet(dm.DevNodeLocal)
+	_, err := dmClient.ThingDsltemplateGet(mock.ProductKey, mock.DeviceName)
 	if err != nil {
 		log.Println(err)
 		return
@@ -142,7 +142,7 @@ func DslTemplateTest() {
 }
 
 func dynamictslTest() {
-	_, err := dmClient.ThingDynamictslGet(dm.DevNodeLocal)
+	_, err := dmClient.ThingDynamictslGet(mock.ProductKey, mock.DeviceName)
 	if err != nil {
 		panic(err)
 	}
@@ -158,7 +158,7 @@ func NTPTest() {
 }
 
 func DesiredGetTest() {
-	tk, err := dmClient.ThingDesiredPropertyGet(dm.DevNodeLocal, []string{"temp", "humi"})
+	tk, err := dmClient.ThingDesiredPropertyGet(mock.ProductKey, mock.DeviceName, []string{"temp", "humi"})
 	if err != nil {
 		log.Println(err)
 		return
@@ -174,7 +174,7 @@ func DesiredGetTest() {
 }
 
 func DesiredDeleteTest() {
-	tk, err := dmClient.ThingDesiredPropertyDelete(dm.DevNodeLocal, "{}")
+	tk, err := dmClient.ThingDesiredPropertyDelete(mock.ProductKey, mock.DeviceName, "{}")
 	if err != nil {
 		log.Println(err)
 		return

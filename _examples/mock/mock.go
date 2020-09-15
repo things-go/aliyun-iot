@@ -12,13 +12,17 @@ const (
 	DeviceSecret  = "9690f9da431078f105b7969b23e05762"
 )
 
-func MetaInfo() infra.MetaInfo {
-	return infra.MetaInfo{
-		ProductKey,
-		ProductSecret,
-		DeviceName,
-		DeviceSecret,
-	}
+var MetaTetrad = infra.MetaTetrad{
+	ProductKey,
+	ProductSecret,
+	DeviceName,
+	DeviceSecret,
+}
+
+var MetaTriad = infra.MetaTriad{
+	ProductKey,
+	DeviceName,
+	DeviceSecret,
 }
 
 type Instance struct {

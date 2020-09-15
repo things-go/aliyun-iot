@@ -9,17 +9,11 @@ import (
 )
 
 func main() {
-	meta := &infra.MetaInfo{
-		ProductKey:    mock.ProductKey,
-		ProductSecret: mock.ProductSecret,
-		DeviceName:    mock.DeviceName,
-		DeviceSecret:  mock.DeviceSecret,
-	}
 	crd := infra.CloudRegionDomain{
 		Region: infra.CloudRegionShangHai,
 	}
 
-	info, err := sign.Generate(meta, crd)
+	info, err := sign.Generate(mock.MetaTriad, crd)
 	if err != nil {
 		panic(err)
 	}

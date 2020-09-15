@@ -8,7 +8,7 @@ import (
 
 func Test_calcSign(t *testing.T) {
 	t.Run("calcSign", func(t *testing.T) {
-		meta := infra.MetaInfo{
+		meta := infra.MetaTetrad{
 			ProductKey:    "a1iJcssSlPC",
 			ProductSecret: "lw3QzKHNfh7XvOxO",
 			DeviceName:    "dynamic",

@@ -24,19 +24,15 @@ type GwTopoAddParams struct {
 // 子设备身份注册后,需网关上报与子设备的关系,然后才进行子设备上线
 // request:   /sys/{productKey}/{deviceName}/thing/topo/add
 // response:  /sys/{productKey}/{deviceName}/thing/topo/add_reply
-func (sf *Client) ThingGwTopoAdd(devID int) (*Token, error) {
-	if devID < 0 {
-		return nil, ErrInvalidParameter
-	}
-
-	node, err := sf.SearchNode(devID)
+func (sf *Client) ThingGwTopoAdd(pk, dn string) (*Token, error) {
+	ds, err := sf.DeviceSecret(pk, dn)
 	if err != nil {
 		return nil, err
 	}
 
 	timestamp := int64(time.Now().Nanosecond()) / 1000000
-	clientID := fmt.Sprintf("%s.%s|_v=%s|", node.ProductKey(), node.DeviceName(), sign.SDKVersion)
-	signs, err := generateSign(node.ProductKey(), node.DeviceName(), node.deviceSecret, clientID, timestamp)
+	clientID := fmt.Sprintf("%s.%s|_v=%s|", pk, dn, sign.SDKVersion)
+	signs, err := generateSign(pk, dn, ds, clientID, timestamp)
 	if err != nil {
 		return nil, err
 	}
@@ -44,8 +40,8 @@ func (sf *Client) ThingGwTopoAdd(devID int) (*Token, error) {
 	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingTopoAdd)
 	err = sf.SendRequest(_uri, id, infra.MethodTopoAdd, []GwTopoAddParams{
 		{
-			node.ProductKey(),
-			node.DeviceName(),
+			pk,
+			dn,
 			clientID,
 			timestamp,
 			"hmacsha1",
@@ -67,22 +63,12 @@ type GwTopoDeleteParams struct {
 }
 
 // ThingGwTopoDelete 删除网关与子设备的拓扑关系
-func (sf *Client) ThingGwTopoDelete(devID int) (*Token, error) {
-	if devID < 0 {
-		return nil, ErrInvalidParameter
-	}
-	node, err := sf.SearchNode(devID)
-	if err != nil {
-		return nil, err
-	}
+func (sf *Client) ThingGwTopoDelete(pk, dn string) (*Token, error) {
 	id := sf.RequestID()
 	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingTopoDelete)
-	err = sf.SendRequest(_uri, id, infra.MethodTopoDelete,
+	err := sf.SendRequest(_uri, id, infra.MethodTopoDelete,
 		[]GwTopoDeleteParams{
-			{
-				node.ProductKey(),
-				node.DeviceName(),
-			},
+			{pk, dn},
 		})
 	if err != nil {
 		return nil, err
@@ -128,22 +114,12 @@ type GwListFoundParams struct {
 // ThingGwListFound 发现设备列表上报
 // 场景,网关可以发现新接入的子设备,发现后,需将新接入的子设备的信息上报云端,
 // 然后转到第三方应用,选择哪些子设备可以接入该网关
-func (sf *Client) ThingGwListFound(devID int) (*Token, error) {
-	if devID < 0 {
-		return nil, ErrInvalidParameter
-	}
-	node, err := sf.SearchNode(devID)
-	if err != nil {
-		return nil, err
-	}
+func (sf *Client) ThingGwListFound(pk, dn string) (*Token, error) {
 	id := sf.RequestID()
 	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingListFound)
-	err = sf.SendRequest(_uri, id, infra.MethodListFound,
+	err := sf.SendRequest(_uri, id, infra.MethodListFound,
 		[]GwListFoundParams{
-			{
-				node.ProductKey(),
-				node.DeviceName(),
-			},
+			{pk, dn},
 		})
 	if err != nil {
 		return nil, err
@@ -174,7 +150,7 @@ func ProcThingGwTopoAddReply(c *Client, rawURI string, payload []byte) error {
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	} else {
-		_ = c.SetDevStatusByPkDn(pk, dn, DevStatusAttached)
+		_ = c.SetDevStatus(pk, dn, DevStatusAttached)
 	}
 
 	c.signalPending(Message{rsp.ID, nil, err})
@@ -202,7 +178,7 @@ func ProcThingGwTopoDeleteReply(c *Client, rawURI string, payload []byte) error 
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	} else {
-		c.SetDevStatusByPkDn(pk, dn, DevStatusRegistered) // nolint: errcheck
+		c.SetDevStatus(pk, dn, DevStatusRegistered) // nolint: errcheck
 	}
 
 	c.signalPending(Message{rsp.ID, nil, err})

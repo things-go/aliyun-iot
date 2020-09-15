@@ -12,7 +12,7 @@ import (
 
 // GatewayURI 获得本设备网关URI
 func (sf *Client) GatewayURI(prefix, name string) string {
-	return uri.URI(prefix, name, sf.ProductKey, sf.DeviceName)
+	return uri.URI(prefix, name, sf.tetrad.ProductKey, sf.tetrad.DeviceName)
 }
 
 // 可以采用Sha256,hmacMd5,hmacSha1,hmacSha256
