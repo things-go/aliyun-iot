@@ -7,6 +7,8 @@ import (
 	"github.com/thinkgos/aliyun-iot/uri"
 )
 
+// @see https://help.aliyun.com/document_detail/89298.html?spm=a2c4g.11186623.6.703.31c552ce6TPRuP
+
 // GwSubRegisterData 子设备注册应答数据域
 type GwSubRegisterData struct {
 	IotID        int64  `json:"iotId,string"`
@@ -23,23 +25,25 @@ type GwSubRegisterResponse struct {
 	Message string              `json:"message,omitempty"`
 }
 
-// ThingGwSubRegister 子设备动态注册
+// ThingSubRegister 子设备动态注册
 // 以通过上行请求为子设备发起动态注册，返回成功注册的子设备的设备证书
 // request:   /sys/{productKey}/{deviceName}/thing/sub/register
 // response:  /sys/{productKey}/{deviceName}/thing/sub/register_reply
-func (sf *Client) ThingGwSubRegister(pk, dn string) (*Token, error) {
-	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingSubRegister)
+func (sf *Client) ThingSubRegister(pk, dn string) (*Token, error) {
+	if sf.isGateway {
+		return nil, ErrNotSupportFeature
+	}
+	_uri := sf.URIGateway(uri.SysPrefix, uri.ThingSubRegister)
 	return sf.SendRequest(_uri, infra.MethodSubDevRegister, []infra.MetaPair{
 		{ProductKey: pk, DeviceName: dn},
 	})
 }
 
-// ProcThingGwSubRegisterReply 子设备动态注册处理
-// 上行
+// ProcThingSubRegisterReply 处理子设备动态注册
 // request:   /sys/{productKey}/{deviceName}/thing/sub/register
 // response:  /sys/{productKey}/{deviceName}/thing/sub/register_reply
-// subscribe: /sys/{productKey}/{deviceName}/thing/sub/register_replyc.uriOffset+
-func ProcThingGwSubRegisterReply(c *Client, rawURI string, payload []byte) error {
+// subscribe: /sys/{productKey}/{deviceName}/thing/sub/register_reply
+func ProcThingSubRegisterReply(c *Client, rawURI string, payload []byte) error {
 	uris := uri.Spilt(rawURI)
 	if len(uris) < 6 {
 		return ErrInvalidURI
@@ -52,13 +56,8 @@ func ProcThingGwSubRegisterReply(c *Client, rawURI string, payload []byte) error
 
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
-	} else {
-		for _, v := range rsp.Data {
-			_ = c.SetDeviceSecret(v.ProductKey, v.DeviceName, v.DeviceSecret)
-			_ = c.SetDeviceStatus(v.ProductKey, v.DeviceName, DevStatusRegistered)
-		}
 	}
-	c.signalPending(Message{rsp.ID, nil, err})
+	c.signalPending(Message{rsp.ID, rsp.Data, err})
 	c.log.Debugf("thing.sub.register.reply @%d", rsp.ID)
 	return nil
 }

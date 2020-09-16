@@ -30,7 +30,7 @@ func (sf *Client) ExtNtpRequest() error {
 		return ErrNotSupportFeature
 	}
 	sf.log.Debugf("ext.ntp.request")
-	_uri := sf.GatewayURI(uri.ExtNtpPrefix, uri.NtpRequest)
+	_uri := sf.URIGateway(uri.ExtNtpPrefix, uri.NtpRequest)
 	py, err := json.Marshal(NtpRequest{infra.Millisecond(time.Now())})
 	if err != nil {
 		return err

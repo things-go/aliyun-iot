@@ -157,7 +157,7 @@ func (sf *Client) SubscribeAllTopic(productKey, deviceName string, isSub bool) e
 	if sf.isGateway {
 		if !isSub {
 			// 网关批量上报数据
-			_uri = sf.GatewayURI(uri.SysPrefix, uri.ThingEventPropertyPackPostReply)
+			_uri = sf.URIGateway(uri.SysPrefix, uri.ThingEventPropertyPackPostReply)
 			if err = sf.Subscribe(_uri, ProcThingEventPropertyPackPostReply); err != nil {
 				sf.log.Warnf(err.Error())
 			}
@@ -200,7 +200,7 @@ func (sf *Client) SubscribeAllTopic(productKey, deviceName string, isSub bool) e
 
 			// 子设备动态注册,topic需要用网关的productKey,deviceName
 			_uri = uri.URI(uri.SysPrefix, uri.ThingSubRegisterReply, productKey, deviceName)
-			if err = sf.Subscribe(_uri, ProcThingGwSubRegisterReply); err != nil {
+			if err = sf.Subscribe(_uri, ProcThingSubRegisterReply); err != nil {
 				sf.log.Warnf(err.Error())
 			}
 			// 子设备上线,下线,topic需要用网关的productKey,deviceName,

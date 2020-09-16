@@ -11,6 +11,7 @@ import (
 )
 
 /*
+ @see https://help.aliyun.com/document_detail/89300.html?spm=a2c4g.11186623.6.705.290045333dGHQV
  - 子设备上下线、批量上下线消息，只支持QoS=0，不支持QoS=1。
  - 一个网关下，同时在线的子设备数量不能超过1500。在线子设备数量达到1500个后，新的子设备上线请求将被拒绝。
  - 调用子设备批量上下线接口，单个批次上下线的子设备数量不超过5个。
@@ -65,13 +66,16 @@ type GwCombineBatchLoginResponse struct {
 // request： /ext/session/${productKey}/${deviceName}/combine/login
 // response：/ext/session/${productKey}/${deviceName}/combine/login_reply
 func (sf *Client) ExtCombineLogin(pk, dn string) (*Token, error) {
+	if !sf.isGateway {
+		return nil, ErrNotSupportFeature
+	}
 	ds, err := sf.DeviceSecret(pk, dn)
 	if err != nil {
 		return nil, err
 	}
 
 	clientID := fmt.Sprintf("%s.%s|_v=%s|", pk, dn, sign.SDKVersion)
-	timestamp := int64(time.Now().Nanosecond()) / 1000000
+	timestamp := infra.Millisecond(time.Now())
 	signs, err := generateSign(pk, dn, ds, clientID, timestamp)
 	if err != nil {
 		return nil, err
@@ -92,7 +96,7 @@ func (sf *Client) ExtCombineLogin(pk, dn string) (*Token, error) {
 	if err != nil {
 		return nil, err
 	}
-	_uri := sf.GatewayURI(uri.ExtSessionPrefix, uri.CombineLogin)
+	_uri := sf.URIGateway(uri.ExtSessionPrefix, uri.CombineLogin)
 	err = sf.Publish(_uri, 0, req)
 	if err != nil {
 		return nil, err
@@ -127,6 +131,10 @@ type GwCombineBatchLogoutRequest struct {
 // request:   /ext/session/{productKey}/{deviceName}/combine/logout
 // response:  /ext/session/{productKey}/{deviceName}/combine/logout_reply
 func (sf *Client) ExtCombineLogout(pk, dn string) (*Token, error) {
+	if !sf.isGateway {
+		return nil, ErrNotSupportFeature
+	}
+
 	id := sf.nextRequestID()
 	req, err := json.Marshal(&GwCombineLogoutRequest{
 		id,
@@ -136,7 +144,7 @@ func (sf *Client) ExtCombineLogout(pk, dn string) (*Token, error) {
 		return nil, err
 	}
 
-	_uri := sf.GatewayURI(uri.ExtSessionPrefix, uri.CombineLogout)
+	_uri := sf.URIGateway(uri.ExtSessionPrefix, uri.CombineLogout)
 	err = sf.Publish(_uri, 0, req)
 	if err != nil {
 		return nil, err

@@ -126,65 +126,10 @@ func (sf *Client) SubDeviceConnect(pk, dn string) error {
 	}
 	if node.DeviceSecret() == "" { // 需要注册
 		// 子设备注册
-		if err := sf.LinKitGwSubRegister(pk, dn); err != nil {
+		if err := sf.LinkThingSubRegister(pk, dn); err != nil {
 			return err
 		}
 	}
 	// 子设备添加到拓扑
-	return sf.LinkKitGwTopoAdd(pk, dn)
-}
-
-func (sf *Client) LinKitGwSubRegister(pk, dn string) error {
-	token, err := sf.ThingGwSubRegister(pk, dn)
-	if err != nil {
-		return err
-	}
-	_, err = token.Wait(time.Second)
-	return err
-}
-
-func (sf *Client) LinkKitGwTopoAdd(pk, dn string) error {
-	token, err := sf.ThingGwTopoAdd(pk, dn)
-	if err != nil {
-		return err
-	}
-	_, err = token.Wait(time.Second)
-	return err
-}
-
-// LinkKitGwTopoDelete 删除网关与子设备的拓扑关系
-func (sf *Client) LinkKitGwTopoDelete(pk, dn string) error {
-	if !sf.isGateway {
-		return ErrNotSupportFeature
-	}
-	token, err := sf.ThingGwTopoDelete(pk, dn)
-	if err != nil {
-		return err
-	}
-	_, err = token.Wait(time.Second)
-	return err
-}
-
-func (sf *Client) LinkKitExtCombineLogin(pk, dn string) error {
-	if !sf.isGateway {
-		return ErrNotSupportFeature
-	}
-	token, err := sf.ExtCombineLogin(pk, dn)
-	if err != nil {
-		return err
-	}
-	_, err = token.Wait(time.Second)
-	return err
-}
-
-func (sf *Client) LinkKitExtCombineLogout(pk, dn string) error {
-	if !sf.isGateway {
-		return ErrNotSupportFeature
-	}
-	token, err := sf.ExtCombineLogout(pk, dn)
-	if err != nil {
-		return err
-	}
-	_, err = token.Wait(time.Second)
-	return err
+	return sf.LinkThingGwTopoAdd(pk, dn)
 }

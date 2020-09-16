@@ -10,8 +10,8 @@ import (
 	"github.com/thinkgos/aliyun-iot/uri"
 )
 
-// GatewayURI 获得本设备网关URI
-func (sf *Client) GatewayURI(prefix, name string) string {
+// URIGateway 获得本设备网关URI
+func (sf *Client) URIGateway(prefix, name string) string {
 	return uri.URI(prefix, name, sf.tetrad.ProductKey, sf.tetrad.DeviceName)
 }
 

@@ -25,6 +25,9 @@ type GwTopoAddParams struct {
 // request:   /sys/{productKey}/{deviceName}/thing/topo/add
 // response:  /sys/{productKey}/{deviceName}/thing/topo/add_reply
 func (sf *Client) ThingGwTopoAdd(pk, dn string) (*Token, error) {
+	if !sf.isGateway {
+		return nil, ErrNotSupportFeature
+	}
 	ds, err := sf.DeviceSecret(pk, dn)
 	if err != nil {
 		return nil, err
@@ -36,7 +39,7 @@ func (sf *Client) ThingGwTopoAdd(pk, dn string) (*Token, error) {
 	if err != nil {
 		return nil, err
 	}
-	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingTopoAdd)
+	_uri := sf.URIGateway(uri.SysPrefix, uri.ThingTopoAdd)
 	return sf.SendRequest(_uri, infra.MethodTopoAdd, []GwTopoAddParams{
 		{
 			pk,
@@ -51,7 +54,10 @@ func (sf *Client) ThingGwTopoAdd(pk, dn string) (*Token, error) {
 
 // ThingGwTopoDelete 删除网关与子设备的拓扑关系
 func (sf *Client) ThingGwTopoDelete(pk, dn string) (*Token, error) {
-	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingTopoDelete)
+	if !sf.isGateway {
+		return nil, ErrNotSupportFeature
+	}
+	_uri := sf.URIGateway(uri.SysPrefix, uri.ThingTopoDelete)
 	return sf.SendRequest(_uri, infra.MethodTopoDelete,
 		[]infra.MetaPair{{ProductKey: pk, DeviceName: dn}})
 }
@@ -71,7 +77,7 @@ func (sf *Client) ThingGwTopoGet() (*Token, error) {
 	if !sf.isGateway {
 		return nil, ErrNotSupportFeature
 	}
-	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingTopoGet)
+	_uri := sf.URIGateway(uri.SysPrefix, uri.ThingTopoGet)
 	return sf.SendRequest(_uri, infra.MethodTopoGet, "{}")
 }
 
@@ -79,7 +85,7 @@ func (sf *Client) ThingGwTopoGet() (*Token, error) {
 // 场景,网关可以发现新接入的子设备,发现后,需将新接入的子设备的信息上报云端,
 // 然后转到第三方应用,选择哪些子设备可以接入该网关
 func (sf *Client) ThingGwListFound(pk, dn string) (*Token, error) {
-	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingListFound)
+	_uri := sf.URIGateway(uri.SysPrefix, uri.ThingListFound)
 	return sf.SendRequest(_uri, infra.MethodListFound, []infra.MetaPair{
 		{ProductKey: pk, DeviceName: dn},
 	})

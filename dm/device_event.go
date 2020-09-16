@@ -36,7 +36,7 @@ func (sf *Client) ThingEventPropertyPackPost(params interface{}) (*Token, error)
 	if !sf.isGateway {
 		return nil, ErrNotSupportFeature
 	}
-	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingEventPropertyPackPost)
+	_uri := sf.URIGateway(uri.SysPrefix, uri.ThingEventPropertyPackPost)
 	return sf.SendRequest(_uri, infra.MethodEventPropertyPackPost, params)
 }
 
@@ -44,7 +44,7 @@ func (sf *Client) ThingEventPropertyPackPost(params interface{}) (*Token, error)
 // request： /sys/{productKey}/{deviceName}/thing/event/property/history/post
 // response：/sys/{productKey}/{deviceName}/thing/event/property/history/post_reply
 func (sf *Client) ThingEventPropertyHistoryPost(params interface{}) (*Token, error) {
-	_uri := sf.GatewayURI(uri.SysPrefix, uri.ThingEventPropertyHistoryPost)
+	_uri := sf.URIGateway(uri.SysPrefix, uri.ThingEventPropertyHistoryPost)
 	return sf.SendRequest(_uri, infra.MethodEventPropertyHistoryPost, params)
 }
 
