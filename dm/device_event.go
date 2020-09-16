@@ -8,7 +8,9 @@ import (
 	"github.com/thinkgos/aliyun-iot/uri"
 )
 
-// ThingEventPropertyPost 上传属性数据
+// @see https://help.aliyun.com/document_detail/89301.html?spm=a2c4g.11186623.6.706.78b524baCoL1Gf
+
+// ThingEventPropertyPost 设备上报属性数据
 // request:  /sys/{productKey}/{deviceName}/thing/event/property/post
 // response: /sys/{productKey}/{deviceName}/thing/event/property/post_reply
 func (sf *Client) ThingEventPropertyPost(pk, dn string, params interface{}) (*Token, error) {
@@ -19,7 +21,7 @@ func (sf *Client) ThingEventPropertyPost(pk, dn string, params interface{}) (*To
 	return sf.SendRequest(_uri, infra.MethodEventPropertyPost, params)
 }
 
-// ThingEventPost 事件上传
+// ThingEventPost 设备事件上报
 // request:  /sys/{productKey}/{deviceName}/thing/event/{tsl.event.identifier}/post
 // response: /sys/{productKey}/{deviceName}/thing/event/{tsl.event.identifier}/post_reply
 func (sf *Client) ThingEventPost(pk, dn, eventID string, params interface{}) (*Token, error) {
@@ -40,7 +42,8 @@ func (sf *Client) ThingEventPropertyPackPost(params interface{}) (*Token, error)
 	return sf.SendRequest(_uri, infra.MethodEventPropertyPackPost, params)
 }
 
-// ThingEventPropertyHistoryPost 直连设备仅能上报自己的物模型历史数据,网关设备可以上报其子设备的物模型历史数据
+// ThingEventPropertyHistoryPost  物模型历史数据上报
+// 直连设备仅能上报自己的物模型历史数据,网关设备可以上报其子设备的物模型历史数据
 // request： /sys/{productKey}/{deviceName}/thing/event/property/history/post
 // response：/sys/{productKey}/{deviceName}/thing/event/property/history/post_reply
 func (sf *Client) ThingEventPropertyHistoryPost(params interface{}) (*Token, error) {

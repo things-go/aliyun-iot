@@ -8,6 +8,8 @@ import (
 	"github.com/thinkgos/aliyun-iot/uri"
 )
 
+// @see https://help.aliyun.com/document_detail/102509.html?spm=a2c4g.11186623.6.689.7f67741ai8OqLc
+
 // NtpRequest ntp请求payload
 type NtpRequest struct {
 	DeviceSendTime int64 `json:"deviceSendTime,string"`

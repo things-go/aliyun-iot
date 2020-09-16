@@ -6,23 +6,23 @@ import (
 
 // MetaPair 产品名与设备名
 type MetaPair struct {
-	ProductKey string
-	DeviceName string
+	ProductKey string `json:"productKey"`
+	DeviceName string `json:"deviceName"`
 }
 
 // MetaTriad 产品与设备三元组
 type MetaTriad struct {
-	ProductKey   string
-	DeviceName   string
-	DeviceSecret string
+	ProductKey   string `json:"productKey"`
+	DeviceName   string `json:"deviceName"`
+	DeviceSecret string `json:"deviceSecret"`
 }
 
 // MetaTetrad 产品与设备四元组
 type MetaTetrad struct {
-	ProductKey    string
-	ProductSecret string
-	DeviceName    string
-	DeviceSecret  string
+	ProductKey    string `json:"productKey"`
+	ProductSecret string `json:"productSecret"`
+	DeviceName    string `json:"deviceName"`
+	DeviceSecret  string `json:"deviceSecret"`
 }
 
 // Millisecond time.Time 转为 毫秒

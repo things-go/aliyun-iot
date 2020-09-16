@@ -7,6 +7,8 @@ import (
 	"github.com/thinkgos/aliyun-iot/uri"
 )
 
+// @see https://help.aliyun.com/document_detail/89304.html?spm=a2c4g.11186623.6.710.31c552ceVRAsmU
+
 // ThingDeviceInfoUpdate 设备信息上传(如厂商、设备型号等，可以保存为设备标签)
 // request:  /sys/{productKey}/{deviceName}/thing/deviceinfo/update
 // response: /sys/{productKey}/{deviceName}/thing/deviceinfo/update_reply
@@ -15,7 +17,7 @@ func (sf *Client) ThingDeviceInfoUpdate(pk, dn string, params interface{}) (*Tok
 	return sf.SendRequest(_uri, infra.MethodDeviceInfoUpdate, params)
 }
 
-// ThingDeviceInfoDelete 设备信息删除
+// ThingDeviceInfoDelete 删除标签信息
 // request:  /sys/{productKey}/{deviceName}/thing/deviceinfo/delete
 // response: /sys/{productKey}/{deviceName}/thing/deviceinfo/delete_reply
 func (sf *Client) ThingDeviceInfoDelete(pk, dn string, params interface{}) (*Token, error) {

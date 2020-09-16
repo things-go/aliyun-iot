@@ -7,18 +7,12 @@ import (
 	"github.com/thinkgos/aliyun-iot/uri"
 )
 
-// ExtErrorData 子设备错误回复数据域
-type ExtErrorData struct {
-	ProductKey string `json:"productKey"`
-	DeviceName string `json:"deviceName"`
-}
-
 // ExtErrorResponse 子设备错误回复
 type ExtErrorResponse struct {
-	ID      uint         `json:"id,string"`
-	Code    int          `json:"code"`
-	Data    ExtErrorData `json:"data"`
-	Message string       `json:"message,omitempty"`
+	ID      uint           `json:"id,string"`
+	Code    int            `json:"code"`
+	Data    infra.MetaPair `json:"data"`
+	Message string         `json:"message,omitempty"`
 }
 
 // ProcExtErrorResponse 处理错误的回复

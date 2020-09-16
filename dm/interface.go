@@ -58,11 +58,11 @@ type Callback interface {
 type GwCallback interface {
 	// 520错误已做自动登陆回复
 	ExtErrorResponse(c *Client, err error, productKey, deviceName string) error
-	ThingGwTopoGetReply(c *Client, err error, params []infra.MetaPair) error
-	ThingGwListFoundReply(c *Client, err error) error
-	ThingGwTopoAddNotify(c *Client, params []infra.MetaPair) error
-	ThingGwTopoChange(c *Client, params GwTopoChangeParams) error
-	ThingGwDisable(c *Client, productKey, deviceName string) error
-	ThingGwEnable(c *Client, productKey, deviceName string) error
-	ThingGwDelete(c *Client, productKey, deviceName string) error
+	ThingTopoGetReply(c *Client, err error, params []infra.MetaPair) error
+	ThingListFoundReply(c *Client, err error) error
+	ThingTopoAddNotify(c *Client, params []infra.MetaPair) error
+	ThingTopoChange(c *Client, params TopoChangeParams) error
+	ThingDisable(c *Client, productKey, deviceName string) error
+	ThingEnable(c *Client, productKey, deviceName string) error
+	ThingDelete(c *Client, productKey, deviceName string) error
 }

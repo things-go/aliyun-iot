@@ -164,37 +164,37 @@ func (sf *Client) SubscribeAllTopic(productKey, deviceName string, isSub bool) e
 
 			// 添加该网关和子设备的拓扑关系
 			_uri = uri.URI(uri.SysPrefix, uri.ThingTopoAddReply, productKey, deviceName)
-			if err = sf.Subscribe(_uri, ProcThingGwTopoAddReply); err != nil {
+			if err = sf.Subscribe(_uri, ProcThingTopoAddReply); err != nil {
 				sf.log.Warnf(err.Error())
 			}
 
 			// 删除该网关和子设备的拓扑关系
 			_uri = uri.URI(uri.SysPrefix, uri.ThingTopoDeleteReply, productKey, deviceName)
-			if err = sf.Subscribe(_uri, ProcThingGwTopoDeleteReply); err != nil {
+			if err = sf.Subscribe(_uri, ProcThingTopoDeleteReply); err != nil {
 				sf.log.Warnf(err.Error())
 			}
 
 			// 获取该网关和子设备的拓扑关系
 			_uri = uri.URI(uri.SysPrefix, uri.ThingTopoGetReply, productKey, deviceName)
-			if err = sf.Subscribe(_uri, ProcThingGwTopoGetReply); err != nil {
+			if err = sf.Subscribe(_uri, ProcThingTopoGetReply); err != nil {
 				sf.log.Warnf(err.Error())
 			}
 
 			// 发现设备列表上报
 			if err = sf.Subscribe(uri.URI(uri.SysPrefix, uri.ThingListFoundReply, productKey, deviceName),
-				ProcThingGwListFoundReply); err != nil {
+				ProcThingListFoundReply); err != nil {
 				sf.log.Warnf(err.Error())
 			}
 
 			// 添加设备拓扑关系通知,topic需要用网关的productKey,deviceName
 			_uri = uri.URI(uri.SysPrefix, uri.ThingTopoAddNotify, productKey, deviceName)
-			if err = sf.Subscribe(_uri, ProcThingGwTopoAddNotify); err != nil {
+			if err = sf.Subscribe(_uri, ProcThingTopoAddNotify); err != nil {
 				sf.log.Warnf(err.Error())
 			}
 
 			// 网关网络拓扑关系变化通知,topic需要用网关的productKey,deviceName
 			_uri = uri.URI(uri.SysPrefix, uri.ThingTopoChange, productKey, deviceName)
-			if err = sf.Subscribe(_uri, ProcThingGwTopoChange); err != nil {
+			if err = sf.Subscribe(_uri, ProcThingTopoChange); err != nil {
 				sf.log.Warnf(err.Error())
 			}
 

@@ -35,7 +35,7 @@ func ProcThingGwDisable(c *Client, rawURI string, payload []byte) error {
 	if err != nil {
 		c.log.Warnf("thing.disable.response failed, %+v", err)
 	}
-	return c.gwCb.ThingGwDisable(c, pk, dn)
+	return c.gwCb.ThingDisable(c, pk, dn)
 }
 
 // ProcThingGwEnable 启用子设备
@@ -66,7 +66,7 @@ func ProcThingGwEnable(c *Client, rawURI string, payload []byte) error {
 		c.log.Warnf("thing.enable.response failed, %+v", err)
 	}
 
-	return c.gwCb.ThingGwEnable(c, pk, dn)
+	return c.gwCb.ThingEnable(c, pk, dn)
 }
 
 // ProcThingGwDelete 子设备删除,网关类型设备
@@ -93,5 +93,5 @@ func ProcThingGwDelete(c *Client, rawURI string, payload []byte) error {
 	if err != nil {
 		c.log.Warnf("thing.delete.response failed, %+v", err)
 	}
-	return c.gwCb.ThingGwDelete(c, pk, dn)
+	return c.gwCb.ThingDelete(c, pk, dn)
 }

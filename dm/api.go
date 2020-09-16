@@ -131,5 +131,5 @@ func (sf *Client) SubDeviceConnect(pk, dn string) error {
 		}
 	}
 	// 子设备添加到拓扑
-	return sf.LinkThingGwTopoAdd(pk, dn)
+	return sf.LinkThingTopoAdd(pk, dn)
 }

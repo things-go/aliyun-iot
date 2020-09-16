@@ -94,23 +94,23 @@ type NopGwCb struct{}
 // ExtErrorResponse see interface GwCallback
 func (NopGwCb) ExtErrorResponse(*Client, error, string, string) error { return nil }
 
-// ThingGwTopoGetReply see interface GwCallback
-func (NopGwCb) ThingGwTopoGetReply(*Client, error, []infra.MetaPair) error { return nil }
+// ThingTopoGetReply see interface GwCallback
+func (NopGwCb) ThingTopoGetReply(*Client, error, []infra.MetaPair) error { return nil }
 
-// ThingGwListFoundReply see interface GwCallback
-func (NopGwCb) ThingGwListFoundReply(*Client, error) error { return nil }
+// ThingListFoundReply see interface GwCallback
+func (NopGwCb) ThingListFoundReply(*Client, error) error { return nil }
 
-// ThingGwTopoAddNotify see interface GwCallback
-func (NopGwCb) ThingGwTopoAddNotify(*Client, []infra.MetaPair) error { return nil }
+// ThingTopoAddNotify see interface GwCallback
+func (NopGwCb) ThingTopoAddNotify(*Client, []infra.MetaPair) error { return nil }
 
-// ThingGwTopoChange see interface GwCallback
-func (NopGwCb) ThingGwTopoChange(*Client, GwTopoChangeParams) error { return nil }
+// ThingTopoChange see interface GwCallback
+func (NopGwCb) ThingTopoChange(*Client, TopoChangeParams) error { return nil }
 
-// ThingGwDisable see interface GwCallback
-func (NopGwCb) ThingGwDisable(*Client, string, string) error { return nil }
+// ThingDisable see interface GwCallback
+func (NopGwCb) ThingDisable(*Client, string, string) error { return nil }
 
-// ThingGwEnable see interface GwCallback
-func (NopGwCb) ThingGwEnable(*Client, string, string) error { return nil }
+// ThingEnable see interface GwCallback
+func (NopGwCb) ThingEnable(*Client, string, string) error { return nil }
 
-// ThingGwDelete see interface GwCallback
-func (NopGwCb) ThingGwDelete(*Client, string, string) error { return nil }
+// ThingDelete see interface GwCallback
+func (NopGwCb) ThingDelete(*Client, string, string) error { return nil }
