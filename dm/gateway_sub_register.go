@@ -9,20 +9,20 @@ import (
 
 // @see https://help.aliyun.com/document_detail/89298.html?spm=a2c4g.11186623.6.703.31c552ce6TPRuP
 
-// GwSubRegisterData 子设备注册应答数据域
-type GwSubRegisterData struct {
+// SubRegisterData 子设备注册应答数据域
+type SubRegisterData struct {
 	IotID        int64  `json:"iotId,string"`
 	ProductKey   string `json:"productKey"`
 	DeviceName   string `json:"deviceName"`
 	DeviceSecret string `json:"deviceSecret"`
 }
 
-// GwSubRegisterResponse 子设备注册应答
-type GwSubRegisterResponse struct {
-	ID      uint                `json:"id,string"`
-	Code    int                 `json:"code"`
-	Data    []GwSubRegisterData `json:"data"`
-	Message string              `json:"message,omitempty"`
+// SubRegisterResponse 子设备注册应答
+type SubRegisterResponse struct {
+	ID      uint              `json:"id,string"`
+	Code    int               `json:"code"`
+	Data    []SubRegisterData `json:"data"`
+	Message string            `json:"message,omitempty"`
 }
 
 // ThingSubRegister 子设备动态注册
@@ -48,7 +48,7 @@ func ProcThingSubRegisterReply(c *Client, rawURI string, payload []byte) error {
 	if len(uris) < 6 {
 		return ErrInvalidURI
 	}
-	rsp := &GwSubRegisterResponse{}
+	rsp := &SubRegisterResponse{}
 	err := json.Unmarshal(payload, rsp)
 	if err != nil {
 		return err

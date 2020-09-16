@@ -7,12 +7,12 @@ import (
 	"github.com/thinkgos/aliyun-iot/uri"
 )
 
-// ProcThingGwDisable 禁用子设备
+// ProcThingDisable 禁用子设备
 // 下行
 // request:   /sys/{productKey}/{deviceName}/thing/disable
 // response:  /sys/{productKey}/{deviceName}/thing/disable_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/disable
-func ProcThingGwDisable(c *Client, rawURI string, payload []byte) error {
+func ProcThingDisable(c *Client, rawURI string, payload []byte) error {
 	uris := uri.Spilt(rawURI)
 	if len(uris) < 5 {
 		return ErrInvalidURI
@@ -38,12 +38,12 @@ func ProcThingGwDisable(c *Client, rawURI string, payload []byte) error {
 	return c.gwCb.ThingDisable(c, pk, dn)
 }
 
-// ProcThingGwEnable 启用子设备
+// ProcThingEnable 启用子设备
 // 下行
 // request:   /sys/{productKey}/{deviceName}/thing/enable
 // response:  /sys/{productKey}/{deviceName}/thing/enable_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/enable
-func ProcThingGwEnable(c *Client, rawURI string, payload []byte) error {
+func ProcThingEnable(c *Client, rawURI string, payload []byte) error {
 	uris := uri.Spilt(rawURI)
 	if len(uris) < 5 {
 		return ErrInvalidURI
@@ -65,16 +65,15 @@ func ProcThingGwEnable(c *Client, rawURI string, payload []byte) error {
 	if err = c.Response(_uri, req.ID, infra.CodeSuccess, "{}"); err != nil {
 		c.log.Warnf("thing.enable.response failed, %+v", err)
 	}
-
 	return c.gwCb.ThingEnable(c, pk, dn)
 }
 
-// ProcThingGwDelete 子设备删除,网关类型设备
+// ProcThingDelete 子设备删除,网关类型设备
 // 下行
 // request:   /sys/{productKey}/{deviceName}/thing/delete
 // response:  /sys/{productKey}/{deviceName}/thing/delete_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/delete
-func ProcThingGwDelete(c *Client, rawURI string, payload []byte) error {
+func ProcThingDelete(c *Client, rawURI string, payload []byte) error {
 	uris := uri.Spilt(rawURI)
 	if len(uris) < 5 {
 		return ErrInvalidURI

@@ -37,8 +37,8 @@ func ProcExtErrorResponse(c *Client, rawURI string, payload []byte) error {
 	c.log.Debugf("ext.error.response @%d", rsp.ID)
 
 	pk, dn := rsp.Data.ProductKey, rsp.Data.DeviceName
-	if rsp.Code == infra.CodeSubDevSessionError {
-		_, _ = c.ExtCombineLogin(pk, dn)
-	}
+	// if rsp.Code == infra.CodeSubDevSessionError {
+	// _, _ = c.ExtCombineLogin(pk, dn) // TODO: ...
+	// }
 	return c.gwCb.ExtErrorResponse(c, err, pk, dn)
 }

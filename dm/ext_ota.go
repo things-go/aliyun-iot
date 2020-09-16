@@ -13,8 +13,8 @@ type OtaRequest struct {
 	Params interface{} `json:"params"`
 }
 
-// OtaFirmwareVersionParams OTA固件参数域
-type OtaFirmwareVersionParams struct {
+// OtaInformParams OTA固件参数域
+type OtaInformParams struct {
 	Version string `json:"version"`
 	// 上报默认（default）模块的固件版本号时,可以不上报module参数.
 	// 设备的默认（default）模块的固件版本号等同于整个设备的固件版本号.
@@ -23,7 +23,7 @@ type OtaFirmwareVersionParams struct {
 
 // OtaInform 上报固件版本
 // request：/ota/device/inform/${YourProductKey}/${YourDeviceName}。
-func (sf *Client) OtaInform(pk, dn string, params interface{}) error {
+func (sf *Client) OtaInform(pk, dn string, params OtaInformParams) error {
 	if !sf.hasOTA {
 		return ErrNotSupportFeature
 	}
@@ -54,7 +54,7 @@ type OtaProgressParams struct {
 
 // OtaProgress 固件升级过程中，设备可以通过这个Topic上报固件升级的进度百分比
 // request：/ota/device/progress/${YourProductKey}/${YourDeviceName
-func (sf *Client) OtaProgress(pk, dn string, params interface{}) error {
+func (sf *Client) OtaProgress(pk, dn string, params OtaProgressParams) error {
 	if !sf.hasOTA {
 		return ErrNotSupportFeature
 	}
@@ -68,18 +68,12 @@ func (sf *Client) OtaProgress(pk, dn string, params interface{}) error {
 	return sf.Publish(_uri, 1, req)
 }
 
-// ThingOtaFirmwareGet 请求固件信息
-// module: 不指定则表示请求默认（default）模块的固件信息
-// request： /sys/{productKey}/{deviceName}/thing/ota/firmware/get
-// response：/sys/{productKey}/{deviceName}/thing/ota/firmware/get_reply
-func (sf *Client) ThingOtaFirmwareGet(pk, dn, module string) (*Token, error) {
-	if !sf.hasOTA {
-		return nil, ErrNotSupportFeature
-	}
-	_uri := uri.URI(uri.SysPrefix, uri.ThingOtaFirmwareGet, pk, dn)
-	return sf.SendRequest(_uri, infra.MethodOtaFirmwareGet, map[string]interface{}{"module": module})
+// OtaFirmwareParam 请求固件信息参数域
+type OtaFirmwareParam struct {
+	Module string `json:"module"`
 }
 
+// OtaFirmwareParam 请求固件信息回复数据域
 type OtaFirmwareData struct {
 	Size       int64  `json:"size"`
 	Sign       string `json:"sign"`
@@ -91,11 +85,24 @@ type OtaFirmwareData struct {
 	Module     string `json:"module"`
 }
 
-type OtaFirmware struct {
+// OtaFirmwareResponse ota firmware response
+type OtaFirmwareResponse struct {
 	ID      uint            `json:"id,string"`
 	Code    int             `json:"code"`
 	Data    OtaFirmwareData `json:"data"`
 	Message string          `json:"message"`
+}
+
+// ThingOtaFirmwareGet 请求固件信息
+// module: 不指定则表示请求默认（default）模块的固件信息
+// request： /sys/{productKey}/{deviceName}/thing/ota/firmware/get
+// response：/sys/{productKey}/{deviceName}/thing/ota/firmware/get_reply
+func (sf *Client) ThingOtaFirmwareGet(pk, dn string, param OtaFirmwareParam) (*Token, error) {
+	if !sf.hasOTA {
+		return nil, ErrNotSupportFeature
+	}
+	_uri := uri.URI(uri.SysPrefix, uri.ThingOtaFirmwareGet, pk, dn)
+	return sf.SendRequest(_uri, infra.MethodOtaFirmwareGet, param)
 }
 
 // ProcThingOtaFirmwareGetReply 处理请求固件信息应答
@@ -107,7 +114,7 @@ func ProcThingOtaFirmwareGetReply(c *Client, rawURI string, payload []byte) erro
 	if len(uris) < 7 {
 		return ErrInvalidURI
 	}
-	rsp := &OtaFirmware{}
+	rsp := &OtaFirmwareResponse{}
 	err := json.Unmarshal(payload, rsp)
 	if err != nil {
 		return err
@@ -116,7 +123,7 @@ func ProcThingOtaFirmwareGetReply(c *Client, rawURI string, payload []byte) erro
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 	c.log.Debugf("thing.ota.firmware.get.reply @%d", rsp.ID)
-	c.signalPending(Message{rsp.ID, nil, err})
+	c.signalPending(Message{rsp.ID, rsp.Data, err})
 	pk, dn := uris[1], uris[2]
 	return c.cb.ThingOtaFirmwareGetReply(c, pk, dn, rsp.Data)
 }
@@ -129,7 +136,7 @@ func ProcOtaUpgrade(c *Client, rawURI string, payload []byte) error {
 	if len(uris) < 5 {
 		return ErrInvalidURI
 	}
-	rsp := &OtaFirmware{}
+	rsp := &OtaFirmwareResponse{}
 	err := json.Unmarshal(payload, rsp)
 	if err != nil {
 		return err

@@ -76,7 +76,7 @@ func (NopCb) RRPCRequest(*Client, string, string, string, []byte) error { return
 // ExtRRPCRequest see interface Callback
 func (NopCb) ExtRRPCRequest(*Client, string, string, []byte) error { return nil }
 
-func (NopCb) OtaUpgrade(*Client, string, string, *OtaFirmware) error {
+func (NopCb) OtaUpgrade(*Client, string, string, *OtaFirmwareResponse) error {
 	return nil
 }
 func (NopCb) ThingOtaFirmwareGetReply(*Client, string, string, OtaFirmwareData) error {

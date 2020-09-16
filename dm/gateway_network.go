@@ -2,11 +2,9 @@ package dm
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/thinkgos/aliyun-iot/infra"
-	"github.com/thinkgos/aliyun-iot/sign"
 	"github.com/thinkgos/aliyun-iot/uri"
 )
 
@@ -36,7 +34,7 @@ func (sf *Client) ThingTopoAdd(pk, dn string) (*Token, error) {
 	}
 
 	timestamp := infra.Millisecond(time.Now())
-	clientID := fmt.Sprintf("%s.%s|_v=%s|", pk, dn, sign.SDKVersion)
+	clientID := ToClientID(pk, dn)
 	signs, err := generateSign(pk, dn, ds, clientID, timestamp)
 	if err != nil {
 		return nil, err

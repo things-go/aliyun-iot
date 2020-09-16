@@ -2,11 +2,9 @@ package dm
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/thinkgos/aliyun-iot/infra"
-	"github.com/thinkgos/aliyun-iot/sign"
 	"github.com/thinkgos/aliyun-iot/uri"
 )
 
@@ -18,8 +16,15 @@ import (
  - 设备批量上下线接口为原子接口，调用结果为全部成功或全部失败，失败时返回的data中会包含具体的失败信息。
 */
 
-// GwCombineLoginParams 子设备上线参数域
-type GwCombineLoginParams struct {
+// CombinePair combine pair
+type CombinePair struct {
+	ProductKey   string
+	DeviceName   string
+	CleanSession bool
+}
+
+// CombineLoginParams 子设备上线参数域
+type CombineLoginParams struct {
 	ProductKey string `json:"productKey"`       // 子设备的产品key
 	DeviceName string `json:"deviceName"`       // 子设备的设备名称
 	ClientID   string `json:"clientId"`         // 设备端标识
@@ -31,66 +36,53 @@ type GwCombineLoginParams struct {
 	CleanSession bool `json:"cleanSession,string"`
 }
 
-// GwCombineLoginRequest 子设备上线请求
-type GwCombineLoginRequest struct {
-	ID     uint                 `json:"id,string"`
-	Params GwCombineLoginParams `json:"params"`
+// CombineLoginRequest 子设备上线请求
+type CombineLoginRequest struct {
+	ID     uint               `json:"id,string"`
+	Params CombineLoginParams `json:"params"`
 }
 
-// GwCombineBatchLoginRequest 子设备上线请求
-type GwCombineBatchLoginRequest struct {
-	ID     uint `json:"id,string"`
-	Params struct {
-		DeviceList []GwCombineLoginParams `json:"deviceList"`
-	} `json:"params"`
-}
-
-// GwCombineLoginResponse 子设备上线回复
-type GwCombineLoginResponse struct {
+// CombineLoginResponse 子设备上线回复
+type CombineLoginResponse struct {
 	ID      uint           `json:"id,string"`
 	Code    int            `json:"code"`
 	Data    infra.MetaPair `json:"data"`
 	Message string         `json:"message,omitempty"`
 }
 
-// GwCombineBatchLoginResponse 子设备批量上线回复
-type GwCombineBatchLoginResponse struct {
-	ID      uint             `json:"id,string"`
-	Code    int              `json:"code"`
-	Data    []infra.MetaPair `json:"data"`
-	Message string           `json:"message,omitempty"`
-}
-
 // ExtCombineLogin 子设备上线
 // NOTE: topic 应使用网关的productKey和deviceName,且只支持qos = 0
+// cleanSession
+// 	如果取值是true，则清理所有子设备离线时的消息，即所有未接收的QoS1消息将被清除。
+// 	如果取值是false，则不清理子设备离线时的消息
 // request： /ext/session/${productKey}/${deviceName}/combine/login
 // response：/ext/session/${productKey}/${deviceName}/combine/login_reply
-func (sf *Client) ExtCombineLogin(pk, dn string) (*Token, error) {
+func (sf *Client) ExtCombineLogin(cp CombinePair) (*Token, error) {
 	if !sf.isGateway {
 		return nil, ErrNotSupportFeature
 	}
-	ds, err := sf.DeviceSecret(pk, dn)
+	ds, err := sf.DeviceSecret(cp.ProductKey, cp.DeviceName)
 	if err != nil {
 		return nil, err
 	}
 
-	clientID := fmt.Sprintf("%s.%s|_v=%s|", pk, dn, sign.SDKVersion)
+	clientID := ToClientID(cp.ProductKey, cp.DeviceName)
 	timestamp := infra.Millisecond(time.Now())
-	signs, err := generateSign(pk, dn, ds, clientID, timestamp)
+	signs, err := generateSign(cp.ProductKey, cp.DeviceName, ds, clientID, timestamp)
 	if err != nil {
 		return nil, err
 	}
 	id := sf.nextRequestID()
-	req, err := json.Marshal(&GwCombineLoginRequest{
+	req, err := json.Marshal(&CombineLoginRequest{
 		id,
-		GwCombineLoginParams{
-			pk,
-			dn,
+		CombineLoginParams{
+			cp.ProductKey,
+			cp.DeviceName,
 			clientID,
 			timestamp,
 			"hmacsha1",
 			signs,
-			true,
+			cp.CleanSession,
 		},
 	})
 	if err != nil {
@@ -101,29 +93,94 @@ func (sf *Client) ExtCombineLogin(pk, dn string) (*Token, error) {
 	if err != nil {
 		return nil, err
 	}
-	sf.log.Debugf("Ext GW <sub>: login @%d", id)
+	sf.log.Debugf("ext.session.combine.login @%d", id)
 	return sf.putPending(id), nil
+}
+
+// CombineBatchLoginRequest 子设备上线请求
+type CombineBatchLoginRequest struct {
+	ID     uint `json:"id,string"`
+	Params struct {
+		DeviceList []CombineLoginParams `json:"deviceList"`
+	} `json:"params"`
+}
+
+// CombineBatchLoginResponse 子设备批量上线回复
+type CombineBatchLoginResponse struct {
+	ID      uint             `json:"id,string"`
+	Code    int              `json:"code"`
+	Data    []infra.MetaPair `json:"data"`
+	Message string           `json:"message,omitempty"`
 }
 
 // ExtCombineBatchLogin 子设备批量上线
 // NOTE: topic 应使用网关的productKey和deviceName,且只支持qos = 0
 // request： /ext/session/${productKey}/${deviceName}/combine/batch_login
 // response：/ext/session/${productKey}/${deviceName}/combine/batch_login_reply
-func (sf *Client) ExtCombineBatchLogin(pair ...infra.MetaPair) (*Token, error) {
-	// TODO:
-	return nil, nil
+func (sf *Client) ExtCombineBatchLogin(pairs []CombinePair) (*Token, error) {
+	if !sf.isGateway {
+		return nil, ErrNotSupportFeature
+	}
+	if len(pairs) == 0 {
+		return nil, ErrInvalidParameter
+	}
+
+	timestamp := infra.Millisecond(time.Now())
+	clps := make([]CombineLoginParams, 0, len(pairs))
+	for _, cp := range pairs {
+		ds, err := sf.DeviceSecret(cp.ProductKey, cp.DeviceName)
+		if err != nil {
+			return nil, err
+		}
+		clientID := ToClientID(cp.ProductKey, cp.DeviceName)
+		signs, err := generateSign(cp.ProductKey, cp.DeviceName, ds, clientID, timestamp)
+		if err != nil {
+			return nil, err
+		}
+		clps = append(clps, CombineLoginParams{
+			cp.ProductKey,
+			cp.DeviceName,
+			clientID,
+			timestamp,
+			"hmacsha1",
+			signs,
+			cp.CleanSession,
+		})
+	}
+
+	id := sf.nextRequestID()
+	req, err := json.Marshal(&CombineBatchLoginRequest{
+		id,
+		struct {
+			DeviceList []CombineLoginParams `json:"deviceList"`
+		}{
+			clps,
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+	_uri := sf.URIGateway(uri.ExtSessionPrefix, uri.CombineLogin)
+	err = sf.Publish(_uri, 0, req)
+	if err != nil {
+		return nil, err
+	}
+	sf.log.Debugf("ext.session.combine.batch.login @%d", id)
+	return sf.putPending(id), nil
 }
 
-// GwCombineLogoutRequest 子设备下线请求
-type GwCombineLogoutRequest struct {
+// CombineLogoutRequest 子设备下线请求
+type CombineLogoutRequest struct {
 	ID     uint           `json:"id,string"`
 	Params infra.MetaPair `json:"params"`
 }
 
-// GwCombineBatchLogoutRequest 子设备批量下线请求
-type GwCombineBatchLogoutRequest struct {
-	ID     uint             `json:"id,string"`
-	Params []infra.MetaPair `json:"params"`
+// CombineLoginResponse 子设备上线回复
+type CombineLogoutResponse struct {
+	ID      uint           `json:"id,string"`
+	Code    int            `json:"code"`
+	Data    infra.MetaPair `json:"data"`
+	Message string         `json:"message,omitempty"`
 }
 
 // ExtCombineLogout 子设备下线
@@ -136,7 +193,7 @@ func (sf *Client) ExtCombineLogout(pk, dn string) (*Token, error) {
 	}
 
 	id := sf.nextRequestID()
-	req, err := json.Marshal(&GwCombineLogoutRequest{
+	req, err := json.Marshal(&CombineLogoutRequest{
 		id,
 		infra.MetaPair{ProductKey: pk, DeviceName: dn},
 	})
@@ -149,21 +206,52 @@ func (sf *Client) ExtCombineLogout(pk, dn string) (*Token, error) {
 	if err != nil {
 		return nil, err
 	}
-	sf.log.Debugf("Ext GW <sub>: logout @%d", id)
+	sf.log.Debugf("ext.session.combine.login @%d", id)
 	return sf.putPending(id), nil
+}
+
+// CombineBatchLogoutRequest 子设备批量下线请求
+type CombineBatchLogoutRequest struct {
+	ID     uint             `json:"id,string"`
+	Params []infra.MetaPair `json:"params"`
+}
+
+// CombineBatchLogoutRequest 子设备批量下线回复
+type CombineBatchLogoutResponse struct {
+	ID      uint             `json:"id,string"`
+	Code    int              `json:"code"`
+	Data    []infra.MetaPair `json:"data"`
+	Message string           `json:"message,omitempty"`
 }
 
 // ExtCombineBatchLogout 子设备批量下线
 // NOTE: topic 应使用网关的productKey和deviceName,且只支持qos = 0
 // request:   /ext/session/{productKey}/{deviceName}/combine/batch_logout
 // response:  /ext/session/{productKey}/{deviceName}/combine/batch_logout_reply
-func (sf *Client) ExtCombineBatchLogout(pair ...infra.MetaPair) (*Token, error) {
-	// TODO
-	return nil, nil
+func (sf *Client) ExtCombineBatchLogout(pairs []infra.MetaPair) (*Token, error) {
+	if !sf.isGateway {
+		return nil, ErrNotSupportFeature
+	}
+	if len(pairs) == 0 {
+		return nil, ErrInvalidParameter
+	}
+
+	id := sf.nextRequestID()
+	req, err := json.Marshal(&CombineBatchLogoutRequest{id, pairs})
+	if err != nil {
+		return nil, err
+	}
+
+	_uri := sf.URIGateway(uri.ExtSessionPrefix, uri.CombineLogout)
+	err = sf.Publish(_uri, 0, req)
+	if err != nil {
+		return nil, err
+	}
+	sf.log.Debugf("ext.session.combine.batch.login @%d", id)
+	return sf.putPending(id), nil
 }
 
-// ProcExtCombineLoginReply 子设备上线应答处理
-// 上行
+// ProcExtCombineLoginReply 处理子设备上线应答
 // request:   /ext/session/{productKey}/{deviceName}/combine/login
 // response:  /ext/session/{productKey}/{deviceName}/combine/login_reply
 // subscribe: /ext/session/{productKey}/{deviceName}/combine/login_reply
@@ -173,58 +261,64 @@ func ProcExtCombineLoginReply(c *Client, rawURI string, payload []byte) error {
 		return ErrInvalidURI
 	}
 
-	rsp := &GwCombineLoginResponse{}
+	rsp := &CombineLoginResponse{}
 	err := json.Unmarshal(payload, rsp)
 	if err != nil {
 		return err
 	}
-
-	pk, dn := uris[1], uris[2]
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
-	} else {
-		c.SetDeviceStatus(pk, dn, DevStatusLogined) // nolint: errcheck
 	}
 	c.signalPending(Message{rsp.ID, nil, err})
-	c.log.Debugf("downstream Ext GW <sub>: login reply @%d", rsp.ID)
+	c.log.Debugf("ext.session.combine.login.reply @%d", rsp.ID)
 	return nil
 }
 
 // ProcExtCombineBatchLoginReply 子设备批量上线应答处理
-// 上行
 // request:   /ext/session/{productKey}/{deviceName}/combine/batch_login
 // response:  /ext/session/{productKey}/{deviceName}/combine/batch_login_reply
 // subscribe: /ext/session/{productKey}/{deviceName}/combine/batch_login_reply
 func ProcExtCombineBatchLoginReply(c *Client, rawURI string, payload []byte) error {
-	// TODO:
-	return nil
-}
-
-// ProcExtCombineLoginoutReply 子设备下线应答处理
-// 上行
-// request:   /ext/session/{productKey}/{deviceName}/combine/logout
-// response:  /ext/session/{productKey}/{deviceName}/combine/logout_reply
-// subscribe: /ext/session/{productKey}/{deviceName}/combine/logout_reply
-func ProcExtCombineLoginoutReply(c *Client, rawURI string, payload []byte) error {
 	uris := uri.Spilt(rawURI)
 	if len(uris) < 6 {
 		return ErrInvalidURI
 	}
 
-	rsp := &ResponseRawData{}
+	rsp := &CombineBatchLoginResponse{}
+	err := json.Unmarshal(payload, rsp)
+	if err != nil {
+		return err
+	}
+	if rsp.Code != infra.CodeSuccess {
+		err = infra.NewCodeError(rsp.Code, rsp.Message)
+	}
+	c.signalPending(Message{rsp.ID, nil, err})
+	c.log.Debugf("ext.session.combine.batch.login.reply @%d", rsp.ID)
+	return nil
+}
+
+// ProcExtCombineLogoutReply 子设备下线应答处理
+// 上行
+// request:   /ext/session/{productKey}/{deviceName}/combine/logout
+// response:  /ext/session/{productKey}/{deviceName}/combine/logout_reply
+// subscribe: /ext/session/{productKey}/{deviceName}/combine/logout_reply
+func ProcExtCombineLogoutReply(c *Client, rawURI string, payload []byte) error {
+	uris := uri.Spilt(rawURI)
+	if len(uris) < 6 {
+		return ErrInvalidURI
+	}
+
+	rsp := &CombineLogoutResponse{}
 	err := json.Unmarshal(payload, rsp)
 	if err != nil {
 		return err
 	}
 
-	pk, dn := uris[1], uris[2]
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
-	} else {
-		c.SetDeviceStatus(pk, dn, DevStatusAttached) // nolint: errcheck
 	}
 	c.signalPending(Message{rsp.ID, nil, err})
-	c.log.Debugf("downstream Ext GW <sub>: logout reply @%d", rsp.ID)
+	c.log.Debugf("ext.session.combine.logout.reply @%d", rsp.ID)
 	return nil
 }
 
@@ -234,6 +328,21 @@ func ProcExtCombineLoginoutReply(c *Client, rawURI string, payload []byte) error
 // response:  /ext/session/{productKey}/{deviceName}/combine/batch_logout_reply
 // subscribe: /ext/session/{productKey}/{deviceName}/combine/batch_logout_reply
 func ProcExtCombineBatchLogoutReply(c *Client, rawURI string, payload []byte) error {
-	// TODO:
+	uris := uri.Spilt(rawURI)
+	if len(uris) < 6 {
+		return ErrInvalidURI
+	}
+
+	rsp := &CombineBatchLogoutResponse{}
+	err := json.Unmarshal(payload, rsp)
+	if err != nil {
+		return err
+	}
+
+	if rsp.Code != infra.CodeSuccess {
+		err = infra.NewCodeError(rsp.Code, rsp.Message)
+	}
+	c.signalPending(Message{rsp.ID, nil, err})
+	c.log.Debugf("ext.session.combine.batch.logout.reply @%d", rsp.ID)
 	return nil
 }

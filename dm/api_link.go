@@ -139,6 +139,8 @@ func (sf *Client) LinkThingDynamictslGet(pk, dn string) (json.RawMessage, error)
 	return msg.Data.(json.RawMessage), nil
 }
 
+/**************************************** reqister *****************************/
+
 // LinkThingSubRegister 同步子设备注册
 func (sf *Client) LinkThingSubRegister(pk, dn string) error {
 	token, err := sf.ThingSubRegister(pk, dn)
@@ -149,7 +151,7 @@ func (sf *Client) LinkThingSubRegister(pk, dn string) error {
 	if err != nil {
 		return err
 	}
-	for _, v := range msg.Data.([]GwSubRegisterData) {
+	for _, v := range msg.Data.([]SubRegisterData) {
 		sf.SetDeviceSecret(v.ProductKey, v.DeviceName, v.DeviceSecret)      // nolint: errcheck
 		sf.SetDeviceStatus(v.ProductKey, v.DeviceName, DevStatusRegistered) // nolint: errcheck
 	}
@@ -213,20 +215,80 @@ func (sf *Client) LinkThingListFound(pairs []infra.MetaPair) error {
 	return err
 }
 
-func (sf *Client) LinkExtCombineLogin(pk, dn string) error {
-	token, err := sf.ExtCombineLogin(pk, dn)
+/**************************************** session *****************************/
+
+// LinkExtCombineLogin 子设备上线,同步
+func (sf *Client) LinkExtCombineLogin(cp CombinePair) error {
+	token, err := sf.ExtCombineLogin(cp)
 	if err != nil {
 		return err
 	}
 	_, err = token.Wait(time.Second)
-	return err
+	if err != nil {
+		return err
+	}
+	sf.SetDeviceStatus(cp.ProductKey, cp.DeviceName, DevStatusLogined) // nolint: errcheck
+	return nil
 }
 
+// LinkExtCombineBatchLogin 子设备批量上线,同步
+func (sf *Client) LinkExtCombineBatchLogin(pairs []CombinePair) error {
+	token, err := sf.ExtCombineBatchLogin(pairs)
+	if err != nil {
+		return err
+	}
+	_, err = token.Wait(time.Second)
+	if err != nil {
+		return err
+	}
+
+	for _, cp := range pairs {
+		sf.SetDeviceStatus(cp.ProductKey, cp.DeviceName, DevStatusLogined) // nolint: errcheck
+	}
+	return nil
+}
+
+// LinkExtCombineLogout 子设备下线,同步
 func (sf *Client) LinkExtCombineLogout(pk, dn string) error {
 	token, err := sf.ExtCombineLogout(pk, dn)
 	if err != nil {
 		return err
 	}
 	_, err = token.Wait(time.Second)
-	return err
+	if err != nil {
+		return err
+	}
+	sf.SetDeviceStatus(pk, dn, DevStatusAttached) // nolint: errcheck
+	return nil
+}
+
+// LinkExtCombineBatchLogout 子设备批量下线,同步
+func (sf *Client) LinkExtCombineBatchLogout(pairs []infra.MetaPair) error {
+	token, err := sf.ExtCombineBatchLogout(pairs)
+	if err != nil {
+		return err
+	}
+	_, err = token.Wait(time.Second)
+	if err != nil {
+		return err
+	}
+	for _, cp := range pairs {
+		sf.SetDeviceStatus(cp.ProductKey, cp.DeviceName, DevStatusLogined) // nolint: errcheck
+	}
+	return nil
+}
+
+/**************************************** ota *****************************/
+
+// LinkThingOtaFirmwareGet 请求固件信息,同步
+func (sf *Client) LinkThingOtaFirmwareGet(pk, dn string, param OtaFirmwareParam) (OtaFirmwareData, error) {
+	token, err := sf.ThingOtaFirmwareGet(pk, dn, param)
+	if err != nil {
+		return OtaFirmwareData{}, err
+	}
+	msg, err := token.Wait(time.Second)
+	if err != nil {
+		return OtaFirmwareData{}, err
+	}
+	return msg.Data.(OtaFirmwareData), nil
 }

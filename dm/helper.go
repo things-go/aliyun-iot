@@ -15,6 +15,11 @@ func (sf *Client) URIGateway(prefix, name string) string {
 	return uri.URI(prefix, name, sf.tetrad.ProductKey, sf.tetrad.DeviceName)
 }
 
+// ToClientID to client id like {pk}.{dn}
+func ToClientID(pk, dn string) string {
+	return pk + "." + dn
+}
+
 // 可以采用Sha256,hmacMd5,hmacSha1,hmacSha256
 func generateSign(productKey, deviceName, deviceSecret, clientID string, timestamp int64) (string, error) {
 	signSource := fmt.Sprintf("clientId%sdeviceName%sproductKey%stimestamp%d",

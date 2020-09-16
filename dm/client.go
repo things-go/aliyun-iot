@@ -210,21 +210,21 @@ func (sf *Client) SubscribeAllTopic(productKey, deviceName string, isSub bool) e
 				sf.log.Warnf(err.Error())
 			}
 			_uri = uri.URI(uri.ExtSessionPrefix, uri.CombineLogoutReply, productKey, deviceName)
-			if err = sf.Subscribe(_uri, ProcExtCombineLoginoutReply); err != nil {
+			if err = sf.Subscribe(_uri, ProcExtCombineLogoutReply); err != nil {
 				sf.log.Warnf(err.Error())
 			}
 		} else {
 			// 子设备禁用,启用,删除
 			_uri = uri.URI(uri.SysPrefix, uri.ThingDisable, productKey, deviceName)
-			if err = sf.Subscribe(_uri, ProcThingGwDisable); err != nil {
+			if err = sf.Subscribe(_uri, ProcThingDisable); err != nil {
 				sf.log.Warnf(err.Error())
 			}
 			_uri = uri.URI(uri.SysPrefix, uri.ThingEnable, productKey, deviceName)
-			if err = sf.Subscribe(_uri, ProcThingGwEnable); err != nil {
+			if err = sf.Subscribe(_uri, ProcThingEnable); err != nil {
 				sf.log.Warnf(err.Error())
 			}
 			_uri = uri.URI(uri.SysPrefix, uri.ThingDelete, productKey, deviceName)
-			if err = sf.Subscribe(_uri, ProcThingGwDelete); err != nil {
+			if err = sf.Subscribe(_uri, ProcThingDelete); err != nil {
 				sf.log.Warnf(err.Error())
 			}
 		}

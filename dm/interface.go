@@ -50,7 +50,7 @@ type Callback interface {
 	// 自定义RRPC调用,仅支持设备端Qos = 0的回复, 需用户自行做回复
 	ExtRRPCRequest(c *Client, messageID, topic string, payload []byte) error
 	// ota
-	OtaUpgrade(c *Client, productKey, deviceName string, rsp *OtaFirmware) error
+	OtaUpgrade(c *Client, productKey, deviceName string, rsp *OtaFirmwareResponse) error
 	ThingOtaFirmwareGetReply(c *Client, productKey, deviceName string, data OtaFirmwareData) error
 }
 
