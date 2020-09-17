@@ -100,6 +100,9 @@ const (
 	// log
 	ThingConfigLogGet      = "thing/config/log/get"
 	ThingConfigLogGetReply = "thing/config/log/get_reply"
+	ThingConfigLogPush     = "thing/config/log/push"
+	ThingLogPost           = "thing/config/log/post"
+	ThingLogPostReply      = "thing/config/log/post_reply"
 )
 
 // 网关URI定义

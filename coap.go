@@ -8,7 +8,7 @@ import (
 
 	"github.com/thinkgos/aliyun-iot/dm"
 	"github.com/thinkgos/aliyun-iot/infra"
-	uri2 "github.com/thinkgos/aliyun-iot/uri"
+	"github.com/thinkgos/aliyun-iot/uri"
 )
 
 // @see https://help.aliyun.com/document_detail/57697.html?spm=a2c4g.11186623.6.606.5d7a12e0FGY05a
@@ -22,7 +22,7 @@ type coapClient struct {
 }
 
 // Publish 实现dm.Conn接口
-func (sf *coapClient) Publish(uri string, _ byte, payload interface{}) error {
+func (sf *coapClient) Publish(_uri string, _ byte, payload interface{}) error {
 	var buf *bytes.Buffer
 
 	switch v := payload.(type) {
@@ -35,7 +35,7 @@ func (sf *coapClient) Publish(uri string, _ byte, payload interface{}) error {
 	}
 
 	// TODO
-	_, _ = sf.c.Post(uri2.TopicPrefix+uri, coap.AppJSON, buf)
+	_, _ = sf.c.Post(uri.TopicPrefix+_uri, coap.AppJSON, buf)
 	return nil
 }
 

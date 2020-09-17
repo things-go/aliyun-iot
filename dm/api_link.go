@@ -140,6 +140,30 @@ func (sf *Client) LinkThingDynamictslGet(pk, dn string, timeout time.Duration) (
 	return msg.Data.(json.RawMessage), nil
 }
 
+// LinkThingConfigLogGet 获取日志配置,同步
+func (sf *Client) LinkThingConfigLogGet(pk, dn string,
+	clp ConfigLogParam, timeout time.Duration) (ConfigLogParamData, error) {
+	token, err := sf.ThingConfigLogGet(pk, dn, clp)
+	if err != nil {
+		return ConfigLogParamData{}, err
+	}
+	msg, err := token.Wait(timeout)
+	if err != nil {
+		return ConfigLogParamData{}, err
+	}
+	return msg.Data.(ConfigLogParamData), nil
+}
+
+// LinkThingConfigLogGet 获取日志配置,同步
+func (sf *Client) LinkThingLogPost(pk, dn string, lp []LogParam, timeout time.Duration) error {
+	token, err := sf.ThingLogPost(pk, dn, lp)
+	if err != nil {
+		return err
+	}
+	_, err = token.Wait(timeout)
+	return err
+}
+
 /**************************************** reqister *****************************/
 
 // LinkThingSubRegister 同步子设备注册

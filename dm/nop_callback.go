@@ -16,6 +16,9 @@ var _ Callback = (*NopCb)(nil)
 // ThingModelUpRawReply see interface Callback
 func (NopCb) ThingModelUpRawReply(*Client, string, string, []byte) error { return nil }
 
+// ThingModelDownRaw see interface Callback
+func (NopCb) ThingModelDownRaw(*Client, string, string, []byte) error { return nil }
+
 // ThingEventPropertyPostReply see interface Callback
 func (NopCb) ThingEventPropertyPostReply(*Client, error, string, string) error { return nil }
 
@@ -52,23 +55,31 @@ func (NopCb) ThingDynamictslGetReply(*Client, error, string, string, json.RawMes
 	return nil
 }
 
-// ExtNtpResponse see interface Callback
-func (NopCb) ExtNtpResponse(*Client, string, string, time.Time) error { return nil }
-
 // ThingConfigGetReply see interface Callback
 func (NopCb) ThingConfigGetReply(*Client, error, string, string, ConfigParamsData) error { return nil }
 
-// ThingModelDownRaw see interface Callback
-func (NopCb) ThingModelDownRaw(*Client, string, string, []byte) error { return nil }
-
 // ThingConfigPush see interface Callback
 func (NopCb) ThingConfigPush(*Client, string, string, ConfigParamsData) error { return nil }
+
+// ThingConfigLogGetReply see interface Callback
+func (NopCb) ThingConfigLogGetReply(*Client, error, string, string, ConfigLogParamData) error {
+	return nil
+}
+
+// ThingConfigPush see interface Callback
+func (NopCb) ThingConfigLogPush(*Client, string, string, ConfigLogParamData) error { return nil }
+
+// ThingConfigPush see interface Callback
+func (NopCb) ThingLogPostReply(*Client, error, string, string) error { return nil }
 
 // ThingServicePropertySet see interface Callback
 func (NopCb) ThingServicePropertySet(*Client, string, string, []byte) error { return nil }
 
 // ThingServiceRequest see interface Callback
 func (NopCb) ThingServiceRequest(*Client, string, string, string, []byte) error { return nil }
+
+// ExtNtpResponse see interface Callback
+func (NopCb) ExtNtpResponse(*Client, string, string, time.Time) error { return nil }
 
 // RRPCRequest see interface Callback
 func (NopCb) RRPCRequest(*Client, string, string, string, []byte) error { return nil }

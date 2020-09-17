@@ -53,7 +53,8 @@ func main() {
 		panic(err)
 	}
 
-	go dynamictslTest()
+	go ConfigLogGetTest()
+	// go dynamictslTest()
 	// go DslTemplateTest() // done
 	// go DesiredGetTest() // done
 	// go DesiredDeleteTest() // done
@@ -158,6 +159,15 @@ func DesiredDeleteTest() {
 		log.Println(err)
 		return
 	}
+}
+
+func ConfigLogGetTest() {
+	data, err := dmClient.LinkThingConfigLogGet(mock.ProductKey, mock.DeviceName, dm.ConfigLogParam{}, time.Second*5)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	log.Printf("%+v", data)
 }
 
 type mockCb struct {

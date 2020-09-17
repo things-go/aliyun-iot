@@ -22,8 +22,10 @@ type Conn interface {
 
 // Callback 事件回调接口
 type Callback interface {
-	// 上行应答
+	// 透传应答
 	ThingModelUpRawReply(c *Client, productKey, deviceName string, payload []byte) error
+	// 透传请求,需要用户自己处理及应答
+	ThingModelDownRaw(c *Client, productKey, deviceName string, payload []byte) error
 	// event
 	ThingEventPropertyPostReply(c *Client, err error, productKey, deviceName string) error
 	ThingEventPostReply(c *Client, err error, eventID, productKey, deviceName string) error
@@ -35,7 +37,7 @@ type Callback interface {
 	// desired property
 	ThingDesiredPropertyGetReply(c *Client, err error, productKey, deviceName string, data json.RawMessage) error
 	ThingDesiredPropertyDeleteReply(c *Client, err error, productKey, deviceName string) error
-
+	// template
 	ThingDsltemplateGetReply(c *Client, err error, productKey, deviceName string, data json.RawMessage) error
 	ThingDynamictslGetReply(c *Client, err error, productKey, deviceName string, data json.RawMessage) error
 	// config
@@ -43,9 +45,12 @@ type Callback interface {
 	// 配置推送,已做默认回复
 	ThingConfigPush(c *Client, productKey, deviceName string, params ConfigParamsData) error
 
-	// 下行
-	// 透传请求,需要用户自己处理及应答
-	ThingModelDownRaw(c *Client, productKey, deviceName string, payload []byte) error
+	// log
+	ThingConfigLogGetReply(c *Client, err error, productKey, deviceName string, data ConfigLogParamData) error
+	ThingConfigLogPush(c *Client, productKey, deviceName string, param ConfigLogParamData) error
+	ThingLogPostReply(c *Client, err error, productKey, deviceName string) error
+
+	// service
 	// 设置设备属性, 需用户自行做回复
 	ThingServicePropertySet(c *Client, productKey, deviceName string, payload []byte) error
 	// 设备服务调用,需用户自行做回复

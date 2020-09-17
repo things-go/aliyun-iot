@@ -117,6 +117,20 @@ func (sf *Client) SubscribeAllTopic(productKey, deviceName string, isSub bool) e
 		sf.log.Warnf(err.Error())
 	}
 
+	// log
+	_uri = uri.URI(uri.SysPrefix, uri.ThingConfigLogGetReply, productKey, deviceName)
+	if err = sf.Subscribe(_uri, ProcThingConfigLogGetReply); err != nil {
+		sf.log.Warnf(err.Error())
+	}
+	_uri = uri.URI(uri.SysPrefix, uri.ThingLogPostReply, productKey, deviceName)
+	if err = sf.Subscribe(_uri, ProcThingLogPostReply); err != nil {
+		sf.log.Warnf(err.Error())
+	}
+	_uri = uri.URI(uri.SysPrefix, uri.ThingConfigLogPush, productKey, deviceName)
+	if err = sf.Subscribe(_uri, ProcThingConfigLogPush); err != nil {
+		sf.log.Warnf(err.Error())
+	}
+
 	// TODO: 不使用??
 	// dynamictsl
 	// _uri = infra.URI(SysPrefix, URIThingDynamicTslGetReply, productKey, deviceName)

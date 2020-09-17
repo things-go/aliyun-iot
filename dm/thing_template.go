@@ -26,7 +26,6 @@ func (sf *Client) ThingDynamictslGet(pk, dn string) (*Token, error) {
 }
 
 // ProcThingDsltemplateGetReply 处理dsltemplate获取的应答
-// 上行
 // request:   /sys/{productKey}/{deviceName}/thing/dsltemplate/get
 // response:  /sys/{productKey}/{deviceName}/thing/dsltemplate/get_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/dsltemplate/get_reply
