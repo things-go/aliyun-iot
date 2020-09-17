@@ -45,9 +45,9 @@ func ProcThingDsltemplateGetReply(c *Client, rawURI string, payload []byte) erro
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.signalPending(Message{rsp.ID, rsp.Data, err})
-	pk, dn := uris[1], uris[2]
+	c.signalPending(Message{rsp.ID, cloneJSONRawMessage(rsp.Data), err})
 	c.log.Debugf("thing.dsltemplate.get.reply @%d", rsp.ID)
+	pk, dn := uris[1], uris[2]
 	return c.cb.ThingDsltemplateGetReply(c, err, pk, dn, rsp.Data)
 }
 
@@ -70,7 +70,7 @@ func ProcThingDynamictslGetReply(c *Client, rawURI string, payload []byte) error
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.signalPending(Message{rsp.ID, rsp.Data, err})
+	c.signalPending(Message{rsp.ID, cloneJSONRawMessage(rsp.Data), err})
 	pk, dn := uris[1], uris[2]
 	c.log.Debugf("thing.dynamictsl.get.reply @%d", rsp.ID)
 	return c.cb.ThingDynamictslGetReply(c, err, pk, dn, rsp.Data)

@@ -45,11 +45,14 @@ type Client struct {
 }
 
 // New new a dynamic client
-func New() *Client {
+func New(opts ...Option) *Client {
 	c := &Client{
 		http.DefaultClient,
 	}
 
+	for _, opt := range opts {
+		opt(c)
+	}
 	return c
 }
 

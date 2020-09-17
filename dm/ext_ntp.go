@@ -56,7 +56,7 @@ func ProcExtNtpResponse(c *Client, rawURI string, payload []byte) error {
 	}
 	tm := (rsp.ServerRecvTime + rsp.ServerSendTime + infra.Millisecond(time.Now()) - rsp.DeviceSendTime) / 2
 	exact := infra.Time(tm)
-	c.log.Debugf("ext.ntp.response -- ", exact)
+	c.log.Debugf("ext.ntp.response -- %+v", exact)
 	pk, dn := uris[2], uris[3]
 	return c.cb.ExtNtpResponse(c, pk, dn, exact)
 }

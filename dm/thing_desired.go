@@ -16,7 +16,6 @@ func (sf *Client) ThingDesiredPropertyGet(pk, dn string, params []string) (*Toke
 	if !sf.hasDesired {
 		return nil, ErrNotSupportFeature
 	}
-
 	_uri := uri.URI(uri.SysPrefix, uri.ThingDesiredPropertyGet, pk, dn)
 	return sf.SendRequest(_uri, infra.MethodDesiredPropertyGet, params)
 }
@@ -28,7 +27,6 @@ func (sf *Client) ThingDesiredPropertyDelete(pk, dn string, params interface{}) 
 	if !sf.hasDesired {
 		return nil, ErrNotSupportFeature
 	}
-
 	_uri := uri.URI(uri.SysPrefix, uri.ThingDesiredPropertyDelete, pk, dn)
 	return sf.SendRequest(_uri, infra.MethodDesiredPropertyDelete, params)
 }
@@ -54,13 +52,14 @@ func ProcThingDesiredPropertyGetReply(c *Client, rawURI string, payload []byte) 
 	}
 
 	c.signalPending(Message{rsp.ID, cloneJSONRawMessage(rsp.Data), err})
-	pk, dn := uris[1], uris[2]
+
 	c.log.Debugf("thing.property.desired.get.reply @%d", rsp.ID)
+
+	pk, dn := uris[1], uris[2]
 	return c.cb.ThingDesiredPropertyGetReply(c, err, pk, dn, rsp.Data)
 }
 
 // ProcThingDesiredPropertyDeleteReply 处理清空期望属性值的应答
-// 上行
 // request:   /sys/{productKey}/{deviceName}/thing/property/desired/delete
 // response:  /sys/{productKey}/{deviceName}/thing/property/desired/delete_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/property/desired/delete_reply
@@ -78,7 +77,9 @@ func ProcThingDesiredPropertyDeleteReply(c *Client, rawURI string, payload []byt
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 	c.signalPending(Message{rsp.ID, nil, err})
-	pk, dn := uris[1], uris[2]
+
 	c.log.Debugf("thing.property.desired.delete.reply @%d", rsp.ID)
+
+	pk, dn := uris[1], uris[2]
 	return c.cb.ThingDesiredPropertyDeleteReply(c, err, pk, dn)
 }

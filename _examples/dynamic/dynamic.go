@@ -9,11 +9,7 @@ import (
 )
 
 func main() {
-	meta := &infra.MetaTetrad{
-		ProductKey:    mock.ProductKey,
-		ProductSecret: mock.ProductSecret,
-		DeviceName:    mock.DeviceName,
-	}
+	meta := mock.MetaTetrad
 	crd := infra.CloudRegionDomain{
 		Region:       infra.CloudRegionShangHai,
 		CustomDomain: "127.0.0.1:8080",
@@ -21,7 +17,7 @@ func main() {
 
 	cli := dynamic.New()
 
-	err := cli.RegisterCloud(meta, crd)
+	err := cli.RegisterCloud(&meta, crd)
 	if err != nil {
 		panic(err)
 	}

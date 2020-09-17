@@ -129,7 +129,7 @@ func (sf *Client) LinkThingDsltemplateGet(pk, dn string, timeout time.Duration) 
 
 // LinkThingDynamictslGet 获取动态tsl,同步
 func (sf *Client) LinkThingDynamictslGet(pk, dn string, timeout time.Duration) (json.RawMessage, error) {
-	token, err := sf.ThingDsltemplateGet(pk, dn)
+	token, err := sf.ThingDynamictslGet(pk, dn)
 	if err != nil {
 		return nil, err
 	}

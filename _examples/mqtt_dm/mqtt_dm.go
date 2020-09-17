@@ -53,15 +53,16 @@ func main() {
 		panic(err)
 	}
 
-	//go DslTemplateTest()
+	go dynamictslTest()
+	// go DslTemplateTest() // done
 	// go DesiredGetTest() // done
-	// go DesiredDeleteTest()
+	// go DesiredDeleteTest() // done
 	// go ConfigTest() // done
-	// NTPTest() // done
-	// DeviceInfoTest()  // done
-	// ThingEventPost() // done
+	// go NTPTest() // done
+	// go DeviceInfoTest() // done
+	// go ThingEventPost() // done
 	for {
-		time.Sleep(time.Second * 15)
+		time.Sleep(time.Second * 30)
 		err := dmClient.LinkThingEventPropertyPost(mock.ProductKey, mock.DeviceName,
 			mock.Instance{
 				rand.Intn(200),
@@ -80,11 +81,11 @@ func ThingEventPost() {
 		err := dmClient.LinkThingEventPost(mock.ProductKey, mock.DeviceName, "tempAlarm",
 			map[string]interface{}{
 				"high": 1,
-			}, time.Second)
+			}, time.Second*5)
 		if err != nil {
 			log.Printf("error: %#v", err)
 		}
-		time.Sleep(time.Second * 10)
+		time.Sleep(time.Second * 15)
 	}
 }
 
@@ -114,21 +115,22 @@ func ConfigTest() {
 		log.Println(err)
 		return
 	}
-	log.Println(cpd)
+	log.Printf("config: %+v", cpd)
 }
 
 func DslTemplateTest() {
-	_, err := dmClient.LinkThingDsltemplateGet(mock.ProductKey, mock.DeviceName, time.Second*5)
+	data, err := dmClient.LinkThingDsltemplateGet(mock.ProductKey, mock.DeviceName, time.Second*5)
 	if err != nil {
 		log.Println(err)
 		return
 	}
+	log.Printf("%+v", string(data))
 }
 
 func dynamictslTest() {
 	_, err := dmClient.LinkThingDynamictslGet(mock.ProductKey, mock.DeviceName, time.Second*5)
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
 }
 

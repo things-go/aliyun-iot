@@ -24,27 +24,36 @@ type Conn interface {
 type Callback interface {
 	// 上行应答
 	ThingModelUpRawReply(c *Client, productKey, deviceName string, payload []byte) error
+	// event
 	ThingEventPropertyPostReply(c *Client, err error, productKey, deviceName string) error
 	ThingEventPostReply(c *Client, err error, eventID, productKey, deviceName string) error
 	ThingEventPropertyPackPostReply(c *Client, err error, productKey, deviceName string) error
 	ThingEventPropertyHistoryPostReply(c *Client, err error, productKey, deviceName string) error
+	// device info
 	ThingDeviceInfoUpdateReply(c *Client, err error, productKey, deviceName string) error
 	ThingDeviceInfoDeleteReply(c *Client, err error, productKey, deviceName string) error
+	// desired property
 	ThingDesiredPropertyGetReply(c *Client, err error, productKey, deviceName string, data json.RawMessage) error
 	ThingDesiredPropertyDeleteReply(c *Client, err error, productKey, deviceName string) error
+
 	ThingDsltemplateGetReply(c *Client, err error, productKey, deviceName string, data json.RawMessage) error
 	ThingDynamictslGetReply(c *Client, err error, productKey, deviceName string, data json.RawMessage) error
-	ExtNtpResponse(c *Client, productKey, deviceName string, exact time.Time) error
+	// config
 	ThingConfigGetReply(c *Client, err error, productKey, deviceName string, data ConfigParamsData) error
+	// 配置推送,已做默认回复
+	ThingConfigPush(c *Client, productKey, deviceName string, params ConfigParamsData) error
+
 	// 下行
 	// 透传请求,需要用户自己处理及应答
 	ThingModelDownRaw(c *Client, productKey, deviceName string, payload []byte) error
-	// 配置推送,已做默认回复
-	ThingConfigPush(c *Client, productKey, deviceName string, params ConfigParamsData) error
 	// 设置设备属性, 需用户自行做回复
 	ThingServicePropertySet(c *Client, productKey, deviceName string, payload []byte) error
 	// 设备服务调用,需用户自行做回复
 	ThingServiceRequest(c *Client, srvID, productKey, deviceName string, payload []byte) error
+
+	// ntp
+	ExtNtpResponse(c *Client, productKey, deviceName string, exact time.Time) error
+
 	// 系统RRPC调用, 仅支持设备端Qos = 0的回复,需用户自行做回复
 	RRPCRequest(c *Client, messageID, productKey, deviceName string, payload []byte) error
 	// 自定义RRPC调用,仅支持设备端Qos = 0的回复, 需用户自行做回复
