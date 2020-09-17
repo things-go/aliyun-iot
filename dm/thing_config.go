@@ -74,7 +74,7 @@ func ProcThingConfigGetReply(c *Client, rawURI string, payload []byte) error {
 	}
 	c.signalPending(Message{rsp.ID, rsp.Data, err})
 	pk, dn := uris[1], uris[2]
-	c.log.Debugf("thing.config.get.reply @%d", rsp.ID)
+	c.Log.Debugf("thing.config.get.reply @%d", rsp.ID)
 	return c.cb.ThingConfigGetReply(c, err, pk, dn, rsp.Data)
 }
 
@@ -84,7 +84,7 @@ func ProcThingConfigGetReply(c *Client, rawURI string, payload []byte) error {
 // response:  /sys/{productKey}/{deviceName}/thing/config/push_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/config/push
 func ProcThingConfigPush(c *Client, rawURI string, payload []byte) error {
-	c.log.Debugf("thing.config.push")
+	c.Log.Debugf("thing.config.push")
 	uris := uri.Spilt(rawURI)
 	if len(uris) < 6 {
 		return ErrInvalidURI
@@ -96,7 +96,7 @@ func ProcThingConfigPush(c *Client, rawURI string, payload []byte) error {
 	_uri := uri.ReplyWithRequestURI(rawURI)
 	err := c.Response(_uri, Response{ID: req.ID, Code: infra.CodeSuccess, Data: "{}"})
 	if err != nil {
-		c.log.Errorf("thing.config.push.reply %+v", err)
+		c.Log.Errorf("thing.config.push.reply %+v", err)
 	}
 	pk, dn := uris[1], uris[2]
 	return c.cb.ThingConfigPush(c, pk, dn, req.Params)

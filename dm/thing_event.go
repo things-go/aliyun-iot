@@ -75,7 +75,7 @@ func ProcThingEventPostReply(c *Client, rawURI string, payload []byte) error {
 
 	pk, dn := uris[1], uris[2]
 	eventID := uris[5]
-	c.log.Debugf("thing.event.%s.post.reply @%d", eventID, rsp.ID)
+	c.Log.Debugf("thing.event.%s.post.reply @%d", eventID, rsp.ID)
 	if eventID == property {
 		return c.cb.ThingEventPropertyPostReply(c, err, pk, dn)
 	}
@@ -103,7 +103,7 @@ func ProcThingEventPropertyPackPostReply(c *Client, rawURI string, payload []byt
 
 	c.signalPending(Message{rsp.ID, nil, err})
 	pk, dn := uris[1], uris[2]
-	c.log.Debugf("thing.event.property.pack.post.reply @%d", rsp.ID)
+	c.Log.Debugf("thing.event.property.pack.post.reply @%d", rsp.ID)
 	return c.cb.ThingEventPropertyPackPostReply(c, err, pk, dn)
 }
 
@@ -127,6 +127,6 @@ func ProcThingEventPropertyHistoryPostReply(c *Client, rawURI string, payload []
 
 	c.signalPending(Message{rsp.ID, nil, err})
 	pk, dn := uris[1], uris[2]
-	c.log.Debugf("thing.event.property.history.post.reply @%d", rsp.ID)
+	c.Log.Debugf("thing.event.property.history.post.reply @%d", rsp.ID)
 	return c.cb.ThingEventPropertyHistoryPostReply(c, err, pk, dn)
 }

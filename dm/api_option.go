@@ -97,6 +97,6 @@ func WithGwCallback(cb GwCallback) Option {
 // WithLogger 设置日志
 func WithLogger(l logger.Logger) Option {
 	return func(c *Client) {
-		c.log = l
+		c.Log = l
 	}
 }

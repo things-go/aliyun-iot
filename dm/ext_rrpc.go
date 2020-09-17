@@ -25,7 +25,7 @@ func ProcRRPCRequest(c *Client, rawURI string, payload []byte) error {
 
 	pk, dn := uris[1], uris[2]
 	messageID := uris[5]
-	c.log.Debugf("rrpc.request.%s", messageID)
+	c.Log.Debugf("rrpc.request.%s", messageID)
 	return c.cb.RRPCRequest(c, messageID, pk, dn, payload)
 }
 
@@ -41,6 +41,6 @@ func ProcExtRRPCRequest(c *Client, rawURI string, payload []byte) error {
 		return ErrInvalidParameter
 	}
 	messageID, topic := uris[2], uris[3]
-	c.log.Debugf("ext.rrpc.%s -- topic: %s", messageID, topic)
+	c.Log.Debugf("ext.rrpc.%s -- topic: %s", messageID, topic)
 	return c.cb.ExtRRPCRequest(c, messageID, topic, payload)
 }

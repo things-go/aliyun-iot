@@ -121,7 +121,7 @@ func ProcThingTopoAddReply(c *Client, rawURI string, payload []byte) error {
 	}
 
 	c.signalPending(Message{rsp.ID, rsp.Data, err})
-	c.log.Debugf("thing.topo.add.reply @%d", rsp.ID)
+	c.Log.Debugf("thing.topo.add.reply @%d", rsp.ID)
 	return nil
 }
 
@@ -153,7 +153,7 @@ func ProcThingTopoDeleteReply(c *Client, rawURI string, payload []byte) error {
 	}
 
 	c.signalPending(Message{rsp.ID, rsp.Data, err})
-	c.log.Debugf("thing.topo.delete.reply @%d", rsp.ID)
+	c.Log.Debugf("thing.topo.delete.reply @%d", rsp.ID)
 	return nil
 }
 
@@ -184,7 +184,7 @@ func ProcThingTopoGetReply(c *Client, rawURI string, payload []byte) error {
 	}
 
 	c.signalPending(Message{rsp.ID, rsp.Data, err})
-	c.log.Debugf("thing.topo.get.reply @%d", rsp.ID)
+	c.Log.Debugf("thing.topo.get.reply @%d", rsp.ID)
 	return c.gwCb.ThingTopoGetReply(c, err, rsp.Data)
 }
 
@@ -209,7 +209,7 @@ func ProcThingListFoundReply(c *Client, rawURI string, payload []byte) error {
 	}
 
 	c.signalPending(Message{rsp.ID, nil, err})
-	c.log.Debugf("thing.list.found.reply @%d", rsp.ID)
+	c.Log.Debugf("thing.list.found.reply @%d", rsp.ID)
 	return c.gwCb.ThingListFoundReply(c, err)
 }
 
@@ -230,7 +230,7 @@ func ProcThingTopoAddNotify(c *Client, rawURI string, payload []byte) error {
 	if len(uris) < 7 {
 		return ErrInvalidURI
 	}
-	c.log.Debugf("thing.topo.add.notify")
+	c.Log.Debugf("thing.topo.add.notify")
 
 	req := &TopoAddNotifyRequest{}
 	if err := json.Unmarshal(payload, req); err != nil {
@@ -240,7 +240,7 @@ func ProcThingTopoAddNotify(c *Client, rawURI string, payload []byte) error {
 	_uri := uri.ReplyWithRequestURI(rawURI)
 	err := c.Response(_uri, Response{ID: req.ID, Code: infra.CodeSuccess, Data: "{}"})
 	if err != nil {
-		c.log.Warnf("thing.topo.add.notify.response, %+v", err)
+		c.Log.Warnf("thing.topo.add.notify.response, %+v", err)
 	}
 	return c.gwCb.ThingTopoAddNotify(c, req.Params)
 }
@@ -268,7 +268,7 @@ func ProcThingTopoChange(c *Client, rawURI string, payload []byte) error {
 	if len(uris) < 6 {
 		return ErrInvalidURI
 	}
-	c.log.Debugf("thing.topo.change")
+	c.Log.Debugf("thing.topo.change")
 
 	req := &TopoChangeRequest{}
 	if err := json.Unmarshal(payload, req); err != nil {
@@ -278,7 +278,7 @@ func ProcThingTopoChange(c *Client, rawURI string, payload []byte) error {
 	_uri := uri.ReplyWithRequestURI(rawURI)
 	err := c.Response(_uri, Response{ID: req.ID, Code: infra.CodeSuccess, Data: "{}"})
 	if err != nil {
-		c.log.Warnf("thing.topo.change.response, %+v", err)
+		c.Log.Warnf("thing.topo.change.response, %+v", err)
 	}
 	return c.gwCb.ThingTopoChange(c, req.Params)
 }

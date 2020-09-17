@@ -16,9 +16,9 @@ func ProcThingServiceRequest(c *Client, rawURI string, payload []byte) error {
 	pk, dn := uris[1], uris[2]
 	serviceID := uris[5]
 	if serviceID == property && len(uris) >= 7 && uris[6] == "set" {
-		c.log.Debugf("thing.service.property.set")
+		c.Log.Debugf("thing.service.property.set")
 		return c.cb.ThingServicePropertySet(c, pk, dn, payload)
 	}
-	c.log.Debugf("thing.service.%s", serviceID)
+	c.Log.Debugf("thing.service.%s", serviceID)
 	return c.cb.ThingServiceRequest(c, serviceID, pk, dn, payload)
 }

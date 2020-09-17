@@ -58,6 +58,6 @@ func ProcThingSubRegisterReply(c *Client, rawURI string, payload []byte) error {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 	c.signalPending(Message{rsp.ID, rsp.Data, err})
-	c.log.Debugf("thing.sub.register.reply @%d", rsp.ID)
+	c.Log.Debugf("thing.sub.register.reply @%d", rsp.ID)
 	return nil
 }

@@ -197,8 +197,8 @@ func (sf mockCb) RRPCRequest(c *dm.Client, messageID, productKey, deviceName str
 	if err := json.Unmarshal(payload, req); err != nil {
 		return err
 	}
-	log.Printf("rrpc.resopnse.%s", messageID)
-	log.Printf("%+v", req)
+	c.Log.Debugf("rrpc.resopnse.%s", messageID)
+	c.Log.Debugf("%+v", req)
 	return c.RRPCResponse(productKey, deviceName, messageID, dm.Response{
 		ID:   req.ID,
 		Code: infra.CodeSuccess,

@@ -93,7 +93,7 @@ func (sf *Client) ExtCombineLogin(cp CombinePair) (*Token, error) {
 	if err != nil {
 		return nil, err
 	}
-	sf.log.Debugf("ext.session.combine.login @%d", id)
+	sf.Log.Debugf("ext.session.combine.login @%d", id)
 	return sf.putPending(id), nil
 }
 
@@ -165,7 +165,7 @@ func (sf *Client) ExtCombineBatchLogin(pairs []CombinePair) (*Token, error) {
 	if err != nil {
 		return nil, err
 	}
-	sf.log.Debugf("ext.session.combine.batch.login @%d", id)
+	sf.Log.Debugf("ext.session.combine.batch.login @%d", id)
 	return sf.putPending(id), nil
 }
 
@@ -206,7 +206,7 @@ func (sf *Client) ExtCombineLogout(pk, dn string) (*Token, error) {
 	if err != nil {
 		return nil, err
 	}
-	sf.log.Debugf("ext.session.combine.login @%d", id)
+	sf.Log.Debugf("ext.session.combine.login @%d", id)
 	return sf.putPending(id), nil
 }
 
@@ -247,7 +247,7 @@ func (sf *Client) ExtCombineBatchLogout(pairs []infra.MetaPair) (*Token, error) 
 	if err != nil {
 		return nil, err
 	}
-	sf.log.Debugf("ext.session.combine.batch.login @%d", id)
+	sf.Log.Debugf("ext.session.combine.batch.login @%d", id)
 	return sf.putPending(id), nil
 }
 
@@ -270,7 +270,7 @@ func ProcExtCombineLoginReply(c *Client, rawURI string, payload []byte) error {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 	c.signalPending(Message{rsp.ID, nil, err})
-	c.log.Debugf("ext.session.combine.login.reply @%d", rsp.ID)
+	c.Log.Debugf("ext.session.combine.login.reply @%d", rsp.ID)
 	return nil
 }
 
@@ -293,7 +293,7 @@ func ProcExtCombineBatchLoginReply(c *Client, rawURI string, payload []byte) err
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 	c.signalPending(Message{rsp.ID, nil, err})
-	c.log.Debugf("ext.session.combine.batch.login.reply @%d", rsp.ID)
+	c.Log.Debugf("ext.session.combine.batch.login.reply @%d", rsp.ID)
 	return nil
 }
 
@@ -318,7 +318,7 @@ func ProcExtCombineLogoutReply(c *Client, rawURI string, payload []byte) error {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 	c.signalPending(Message{rsp.ID, nil, err})
-	c.log.Debugf("ext.session.combine.logout.reply @%d", rsp.ID)
+	c.Log.Debugf("ext.session.combine.logout.reply @%d", rsp.ID)
 	return nil
 }
 
@@ -343,6 +343,6 @@ func ProcExtCombineBatchLogoutReply(c *Client, rawURI string, payload []byte) er
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 	c.signalPending(Message{rsp.ID, nil, err})
-	c.log.Debugf("ext.session.combine.batch.logout.reply @%d", rsp.ID)
+	c.Log.Debugf("ext.session.combine.batch.logout.reply @%d", rsp.ID)
 	return nil
 }

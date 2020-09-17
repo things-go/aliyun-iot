@@ -74,7 +74,7 @@ func (sf *Client) thingDiagPost(pk, dn string, p interface{}, isNow bool) (*Toke
 		return nil, err
 	}
 
-	sf.log.Debugf("thing.diag.post @%d", id)
+	sf.Log.Debugf("thing.diag.post @%d", id)
 	_uri := uri.URI(uri.SysPrefix, uri.ThingDiagPost, pk, dn)
 	if err = sf.Publish(_uri, 1, out); err != nil {
 		return nil, err
@@ -117,7 +117,7 @@ func ProcThingDialPostReply(c *Client, rawURI string, payload []byte) error {
 	}
 
 	c.signalPending(Message{rsp.ID, nil, err})
-	c.log.Debugf("thing.diag.post.reply @%d", rsp.ID)
+	c.Log.Debugf("thing.diag.post.reply @%d", rsp.ID)
 	pk, dn := uris[1], uris[2]
 	return c.cb.ThingDialPostReply(c, err, pk, dn)
 }

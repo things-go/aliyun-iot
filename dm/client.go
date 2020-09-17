@@ -31,7 +31,7 @@ func (sf *Client) Request(_uri string, requestID uint, method string, params int
 // params: 消息体Request的params
 func (sf *Client) SendRequest(_uri, method string, params interface{}) (*Token, error) {
 	id := sf.nextRequestID()
-	sf.log.Debugf("%s @%d", method, id)
+	sf.Log.Debugf("%s @%d", method, id)
 	if err := sf.Request(_uri, id, method, params); err != nil {
 		return nil, err
 	}
@@ -63,18 +63,18 @@ func (sf *Client) SubscribeAllTopic(productKey, deviceName string, isSub bool) e
 	if sf.hasRawModel {
 		_uri = uri.URI(uri.SysPrefix, uri.ThingModelUpRawReply, productKey, deviceName)
 		if err = sf.Subscribe(_uri, ProcThingModelUpRawReply); err != nil {
-			sf.log.Warnf(err.Error())
+			sf.Log.Warnf(err.Error())
 		}
 
 		_uri = uri.URI(uri.SysPrefix, uri.ThingModelDownRaw, productKey, deviceName)
 		if err = sf.Subscribe(_uri, ProcThingModelDownRaw); err != nil {
-			sf.log.Warnf(err.Error())
+			sf.Log.Warnf(err.Error())
 		}
 	} else {
 		// event 主题订阅
 		_uri = uri.URI(uri.SysPrefix, uri.ThingEventPostReplyWildcardOne, productKey, deviceName)
 		if err = sf.Subscribe(_uri, ProcThingEventPostReply); err != nil {
-			sf.log.Warnf(err.Error())
+			sf.Log.Warnf(err.Error())
 		}
 	}
 
@@ -82,91 +82,91 @@ func (sf *Client) SubscribeAllTopic(productKey, deviceName string, isSub bool) e
 	if sf.hasDesired {
 		_uri = uri.URI(uri.SysPrefix, uri.ThingDesiredPropertyGetReply, productKey, deviceName)
 		if err = sf.Subscribe(_uri, ProcThingDesiredPropertyGetReply); err != nil {
-			sf.log.Warnf(err.Error())
+			sf.Log.Warnf(err.Error())
 		}
 		_uri = uri.URI(uri.SysPrefix, uri.ThingDesiredPropertyDelete, productKey, deviceName)
 		if err = sf.Subscribe(_uri, ProcThingDesiredPropertyDeleteReply); err != nil {
-			sf.log.Warnf(err.Error())
+			sf.Log.Warnf(err.Error())
 		}
 	}
 	// deviceInfo 主题订阅
 	_uri = uri.URI(uri.SysPrefix, uri.ThingDeviceInfoUpdateReply, productKey, deviceName)
 	if err = sf.Subscribe(_uri, ProcThingDeviceInfoUpdateReply); err != nil {
-		sf.log.Warnf(err.Error())
+		sf.Log.Warnf(err.Error())
 	}
 	_uri = uri.URI(uri.SysPrefix, uri.ThingDeviceInfoDeleteReply, productKey, deviceName)
 	if err = sf.Subscribe(_uri, ProcThingDeviceInfoDeleteReply); err != nil {
-		sf.log.Warnf(err.Error())
+		sf.Log.Warnf(err.Error())
 	}
 
 	// 服务调用
 	_uri = uri.URI(uri.SysPrefix, uri.ThingServiceRequestWildcardSome, productKey, deviceName)
 	if err = sf.Subscribe(_uri, ProcThingServiceRequest); err != nil {
-		sf.log.Warnf(err.Error())
+		sf.Log.Warnf(err.Error())
 	}
 
 	// dsltemplate 订阅
 	_uri = uri.URI(uri.SysPrefix, uri.ThingDslTemplateGetReply, productKey, deviceName)
 	if err = sf.Subscribe(_uri, ProcThingDsltemplateGetReply); err != nil {
-		sf.log.Warnf(err.Error())
+		sf.Log.Warnf(err.Error())
 	}
 
-	// log
+	// Log
 	_uri = uri.URI(uri.SysPrefix, uri.ThingConfigLogGetReply, productKey, deviceName)
 	if err = sf.Subscribe(_uri, ProcThingConfigLogGetReply); err != nil {
-		sf.log.Warnf(err.Error())
+		sf.Log.Warnf(err.Error())
 	}
 	_uri = uri.URI(uri.SysPrefix, uri.ThingLogPostReply, productKey, deviceName)
 	if err = sf.Subscribe(_uri, ProcThingLogPostReply); err != nil {
-		sf.log.Warnf(err.Error())
+		sf.Log.Warnf(err.Error())
 	}
 	_uri = uri.URI(uri.SysPrefix, uri.ThingConfigLogPush, productKey, deviceName)
 	if err = sf.Subscribe(_uri, ProcThingConfigLogPush); err != nil {
-		sf.log.Warnf(err.Error())
+		sf.Log.Warnf(err.Error())
 	}
 
 	// TODO: 不使用??
 	// dynamictsl
 	// _uri = infra.URI(SysPrefix, URIThingDynamicTslGetReply, productKey, deviceName)
 	// if err = sf.Subscribe(_uri, ProcThingDynamictslGetReply); err != nil {
-	//	sf.log.Warnf(err.Error())
+	//	sf.Log.Warnf(err.Error())
 	// }
 
 	// RRPC
 	_uri = uri.URI(uri.SysPrefix, uri.RRPCRequestWildcardOne, productKey, deviceName)
 	if err = sf.Subscribe(_uri, ProcRRPCRequest); err != nil {
-		sf.log.Warnf(err.Error())
+		sf.Log.Warnf(err.Error())
 	}
 
 	// ntp订阅, 只有网关和独立设备支持ntp
 	if sf.hasNTP && !isSub {
 		_uri = uri.URI(uri.ExtNtpPrefix, uri.NtpResponse, productKey, deviceName)
 		if err = sf.Subscribe(_uri, ProcExtNtpResponse); err != nil {
-			sf.log.Warnf(err.Error())
+			sf.Log.Warnf(err.Error())
 		}
 	}
 
 	// config 主题订阅
 	_uri = uri.URI(uri.SysPrefix, uri.ThingConfigGetReply, productKey, deviceName)
 	if err = sf.Subscribe(_uri, ProcThingConfigGetReply); err != nil {
-		sf.log.Warnf(err.Error())
+		sf.Log.Warnf(err.Error())
 	}
 	_uri = uri.URI(uri.SysPrefix, uri.ThingConfigPush, productKey, deviceName)
 	if err = sf.Subscribe(_uri, ProcThingConfigPush); err != nil {
-		sf.log.Warnf(err.Error())
+		sf.Log.Warnf(err.Error())
 	}
 
 	// error 订阅
 	_uri = uri.URI(uri.ExtErrorPrefix, "", productKey, deviceName)
 	if err = sf.Subscribe(_uri, ProcExtErrorResponse); err != nil {
-		sf.log.Warnf(err.Error())
+		sf.Log.Warnf(err.Error())
 	}
 
 	// diag
 	if sf.hasDiag {
 		_uri = uri.URI(uri.SysPrefix, uri.ThingDiagPost, productKey, deviceName)
 		if err = sf.Subscribe(_uri, ProcThingDialPostReply); err != nil {
-			sf.log.Warnf(err.Error())
+			sf.Log.Warnf(err.Error())
 		}
 	}
 
@@ -175,73 +175,73 @@ func (sf *Client) SubscribeAllTopic(productKey, deviceName string, isSub bool) e
 			// 网关批量上报数据
 			_uri = sf.URIGateway(uri.SysPrefix, uri.ThingEventPropertyPackPostReply)
 			if err = sf.Subscribe(_uri, ProcThingEventPropertyPackPostReply); err != nil {
-				sf.log.Warnf(err.Error())
+				sf.Log.Warnf(err.Error())
 			}
 
 			// 添加该网关和子设备的拓扑关系
 			_uri = uri.URI(uri.SysPrefix, uri.ThingTopoAddReply, productKey, deviceName)
 			if err = sf.Subscribe(_uri, ProcThingTopoAddReply); err != nil {
-				sf.log.Warnf(err.Error())
+				sf.Log.Warnf(err.Error())
 			}
 
 			// 删除该网关和子设备的拓扑关系
 			_uri = uri.URI(uri.SysPrefix, uri.ThingTopoDeleteReply, productKey, deviceName)
 			if err = sf.Subscribe(_uri, ProcThingTopoDeleteReply); err != nil {
-				sf.log.Warnf(err.Error())
+				sf.Log.Warnf(err.Error())
 			}
 
 			// 获取该网关和子设备的拓扑关系
 			_uri = uri.URI(uri.SysPrefix, uri.ThingTopoGetReply, productKey, deviceName)
 			if err = sf.Subscribe(_uri, ProcThingTopoGetReply); err != nil {
-				sf.log.Warnf(err.Error())
+				sf.Log.Warnf(err.Error())
 			}
 
 			// 发现设备列表上报
 			if err = sf.Subscribe(uri.URI(uri.SysPrefix, uri.ThingListFoundReply, productKey, deviceName),
 				ProcThingListFoundReply); err != nil {
-				sf.log.Warnf(err.Error())
+				sf.Log.Warnf(err.Error())
 			}
 
 			// 添加设备拓扑关系通知,topic需要用网关的productKey,deviceName
 			_uri = uri.URI(uri.SysPrefix, uri.ThingTopoAddNotify, productKey, deviceName)
 			if err = sf.Subscribe(_uri, ProcThingTopoAddNotify); err != nil {
-				sf.log.Warnf(err.Error())
+				sf.Log.Warnf(err.Error())
 			}
 
 			// 网关网络拓扑关系变化通知,topic需要用网关的productKey,deviceName
 			_uri = uri.URI(uri.SysPrefix, uri.ThingTopoChange, productKey, deviceName)
 			if err = sf.Subscribe(_uri, ProcThingTopoChange); err != nil {
-				sf.log.Warnf(err.Error())
+				sf.Log.Warnf(err.Error())
 			}
 
 			// 子设备动态注册,topic需要用网关的productKey,deviceName
 			_uri = uri.URI(uri.SysPrefix, uri.ThingSubRegisterReply, productKey, deviceName)
 			if err = sf.Subscribe(_uri, ProcThingSubRegisterReply); err != nil {
-				sf.log.Warnf(err.Error())
+				sf.Log.Warnf(err.Error())
 			}
 			// 子设备上线,下线,topic需要用网关的productKey,deviceName,
 			// 使用的是网关的通道,所以子设备不注册相关主题
 			_uri = uri.URI(uri.ExtSessionPrefix, uri.CombineLoginReply, productKey, deviceName)
 			if err = sf.Subscribe(_uri, ProcExtCombineLoginReply); err != nil {
-				sf.log.Warnf(err.Error())
+				sf.Log.Warnf(err.Error())
 			}
 			_uri = uri.URI(uri.ExtSessionPrefix, uri.CombineLogoutReply, productKey, deviceName)
 			if err = sf.Subscribe(_uri, ProcExtCombineLogoutReply); err != nil {
-				sf.log.Warnf(err.Error())
+				sf.Log.Warnf(err.Error())
 			}
 		} else {
 			// 子设备禁用,启用,删除
 			_uri = uri.URI(uri.SysPrefix, uri.ThingDisable, productKey, deviceName)
 			if err = sf.Subscribe(_uri, ProcThingDisable); err != nil {
-				sf.log.Warnf(err.Error())
+				sf.Log.Warnf(err.Error())
 			}
 			_uri = uri.URI(uri.SysPrefix, uri.ThingEnable, productKey, deviceName)
 			if err = sf.Subscribe(_uri, ProcThingEnable); err != nil {
-				sf.log.Warnf(err.Error())
+				sf.Log.Warnf(err.Error())
 			}
 			_uri = uri.URI(uri.SysPrefix, uri.ThingDelete, productKey, deviceName)
 			if err = sf.Subscribe(_uri, ProcThingDelete); err != nil {
-				sf.log.Warnf(err.Error())
+				sf.Log.Warnf(err.Error())
 			}
 		}
 

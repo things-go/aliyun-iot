@@ -49,7 +49,7 @@ type Callback interface {
 	// 配置推送,已做默认回复
 	ThingConfigPush(c *Client, productKey, deviceName string, params ConfigParamsData) error
 
-	// log
+	// Log
 	ThingConfigLogGetReply(c *Client, err error, productKey, deviceName string, data ConfigLogParamData) error
 	ThingConfigLogPush(c *Client, productKey, deviceName string, param ConfigLogParamData) error
 	ThingLogPostReply(c *Client, err error, productKey, deviceName string) error

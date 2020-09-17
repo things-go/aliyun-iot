@@ -33,7 +33,7 @@ func (sf *Client) OtaInform(pk, dn string, params OtaInformParams) error {
 		return err
 	}
 	_uri := uri.URI(uri.OtaDeviceInformPrefix, "", pk, dn)
-	sf.log.Debugf("ota.device.inform @%d", id)
+	sf.Log.Debugf("ota.device.inform @%d", id)
 	return sf.Publish(_uri, 1, req)
 }
 
@@ -63,7 +63,7 @@ func (sf *Client) OtaProgress(pk, dn string, params OtaProgressParams) error {
 	if err != nil {
 		return err
 	}
-	sf.log.Debugf("ota.device.process @%d", id)
+	sf.Log.Debugf("ota.device.process @%d", id)
 	_uri := uri.URI(uri.OtaDeviceProcessPrefix, "", pk, dn)
 	return sf.Publish(_uri, 1, req)
 }
@@ -122,7 +122,7 @@ func ProcThingOtaFirmwareGetReply(c *Client, rawURI string, payload []byte) erro
 	if rsp.Code != infra.CodeSuccess {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
-	c.log.Debugf("thing.ota.firmware.get.reply @%d", rsp.ID)
+	c.Log.Debugf("thing.ota.firmware.get.reply @%d", rsp.ID)
 	c.signalPending(Message{rsp.ID, rsp.Data, err})
 	pk, dn := uris[1], uris[2]
 	return c.cb.ThingOtaFirmwareGetReply(c, pk, dn, rsp.Data)
@@ -141,7 +141,7 @@ func ProcOtaUpgrade(c *Client, rawURI string, payload []byte) error {
 	if err != nil {
 		return err
 	}
-	c.log.Debugf("thing.device.upgrade")
+	c.Log.Debugf("thing.device.upgrade")
 	pk, dn := uris[3], uris[4]
 	return c.cb.OtaUpgrade(c, pk, dn, rsp)
 }

@@ -9,7 +9,7 @@ import (
 
 // @see https://help.aliyun.com/document_detail/159857.html?spm=a2c4g.11186623.6.714.39cb741aXw9Osf
 
-// log level,从高到低
+// Log level,从高到低
 const (
 	LogFatal = "FATAL"
 	LogError = "ERROR"
@@ -28,8 +28,8 @@ type ConfigLogParam struct {
 }
 
 // ThingConfigLogGet 获取日志配置
-// request： /sys/${productKey}/${deviceName}/thing/config/log/get
-// response：/sys/${productKey}/${deviceName}/thing/config/log/get_reply
+// request： /sys/${productKey}/${deviceName}/thing/config/Log/get
+// response：/sys/${productKey}/${deviceName}/thing/config/Log/get_reply
 func (sf *Client) ThingConfigLogGet(pk, dn string, _ ConfigLogParam) (*Token, error) {
 	_uri := uri.URI(uri.SysPrefix, uri.ThingConfigLogGet, pk, dn)
 	return sf.SendRequest(_uri, infra.MethodConfigLogGet, ConfigLogParam{
@@ -60,8 +60,8 @@ type LogParam struct {
 }
 
 // ThingLogPost 设备上报日志内容
-// request： /sys/${productKey}/${deviceName}/thing/config/log/post
-// response：/sys/${productKey}/${deviceName}/thing/config/log/post_reply
+// request： /sys/${productKey}/${deviceName}/thing/config/Log/post
+// response：/sys/${productKey}/${deviceName}/thing/config/Log/post_reply
 func (sf *Client) ThingLogPost(pk, dn string, lp []LogParam) (*Token, error) {
 	if len(lp) == 0 {
 		return nil, ErrInvalidParameter
@@ -90,9 +90,9 @@ type ConfigLogResponse struct {
 }
 
 // ProcThingConfigLogGetReply 处理获取日志配置应答
-// request：  /sys/${productKey}/${deviceName}/thing/config/log/get
-// response： /sys/${productKey}/${deviceName}/thing/config/log/get_reply
-// subscribe: /sys/${productKey}/${deviceName}/thing/config/log/get_reply
+// request：  /sys/${productKey}/${deviceName}/thing/config/Log/get
+// response： /sys/${productKey}/${deviceName}/thing/config/Log/get_reply
+// subscribe: /sys/${productKey}/${deviceName}/thing/config/Log/get_reply
 func ProcThingConfigLogGetReply(c *Client, rawURI string, payload []byte) error {
 	uris := uri.Spilt(rawURI)
 	if len(uris) < 7 {
@@ -113,8 +113,8 @@ func ProcThingConfigLogGetReply(c *Client, rawURI string, payload []byte) error 
 }
 
 // ProcThingLogPostReply 处理日志上报应答
-// request： /sys/${productKey}/${deviceName}/thing/log/post
-// response：/sys/${productKey}/${deviceName}/thing/log/post_reply
+// request： /sys/${productKey}/${deviceName}/thing/Log/post
+// response：/sys/${productKey}/${deviceName}/thing/Log/post_reply
 func ProcThingLogPostReply(c *Client, rawURI string, payload []byte) error {
 	uris := uri.Spilt(rawURI)
 	if len(uris) < 6 {
@@ -130,7 +130,7 @@ func ProcThingLogPostReply(c *Client, rawURI string, payload []byte) error {
 	}
 	c.signalPending(Message{rsp.ID, nil, err})
 
-	c.log.Debugf("thing.log.post.reply @%d", rsp.ID)
+	c.Log.Debugf("thing.Log.post.reply @%d", rsp.ID)
 
 	pk, dn := uris[1], uris[2]
 	return c.cb.ThingLogPostReply(c, err, pk, dn)
@@ -144,7 +144,7 @@ type ConfigLogPush struct {
 }
 
 // ProcThingConfigLogPush 处理日志配置推送
-// subscribe: /sys/${productKey}/${deviceName}/thing/config/log/push
+// subscribe: /sys/${productKey}/${deviceName}/thing/config/Log/push
 func ProcThingConfigLogPush(c *Client, rawURI string, payload []byte) error {
 	uris := uri.Spilt(rawURI)
 	if len(uris) < 7 {
@@ -157,7 +157,7 @@ func ProcThingConfigLogPush(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 
-	c.log.Debugf("thing.log.push @%d", req.ID)
+	c.Log.Debugf("thing.Log.push @%d", req.ID)
 	pk, dn := uris[1], uris[2]
 	return c.cb.ThingConfigLogPush(c, pk, dn, req.Params)
 }

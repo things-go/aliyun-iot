@@ -19,7 +19,7 @@ func ProcThingDisable(c *Client, rawURI string, payload []byte) error {
 	}
 
 	pk, dn := uris[1], uris[2]
-	c.log.Debugf("thing.disable -- %s.%s", pk, dn)
+	c.Log.Debugf("thing.disable -- %s.%s", pk, dn)
 
 	req := &Request{}
 	err := json.Unmarshal(payload, req)
@@ -28,13 +28,13 @@ func ProcThingDisable(c *Client, rawURI string, payload []byte) error {
 	}
 
 	if err = c.SetDeviceAvail(pk, dn, false); err != nil {
-		c.log.Warnf("thing.disable failed, %+v", err)
+		c.Log.Warnf("thing.disable failed, %+v", err)
 	}
 
 	_uri := uri.ReplyWithRequestURI(rawURI)
 	err = c.Response(_uri, Response{ID: req.ID, Code: infra.CodeSuccess, Data: "{}"})
 	if err != nil {
-		c.log.Warnf("thing.disable.response failed, %+v", err)
+		c.Log.Warnf("thing.disable.response failed, %+v", err)
 	}
 	return c.gwCb.ThingDisable(c, pk, dn)
 }
@@ -50,7 +50,7 @@ func ProcThingEnable(c *Client, rawURI string, payload []byte) error {
 		return ErrInvalidURI
 	}
 	pk, dn := uris[1], uris[2]
-	c.log.Debugf("thing.enable -- %s.%s", pk, dn)
+	c.Log.Debugf("thing.enable -- %s.%s", pk, dn)
 
 	req := &Request{}
 	err := json.Unmarshal(payload, req)
@@ -59,13 +59,13 @@ func ProcThingEnable(c *Client, rawURI string, payload []byte) error {
 	}
 
 	if err = c.SetDeviceAvail(pk, dn, true); err != nil {
-		c.log.Warnf("thing.enable failed, %+v", err)
+		c.Log.Warnf("thing.enable failed, %+v", err)
 	}
 
 	_uri := uri.ReplyWithRequestURI(rawURI)
 	err = c.Response(_uri, Response{ID: req.ID, Code: infra.CodeSuccess, Data: "{}"})
 	if err != nil {
-		c.log.Warnf("thing.enable.response failed, %+v", err)
+		c.Log.Warnf("thing.enable.response failed, %+v", err)
 	}
 	return c.gwCb.ThingEnable(c, pk, dn)
 }
@@ -81,7 +81,7 @@ func ProcThingDelete(c *Client, rawURI string, payload []byte) error {
 		return ErrInvalidURI
 	}
 	pk, dn := uris[1], uris[2]
-	c.log.Debugf("thing.delete -- %s.%s", pk, dn)
+	c.Log.Debugf("thing.delete -- %s.%s", pk, dn)
 
 	req := &Request{}
 	if err := json.Unmarshal(payload, req); err != nil {
@@ -92,7 +92,7 @@ func ProcThingDelete(c *Client, rawURI string, payload []byte) error {
 	_uri := uri.ReplyWithRequestURI(rawURI)
 	err := c.Response(_uri, Response{ID: req.ID, Code: infra.CodeSuccess, Data: "{}"})
 	if err != nil {
-		c.log.Warnf("thing.delete.response failed, %+v", err)
+		c.Log.Warnf("thing.delete.response failed, %+v", err)
 	}
 	return c.gwCb.ThingDelete(c, pk, dn)
 }

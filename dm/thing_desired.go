@@ -53,7 +53,7 @@ func ProcThingDesiredPropertyGetReply(c *Client, rawURI string, payload []byte) 
 
 	c.signalPending(Message{rsp.ID, cloneJSONRawMessage(rsp.Data), err})
 
-	c.log.Debugf("thing.property.desired.get.reply @%d", rsp.ID)
+	c.Log.Debugf("thing.property.desired.get.reply @%d", rsp.ID)
 
 	pk, dn := uris[1], uris[2]
 	return c.cb.ThingDesiredPropertyGetReply(c, err, pk, dn, rsp.Data)
@@ -78,7 +78,7 @@ func ProcThingDesiredPropertyDeleteReply(c *Client, rawURI string, payload []byt
 	}
 	c.signalPending(Message{rsp.ID, nil, err})
 
-	c.log.Debugf("thing.property.desired.delete.reply @%d", rsp.ID)
+	c.Log.Debugf("thing.property.desired.delete.reply @%d", rsp.ID)
 
 	pk, dn := uris[1], uris[2]
 	return c.cb.ThingDesiredPropertyDeleteReply(c, err, pk, dn)

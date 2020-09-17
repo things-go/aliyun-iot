@@ -73,8 +73,7 @@ type Client struct {
 	Conn
 	cb   Callback
 	gwCb GwCallback
-
-	log logger.Logger
+	Log  logger.Logger
 }
 
 // Version 平台通信版本
@@ -95,7 +94,7 @@ func New(triad infra.MetaTriad, conn Conn, opts ...Option) *Client {
 		Conn:   conn,
 		cb:     NopCb{},
 		gwCb:   NopGwCb{},
-		log:    logger.NewDiscard(),
+		Log:    logger.NewDiscard(),
 	}
 	for _, opt := range opts {
 		opt(c)
