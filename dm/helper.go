@@ -15,8 +15,8 @@ func (sf *Client) URIGateway(prefix, name string) string {
 	return uri.URI(prefix, name, sf.tetrad.ProductKey, sf.tetrad.DeviceName)
 }
 
-// ToClientID to client id like {pk}.{dn}
-func ToClientID(pk, dn string) string {
+// ClientID to client id like {pk}.{dn}
+func ClientID(pk, dn string) string {
 	return pk + "." + dn
 }
 

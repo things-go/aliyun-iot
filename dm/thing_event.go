@@ -76,7 +76,7 @@ func ProcThingEventPostReply(c *Client, rawURI string, payload []byte) error {
 	pk, dn := uris[1], uris[2]
 	eventID := uris[5]
 	c.log.Debugf("thing.event.%s.post.reply @%d", eventID, rsp.ID)
-	if eventID == "property" {
+	if eventID == property {
 		return c.cb.ThingEventPropertyPostReply(c, err, pk, dn)
 	}
 	return c.cb.ThingEventPostReply(c, err, eventID, pk, dn)

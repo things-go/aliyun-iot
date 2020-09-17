@@ -9,13 +9,14 @@ import (
 
 // @see https://help.aliyun.com/document_detail/159857.html?spm=a2c4g.11186623.6.714.39cb741aXw9Osf
 
-// log level
+// log level,从高到低
 const (
 	LogFatal = "FATAL"
 	LogError = "ERROR"
 	LogWarn  = "WARN"
 	LogInfo  = "INFO"
 	LogDebug = "DEBUG"
+	LogOther = "OTHER"
 )
 
 // ConfigLogParam 设备获取日志配置参数域

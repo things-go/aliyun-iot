@@ -40,12 +40,10 @@ func (sf *Client) SendRequest(_uri, method string, params interface{}) (*Token, 
 
 // Response 发送回复
 // _uri 唯一定位服务器或(topic)
-// responseID: 回复ID
-// code: 回复code
-// Data: 数据域
+// Response: 回复
 // API内部已实现json序列化
-func (sf *Client) Response(_uri string, responseID uint, code int, data interface{}) error {
-	out, err := json.Marshal(&Response{ID: responseID, Code: code, Data: data})
+func (sf *Client) Response(_uri string, rsp Response) error {
+	out, err := json.Marshal(rsp)
 	if err != nil {
 		return err
 	}
@@ -102,11 +100,7 @@ func (sf *Client) SubscribeAllTopic(productKey, deviceName string, isSub bool) e
 	}
 
 	// 服务调用
-	_uri = uri.URI(uri.SysPrefix, uri.ThingServicePropertySet, productKey, deviceName)
-	if err = sf.Subscribe(_uri, ProcThingServicePropertySet); err != nil {
-		sf.log.Warnf(err.Error())
-	}
-	_uri = uri.URI(uri.SysPrefix, uri.ThingServiceRequestWildcardOne, productKey, deviceName)
+	_uri = uri.URI(uri.SysPrefix, uri.ThingServiceRequestWildcardSome, productKey, deviceName)
 	if err = sf.Subscribe(_uri, ProcThingServiceRequest); err != nil {
 		sf.log.Warnf(err.Error())
 	}
@@ -292,8 +286,7 @@ func (sf *Client) UnSubscribeSubDevAllTopic(productKey, deviceName string) error
 		uri.URI(uri.SysPrefix, uri.ThingDeviceInfoUpdateReply, productKey, deviceName),
 		uri.URI(uri.SysPrefix, uri.ThingDeviceInfoDeleteReply, productKey, deviceName),
 		// service
-		uri.URI(uri.SysPrefix, uri.ThingServicePropertySet, productKey, deviceName),
-		uri.URI(uri.SysPrefix, uri.ThingServiceRequestWildcardOne, productKey, deviceName),
+		uri.URI(uri.SysPrefix, uri.ThingServiceRequestWildcardSome, productKey, deviceName),
 		// dystemplate
 		uri.URI(uri.SysPrefix, uri.ThingDslTemplateGetReply, productKey, deviceName),
 		// dynamictsl 不使用??

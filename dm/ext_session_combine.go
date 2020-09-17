@@ -66,7 +66,7 @@ func (sf *Client) ExtCombineLogin(cp CombinePair) (*Token, error) {
 		return nil, err
 	}
 
-	clientID := ToClientID(cp.ProductKey, cp.DeviceName)
+	clientID := ClientID(cp.ProductKey, cp.DeviceName)
 	timestamp := infra.Millisecond(time.Now())
 	signs, err := generateSign(cp.ProductKey, cp.DeviceName, ds, clientID, timestamp)
 	if err != nil {
@@ -132,7 +132,7 @@ func (sf *Client) ExtCombineBatchLogin(pairs []CombinePair) (*Token, error) {
 		if err != nil {
 			return nil, err
 		}
-		clientID := ToClientID(cp.ProductKey, cp.DeviceName)
+		clientID := ClientID(cp.ProductKey, cp.DeviceName)
 		signs, err := generateSign(cp.ProductKey, cp.DeviceName, ds, clientID, timestamp)
 		if err != nil {
 			return nil, err

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"math/rand"
 	"os"
@@ -192,6 +193,15 @@ type mockCb struct {
 }
 
 func (sf mockCb) RRPCRequest(c *dm.Client, messageID, productKey, deviceName string, payload []byte) error {
-	log.Println(string(payload))
-	return nil
+	req := &dm.Request{}
+	if err := json.Unmarshal(payload, req); err != nil {
+		return err
+	}
+	log.Printf("rrpc.resopnse.%s", messageID)
+	log.Printf("%+v", req)
+	return c.RRPCResponse(productKey, deviceName, messageID, dm.Response{
+		ID:   req.ID,
+		Code: infra.CodeSuccess,
+		Data: "{}",
+	})
 }

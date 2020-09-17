@@ -2,25 +2,10 @@ package dm
 
 import "github.com/thinkgos/aliyun-iot/uri"
 
-// ProcThingServicePropertySet 处理属性设置
-// 下行
-// request:   /sys/{productKey}/{deviceName}/thing/service/property/set
-// response:  /sys/{productKey}/{deviceName}/thing/service/property/set_reply
-// subscribe: /sys/{productKey}/{deviceName}/thing/service/[+,#]
-func ProcThingServicePropertySet(c *Client, rawURI string, payload []byte) error {
-	uris := uri.Spilt(rawURI)
-	if len(uris) < 7 {
-		return ErrInvalidURI
-	}
-	c.log.Debugf("thing.service.property.set")
-	pk, dn := uris[1], uris[2]
-	return c.cb.ThingServicePropertySet(c, pk, dn, payload)
-}
-
 // ProcThingServiceRequest 处理设备服务调用(异步)
 // 下行
-// request:   /sys/{productKey}/{deviceName}/thing/service/{tsl.service.identifier}
-// response:  /sys/{productKey}/{deviceName}/thing/service/{tsl.service.identifier}_reply
+// request:   /sys/{productKey}/{deviceName}/thing/service/[{tsl.service.identifier},property/set]
+// response:  /sys/{productKey}/{deviceName}/thing/service/[{tsl.service.identifier}_reply,property/set_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/service/[+,#]
 func ProcThingServiceRequest(c *Client, rawURI string, payload []byte) error {
 	uris := uri.Spilt(rawURI)
@@ -30,6 +15,10 @@ func ProcThingServiceRequest(c *Client, rawURI string, payload []byte) error {
 
 	pk, dn := uris[1], uris[2]
 	serviceID := uris[5]
+	if serviceID == property && len(uris) >= 7 && uris[6] == "set" {
+		c.log.Debugf("thing.service.property.set")
+		return c.cb.ThingServicePropertySet(c, pk, dn, payload)
+	}
 	c.log.Debugf("thing.service.%s", serviceID)
 	return c.cb.ThingServiceRequest(c, serviceID, pk, dn, payload)
 }

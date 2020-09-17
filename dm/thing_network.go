@@ -34,7 +34,7 @@ func (sf *Client) ThingTopoAdd(pk, dn string) (*Token, error) {
 	}
 
 	timestamp := infra.Millisecond(time.Now())
-	clientID := ToClientID(pk, dn)
+	clientID := ClientID(pk, dn)
 	signs, err := generateSign(pk, dn, ds, clientID, timestamp)
 	if err != nil {
 		return nil, err
@@ -237,7 +237,8 @@ func ProcThingTopoAddNotify(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 
-	err := c.Response(uri.ReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
+	_uri := uri.ReplyWithRequestURI(rawURI)
+	err := c.Response(_uri, Response{ID: req.ID, Code: infra.CodeSuccess, Data: "{}"})
 	if err != nil {
 		c.log.Warnf("thing.topo.add.notify.response, %+v", err)
 	}
@@ -274,7 +275,8 @@ func ProcThingTopoChange(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 
-	err := c.Response(uri.ReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
+	_uri := uri.ReplyWithRequestURI(rawURI)
+	err := c.Response(_uri, Response{ID: req.ID, Code: infra.CodeSuccess, Data: "{}"})
 	if err != nil {
 		c.log.Warnf("thing.topo.change.response, %+v", err)
 	}

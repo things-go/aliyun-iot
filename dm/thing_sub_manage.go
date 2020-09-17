@@ -31,7 +31,8 @@ func ProcThingDisable(c *Client, rawURI string, payload []byte) error {
 		c.log.Warnf("thing.disable failed, %+v", err)
 	}
 
-	err = c.Response(uri.ReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
+	_uri := uri.ReplyWithRequestURI(rawURI)
+	err = c.Response(_uri, Response{ID: req.ID, Code: infra.CodeSuccess, Data: "{}"})
 	if err != nil {
 		c.log.Warnf("thing.disable.response failed, %+v", err)
 	}
@@ -62,7 +63,8 @@ func ProcThingEnable(c *Client, rawURI string, payload []byte) error {
 	}
 
 	_uri := uri.ReplyWithRequestURI(rawURI)
-	if err = c.Response(_uri, req.ID, infra.CodeSuccess, "{}"); err != nil {
+	err = c.Response(_uri, Response{ID: req.ID, Code: infra.CodeSuccess, Data: "{}"})
+	if err != nil {
 		c.log.Warnf("thing.enable.response failed, %+v", err)
 	}
 	return c.gwCb.ThingEnable(c, pk, dn)
@@ -88,7 +90,7 @@ func ProcThingDelete(c *Client, rawURI string, payload []byte) error {
 
 	c.Delete(pk, dn)
 	_uri := uri.ReplyWithRequestURI(rawURI)
-	err := c.Response(_uri, req.ID, infra.CodeSuccess, "{}")
+	err := c.Response(_uri, Response{ID: req.ID, Code: infra.CodeSuccess, Data: "{}"})
 	if err != nil {
 		c.log.Warnf("thing.delete.response failed, %+v", err)
 	}

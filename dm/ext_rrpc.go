@@ -6,6 +6,12 @@ import (
 	"github.com/thinkgos/aliyun-iot/uri"
 )
 
+// RRPCResponse rrcpc 回复
+func (sf *Client) RRPCResponse(pk, dn, messageID string, rsp Response) error {
+	_uri := uri.URI(uri.SysPrefix, uri.RRPCResponsePrefix, pk, dn, messageID)
+	return sf.Response(_uri, rsp)
+}
+
 // ProcRRPCRequest 处理RRPC请求
 // 下行
 // request: /sys/${YourProductKey}/${YourDeviceName}/rrpc/request/${messageId}

@@ -70,7 +70,6 @@ func main() {
 	)
 
 	dmClient.Underlying().Connect().Wait()
-
 	if err = dmClient.Connect(); err != nil {
 		panic(err)
 	}

@@ -93,7 +93,8 @@ func ProcThingConfigPush(c *Client, rawURI string, payload []byte) error {
 	if err := json.Unmarshal(payload, req); err != nil {
 		return err
 	}
-	err := c.Response(uri.ReplyWithRequestURI(rawURI), req.ID, infra.CodeSuccess, "{}")
+	_uri := uri.ReplyWithRequestURI(rawURI)
+	err := c.Response(_uri, Response{ID: req.ID, Code: infra.CodeSuccess, Data: "{}"})
 	if err != nil {
 		c.log.Errorf("thing.config.push.reply %+v", err)
 	}
