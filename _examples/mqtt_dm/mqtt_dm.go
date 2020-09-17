@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"math/rand"
 	"os"
@@ -63,32 +62,25 @@ func main() {
 	// ThingEventPost() // done
 	for {
 		time.Sleep(time.Second * 15)
-		entry, err := dmClient.ThingEventPropertyPost(mock.ProductKey, mock.DeviceName,
+		err := dmClient.LinkThingEventPropertyPost(mock.ProductKey, mock.DeviceName,
 			mock.Instance{
 				rand.Intn(200),
 				rand.Intn(100),
 				rand.Intn(2),
-			})
+			}, time.Second)
 		if err != nil {
 			log.Printf("error: %#v", err)
-			continue
 		}
-		msg, err := entry.Wait(time.Second)
-		if err != nil {
-			log.Printf("error: %#v", err)
-			continue
-		}
-		log.Printf("wait and got id: %d", msg.ID)
 	}
 }
 
 // done
 func ThingEventPost() {
 	for {
-		_, err := dmClient.ThingEventPost(mock.ProductKey, mock.DeviceName, "tempAlarm",
+		err := dmClient.LinkThingEventPost(mock.ProductKey, mock.DeviceName, "tempAlarm",
 			map[string]interface{}{
 				"high": 1,
-			})
+			}, time.Second)
 		if err != nil {
 			log.Printf("error: %#v", err)
 		}
@@ -98,20 +90,17 @@ func ThingEventPost() {
 
 // done
 func DeviceInfoTest() {
-	tk, err := dmClient.ThingDeviceInfoUpdate(mock.ProductKey, mock.DeviceName,
-		[]dmd.DeviceInfoLabel{{AttrKey: "attrKey", AttrValue: "attrValue"}})
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	_, err = tk.Wait(time.Second * 5)
+	err := dmClient.LinkThingDeviceInfoUpdate(mock.ProductKey, mock.DeviceName,
+		[]dmd.DeviceInfoLabel{
+			{AttrKey: "attrKey", AttrValue: "attrValue"},
+		}, time.Second*5)
 	if err != nil {
 		log.Println(err)
 		return
 	}
 	time.Sleep(time.Minute * 1)
-	_, err = dmClient.ThingDeviceInfoDelete(mock.ProductKey, mock.DeviceName,
-		[]dmd.DeviceLabelKey{{AttrKey: "attrKey"}})
+	err = dmClient.LinkThingDeviceInfoDelete(mock.ProductKey, mock.DeviceName,
+		[]dmd.DeviceLabelKey{{AttrKey: "attrKey"}}, time.Second*5)
 	if err != nil {
 		log.Println(err)
 		return
@@ -120,21 +109,16 @@ func DeviceInfoTest() {
 
 // done
 func ConfigTest() {
-	tk, err := dmClient.ThingConfigGet(mock.ProductKey, mock.DeviceName)
+	cpd, err := dmClient.LinkThingConfigGet(mock.ProductKey, mock.DeviceName, time.Second*5)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	msg, err := tk.Wait(time.Second * 5)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-	log.Println(msg.Data.(dm.ConfigParamsData))
+	log.Println(cpd)
 }
 
 func DslTemplateTest() {
-	_, err := dmClient.ThingDsltemplateGet(mock.ProductKey, mock.DeviceName)
+	_, err := dmClient.LinkThingDsltemplateGet(mock.ProductKey, mock.DeviceName, time.Second*5)
 	if err != nil {
 		log.Println(err)
 		return
@@ -142,7 +126,7 @@ func DslTemplateTest() {
 }
 
 func dynamictslTest() {
-	_, err := dmClient.ThingDynamictslGet(mock.ProductKey, mock.DeviceName)
+	_, err := dmClient.LinkThingDynamictslGet(mock.ProductKey, mock.DeviceName, time.Second*5)
 	if err != nil {
 		panic(err)
 	}
@@ -158,35 +142,20 @@ func NTPTest() {
 }
 
 func DesiredGetTest() {
-	tk, err := dmClient.ThingDesiredPropertyGet(mock.ProductKey, mock.DeviceName, []string{"temp", "humi"})
+	data, err := dmClient.LinkThingDesiredPropertyGet(mock.ProductKey, mock.DeviceName, []string{"temp", "humi"}, time.Second*5)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	msg, err := tk.Wait(time.Second * 5)
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
-	log.Printf("%+v", msg)
-	log.Printf("%+v", string(msg.Data.(json.RawMessage)))
+	log.Printf("%+v", string(data))
 }
 
 func DesiredDeleteTest() {
-	tk, err := dmClient.ThingDesiredPropertyDelete(mock.ProductKey, mock.DeviceName, "{}")
+	err := dmClient.LinkThingDesiredPropertyDelete(mock.ProductKey, mock.DeviceName, "{}", time.Second*5)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	msg, err := tk.Wait(time.Second * 5)
-	if err != nil {
-		log.Printf("wait failed, %+v", err)
-		return
-	}
-
-	log.Printf("%+v", msg.ID)
-	log.Printf("%+v %+v", msg.Data)
 }
 
 type mockCb struct {

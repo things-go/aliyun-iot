@@ -119,17 +119,17 @@ func (sf *Client) NewSubDevice(meta infra.MetaTetrad) error {
 }
 
 // SubDeviceConnect 子设备连接注册并添加到网关拓扑关系
-func (sf *Client) SubDeviceConnect(pk, dn string) error {
-	node, err := sf.Search(pk, dn)
+func (sf *Client) SubDeviceConnect(pk, dn string, timeout time.Duration) error {
+	node, err := sf.SearchAvail(pk, dn)
 	if err != nil {
 		return err
 	}
 	if node.DeviceSecret() == "" { // 需要注册
 		// 子设备注册
-		if err := sf.LinkThingSubRegister(pk, dn); err != nil {
+		if err := sf.LinkThingSubRegister(pk, dn, timeout); err != nil {
 			return err
 		}
 	}
 	// 子设备添加到拓扑
-	return sf.LinkThingTopoAdd(pk, dn)
+	return sf.LinkThingTopoAdd(pk, dn, timeout)
 }

@@ -50,13 +50,13 @@ func ProcExtNtpResponse(c *Client, rawURI string, payload []byte) error {
 	if len(uris) < 5 {
 		return ErrInvalidURI
 	}
-	rsp := NtpResponse{}
-	if err := json.Unmarshal(payload, &rsp); err != nil {
+	rsp := &NtpResponse{}
+	if err := json.Unmarshal(payload, rsp); err != nil {
 		return err
 	}
 	tm := (rsp.ServerRecvTime + rsp.ServerSendTime + infra.Millisecond(time.Now()) - rsp.DeviceSendTime) / 2
 	exact := infra.Time(tm)
-	c.log.Debugf("ext.ntp.response")
+	c.log.Debugf("ext.ntp.response -- ", exact)
 	pk, dn := uris[2], uris[3]
 	return c.cb.ExtNtpResponse(c, pk, dn, exact)
 }

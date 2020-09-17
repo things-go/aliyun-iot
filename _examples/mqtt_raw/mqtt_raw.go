@@ -40,9 +40,8 @@ func main() {
 		0x53, 0x51, 0x09, 0x51, 0x2b, 0x4e, 0x61, 0x43, 0x09, 0x2a, 0x14, 0x4d,
 		0x42, 0x1f, 0x47, 0x38, 0x52, 0x47}
 
-	meta := mock.MetaTetrad()
 	signs, err :=
-		sign.Generate(&meta, infra.CloudRegionDomain{Region: infra.CloudRegionShangHai})
+		sign.Generate(mock.MetaTriad, infra.CloudRegionDomain{Region: infra.CloudRegionShangHai})
 	if err != nil {
 		panic(err)
 	}
@@ -63,7 +62,7 @@ func main() {
 			})
 
 	dmClient := aiot.NewWithMQTT(
-		mock.MetaTetrad(),
+		mock.MetaTriad,
 		mqtt.NewClient(opts),
 		dm.WithEnableModelRaw(),
 		dm.WithCallback(RawProc{}),
@@ -77,7 +76,7 @@ func main() {
 	}
 
 	for {
-		err = dmClient.ThingModelUpRaw(dm.DevNodeLocal, bPayload)
+		err = dmClient.ThingModelUpRaw(mock.ProductKey, mock.DeviceName, bPayload)
 		if err != nil {
 			log.Printf("error: %#v", err)
 		}

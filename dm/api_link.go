@@ -10,12 +10,12 @@ import (
 /**************************************** config *****************************/
 
 // LinkThingConfigGet 获取配置参数,同步
-func (sf *Client) LinkThingConfigGet(pk, dn string) (ConfigParamsData, error) {
+func (sf *Client) LinkThingConfigGet(pk, dn string, timeout time.Duration) (ConfigParamsData, error) {
 	token, err := sf.ThingConfigGet(pk, dn)
 	if err != nil {
 		return ConfigParamsData{}, err
 	}
-	msg, err := token.Wait(time.Second)
+	msg, err := token.Wait(timeout)
 	if err != nil {
 		return ConfigParamsData{}, err
 	}
@@ -25,54 +25,55 @@ func (sf *Client) LinkThingConfigGet(pk, dn string) (ConfigParamsData, error) {
 /**************************************** event *****************************/
 
 // LinkThingEventPropertyPost 设备上报属性数据,同步
-func (sf *Client) LinkThingEventPropertyPost(pk, dn string, params interface{}) error {
+func (sf *Client) LinkThingEventPropertyPost(pk, dn string, params interface{}, timeout time.Duration) error {
 	token, err := sf.ThingEventPropertyPost(pk, dn, params)
 	if err != nil {
 		return err
 	}
-	_, err = token.Wait(time.Second)
+	_, err = token.Wait(timeout)
 	return err
 }
 
 // LinkThingEventPost 设备事件上报,同步
-func (sf *Client) LinkThingEventPost(pk, dn, eventID string, params interface{}) error {
+func (sf *Client) LinkThingEventPost(pk, dn, eventID string, params interface{}, timeout time.Duration) error {
 	token, err := sf.ThingEventPost(pk, dn, eventID, params)
 	if err != nil {
 		return err
 	}
-	_, err = token.Wait(time.Second)
+	_, err = token.Wait(timeout)
 	return err
 }
 
 // LinkThingEventPropertyPackPost 网关批量上报数据,同步
-func (sf *Client) LinkThingEventPropertyPackPost(params interface{}) error {
+func (sf *Client) LinkThingEventPropertyPackPost(params interface{}, timeout time.Duration) error {
 	token, err := sf.ThingEventPropertyPackPost(params)
 	if err != nil {
 		return err
 	}
-	_, err = token.Wait(time.Second)
+	_, err = token.Wait(timeout)
 	return err
 }
 
 // LinkThingEventPropertyHistoryPost 物模型历史数据上报,同步
-func (sf *Client) LinkThingEventPropertyHistoryPost(params interface{}) error {
+func (sf *Client) LinkThingEventPropertyHistoryPost(params interface{}, timeout time.Duration) error {
 	token, err := sf.ThingEventPropertyHistoryPost(params)
 	if err != nil {
 		return err
 	}
-	_, err = token.Wait(time.Second)
+	_, err = token.Wait(timeout)
 	return err
 }
 
 /**************************************** desired *****************************/
 
 // LinkThingDesiredPropertyGet 获取期望属性值,同步
-func (sf *Client) LinkThingDesiredPropertyGet(pk, dn string, params []string) (json.RawMessage, error) {
+func (sf *Client) LinkThingDesiredPropertyGet(pk, dn string,
+	params []string, timeout time.Duration) (json.RawMessage, error) {
 	token, err := sf.ThingDesiredPropertyGet(pk, dn, params)
 	if err != nil {
 		return nil, err
 	}
-	msg, err := token.Wait(time.Second)
+	msg, err := token.Wait(timeout)
 	if err != nil {
 		return nil, err
 	}
@@ -80,46 +81,46 @@ func (sf *Client) LinkThingDesiredPropertyGet(pk, dn string, params []string) (j
 }
 
 // LinkThingDesiredPropertyDelete 清空期望属性值,同步
-func (sf *Client) LinkThingDesiredPropertyDelete(pk, dn string, params interface{}) error {
+func (sf *Client) LinkThingDesiredPropertyDelete(pk, dn string, params interface{}, timeout time.Duration) error {
 	token, err := sf.ThingDesiredPropertyDelete(pk, dn, params)
 	if err != nil {
 		return err
 	}
-	_, err = token.Wait(time.Second)
+	_, err = token.Wait(timeout)
 	return err
 }
 
 /**************************************** label *****************************/
 
 // LinkThingDeviceInfoUpdate 设备信息上传(如厂商,设备型号等,可以保存为设备标签),同步
-func (sf *Client) LinkThingDeviceInfoUpdate(pk, dn string, params interface{}) error {
+func (sf *Client) LinkThingDeviceInfoUpdate(pk, dn string, params interface{}, timeout time.Duration) error {
 	token, err := sf.ThingDeviceInfoUpdate(pk, dn, params)
 	if err != nil {
 		return err
 	}
-	_, err = token.Wait(time.Second)
+	_, err = token.Wait(timeout)
 	return err
 }
 
 // LinkThingDeviceInfoDelete 删除标签信息.同步
-func (sf *Client) LinkThingDeviceInfoDelete(pk, dn string, params interface{}) error {
+func (sf *Client) LinkThingDeviceInfoDelete(pk, dn string, params interface{}, timeout time.Duration) error {
 	token, err := sf.ThingDeviceInfoDelete(pk, dn, params)
 	if err != nil {
 		return err
 	}
-	_, err = token.Wait(time.Second)
+	_, err = token.Wait(timeout)
 	return err
 }
 
 /**************************************** template *****************************/
 
 // LinkThingDsltemplateGet 设备可以通过上行请求获取设备的TSL模板(包含属性、服务和事件的定义),同步
-func (sf *Client) LinkThingDsltemplateGet(pk, dn string) (json.RawMessage, error) {
+func (sf *Client) LinkThingDsltemplateGet(pk, dn string, timeout time.Duration) (json.RawMessage, error) {
 	token, err := sf.ThingDsltemplateGet(pk, dn)
 	if err != nil {
 		return nil, err
 	}
-	msg, err := token.Wait(time.Second)
+	msg, err := token.Wait(timeout)
 	if err != nil {
 		return nil, err
 	}
@@ -127,12 +128,12 @@ func (sf *Client) LinkThingDsltemplateGet(pk, dn string) (json.RawMessage, error
 }
 
 // LinkThingDynamictslGet 获取动态tsl,同步
-func (sf *Client) LinkThingDynamictslGet(pk, dn string) (json.RawMessage, error) {
+func (sf *Client) LinkThingDynamictslGet(pk, dn string, timeout time.Duration) (json.RawMessage, error) {
 	token, err := sf.ThingDsltemplateGet(pk, dn)
 	if err != nil {
 		return nil, err
 	}
-	msg, err := token.Wait(time.Second)
+	msg, err := token.Wait(timeout)
 	if err != nil {
 		return nil, err
 	}
@@ -142,7 +143,7 @@ func (sf *Client) LinkThingDynamictslGet(pk, dn string) (json.RawMessage, error)
 /**************************************** reqister *****************************/
 
 // LinkThingSubRegister 同步子设备注册
-func (sf *Client) LinkThingSubRegister(pk, dn string) error {
+func (sf *Client) LinkThingSubRegister(pk, dn string, timeout time.Duration) error {
 	token, err := sf.ThingSubRegister(pk, dn)
 	if err != nil {
 		return err
@@ -161,12 +162,12 @@ func (sf *Client) LinkThingSubRegister(pk, dn string) error {
 /**************************************** network *****************************/
 
 // LinkThingTopoAdd 添加设备拓扑关系,同步
-func (sf *Client) LinkThingTopoAdd(pk, dn string) error {
+func (sf *Client) LinkThingTopoAdd(pk, dn string, timeout time.Duration) error {
 	token, err := sf.ThingTopoAdd(pk, dn)
 	if err != nil {
 		return err
 	}
-	msg, err := token.Wait(time.Second)
+	msg, err := token.Wait(timeout)
 	if err != nil {
 		return err
 	}
@@ -177,12 +178,12 @@ func (sf *Client) LinkThingTopoAdd(pk, dn string) error {
 }
 
 // LinkThingTopoDelete 删除网关与子设备的拓扑关系
-func (sf *Client) LinkThingTopoDelete(pk, dn string) error {
+func (sf *Client) LinkThingTopoDelete(pk, dn string, timeout time.Duration) error {
 	token, err := sf.ThingTopoDelete(pk, dn)
 	if err != nil {
 		return err
 	}
-	msg, err := token.Wait(time.Second)
+	msg, err := token.Wait(timeout)
 	if err != nil {
 		return err
 	}
@@ -193,12 +194,12 @@ func (sf *Client) LinkThingTopoDelete(pk, dn string) error {
 }
 
 // LinkThingTopoGet 获取该网关和子设备的拓扑关系,同步
-func (sf *Client) LinkThingTopoGet() ([]infra.MetaPair, error) {
+func (sf *Client) LinkThingTopoGet(timeout time.Duration) ([]infra.MetaPair, error) {
 	token, err := sf.ThingTopoGet()
 	if err != nil {
 		return nil, err
 	}
-	msg, err := token.Wait(time.Second)
+	msg, err := token.Wait(timeout)
 	if err != nil {
 		return nil, err
 	}
@@ -206,24 +207,24 @@ func (sf *Client) LinkThingTopoGet() ([]infra.MetaPair, error) {
 }
 
 // LinkThingListFound 发现设备列表上报,同步
-func (sf *Client) LinkThingListFound(pairs []infra.MetaPair) error {
+func (sf *Client) LinkThingListFound(pairs []infra.MetaPair, timeout time.Duration) error {
 	token, err := sf.ThingListFound(pairs)
 	if err != nil {
 		return err
 	}
-	_, err = token.Wait(time.Second)
+	_, err = token.Wait(timeout)
 	return err
 }
 
 /**************************************** session *****************************/
 
 // LinkExtCombineLogin 子设备上线,同步
-func (sf *Client) LinkExtCombineLogin(cp CombinePair) error {
+func (sf *Client) LinkExtCombineLogin(cp CombinePair, timeout time.Duration) error {
 	token, err := sf.ExtCombineLogin(cp)
 	if err != nil {
 		return err
 	}
-	_, err = token.Wait(time.Second)
+	_, err = token.Wait(timeout)
 	if err != nil {
 		return err
 	}
@@ -232,12 +233,12 @@ func (sf *Client) LinkExtCombineLogin(cp CombinePair) error {
 }
 
 // LinkExtCombineBatchLogin 子设备批量上线,同步
-func (sf *Client) LinkExtCombineBatchLogin(pairs []CombinePair) error {
+func (sf *Client) LinkExtCombineBatchLogin(pairs []CombinePair, timeout time.Duration) error {
 	token, err := sf.ExtCombineBatchLogin(pairs)
 	if err != nil {
 		return err
 	}
-	_, err = token.Wait(time.Second)
+	_, err = token.Wait(timeout)
 	if err != nil {
 		return err
 	}
@@ -249,12 +250,12 @@ func (sf *Client) LinkExtCombineBatchLogin(pairs []CombinePair) error {
 }
 
 // LinkExtCombineLogout 子设备下线,同步
-func (sf *Client) LinkExtCombineLogout(pk, dn string) error {
+func (sf *Client) LinkExtCombineLogout(pk, dn string, timeout time.Duration) error {
 	token, err := sf.ExtCombineLogout(pk, dn)
 	if err != nil {
 		return err
 	}
-	_, err = token.Wait(time.Second)
+	_, err = token.Wait(timeout)
 	if err != nil {
 		return err
 	}
@@ -263,12 +264,12 @@ func (sf *Client) LinkExtCombineLogout(pk, dn string) error {
 }
 
 // LinkExtCombineBatchLogout 子设备批量下线,同步
-func (sf *Client) LinkExtCombineBatchLogout(pairs []infra.MetaPair) error {
+func (sf *Client) LinkExtCombineBatchLogout(pairs []infra.MetaPair, timeout time.Duration) error {
 	token, err := sf.ExtCombineBatchLogout(pairs)
 	if err != nil {
 		return err
 	}
-	_, err = token.Wait(time.Second)
+	_, err = token.Wait(timeout)
 	if err != nil {
 		return err
 	}
@@ -281,12 +282,13 @@ func (sf *Client) LinkExtCombineBatchLogout(pairs []infra.MetaPair) error {
 /**************************************** ota *****************************/
 
 // LinkThingOtaFirmwareGet 请求固件信息,同步
-func (sf *Client) LinkThingOtaFirmwareGet(pk, dn string, param OtaFirmwareParam) (OtaFirmwareData, error) {
+func (sf *Client) LinkThingOtaFirmwareGet(pk, dn string,
+	param OtaFirmwareParam, timeout time.Duration) (OtaFirmwareData, error) {
 	token, err := sf.ThingOtaFirmwareGet(pk, dn, param)
 	if err != nil {
 		return OtaFirmwareData{}, err
 	}
-	msg, err := token.Wait(time.Second)
+	msg, err := token.Wait(timeout)
 	if err != nil {
 		return OtaFirmwareData{}, err
 	}
@@ -296,11 +298,11 @@ func (sf *Client) LinkThingOtaFirmwareGet(pk, dn string, param OtaFirmwareParam)
 /**************************************** diag *****************************/
 
 // LinkThingOtaFirmwareGet 请求固件信息,同步
-func (sf *Client) LinkThingDiagPost(pk, dn string, p P, isNow bool) error {
+func (sf *Client) LinkThingDiagPost(pk, dn string, p P, isNow bool, timeout time.Duration) error {
 	token, err := sf.ThingDiagPost(pk, dn, p, isNow)
 	if err != nil {
 		return err
 	}
-	_, err = token.Wait(time.Second)
+	_, err = token.Wait(timeout)
 	return err
 }

@@ -121,7 +121,21 @@ func (sf *DevMgr) searchLocked(pk, dn string) (*DevNode, error) {
 	return node, nil
 }
 
-// Search 使用productKey deviceName查找一个设备节点信息
+// SearchAvail 使用productKey deviceName查找一个设备节点信息且avail = true
+func (sf *DevMgr) SearchAvail(pk, dn string) (*DevNode, error) {
+	sf.rw.RLock()
+	defer sf.rw.RUnlock()
+	node, err := sf.searchLocked(pk, dn)
+	if err != nil {
+		return nil, err
+	}
+	if node.avail {
+		return node, nil
+	}
+	return nil, ErrNotActive
+}
+
+// SearchAvail 使用productKey deviceName查找一个设备节点信息
 func (sf *DevMgr) Search(pk, dn string) (*DevNode, error) {
 	sf.rw.RLock()
 	defer sf.rw.RUnlock()
