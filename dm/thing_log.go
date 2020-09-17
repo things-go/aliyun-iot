@@ -58,7 +58,7 @@ type LogParam struct {
 	LogContent string `json:"logContent"`
 }
 
-// ThingConfigLogGet 设备上报日志内容
+// ThingLogPost 设备上报日志内容
 // request： /sys/${productKey}/${deviceName}/thing/config/log/post
 // response：/sys/${productKey}/${deviceName}/thing/config/log/post_reply
 func (sf *Client) ThingLogPost(pk, dn string, lp []LogParam) (*Token, error) {
@@ -74,7 +74,7 @@ type ConfigLogMode struct {
 	Mode int `json:"mode"` // 0 表示不上报, 1 表示上报
 }
 
-// ConfigLogData 日志配置的参数域或配置域
+// ConfigLogParamData 日志配置的参数域或配置域
 type ConfigLogParamData struct {
 	GetType string        `json:"getType"`
 	Content ConfigLogMode `json:"content"`

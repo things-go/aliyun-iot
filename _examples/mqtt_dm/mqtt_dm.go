@@ -53,7 +53,8 @@ func main() {
 		panic(err)
 	}
 
-	go ConfigLogGetTest()
+	// go DiagPostTest() // done
+	// go ConfigLogGetTest() // done
 	// go dynamictslTest()
 	// go DslTemplateTest() // done
 	// go DesiredGetTest() // done
@@ -168,6 +169,22 @@ func ConfigLogGetTest() {
 		return
 	}
 	log.Printf("%+v", data)
+}
+
+func DiagPostTest() {
+	err := dmClient.LinkThingDiagPost(mock.ProductKey, mock.DeviceName, dm.P{
+		Wifi: dm.Wifi{
+			Rssi:     100,
+			Snr:      10,
+			Per:      2,
+			ErrStats: "",
+		},
+		Time: infra.Millisecond(time.Now()),
+	}, time.Second*5)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 }
 
 type mockCb struct {

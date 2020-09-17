@@ -66,11 +66,14 @@ func (NopCb) ThingConfigLogGetReply(*Client, error, string, string, ConfigLogPar
 	return nil
 }
 
-// ThingConfigPush see interface Callback
+// ThingConfigLogPush see interface Callback
 func (NopCb) ThingConfigLogPush(*Client, string, string, ConfigLogParamData) error { return nil }
 
-// ThingConfigPush see interface Callback
+// ThingLogPostReply see interface Callback
 func (NopCb) ThingLogPostReply(*Client, error, string, string) error { return nil }
+
+// ThingDialPostReply see interface Callback
+func (NopCb) ThingDialPostReply(*Client, error, string, string) error { return nil }
 
 // ThingServicePropertySet see interface Callback
 func (NopCb) ThingServicePropertySet(*Client, string, string, []byte) error { return nil }
@@ -87,9 +90,12 @@ func (NopCb) RRPCRequest(*Client, string, string, string, []byte) error { return
 // ExtRRPCRequest see interface Callback
 func (NopCb) ExtRRPCRequest(*Client, string, string, []byte) error { return nil }
 
+// OtaUpgrade  see interface Callback
 func (NopCb) OtaUpgrade(*Client, string, string, *OtaFirmwareResponse) error {
 	return nil
 }
+
+// ThingOtaFirmwareGetReply  see interface Callback
 func (NopCb) ThingOtaFirmwareGetReply(*Client, string, string, OtaFirmwareData) error {
 	return nil
 }

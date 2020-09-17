@@ -73,6 +73,13 @@ func WithEnableOTA() Option {
 	}
 }
 
+// WithEnableDiag 使能diag功能
+func WithEnableDiag() Option {
+	return func(c *Client) {
+		c.hasDiag = true
+	}
+}
+
 // WithCallback 设置事件处理接口
 func WithCallback(cb Callback) Option {
 	return func(c *Client) {

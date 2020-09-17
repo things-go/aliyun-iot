@@ -168,6 +168,14 @@ func (sf *Client) SubscribeAllTopic(productKey, deviceName string, isSub bool) e
 		sf.log.Warnf(err.Error())
 	}
 
+	// diag
+	if sf.hasDiag {
+		_uri = uri.URI(uri.SysPrefix, uri.ThingDiagPost, productKey, deviceName)
+		if err = sf.Subscribe(_uri, ProcThingDialPostReply); err != nil {
+			sf.log.Warnf(err.Error())
+		}
+	}
+
 	if sf.isGateway {
 		if !isSub {
 			// 网关批量上报数据

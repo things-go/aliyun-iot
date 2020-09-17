@@ -73,7 +73,7 @@ type OtaFirmwareParam struct {
 	Module string `json:"module"`
 }
 
-// OtaFirmwareParam 请求固件信息回复数据域
+// OtaFirmwareData 请求固件信息回复数据域
 type OtaFirmwareData struct {
 	Size       int64  `json:"size"`
 	Sign       string `json:"sign"`

@@ -50,6 +50,9 @@ type Callback interface {
 	ThingConfigLogPush(c *Client, productKey, deviceName string, param ConfigLogParamData) error
 	ThingLogPostReply(c *Client, err error, productKey, deviceName string) error
 
+	// diag
+	ThingDialPostReply(c *Client, err error, productKey, deviceName string) error
+
 	// service
 	// 设置设备属性, 需用户自行做回复
 	ThingServicePropertySet(c *Client, productKey, deviceName string, payload []byte) error

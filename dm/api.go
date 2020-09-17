@@ -61,6 +61,7 @@ type Client struct {
 
 	// 选项功能
 	isGateway   bool
+	hasDiag     bool
 	hasNTP      bool
 	hasRawModel bool
 	hasDesired  bool

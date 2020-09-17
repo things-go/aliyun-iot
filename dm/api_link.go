@@ -154,7 +154,7 @@ func (sf *Client) LinkThingConfigLogGet(pk, dn string,
 	return msg.Data.(ConfigLogParamData), nil
 }
 
-// LinkThingConfigLogGet 获取日志配置,同步
+// LinkThingLogPost 设备上报日志内容,同步
 func (sf *Client) LinkThingLogPost(pk, dn string, lp []LogParam, timeout time.Duration) error {
 	token, err := sf.ThingLogPost(pk, dn, lp)
 	if err != nil {
@@ -172,7 +172,7 @@ func (sf *Client) LinkThingSubRegister(pk, dn string, timeout time.Duration) err
 	if err != nil {
 		return err
 	}
-	msg, err := token.Wait(time.Second * 3)
+	msg, err := token.Wait(timeout)
 	if err != nil {
 		return err
 	}
@@ -321,9 +321,19 @@ func (sf *Client) LinkThingOtaFirmwareGet(pk, dn string,
 
 /**************************************** diag *****************************/
 
-// LinkThingOtaFirmwareGet 请求固件信息,同步
-func (sf *Client) LinkThingDiagPost(pk, dn string, p P, isNow bool, timeout time.Duration) error {
-	token, err := sf.ThingDiagPost(pk, dn, p, isNow)
+// LinkThingDiagPost 设备主动上报当前网络状态,同步
+func (sf *Client) LinkThingDiagPost(pk, dn string, p P, timeout time.Duration) error {
+	token, err := sf.ThingDiagPost(pk, dn, p)
+	if err != nil {
+		return err
+	}
+	_, err = token.Wait(timeout)
+	return err
+}
+
+// LinkThingDiagHistoryPost 设备主动上报历史网络状态,同步
+func (sf *Client) LinkThingDiagHistoryPost(pk, dn string, p []P, timeout time.Duration) error {
+	token, err := sf.ThingDiagHistoryPost(pk, dn, p)
 	if err != nil {
 		return err
 	}

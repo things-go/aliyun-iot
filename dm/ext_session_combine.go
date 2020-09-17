@@ -175,7 +175,7 @@ type CombineLogoutRequest struct {
 	Params infra.MetaPair `json:"params"`
 }
 
-// CombineLoginResponse 子设备上线回复
+// CombineLogoutResponse 子设备上线回复
 type CombineLogoutResponse struct {
 	ID      uint           `json:"id,string"`
 	Code    int            `json:"code"`
@@ -216,7 +216,7 @@ type CombineBatchLogoutRequest struct {
 	Params []infra.MetaPair `json:"params"`
 }
 
-// CombineBatchLogoutRequest 子设备批量下线回复
+// CombineBatchLogoutResponse 子设备批量下线回复
 type CombineBatchLogoutResponse struct {
 	ID      uint             `json:"id,string"`
 	Code    int              `json:"code"`

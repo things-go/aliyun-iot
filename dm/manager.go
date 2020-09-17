@@ -6,7 +6,7 @@ import (
 	"github.com/thinkgos/aliyun-iot/infra"
 )
 
-// DeviceStatus 设备状态
+// DevStatus 设备状态
 type DevStatus byte
 
 // 设备状态
@@ -135,7 +135,7 @@ func (sf *DevMgr) SearchAvail(pk, dn string) (*DevNode, error) {
 	return nil, ErrNotActive
 }
 
-// SearchAvail 使用productKey deviceName查找一个设备节点信息
+// Search 使用productKey deviceName查找一个设备节点信息
 func (sf *DevMgr) Search(pk, dn string) (*DevNode, error) {
 	sf.rw.RLock()
 	defer sf.rw.RUnlock()
@@ -154,6 +154,7 @@ func (sf *DevMgr) SetDeviceSecret(pk, dn, ds string) error {
 	return nil
 }
 
+// DeviceSecret 设备DeviceSecret
 func (sf *DevMgr) DeviceSecret(pk, dn string) (string, error) {
 	sf.rw.RLock()
 	defer sf.rw.RUnlock()
@@ -203,7 +204,7 @@ func (sf *DevMgr) SetDeviceStatus(pk, dn string, status DevStatus) error {
 	return nil
 }
 
-// SetDeviceStatus 获取设备的状态
+// DeviceStatus 获取设备的状态
 func (sf *DevMgr) DeviceStatus(pk, dn string, status DevStatus) error {
 	sf.rw.Lock()
 	defer sf.rw.Unlock()
