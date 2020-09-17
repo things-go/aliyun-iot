@@ -292,3 +292,15 @@ func (sf *Client) LinkThingOtaFirmwareGet(pk, dn string, param OtaFirmwareParam)
 	}
 	return msg.Data.(OtaFirmwareData), nil
 }
+
+/**************************************** diag *****************************/
+
+// LinkThingOtaFirmwareGet 请求固件信息,同步
+func (sf *Client) LinkThingDiagPost(pk, dn string, p P, isNow bool) error {
+	token, err := sf.ThingDiagPost(pk, dn, p, isNow)
+	if err != nil {
+		return err
+	}
+	_, err = token.Wait(time.Second)
+	return err
+}

@@ -14,6 +14,8 @@ const (
 	MethodDslTemplateGet           = "thing.dsltemplate.get"
 	MethodDynamicTslGet            = "thing.dynamicTsl.get"
 	MethodConfigGet                = "thing.config.get"
+	MethodConfigLogGet             = "thing.config.log.get"
+	MethodLogPost                  = "thing.log.post"
 	MethodSubDevRegister           = "thing.sub.register"
 	MethodTopoAdd                  = "thing.topo.add"
 	MethodTopoDelete               = "thing.topo.delete"

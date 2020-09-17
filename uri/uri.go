@@ -96,6 +96,10 @@ const (
 	ThingConfigGetReply  = "thing/config/get_reply"
 	ThingConfigPush      = "thing/config/push"
 	ThingConfigPushReply = "thing/config/push_reply"
+
+	// log
+	ThingConfigLogGet      = "thing/config/log/get"
+	ThingConfigLogGetReply = "thing/config/log/get_reply"
 )
 
 // 网关URI定义
@@ -133,6 +137,10 @@ const (
 	ThingEnableReply     = "thing/enable_reply"
 	ThingDelete          = "thing/delete"
 	ThingDeleteReply     = "thing/delete_reply"
+
+	// 设备网络状态
+	ThingDiagPost      = "_thing/diag/post"
+	ThingDiagPostReply = "_thing/diag/post_reply"
 )
 
 // URI 生成URI

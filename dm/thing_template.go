@@ -35,8 +35,8 @@ func ProcThingDsltemplateGetReply(c *Client, rawURI string, payload []byte) erro
 	if len(uris) < 6 {
 		return ErrInvalidURI
 	}
-	rsp := ResponseRawData{}
-	err := json.Unmarshal(payload, &rsp)
+	rsp := &ResponseRawData{}
+	err := json.Unmarshal(payload, rsp)
 	if err != nil {
 		return err
 	}
