@@ -79,6 +79,7 @@ func Init() *aiot.MQTTClient {
 		mqtt.NewClient(opts),
 		dm.WithEnableNTP(),
 		dm.WithEnableDesired(),
+		dm.WithEnableDiag(),
 		dm.WithCallback(mockCb{}),
 		dm.WithLogger(logger.New(log.New(os.Stdout, "mqtt --> ", log.LstdFlags), logger.WithEnable(true))),
 	)

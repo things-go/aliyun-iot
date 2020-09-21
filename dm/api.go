@@ -3,7 +3,6 @@ package dm
 
 import (
 	"encoding/json"
-	"math/rand"
 	"time"
 
 	"github.com/patrickmn/go-cache"
@@ -82,7 +81,7 @@ var Version = "1.0"
 // New 创建一个物管理客户端
 func New(triad infra.MetaTriad, conn Conn, opts ...Option) *Client {
 	c := &Client{
-		requestID: rand.Uint32(),
+		requestID: uint32(time.Now().Nanosecond()),
 		tetrad:    triad,
 
 		workOnWho: WorkOnMQTT,

@@ -125,12 +125,11 @@ func (sf *Client) SubscribeAllTopic(productKey, deviceName string, isSub bool) e
 		sf.Log.Warnf(err.Error())
 	}
 
-	// TODO: 不使用??
 	// dynamictsl
-	// _uri = infra.URI(SysPrefix, URIThingDynamicTslGetReply, productKey, deviceName)
-	// if err = sf.Subscribe(_uri, ProcThingDynamictslGetReply); err != nil {
-	//	sf.Log.Warnf(err.Error())
-	// }
+	_uri = uri.URI(uri.SysPrefix, uri.ThingDynamicTslGetReply, productKey, deviceName)
+	if err = sf.Subscribe(_uri, ProcThingDynamictslGetReply); err != nil {
+		sf.Log.Warnf(err.Error())
+	}
 
 	// RRPC
 	_uri = uri.URI(uri.SysPrefix, uri.RRPCRequestWildcardOne, productKey, deviceName)

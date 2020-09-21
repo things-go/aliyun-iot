@@ -108,6 +108,7 @@ func ProcThingConfigLogGetReply(c *Client, rawURI string, payload []byte) error 
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 	c.signalPending(Message{rsp.ID, rsp.Data, err})
+	c.Log.Debugf("thing.config.log.get.reply @%d", rsp.ID)
 	pk, dn := uris[1], uris[2]
 	return c.cb.ThingConfigLogGetReply(c, err, pk, dn, rsp.Data)
 }
@@ -129,9 +130,7 @@ func ProcThingLogPostReply(c *Client, rawURI string, payload []byte) error {
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 	c.signalPending(Message{rsp.ID, nil, err})
-
-	c.Log.Debugf("thing.Log.post.reply @%d", rsp.ID)
-
+	c.Log.Debugf("thing.log.post.reply @%d", rsp.ID)
 	pk, dn := uris[1], uris[2]
 	return c.cb.ThingLogPostReply(c, err, pk, dn)
 }
@@ -157,7 +156,7 @@ func ProcThingConfigLogPush(c *Client, rawURI string, payload []byte) error {
 		return err
 	}
 
-	c.Log.Debugf("thing.Log.push @%d", req.ID)
+	c.Log.Debugf("thing.config.log.push @%d", req.ID)
 	pk, dn := uris[1], uris[2]
 	return c.cb.ThingConfigLogPush(c, pk, dn, req.Params)
 }
