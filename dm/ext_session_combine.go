@@ -206,7 +206,7 @@ func (sf *Client) ExtCombineLogout(pk, dn string) (*Token, error) {
 	if err != nil {
 		return nil, err
 	}
-	sf.Log.Debugf("ext.session.combine.login @%d", id)
+	sf.Log.Debugf("ext.session.combine.logout @%d", id)
 	return sf.putPending(id), nil
 }
 
@@ -261,6 +261,7 @@ func ProcExtCombineLoginReply(c *Client, rawURI string, payload []byte) error {
 		return ErrInvalidURI
 	}
 
+	c.Log.Debugf(string(payload))
 	rsp := &CombineLoginResponse{}
 	err := json.Unmarshal(payload, rsp)
 	if err != nil {

@@ -25,6 +25,12 @@ const (
 	DeviceSecret  = "723ff3e4a4352d09a971171b6d52a1eb"
 )
 
+const (
+	SensorProductKey    = "a15aMYCIe4I"
+	SensorProductSecret = "fkrQaPSraQTHcXbQ"
+	SensorDeviceName    = "mysensor"
+)
+
 var MetaTetrad = infra.MetaTetrad{
 	ProductKey,
 	ProductSecret,
@@ -36,6 +42,13 @@ var MetaTriad = infra.MetaTriad{
 	ProductKey,
 	DeviceName,
 	DeviceSecret,
+}
+
+var SensorTriad = infra.MetaTetrad{
+	"a15aMYCIe4I",
+	"fkrQaPSraQTHcXbQ",
+	"mysensor",
+	"aa",
 }
 
 type Instance struct {
@@ -52,6 +65,11 @@ type Instance struct {
 
 type Alarm struct {
 	High int `json:"high"`
+}
+
+type SensorInstance struct {
+	CurrentTemperature float64 `json:"CurrentTemperature"`
+	CurrentHumidity    float64 `json:"CurrentHumidity"`
 }
 
 func Init() *aiot.MQTTClient {
@@ -80,7 +98,9 @@ func Init() *aiot.MQTTClient {
 		dm.WithEnableNTP(),
 		dm.WithEnableDesired(),
 		dm.WithEnableDiag(),
+		dm.WithEnableGateway(),
 		dm.WithCallback(mockCb{}),
+		dm.WithGwCallback(mockCb{}),
 		dm.WithLogger(logger.New(log.New(os.Stdout, "mqtt --> ", log.LstdFlags), logger.WithEnable(true))),
 	)
 
@@ -89,24 +109,6 @@ func Init() *aiot.MQTTClient {
 		panic(err)
 	}
 	return client
-}
-
-type mockCb struct {
-	dm.NopCb
-}
-
-func (sf mockCb) RRPCRequest(c *dm.Client, messageID, productKey, deviceName string, payload []byte) error {
-	req := &dm.Request{}
-	if err := json.Unmarshal(payload, req); err != nil {
-		return err
-	}
-	c.Log.Debugf("rrpc.resopnse.%s", messageID)
-	c.Log.Debugf("%+v", req)
-	return c.RRPCResponse(productKey, deviceName, messageID, dm.Response{
-		ID:   req.ID,
-		Code: infra.CodeSuccess,
-		Data: "{}",
-	})
 }
 
 func ThingEventPropertyPost(client *aiot.MQTTClient) {
@@ -130,4 +132,28 @@ func ThingEventPropertyPost(client *aiot.MQTTClient) {
 			log.Printf("error: %#v", err)
 		}
 	}
+}
+
+type mockCb struct {
+	dm.NopCb
+	dm.GwCallback
+}
+
+func (sf mockCb) RRPCRequest(c *dm.Client, messageID, productKey, deviceName string, payload []byte) error {
+	req := &dm.Request{}
+	if err := json.Unmarshal(payload, req); err != nil {
+		return err
+	}
+	c.Log.Debugf("rrpc.resopnse.%s", messageID)
+	c.Log.Debugf("%+v", req)
+	return c.RRPCResponse(productKey, deviceName, messageID, dm.Response{
+		ID:   req.ID,
+		Code: infra.CodeSuccess,
+		Data: "{}",
+	})
+}
+
+func (sf mockCb) ThingTopoChange(c *dm.Client, params dm.TopoChangeParams) error {
+	c.Log.Debugf("%+v", params)
+	return nil
 }

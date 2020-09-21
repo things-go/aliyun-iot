@@ -11,7 +11,7 @@ import (
 
 // SubRegisterData 子设备注册应答数据域
 type SubRegisterData struct {
-	IotID        int64  `json:"iotId,string"`
+	IotID        string `json:"iotId"`
 	ProductKey   string `json:"productKey"`
 	DeviceName   string `json:"deviceName"`
 	DeviceSecret string `json:"deviceSecret"`
@@ -30,7 +30,7 @@ type SubRegisterResponse struct {
 // request:   /sys/{productKey}/{deviceName}/thing/sub/register
 // response:  /sys/{productKey}/{deviceName}/thing/sub/register_reply
 func (sf *Client) ThingSubRegister(pk, dn string) (*Token, error) {
-	if sf.isGateway {
+	if !sf.isGateway {
 		return nil, ErrNotSupportFeature
 	}
 	_uri := sf.URIGateway(uri.SysPrefix, uri.ThingSubRegister)

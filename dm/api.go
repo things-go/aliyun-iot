@@ -118,6 +118,12 @@ func (sf *Client) NewSubDevice(meta infra.MetaTetrad) error {
 }
 
 // SubDeviceConnect 子设备连接注册并添加到网关拓扑关系
+// 子设备上线流程:
+//      1. 子设备发起动态注册，返回成功注册的子设备的设备证书
+//      2. 子设备身份注册后,通过网关向平台上报网关与子设备的拓扑送系
+//      3. 子设备进行上线(此时平台会校验子设备的身份和与网关的拓扑关系。所有校验通过，才会建立并绑定子设备逻辑通道至网关物理通道上)
+//      4. 子设备与物联网平台的数据上下行通信与直连设备的通信协议一致，协议上不需要露出网关信息
+//      5. 删除拓扑关系后,子设备不能再通过网关上线
 func (sf *Client) SubDeviceConnect(pk, dn string, timeout time.Duration) error {
 	node, err := sf.SearchAvail(pk, dn)
 	if err != nil {
