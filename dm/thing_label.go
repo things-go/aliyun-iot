@@ -13,6 +13,9 @@ import (
 // request:  /sys/{productKey}/{deviceName}/thing/deviceinfo/update
 // response: /sys/{productKey}/{deviceName}/thing/deviceinfo/update_reply
 func (sf *Client) ThingDeviceInfoUpdate(pk, dn string, params interface{}) (*Token, error) {
+	if !sf.IsActive(pk, dn) {
+		return nil, ErrNotActive
+	}
 	_uri := uri.URI(uri.SysPrefix, uri.ThingDeviceInfoUpdate, pk, dn)
 	return sf.SendRequest(_uri, infra.MethodDeviceInfoUpdate, params)
 }
@@ -21,6 +24,9 @@ func (sf *Client) ThingDeviceInfoUpdate(pk, dn string, params interface{}) (*Tok
 // request:  /sys/{productKey}/{deviceName}/thing/deviceinfo/delete
 // response: /sys/{productKey}/{deviceName}/thing/deviceinfo/delete_reply
 func (sf *Client) ThingDeviceInfoDelete(pk, dn string, params interface{}) (*Token, error) {
+	if !sf.IsActive(pk, dn) {
+		return nil, ErrNotActive
+	}
 	_uri := uri.URI(uri.SysPrefix, uri.ThingDeviceInfoDelete, pk, dn)
 	return sf.SendRequest(_uri, infra.MethodDeviceInfoDelete, params)
 }

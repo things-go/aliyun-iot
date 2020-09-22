@@ -12,12 +12,18 @@ import (
 // request:   /sys/{productKey}/{deviceName}/thing/dsltemplate/get
 // response:  /sys/{productKey}/{deviceName}/thing/dsltemplate/get_reply
 func (sf *Client) ThingDsltemplateGet(pk, dn string) (*Token, error) {
+	if !sf.IsActive(pk, dn) {
+		return nil, ErrNotActive
+	}
 	_uri := uri.URI(uri.SysPrefix, uri.ThingDslTemplateGet, pk, dn)
 	return sf.SendRequest(_uri, infra.MethodDslTemplateGet, "{}")
 }
 
 // ThingDynamictslGet 获取动态tsl
 func (sf *Client) ThingDynamictslGet(pk, dn string) (*Token, error) {
+	if !sf.IsActive(pk, dn) {
+		return nil, ErrNotActive
+	}
 	_uri := uri.URI(uri.SysPrefix, uri.ThingDynamicTslGet, pk, dn)
 	return sf.SendRequest(_uri, infra.MethodDynamicTslGet, map[string]interface{}{
 		"nodes":      []string{"type", "identifier"},

@@ -50,14 +50,14 @@ type CombineLoginResponse struct {
 	Message string         `json:"message,omitempty"`
 }
 
-// ExtCombineLogin 子设备上线
+// extCombineLogin 子设备上线
 // NOTE: topic 应使用网关的productKey和deviceName,且只支持qos = 0
 // cleanSession
 // 	如果取值是true，则清理所有子设备离线时的消息，即所有未接收的QoS1消息将被清除。
 // 	如果取值是false，则不清理子设备离线时的消息
 // request： /ext/session/${productKey}/${deviceName}/combine/login
 // response：/ext/session/${productKey}/${deviceName}/combine/login_reply
-func (sf *Client) ExtCombineLogin(cp CombinePair) (*Token, error) {
+func (sf *Client) extCombineLogin(cp CombinePair) (*Token, error) {
 	if !sf.isGateway {
 		return nil, ErrNotSupportFeature
 	}
@@ -113,11 +113,11 @@ type CombineBatchLoginResponse struct {
 	Message string           `json:"message,omitempty"`
 }
 
-// ExtCombineBatchLogin 子设备批量上线
+// extCombineBatchLogin 子设备批量上线
 // NOTE: topic 应使用网关的productKey和deviceName,且只支持qos = 0
 // request： /ext/session/${productKey}/${deviceName}/combine/batch_login
 // response：/ext/session/${productKey}/${deviceName}/combine/batch_login_reply
-func (sf *Client) ExtCombineBatchLogin(pairs []CombinePair) (*Token, error) {
+func (sf *Client) extCombineBatchLogin(pairs []CombinePair) (*Token, error) {
 	if !sf.isGateway {
 		return nil, ErrNotSupportFeature
 	}
@@ -183,11 +183,11 @@ type CombineLogoutResponse struct {
 	Message string         `json:"message,omitempty"`
 }
 
-// ExtCombineLogout 子设备下线
+// extCombineLogout 子设备下线
 // NOTE: topic 应使用网关的productKey和deviceName,且只支持qos = 0
 // request:   /ext/session/{productKey}/{deviceName}/combine/logout
 // response:  /ext/session/{productKey}/{deviceName}/combine/logout_reply
-func (sf *Client) ExtCombineLogout(pk, dn string) (*Token, error) {
+func (sf *Client) extCombineLogout(pk, dn string) (*Token, error) {
 	if !sf.isGateway {
 		return nil, ErrNotSupportFeature
 	}
@@ -224,11 +224,11 @@ type CombineBatchLogoutResponse struct {
 	Message string           `json:"message,omitempty"`
 }
 
-// ExtCombineBatchLogout 子设备批量下线
+// extCombineBatchLogout 子设备批量下线
 // NOTE: topic 应使用网关的productKey和deviceName,且只支持qos = 0
 // request:   /ext/session/{productKey}/{deviceName}/combine/batch_logout
 // response:  /ext/session/{productKey}/{deviceName}/combine/batch_logout_reply
-func (sf *Client) ExtCombineBatchLogout(pairs []infra.MetaPair) (*Token, error) {
+func (sf *Client) extCombineBatchLogout(pairs []infra.MetaPair) (*Token, error) {
 	if !sf.isGateway {
 		return nil, ErrNotSupportFeature
 	}

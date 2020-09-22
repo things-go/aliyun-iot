@@ -44,11 +44,17 @@ var MetaTriad = infra.MetaTriad{
 	DeviceSecret,
 }
 
-var SensorTriad = infra.MetaTetrad{
+var SensorTerad = infra.MetaTetrad{
 	"a15aMYCIe4I",
 	"fkrQaPSraQTHcXbQ",
 	"mysensor",
-	"aa",
+	"",
+}
+
+var SensorTriad = infra.MetaTriad{
+	"a15aMYCIe4I",
+	"mysensor",
+	"",
 }
 
 type Instance struct {
@@ -127,19 +133,26 @@ func InstanceValue() Instance {
 	}
 }
 
+func SensorInstanceValue() SensorInstance {
+	return SensorInstance{
+		float64(rand.Intn(160) - 40),
+		float64(rand.Intn(100)),
+	}
+}
+
 func ThingEventPropertyPost(client *aiot.MQTTClient) {
 	for {
-		time.Sleep(time.Second * 30)
 		err := client.LinkThingEventPropertyPost(ProductKey, DeviceName, InstanceValue(), time.Second)
 		if err != nil {
 			log.Printf("error: %#v", err)
 		}
+		time.Sleep(time.Second * 30)
 	}
 }
 
 type mockCb struct {
 	dm.NopCb
-	dm.GwCallback
+	dm.NopGwCb
 }
 
 func (sf mockCb) RRPCRequest(c *dm.Client, messageID, productKey, deviceName string, payload []byte) error {

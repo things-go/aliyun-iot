@@ -55,6 +55,9 @@ func (sf *Client) thingDiagPost(pk, dn string, p interface{}, isNow bool) (*Toke
 	if !sf.hasDiag {
 		return nil, ErrNotSupportFeature
 	}
+	if !sf.IsActive(pk, dn) {
+		return nil, ErrNotActive
+	}
 
 	if isNow {
 		model = "format=simple|quantity=single|time=now"

@@ -109,10 +109,10 @@ func (sf *Client) Connect() error {
 	return sf.SubscribeAllTopic(sf.tetrad.ProductKey, sf.tetrad.DeviceName, false)
 }
 
-// NewSubDevice 创建一个子设备
-func (sf *Client) NewSubDevice(meta infra.MetaTetrad) error {
+// NewSubDevice 增加一个一个子设备
+func (sf *Client) AddSubDevice(meta infra.MetaTriad) error {
 	if sf.isGateway {
-		return sf.Create(meta)
+		return sf.Add(meta)
 	}
 	return ErrNotSupportFeature
 }
@@ -124,17 +124,32 @@ func (sf *Client) NewSubDevice(meta infra.MetaTetrad) error {
 //      3. 子设备进行上线(此时平台会校验子设备的身份和与网关的拓扑关系。所有校验通过，才会建立并绑定子设备逻辑通道至网关物理通道上)
 //      4. 子设备与物联网平台的数据上下行通信与直连设备的通信协议一致，协议上不需要露出网关信息
 //      5. 删除拓扑关系后,子设备不能再通过网关上线
-func (sf *Client) SubDeviceConnect(pk, dn string, timeout time.Duration) error {
+func (sf *Client) SubDeviceConnect(pk, dn string, cleanSession bool, timeout time.Duration) error {
 	node, err := sf.SearchAvail(pk, dn)
 	if err != nil {
 		return err
 	}
-	if node.DeviceSecret() == "" { // 需要注册
+	if node.Status() < DevStatusRegistered || node.DeviceSecret() == "" { // 需要注册
 		// 子设备注册
-		if err := sf.LinkThingSubRegister(pk, dn, timeout); err != nil {
+		if _, err := sf.LinkThingSubRegister(pk, dn, timeout); err != nil {
 			return err
 		}
 	}
 	// 子设备添加到拓扑
-	return sf.LinkThingTopoAdd(pk, dn, timeout)
+	err = sf.LinkThingTopoAdd(pk, dn, timeout)
+	if err != nil {
+		return err
+	}
+	// 上线
+	err = sf.LinkExtCombineLogin(CombinePair{pk, dn, cleanSession}, timeout)
+	if err != nil {
+		return err
+	}
+	// 订阅
+	err = sf.SubscribeAllTopic(pk, dn, true)
+	if err != nil {
+		return err
+	}
+	sf.SetDeviceStatus(pk, dn, DevStatusOnline) // nolint: errcheck
+	return nil
 }

@@ -16,6 +16,9 @@ func (sf *Client) ThingDesiredPropertyGet(pk, dn string, params []string) (*Toke
 	if !sf.hasDesired {
 		return nil, ErrNotSupportFeature
 	}
+	if !sf.IsActive(pk, dn) {
+		return nil, ErrNotActive
+	}
 	_uri := uri.URI(uri.SysPrefix, uri.ThingDesiredPropertyGet, pk, dn)
 	return sf.SendRequest(_uri, infra.MethodDesiredPropertyGet, params)
 }
@@ -26,6 +29,9 @@ func (sf *Client) ThingDesiredPropertyGet(pk, dn string, params []string) (*Toke
 func (sf *Client) ThingDesiredPropertyDelete(pk, dn string, params interface{}) (*Token, error) {
 	if !sf.hasDesired {
 		return nil, ErrNotSupportFeature
+	}
+	if !sf.IsActive(pk, dn) {
+		return nil, ErrNotActive
 	}
 	_uri := uri.URI(uri.SysPrefix, uri.ThingDesiredPropertyDelete, pk, dn)
 	return sf.SendRequest(_uri, infra.MethodDesiredPropertyDelete, params)

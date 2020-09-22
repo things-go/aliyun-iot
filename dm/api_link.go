@@ -166,28 +166,29 @@ func (sf *Client) LinkThingLogPost(pk, dn string, lp []LogParam, timeout time.Du
 
 /**************************************** reqister *****************************/
 
-// LinkThingSubRegister 同步子设备注册
-func (sf *Client) LinkThingSubRegister(pk, dn string, timeout time.Duration) error {
+// LinkThingSubRegister 同步子设备注册,
+func (sf *Client) LinkThingSubRegister(pk, dn string, timeout time.Duration) ([]SubRegisterData, error) {
 	token, err := sf.ThingSubRegister(pk, dn)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	msg, err := token.Wait(timeout)
 	if err != nil {
-		return err
+		return nil, err
 	}
+	data := msg.Data.([]SubRegisterData)
 	for _, v := range msg.Data.([]SubRegisterData) {
 		sf.SetDeviceSecret(v.ProductKey, v.DeviceName, v.DeviceSecret)      // nolint: errcheck
 		sf.SetDeviceStatus(v.ProductKey, v.DeviceName, DevStatusRegistered) // nolint: errcheck
 	}
-	return nil
+	return data, nil
 }
 
 /**************************************** network *****************************/
 
 // LinkThingTopoAdd 添加设备拓扑关系,同步
 func (sf *Client) LinkThingTopoAdd(pk, dn string, timeout time.Duration) error {
-	token, err := sf.ThingTopoAdd(pk, dn)
+	token, err := sf.thingTopoAdd(pk, dn)
 	if err != nil {
 		return err
 	}
@@ -203,7 +204,7 @@ func (sf *Client) LinkThingTopoAdd(pk, dn string, timeout time.Duration) error {
 
 // LinkThingTopoDelete 删除网关与子设备的拓扑关系
 func (sf *Client) LinkThingTopoDelete(pk, dn string, timeout time.Duration) error {
-	token, err := sf.ThingTopoDelete(pk, dn)
+	token, err := sf.thingTopoDelete(pk, dn)
 	if err != nil {
 		return err
 	}
@@ -244,7 +245,7 @@ func (sf *Client) LinkThingListFound(pairs []infra.MetaPair, timeout time.Durati
 
 // LinkExtCombineLogin 子设备上线,同步
 func (sf *Client) LinkExtCombineLogin(cp CombinePair, timeout time.Duration) error {
-	token, err := sf.ExtCombineLogin(cp)
+	token, err := sf.extCombineLogin(cp)
 	if err != nil {
 		return err
 	}
@@ -258,7 +259,7 @@ func (sf *Client) LinkExtCombineLogin(cp CombinePair, timeout time.Duration) err
 
 // LinkExtCombineBatchLogin 子设备批量上线,同步
 func (sf *Client) LinkExtCombineBatchLogin(pairs []CombinePair, timeout time.Duration) error {
-	token, err := sf.ExtCombineBatchLogin(pairs)
+	token, err := sf.extCombineBatchLogin(pairs)
 	if err != nil {
 		return err
 	}
@@ -275,7 +276,7 @@ func (sf *Client) LinkExtCombineBatchLogin(pairs []CombinePair, timeout time.Dur
 
 // LinkExtCombineLogout 子设备下线,同步
 func (sf *Client) LinkExtCombineLogout(pk, dn string, timeout time.Duration) error {
-	token, err := sf.ExtCombineLogout(pk, dn)
+	token, err := sf.extCombineLogout(pk, dn)
 	if err != nil {
 		return err
 	}
@@ -289,7 +290,7 @@ func (sf *Client) LinkExtCombineLogout(pk, dn string, timeout time.Duration) err
 
 // LinkExtCombineBatchLogout 子设备批量下线,同步
 func (sf *Client) LinkExtCombineBatchLogout(pairs []infra.MetaPair, timeout time.Duration) error {
-	token, err := sf.ExtCombineBatchLogout(pairs)
+	token, err := sf.extCombineBatchLogout(pairs)
 	if err != nil {
 		return err
 	}
@@ -298,7 +299,7 @@ func (sf *Client) LinkExtCombineBatchLogout(pairs []infra.MetaPair, timeout time
 		return err
 	}
 	for _, cp := range pairs {
-		sf.SetDeviceStatus(cp.ProductKey, cp.DeviceName, DevStatusLogined) // nolint: errcheck
+		sf.SetDeviceStatus(cp.ProductKey, cp.DeviceName, DevStatusAttached) // nolint: errcheck
 	}
 	return nil
 }

@@ -14,5 +14,6 @@ var (
 	ErrEntryClosed       = errors.New("entry has closed")
 	ErrDeviceHasExist    = errors.New("device has exist")
 	ErrNotPermit         = errors.New("not permit")
-	ErrNotActive         = errors.New("not active")
+	ErrNotActive         = errors.New("device not active")
+	ErrNotAvail          = errors.New("device not avail")
 )

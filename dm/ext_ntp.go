@@ -31,6 +31,9 @@ func (sf *Client) ExtNtpRequest() error {
 	if !sf.hasNTP || sf.hasRawModel {
 		return ErrNotSupportFeature
 	}
+	if !sf.IsActive(sf.tetrad.ProductKey, sf.tetrad.DeviceName) {
+		return ErrNotActive
+	}
 	sf.Log.Debugf("ext.ntp.request")
 	_uri := sf.URIGateway(uri.ExtNtpPrefix, uri.NtpRequest)
 	py, err := json.Marshal(NtpRequest{infra.Millisecond(time.Now())})

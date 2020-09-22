@@ -31,6 +31,9 @@ type ConfigLogParam struct {
 // request： /sys/${productKey}/${deviceName}/thing/config/Log/get
 // response：/sys/${productKey}/${deviceName}/thing/config/Log/get_reply
 func (sf *Client) ThingConfigLogGet(pk, dn string, _ ConfigLogParam) (*Token, error) {
+	if !sf.IsActive(pk, dn) {
+		return nil, ErrNotActive
+	}
 	_uri := uri.URI(uri.SysPrefix, uri.ThingConfigLogGet, pk, dn)
 	return sf.SendRequest(_uri, infra.MethodConfigLogGet, ConfigLogParam{
 		"device",
@@ -63,6 +66,9 @@ type LogParam struct {
 // request： /sys/${productKey}/${deviceName}/thing/config/Log/post
 // response：/sys/${productKey}/${deviceName}/thing/config/Log/post_reply
 func (sf *Client) ThingLogPost(pk, dn string, lp []LogParam) (*Token, error) {
+	if !sf.IsActive(pk, dn) {
+		return nil, ErrNotActive
+	}
 	if len(lp) == 0 {
 		return nil, ErrInvalidParameter
 	}

@@ -45,6 +45,9 @@ type ConfigPushRequest struct {
 // request:  /sys/{productKey}/{deviceName}/thing/config/get
 // response: /sys/{productKey}/{deviceName}/thing/config/get_reply
 func (sf *Client) ThingConfigGet(pk, dn string) (*Token, error) {
+	if !sf.IsActive(pk, dn) {
+		return nil, ErrNotActive
+	}
 	_uri := uri.URI(uri.SysPrefix, uri.ThingConfigGet, pk, dn)
 	return sf.SendRequest(_uri, infra.MethodConfigGet, ConfigGetParams{
 		"product",

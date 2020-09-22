@@ -20,11 +20,11 @@ type TopoAddParams struct {
 	Sign       string `json:"sign"`
 }
 
-// ThingTopoAdd 添加设备拓扑关系
+// thingTopoAdd 添加设备拓扑关系
 // 子设备身份注册后,需网关上报与子设备的关系,然后才进行子设备上线
 // request:   /sys/{productKey}/{deviceName}/thing/topo/add
 // response:  /sys/{productKey}/{deviceName}/thing/topo/add_reply
-func (sf *Client) ThingTopoAdd(pk, dn string) (*Token, error) {
+func (sf *Client) thingTopoAdd(pk, dn string) (*Token, error) {
 	if !sf.isGateway {
 		return nil, ErrNotSupportFeature
 	}
@@ -52,10 +52,10 @@ func (sf *Client) ThingTopoAdd(pk, dn string) (*Token, error) {
 	})
 }
 
-// ThingTopoDelete 删除网关与子设备的拓扑关系
+// thingTopoDelete 删除网关与子设备的拓扑关系
 // request： /sys/{productKey}/{deviceName}/thing/topo/delete
 // response：/sys/{productKey}/{deviceName}/thing/topo/delete_reply
-func (sf *Client) ThingTopoDelete(pk, dn string) (*Token, error) {
+func (sf *Client) thingTopoDelete(pk, dn string) (*Token, error) {
 	if !sf.isGateway {
 		return nil, ErrNotSupportFeature
 	}

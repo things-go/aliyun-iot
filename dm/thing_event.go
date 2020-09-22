@@ -17,6 +17,9 @@ func (sf *Client) ThingEventPropertyPost(pk, dn string, params interface{}) (*To
 	if sf.hasRawModel {
 		return nil, ErrNotSupportFeature
 	}
+	if !sf.IsActive(pk, dn) {
+		return nil, ErrNotActive
+	}
 	_uri := uri.URI(uri.SysPrefix, uri.ThingEventPropertyPost, pk, dn)
 	return sf.SendRequest(_uri, infra.MethodEventPropertyPost, params)
 }
@@ -25,6 +28,9 @@ func (sf *Client) ThingEventPropertyPost(pk, dn string, params interface{}) (*To
 // request:  /sys/{productKey}/{deviceName}/thing/event/{tsl.event.identifier}/post
 // response: /sys/{productKey}/{deviceName}/thing/event/{tsl.event.identifier}/post_reply
 func (sf *Client) ThingEventPost(pk, dn, eventID string, params interface{}) (*Token, error) {
+	if !sf.IsActive(pk, dn) {
+		return nil, ErrNotActive
+	}
 	_uri := uri.URI(uri.SysPrefix, uri.ThingEventPost, pk, dn, eventID)
 	method := fmt.Sprintf(infra.MethodEventFormatPost, eventID)
 	return sf.SendRequest(_uri, method, params)
@@ -38,6 +44,9 @@ func (sf *Client) ThingEventPropertyPackPost(params interface{}) (*Token, error)
 	if !sf.isGateway {
 		return nil, ErrNotSupportFeature
 	}
+	if !sf.IsActive(sf.tetrad.ProductKey, sf.tetrad.DeviceName) {
+		return nil, ErrNotActive
+	}
 	_uri := sf.URIGateway(uri.SysPrefix, uri.ThingEventPropertyPackPost)
 	return sf.SendRequest(_uri, infra.MethodEventPropertyPackPost, params)
 }
@@ -47,6 +56,9 @@ func (sf *Client) ThingEventPropertyPackPost(params interface{}) (*Token, error)
 // request： /sys/{productKey}/{deviceName}/thing/event/property/history/post
 // response：/sys/{productKey}/{deviceName}/thing/event/property/history/post_reply
 func (sf *Client) ThingEventPropertyHistoryPost(params interface{}) (*Token, error) {
+	if !sf.IsActive(sf.tetrad.ProductKey, sf.tetrad.DeviceName) {
+		return nil, ErrNotActive
+	}
 	_uri := sf.URIGateway(uri.SysPrefix, uri.ThingEventPropertyHistoryPost)
 	return sf.SendRequest(_uri, infra.MethodEventPropertyHistoryPost, params)
 }

@@ -59,18 +59,30 @@ func (sf *Client) SubscribeAllTopic(productKey, deviceName string, isSub bool) e
 		return nil
 	}
 
-	// model raw订阅
-	if sf.hasRawModel {
-		_uri = uri.URI(uri.SysPrefix, uri.ThingModelUpRawReply, productKey, deviceName)
-		if err = sf.Subscribe(_uri, ProcThingModelUpRawReply); err != nil {
-			sf.Log.Warnf(err.Error())
+	_uri = uri.URI(uri.SysPrefix, uri.ThingModelUpRawReply, productKey, deviceName)
+	if err = sf.Subscribe(_uri, ProcThingModelUpRawReply); err != nil {
+		sf.Log.Warnf(err.Error())
+	}
+
+	_uri = uri.URI(uri.SysPrefix, uri.ThingModelDownRaw, productKey, deviceName)
+	if err = sf.Subscribe(_uri, ProcThingModelDownRaw); err != nil {
+		sf.Log.Warnf(err.Error())
+	}
+
+	// 只使能model raw
+	if !sf.hasRawModel {
+		// desired 期望属性订阅
+		if sf.hasDesired {
+			_uri = uri.URI(uri.SysPrefix, uri.ThingDesiredPropertyGetReply, productKey, deviceName)
+			if err = sf.Subscribe(_uri, ProcThingDesiredPropertyGetReply); err != nil {
+				sf.Log.Warnf(err.Error())
+			}
+			_uri = uri.URI(uri.SysPrefix, uri.ThingDesiredPropertyDeleteReply, productKey, deviceName)
+			if err = sf.Subscribe(_uri, ProcThingDesiredPropertyDeleteReply); err != nil {
+				sf.Log.Warnf(err.Error())
+			}
 		}
 
-		_uri = uri.URI(uri.SysPrefix, uri.ThingModelDownRaw, productKey, deviceName)
-		if err = sf.Subscribe(_uri, ProcThingModelDownRaw); err != nil {
-			sf.Log.Warnf(err.Error())
-		}
-	} else {
 		// event 主题订阅
 		_uri = uri.URI(uri.SysPrefix, uri.ThingEventPostReplyWildcardOne, productKey, deviceName)
 		if err = sf.Subscribe(_uri, ProcThingEventPostReply); err != nil {
@@ -82,95 +94,84 @@ func (sf *Client) SubscribeAllTopic(productKey, deviceName string, isSub bool) e
 		if err = sf.Subscribe(_uri, ProcThingEventPropertyHistoryPostReply); err != nil {
 			sf.Log.Warnf(err.Error())
 		}
-	}
 
-	// desired 期望属性订阅
-	if sf.hasDesired {
-		_uri = uri.URI(uri.SysPrefix, uri.ThingDesiredPropertyGetReply, productKey, deviceName)
-		if err = sf.Subscribe(_uri, ProcThingDesiredPropertyGetReply); err != nil {
+		// ntp订阅, 只有网关和独立设备支持ntp
+		if sf.hasNTP && !isSub {
+			_uri = uri.URI(uri.ExtNtpPrefix, uri.NtpResponse, productKey, deviceName)
+			if err = sf.Subscribe(_uri, ProcExtNtpResponse); err != nil {
+				sf.Log.Warnf(err.Error())
+			}
+		}
+
+		// diag
+		if sf.hasDiag && !isSub {
+			_uri = uri.URI(uri.SysPrefix, uri.ThingDiagPostReply, productKey, deviceName)
+			if err = sf.Subscribe(_uri, ProcThingDialPostReply); err != nil {
+				sf.Log.Warnf(err.Error())
+			}
+		}
+		// deviceInfo 主题订阅
+		_uri = uri.URI(uri.SysPrefix, uri.ThingDeviceInfoUpdateReply, productKey, deviceName)
+		if err = sf.Subscribe(_uri, ProcThingDeviceInfoUpdateReply); err != nil {
 			sf.Log.Warnf(err.Error())
 		}
-		_uri = uri.URI(uri.SysPrefix, uri.ThingDesiredPropertyDeleteReply, productKey, deviceName)
-		if err = sf.Subscribe(_uri, ProcThingDesiredPropertyDeleteReply); err != nil {
+		_uri = uri.URI(uri.SysPrefix, uri.ThingDeviceInfoDeleteReply, productKey, deviceName)
+		if err = sf.Subscribe(_uri, ProcThingDeviceInfoDeleteReply); err != nil {
 			sf.Log.Warnf(err.Error())
 		}
-	}
-	// ntp订阅, 只有网关和独立设备支持ntp
-	if sf.hasNTP && !isSub {
-		_uri = uri.URI(uri.ExtNtpPrefix, uri.NtpResponse, productKey, deviceName)
-		if err = sf.Subscribe(_uri, ProcExtNtpResponse); err != nil {
+
+		// service
+		_uri = uri.URI(uri.SysPrefix, uri.ThingServiceRequestWildcardSome, productKey, deviceName)
+		if err = sf.Subscribe(_uri, ProcThingServiceRequest); err != nil {
 			sf.Log.Warnf(err.Error())
 		}
-	}
 
-	// diag
-	if sf.hasDiag && !isSub {
-		_uri = uri.URI(uri.SysPrefix, uri.ThingDiagPostReply, productKey, deviceName)
-		if err = sf.Subscribe(_uri, ProcThingDialPostReply); err != nil {
+		// dsltemplate 订阅
+		_uri = uri.URI(uri.SysPrefix, uri.ThingDslTemplateGetReply, productKey, deviceName)
+		if err = sf.Subscribe(_uri, ProcThingDsltemplateGetReply); err != nil {
 			sf.Log.Warnf(err.Error())
 		}
-	}
-	// deviceInfo 主题订阅
-	_uri = uri.URI(uri.SysPrefix, uri.ThingDeviceInfoUpdateReply, productKey, deviceName)
-	if err = sf.Subscribe(_uri, ProcThingDeviceInfoUpdateReply); err != nil {
-		sf.Log.Warnf(err.Error())
-	}
-	_uri = uri.URI(uri.SysPrefix, uri.ThingDeviceInfoDeleteReply, productKey, deviceName)
-	if err = sf.Subscribe(_uri, ProcThingDeviceInfoDeleteReply); err != nil {
-		sf.Log.Warnf(err.Error())
-	}
+		// dynamictsl
+		_uri = uri.URI(uri.SysPrefix, uri.ThingDynamicTslGetReply, productKey, deviceName)
+		if err = sf.Subscribe(_uri, ProcThingDynamictslGetReply); err != nil {
+			sf.Log.Warnf(err.Error())
+		}
 
-	// service
-	_uri = uri.URI(uri.SysPrefix, uri.ThingServiceRequestWildcardSome, productKey, deviceName)
-	if err = sf.Subscribe(_uri, ProcThingServiceRequest); err != nil {
-		sf.Log.Warnf(err.Error())
-	}
+		// Log
+		_uri = uri.URI(uri.SysPrefix, uri.ThingConfigLogGetReply, productKey, deviceName)
+		if err = sf.Subscribe(_uri, ProcThingConfigLogGetReply); err != nil {
+			sf.Log.Warnf(err.Error())
+		}
+		_uri = uri.URI(uri.SysPrefix, uri.ThingLogPostReply, productKey, deviceName)
+		if err = sf.Subscribe(_uri, ProcThingLogPostReply); err != nil {
+			sf.Log.Warnf(err.Error())
+		}
+		_uri = uri.URI(uri.SysPrefix, uri.ThingConfigLogPush, productKey, deviceName)
+		if err = sf.Subscribe(_uri, ProcThingConfigLogPush); err != nil {
+			sf.Log.Warnf(err.Error())
+		}
 
-	// dsltemplate 订阅
-	_uri = uri.URI(uri.SysPrefix, uri.ThingDslTemplateGetReply, productKey, deviceName)
-	if err = sf.Subscribe(_uri, ProcThingDsltemplateGetReply); err != nil {
-		sf.Log.Warnf(err.Error())
-	}
-	// dynamictsl
-	_uri = uri.URI(uri.SysPrefix, uri.ThingDynamicTslGetReply, productKey, deviceName)
-	if err = sf.Subscribe(_uri, ProcThingDynamictslGetReply); err != nil {
-		sf.Log.Warnf(err.Error())
-	}
+		// RRPC
+		_uri = uri.URI(uri.SysPrefix, uri.RRPCRequestWildcardOne, productKey, deviceName)
+		if err = sf.Subscribe(_uri, ProcRRPCRequest); err != nil {
+			sf.Log.Warnf(err.Error())
+		}
 
-	// Log
-	_uri = uri.URI(uri.SysPrefix, uri.ThingConfigLogGetReply, productKey, deviceName)
-	if err = sf.Subscribe(_uri, ProcThingConfigLogGetReply); err != nil {
-		sf.Log.Warnf(err.Error())
-	}
-	_uri = uri.URI(uri.SysPrefix, uri.ThingLogPostReply, productKey, deviceName)
-	if err = sf.Subscribe(_uri, ProcThingLogPostReply); err != nil {
-		sf.Log.Warnf(err.Error())
-	}
-	_uri = uri.URI(uri.SysPrefix, uri.ThingConfigLogPush, productKey, deviceName)
-	if err = sf.Subscribe(_uri, ProcThingConfigLogPush); err != nil {
-		sf.Log.Warnf(err.Error())
-	}
+		// config 主题订阅
+		_uri = uri.URI(uri.SysPrefix, uri.ThingConfigGetReply, productKey, deviceName)
+		if err = sf.Subscribe(_uri, ProcThingConfigGetReply); err != nil {
+			sf.Log.Warnf(err.Error())
+		}
+		_uri = uri.URI(uri.SysPrefix, uri.ThingConfigPush, productKey, deviceName)
+		if err = sf.Subscribe(_uri, ProcThingConfigPush); err != nil {
+			sf.Log.Warnf(err.Error())
+		}
 
-	// RRPC
-	_uri = uri.URI(uri.SysPrefix, uri.RRPCRequestWildcardOne, productKey, deviceName)
-	if err = sf.Subscribe(_uri, ProcRRPCRequest); err != nil {
-		sf.Log.Warnf(err.Error())
-	}
-
-	// config 主题订阅
-	_uri = uri.URI(uri.SysPrefix, uri.ThingConfigGetReply, productKey, deviceName)
-	if err = sf.Subscribe(_uri, ProcThingConfigGetReply); err != nil {
-		sf.Log.Warnf(err.Error())
-	}
-	_uri = uri.URI(uri.SysPrefix, uri.ThingConfigPush, productKey, deviceName)
-	if err = sf.Subscribe(_uri, ProcThingConfigPush); err != nil {
-		sf.Log.Warnf(err.Error())
-	}
-
-	// error 订阅
-	_uri = uri.URI(uri.ExtErrorPrefix, "", productKey, deviceName)
-	if err = sf.Subscribe(_uri, ProcExtErrorResponse); err != nil {
-		sf.Log.Warnf(err.Error())
+		// error 订阅
+		_uri = uri.URI(uri.ExtErrorPrefix, "", productKey, deviceName)
+		if err = sf.Subscribe(_uri, ProcExtErrorResponse); err != nil {
+			sf.Log.Warnf(err.Error())
+		}
 	}
 
 	if sf.isGateway {
@@ -272,32 +273,45 @@ func (sf *Client) UnSubscribeAllTopic(productKey, deviceName string, isSub bool)
 		return nil
 	}
 
-	// model raw 取消订阅
-	if sf.hasRawModel {
+	if !sf.hasRawModel {
+		// desired 期望属性取消订阅
+		if sf.hasDesired {
+			topicList = append(topicList,
+				uri.URI(uri.SysPrefix, uri.ThingDesiredPropertyGetReply, productKey, deviceName),
+				uri.URI(uri.SysPrefix, uri.ThingDesiredPropertyDeleteReply, productKey, deviceName),
+			)
+		}
+		if sf.hasNTP && !isSub {
+			topicList = append(topicList, uri.URI(uri.ExtNtpPrefix, uri.NtpResponse, productKey, deviceName))
+		}
+		if sf.hasDiag && !isSub {
+			topicList = append(topicList, uri.URI(uri.SysPrefix, uri.ThingDiagPostReply, productKey, deviceName))
+		}
 		topicList = append(topicList,
-			uri.URI(uri.SysPrefix, uri.ThingModelUpRawReply, productKey, deviceName),
-			uri.URI(uri.SysPrefix, uri.ThingModelDownRaw, productKey, deviceName),
-		)
-	} else {
-		// event 取消订阅
-		topicList = append(topicList,
+			// event 取消订阅
 			uri.URI(uri.SysPrefix, uri.ThingEventPostReplyWildcardOne, productKey, deviceName),
 			uri.URI(uri.SysPrefix, uri.ThingEventPropertyHistoryPostReply, productKey, deviceName),
+			// deviceInfo
+			uri.URI(uri.SysPrefix, uri.ThingDeviceInfoUpdateReply, productKey, deviceName),
+			uri.URI(uri.SysPrefix, uri.ThingDeviceInfoDeleteReply, productKey, deviceName),
+			// service
+			uri.URI(uri.SysPrefix, uri.ThingServiceRequestWildcardSome, productKey, deviceName),
+			// dystemplate
+			uri.URI(uri.SysPrefix, uri.ThingDslTemplateGetReply, productKey, deviceName),
+			// dynamictsl
+			uri.URI(uri.SysPrefix, uri.ThingDynamicTslGetReply, productKey, deviceName),
+			// log
+			uri.URI(uri.SysPrefix, uri.ThingConfigLogGetReply, productKey, deviceName),
+			uri.URI(uri.SysPrefix, uri.ThingLogPostReply, productKey, deviceName),
+			uri.URI(uri.SysPrefix, uri.ThingConfigLogPush, productKey, deviceName),
+			// RRPC
+			uri.URI(uri.SysPrefix, uri.RRPCRequestWildcardOne, productKey, deviceName),
+			// config
+			uri.URI(uri.SysPrefix, uri.ThingConfigGetReply, productKey, deviceName),
+			uri.URI(uri.SysPrefix, uri.ThingConfigPush, productKey, deviceName),
+			// error
+			uri.URI(uri.ExtErrorPrefix, "", productKey, deviceName),
 		)
-	}
-
-	// desired 期望属性取消订阅
-	if sf.hasDesired {
-		topicList = append(topicList,
-			uri.URI(uri.SysPrefix, uri.ThingDesiredPropertyGetReply, productKey, deviceName),
-			uri.URI(uri.SysPrefix, uri.ThingDesiredPropertyDeleteReply, productKey, deviceName),
-		)
-	}
-	if sf.hasNTP && !isSub {
-		topicList = append(topicList, uri.URI(uri.ExtNtpPrefix, uri.NtpResponse, productKey, deviceName))
-	}
-	if sf.hasDiag && !isSub {
-		topicList = append(topicList, uri.URI(uri.SysPrefix, uri.ThingDiagPostReply, productKey, deviceName))
 	}
 
 	if sf.isGateway {
@@ -337,26 +351,9 @@ func (sf *Client) UnSubscribeAllTopic(productKey, deviceName string, isSub bool)
 	}
 
 	topicList = append(topicList,
-		// deviceInfo
-		uri.URI(uri.SysPrefix, uri.ThingDeviceInfoUpdateReply, productKey, deviceName),
-		uri.URI(uri.SysPrefix, uri.ThingDeviceInfoDeleteReply, productKey, deviceName),
-		// service
-		uri.URI(uri.SysPrefix, uri.ThingServiceRequestWildcardSome, productKey, deviceName),
-		// dystemplate
-		uri.URI(uri.SysPrefix, uri.ThingDslTemplateGetReply, productKey, deviceName),
-		// dynamictsl
-		uri.URI(uri.SysPrefix, uri.ThingDynamicTslGetReply, productKey, deviceName),
-		// log
-		uri.URI(uri.SysPrefix, uri.ThingConfigLogGetReply, productKey, deviceName),
-		uri.URI(uri.SysPrefix, uri.ThingLogPostReply, productKey, deviceName),
-		uri.URI(uri.SysPrefix, uri.ThingConfigLogPush, productKey, deviceName),
-		// RRPC
-		uri.URI(uri.SysPrefix, uri.RRPCRequestWildcardOne, productKey, deviceName),
-		// config
-		uri.URI(uri.SysPrefix, uri.ThingConfigGetReply, productKey, deviceName),
-		uri.URI(uri.SysPrefix, uri.ThingConfigPush, productKey, deviceName),
-		// error
-		uri.URI(uri.ExtErrorPrefix, "", productKey, deviceName),
+		// model raw 取消订阅
+		uri.URI(uri.SysPrefix, uri.ThingModelUpRawReply, productKey, deviceName),
+		uri.URI(uri.SysPrefix, uri.ThingModelDownRaw, productKey, deviceName),
 	)
 	return sf.UnSubscribe(topicList...)
 }

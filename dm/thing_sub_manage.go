@@ -8,7 +8,6 @@ import (
 )
 
 // ProcThingDisable 禁用子设备
-// 下行
 // request:   /sys/{productKey}/{deviceName}/thing/disable
 // response:  /sys/{productKey}/{deviceName}/thing/disable_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/disable
@@ -34,7 +33,7 @@ func ProcThingDisable(c *Client, rawURI string, payload []byte) error {
 	_uri := uri.ReplyWithRequestURI(rawURI)
 	err = c.Response(_uri, Response{ID: req.ID, Code: infra.CodeSuccess, Data: "{}"})
 	if err != nil {
-		c.Log.Warnf("thing.disable.response failed, %+v", err)
+		c.Log.Warnf("thing.disable.reply failed, %+v", err)
 	}
 	return c.gwCb.ThingDisable(c, pk, dn)
 }
@@ -65,7 +64,7 @@ func ProcThingEnable(c *Client, rawURI string, payload []byte) error {
 	_uri := uri.ReplyWithRequestURI(rawURI)
 	err = c.Response(_uri, Response{ID: req.ID, Code: infra.CodeSuccess, Data: "{}"})
 	if err != nil {
-		c.Log.Warnf("thing.enable.response failed, %+v", err)
+		c.Log.Warnf("thing.enable.reply failed, %+v", err)
 	}
 	return c.gwCb.ThingEnable(c, pk, dn)
 }
@@ -92,7 +91,7 @@ func ProcThingDelete(c *Client, rawURI string, payload []byte) error {
 	_uri := uri.ReplyWithRequestURI(rawURI)
 	err := c.Response(_uri, Response{ID: req.ID, Code: infra.CodeSuccess, Data: "{}"})
 	if err != nil {
-		c.Log.Warnf("thing.delete.response failed, %+v", err)
+		c.Log.Warnf("thing.delete.reply failed, %+v", err)
 	}
 	return c.gwCb.ThingDelete(c, pk, dn)
 }

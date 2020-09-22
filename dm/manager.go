@@ -55,6 +55,7 @@ func (sf *DevNode) Status() DevStatus { return sf.status }
 func (sf *DevNode) Extend() interface{} { return sf.ext }
 
 // NewDevMgr 设备管理是一个线程安全
+// root: 网关设备
 func NewDevMgr(root infra.MetaTriad) *DevMgr {
 	return &DevMgr{
 		root: DevNode{
@@ -76,9 +77,9 @@ func (sf *DevMgr) Len() int {
 	return len(sf.nodes) + 1
 }
 
-// Create 创建一个子设备
-func (sf *DevMgr) Create(meta infra.MetaTetrad) error {
-	if meta.ProductKey == "" || meta.DeviceName == "" || meta.DeviceSecret == "" {
+// Add 增加一个子设备,子设备处于 DevStatusUnauthorized
+func (sf *DevMgr) Add(meta infra.MetaTriad) error {
+	if meta.ProductKey == "" || meta.DeviceName == "" {
 		return ErrInvalidParameter
 	}
 
@@ -122,6 +123,7 @@ func (sf *DevMgr) searchLocked(pk, dn string) (*DevNode, error) {
 }
 
 // SearchAvail 使用productKey deviceName查找一个设备节点信息且avail = true
+// 如果设备avail=false返回ErrNotAvail
 func (sf *DevMgr) SearchAvail(pk, dn string) (*DevNode, error) {
 	sf.rw.RLock()
 	defer sf.rw.RUnlock()
@@ -132,7 +134,18 @@ func (sf *DevMgr) SearchAvail(pk, dn string) (*DevNode, error) {
 	if node.avail {
 		return node, nil
 	}
-	return nil, ErrNotActive
+	return nil, ErrNotAvail
+}
+
+// IsActive productKey deviceName的设备已使能且是否在线
+func (sf *DevMgr) IsActive(pk, dn string) bool {
+	sf.rw.RLock()
+	defer sf.rw.RUnlock()
+	node, err := sf.searchLocked(pk, dn)
+	if err != nil {
+		return false
+	}
+	return node.avail && node.status == DevStatusOnline
 }
 
 // Search 使用productKey deviceName查找一个设备节点信息
