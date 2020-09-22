@@ -89,7 +89,7 @@ func WithExtParamsKV(key, value string) Option {
 	}
 }
 
-// WithTimestamp 添加当前时间的毫秒值,可以不传递,默认传一个固定的值
+// WithTimestamp 添加当前时间的毫秒值,可以不传递,默认为一个固定的值
 func WithTimestamp(t uint64) Option {
 	return WithExtParamsKV("timestamp", strconv.FormatUint(t, 10))
 }

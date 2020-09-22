@@ -4,14 +4,18 @@ package ahttp
 import (
 	"bytes"
 	"context"
+	"crypto/hmac"
+	"crypto/md5"
+	"crypto/sha1"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"hash"
 	"net/http"
 	"sync/atomic"
 	"time"
 
-	"github.com/thinkgos/go-core-package/lib/algo"
 	"github.com/thinkgos/go-core-package/lib/logger"
 	"golang.org/x/sync/singleflight"
 
@@ -113,25 +117,19 @@ func (sf *Client) getToken() (string, error) {
 
 	tk, err, _ := sf.group.Do("auth", func() (interface{}, error) {
 		// 生成body加签
-		method := algo.MethodMD5
-		if sf.signMethod == hmacsha1 {
-			method = algo.MethodSha1
-		}
 		clientID := sf.triad.ProductKey + "." + sf.triad.DeviceName
-		timestamp := time.Now().Unix() * 1000
-		signSource := fmt.Sprintf("clientId%sdeviceName%sproductKey%stimestamp%d",
-			clientID, sf.triad.DeviceName, sf.triad.ProductKey, timestamp)
-		authReq := AuthRequest{
+		timestamp := infra.Millisecond(time.Now())
+		authReq := &AuthRequest{
 			sf.version,
 			clientID,
 			sf.signMethod,
-			algo.Hmac(method, signSource, sf.triad.DeviceSecret),
+			calcSign(sf.signMethod, clientID, sf.triad, timestamp),
 			sf.triad.ProductKey,
 			sf.triad.DeviceName,
 			timestamp,
 		}
 
-		b, err := json.Marshal(&authReq)
+		b, err := json.Marshal(authReq)
 		if err != nil {
 			return "", err
 		}
@@ -148,8 +146,8 @@ func (sf *Client) getToken() (string, error) {
 		}
 		defer response.Body.Close()
 
-		authRsp := AuthResponse{}
-		if err := json.NewDecoder(response.Body).Decode(&authRsp); err != nil {
+		authRsp := &AuthResponse{}
+		if err := json.NewDecoder(response.Body).Decode(authRsp); err != nil {
 			return "", err
 		}
 
@@ -173,7 +171,7 @@ type DataResponse struct {
 
 // Publish push message,payload support []byte and string
 func (sf *Client) Publish(uri string, _ byte, payload interface{}) error {
-	py := DataResponse{}
+	py := &DataResponse{}
 	for retry := 0; retry < 1; retry++ {
 		token, err := sf.getToken()
 		if err != nil {
@@ -203,7 +201,7 @@ func (sf *Client) Publish(uri string, _ byte, payload interface{}) error {
 		}
 		defer response.Body.Close()
 
-		if err := json.NewDecoder(response.Body).Decode(&py); err != nil {
+		if err := json.NewDecoder(response.Body).Decode(py); err != nil {
 			return err
 		}
 		sf.log.Debugf("publish response, %+v", py)
@@ -211,7 +209,8 @@ func (sf *Client) Publish(uri string, _ byte, payload interface{}) error {
 			return nil
 		}
 
-		if !(py.Code == CodeTokenExpired || py.Code == CodeTokenCheckFailed ||
+		if !(py.Code == CodeTokenExpired ||
+			py.Code == CodeTokenCheckFailed ||
 			py.Code == CodeTokenIsNull) {
 			sf.token.Store("")
 			return infra.NewCodeError(py.Code, py.Message)
@@ -225,3 +224,23 @@ func (*Client) Subscribe(string, dm.ProcDownStream) error { return nil }
 
 // UnSubscribe 实现dm.Conn接口
 func (*Client) UnSubscribe(...string) error { return nil }
+
+func calcSign(signMethod, clientID string, triad infra.MetaTriad, timestamp int64) string {
+	var f func() hash.Hash
+
+	switch signMethod {
+	case hmacmd5:
+		f = md5.New
+	case hmacsha1:
+		f = sha1.New
+	default:
+		f = md5.New
+	}
+
+	h := hmac.New(f, []byte(triad.DeviceSecret))
+	source := fmt.Sprintf("clientId%sdeviceName%sproductKey%stimestamp%d",
+		clientID, triad.DeviceName, triad.ProductKey, timestamp)
+
+	h.Write([]byte(source)) // nolint: errCheck
+	return hex.EncodeToString(h.Sum(nil))
+}

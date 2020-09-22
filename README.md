@@ -1,12 +1,12 @@
 ## aliyun 物联网设备接入的golang实现 
 WIP
 
-- infra 公共包
-- sign: 实现MQTT签名,独立使用,不依赖第三方任何包
-- dynamic: 直连设备动态注册,可独立使用,不依赖第三方任何包
-- ahttp: http 上云实现
-- dm: 物联型mqtt上云实现,独立使用
-- dataflow: 服务器订阅数据流定义
+- [x] infra 公共包
+- [x] sign: 实现MQTT签名,独立使用,不依赖第三方任何包
+- [x] dynamic: 直连设备动态注册
+- [x] ahttp: http 上云实现
+- [ ] dm: 物联型mqtt上云实现,独立使用
+- [ ] dataflow: 服务器订阅数据流定义
 
 
 ## Feature 

@@ -111,23 +111,26 @@ func Init() *aiot.MQTTClient {
 	return client
 }
 
+func InstanceValue() Instance {
+	stats := runtime.MemStats{}
+	runtime.ReadMemStats(&stats)
+	return Instance{
+		GatewayVersion: "v0.1.0",
+		SystemInfo:     "test gateway",
+		CpuUsage:       float32(rand.Intn(1000)) / 10,
+		MemoryUsage:    float32(stats.HeapInuse / stats.HeapSys),
+		MemoryTotal:    float64(stats.HeapSys),
+		MemoryFree:     float64(stats.HeapIdle),
+		CpuCoreNumber:  int32(runtime.NumCPU()),
+		DiskUsage:      float32(rand.Intn(1000)) / 10,
+		LightSwitch:    rand.Intn(2),
+	}
+}
+
 func ThingEventPropertyPost(client *aiot.MQTTClient) {
 	for {
 		time.Sleep(time.Second * 30)
-		stats := runtime.MemStats{}
-		runtime.ReadMemStats(&stats)
-		err := client.LinkThingEventPropertyPost(ProductKey, DeviceName,
-			Instance{
-				GatewayVersion: "v0.1.0",
-				SystemInfo:     "test gateway",
-				CpuUsage:       float32(rand.Intn(1000)) / 10,
-				MemoryUsage:    float32(stats.HeapInuse / stats.HeapSys),
-				MemoryTotal:    float64(stats.HeapSys),
-				MemoryFree:     float64(stats.HeapIdle),
-				CpuCoreNumber:  int32(runtime.NumCPU()),
-				DiskUsage:      float32(rand.Intn(1000)) / 10,
-				LightSwitch:    rand.Intn(2),
-			}, time.Second)
+		err := client.LinkThingEventPropertyPost(ProductKey, DeviceName, InstanceValue(), time.Second)
 		if err != nil {
 			log.Printf("error: %#v", err)
 		}

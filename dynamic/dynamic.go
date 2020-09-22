@@ -70,9 +70,10 @@ type Response struct {
 
 // RegisterCloud 一型一密动态注册,传入三元组,根据ProductKey,ProductSecret和deviceName获得DeviceSecret,
 // meta: 成功将直接修改meta的DeviceSecret
-// crd: 指定注册的云端,地址: [https://, http://]URL/auth/register/device
+// crd: 指定注册的云端,地址: [https://, http://]host:port/auth/register/device
 // signMethods: 可选指定签名算法hmacmd5,hmacsha1,hmacsha256(默认)
 // NOTE: 设备联网前，需要在物联网平台预注册设备DeviceName，建议采用设备的MAC地址、IMEI、SN码等作为DeviceName
+// @see https://help.aliyun.com/document_detail/89298.html?spm=a2c4g.11186623.6.703.53265bc9vmD6q8
 func (sf *Client) RegisterCloud(meta *infra.MetaTetrad, crd infra.CloudRegionDomain, signMethods ...string) error {
 	var domain string
 
@@ -144,15 +145,15 @@ func requestBody(meta *infra.MetaTetrad, signMethods ...string) (string, error) 
 
 // calcSign 计算动态签名,以productKey为key
 func calcSign(signMethod, random string, meta *infra.MetaTetrad) (string, error) {
-	var h hash.Hash
+	var f func() hash.Hash
 
 	switch signMethod {
 	case hmacSHA1:
-		h = hmac.New(sha1.New, []byte(meta.ProductSecret))
+		f = sha1.New
 	case hmacMD5:
-		h = hmac.New(md5.New, []byte(meta.ProductSecret))
+		f = md5.New
 	case hmacSHA256:
-		h = hmac.New(sha256.New, []byte(meta.ProductSecret))
+		f = sha256.New
 	default:
 		return "", errors.New("not support sign method")
 	}
@@ -160,6 +161,7 @@ func calcSign(signMethod, random string, meta *infra.MetaTetrad) (string, error)
 	source := fmt.Sprintf("deviceName%sproductKey%srandom%s",
 		meta.DeviceName, meta.ProductKey, random)
 
+	h := hmac.New(f, []byte(meta.ProductSecret))
 	if _, err := h.Write([]byte(source)); err != nil {
 		return "", err
 	}
