@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	client := mock.Init()
+	client := mock.Init(mock.MetaTriad)
 	ConfigLogGetTest(client) // done
 	time.Sleep(time.Minute)
 }

@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	client := mock.Init()
+	client := mock.Init(mock.MetaTriad)
 	DiagPostTest(client) // done
 }
 

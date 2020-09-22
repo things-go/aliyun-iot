@@ -16,7 +16,7 @@ type TopoAddParams struct {
 	DeviceName string `json:"deviceName"`
 	ClientID   string `json:"clientId"`
 	Timestamp  int64  `json:"timestamp,string"` // 时间戳
-	SignMethod string `json:"signMethod"`       // 支持hmacSha1、hmacSha256、hmacMd5、Sha256。
+	SignMethod string `json:"signmethod"`       // 支持hmacSha1、hmacSha256、hmacMd5、Sha256。
 	Sign       string `json:"sign"`
 }
 
@@ -35,7 +35,7 @@ func (sf *Client) thingTopoAdd(pk, dn string) (*Token, error) {
 
 	timestamp := infra.Millisecond(time.Now())
 	clientID := ClientID(pk, dn)
-	signs, err := generateSign(pk, dn, ds, clientID, timestamp)
+	signs, err := generateSign("hmacsha256", pk, dn, ds, clientID, timestamp)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (sf *Client) thingTopoAdd(pk, dn string) (*Token, error) {
 			dn,
 			clientID,
 			timestamp,
-			"hmacsha1",
+			"hmacsha256",
 			signs,
 		},
 	})

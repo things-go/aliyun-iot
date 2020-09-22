@@ -68,7 +68,7 @@ func (sf *Client) extCombineLogin(cp CombinePair) (*Token, error) {
 
 	clientID := ClientID(cp.ProductKey, cp.DeviceName)
 	timestamp := infra.Millisecond(time.Now())
-	signs, err := generateSign(cp.ProductKey, cp.DeviceName, ds, clientID, timestamp)
+	signs, err := generateSign("hmacsha256", cp.ProductKey, cp.DeviceName, ds, clientID, timestamp)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func (sf *Client) extCombineLogin(cp CombinePair) (*Token, error) {
 			cp.DeviceName,
 			clientID,
 			timestamp,
-			"hmacsha1",
+			"hmacsha256",
 			signs,
 			cp.CleanSession,
 		},
@@ -133,7 +133,7 @@ func (sf *Client) extCombineBatchLogin(pairs []CombinePair) (*Token, error) {
 			return nil, err
 		}
 		clientID := ClientID(cp.ProductKey, cp.DeviceName)
-		signs, err := generateSign(cp.ProductKey, cp.DeviceName, ds, clientID, timestamp)
+		signs, err := generateSign("hmacsha256", cp.ProductKey, cp.DeviceName, ds, clientID, timestamp)
 		if err != nil {
 			return nil, err
 		}
@@ -142,7 +142,7 @@ func (sf *Client) extCombineBatchLogin(pairs []CombinePair) (*Token, error) {
 			cp.DeviceName,
 			clientID,
 			timestamp,
-			"hmacsha1",
+			"hmacsha256",
 			signs,
 			cp.CleanSession,
 		})

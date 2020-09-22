@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	client := mock.Init()
+	client := mock.Init(mock.MetaTriad)
 
 	DesiredGetTest(client)    // done
 	DesiredDeleteTest(client) // done

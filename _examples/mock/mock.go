@@ -29,6 +29,7 @@ const (
 	SensorProductKey    = "a15aMYCIe4I"
 	SensorProductSecret = "fkrQaPSraQTHcXbQ"
 	SensorDeviceName    = "mysensor"
+	SensorDeviceSecret  = "1a5a0ffd6b06e402740067cbbc7de2ee"
 )
 
 var MetaTetrad = infra.MetaTetrad{
@@ -78,8 +79,8 @@ type SensorInstance struct {
 	CurrentHumidity    float64 `json:"CurrentHumidity"`
 }
 
-func Init() *aiot.MQTTClient {
-	signs, err := sign.Generate(MetaTriad, infra.CloudRegionDomain{Region: infra.CloudRegionShangHai})
+func Init(triad infra.MetaTriad) *aiot.MQTTClient {
+	signs, err := sign.Generate(triad, infra.CloudRegionDomain{Region: infra.CloudRegionShangHai})
 	if err != nil {
 		panic(err)
 	}
@@ -99,7 +100,7 @@ func Init() *aiot.MQTTClient {
 			})
 
 	client := aiot.NewWithMQTT(
-		MetaTriad,
+		triad,
 		mqtt.NewClient(opts),
 		dm.WithEnableNTP(),
 		dm.WithEnableDesired(),

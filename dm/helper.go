@@ -2,10 +2,14 @@ package dm
 
 import (
 	"crypto/hmac"
+	"crypto/md5"
 	"crypto/sha1"
+	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"hash"
 
 	"github.com/thinkgos/aliyun-iot/uri"
 )
@@ -20,14 +24,26 @@ func ClientID(pk, dn string) string {
 	return pk + "." + dn
 }
 
-// 可以采用Sha256,hmacMd5,hmacSha1,hmacSha256
-func generateSign(productKey, deviceName, deviceSecret, clientID string, timestamp int64) (string, error) {
-	signSource := fmt.Sprintf("clientId%sdeviceName%sproductKey%stimestamp%d",
-		clientID, deviceName, productKey, timestamp)
+// 可以采用hmacmd5,hmacsha1,hmacsha256
+func generateSign(method, productKey, deviceName, deviceSecret, clientID string, timestamp int64) (string, error) {
+	var f func() hash.Hash
+
+	switch method {
+	case "hmacmd5":
+		f = md5.New
+	case "hmacsha1":
+		f = sha1.New
+	case "hmacsha256":
+		f = sha256.New
+	default:
+		return "", errors.New("invalid method")
+	}
 
 	// setup Password
-	h := hmac.New(sha1.New, []byte(deviceSecret))
-	if _, err := h.Write([]byte(signSource)); err != nil {
+	h := hmac.New(f, []byte(deviceSecret))
+	source := fmt.Sprintf("clientId%sdeviceName%sproductKey%stimestamp%d",
+		clientID, deviceName, productKey, timestamp)
+	if _, err := h.Write([]byte(source)); err != nil {
 		return "", err
 	}
 	return hex.EncodeToString(h.Sum(nil)), nil

@@ -168,7 +168,7 @@ func (sf *Client) LinkThingLogPost(pk, dn string, lp []LogParam, timeout time.Du
 
 // LinkThingSubRegister 同步子设备注册,
 func (sf *Client) LinkThingSubRegister(pk, dn string, timeout time.Duration) ([]SubRegisterData, error) {
-	token, err := sf.ThingSubRegister(pk, dn)
+	token, err := sf.thingSubRegister(pk, dn)
 	if err != nil {
 		return nil, err
 	}

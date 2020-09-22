@@ -25,11 +25,11 @@ type SubRegisterResponse struct {
 	Message string            `json:"message,omitempty"`
 }
 
-// ThingSubRegister 子设备动态注册
+// thingSubRegister 子设备动态注册
 // 以通过上行请求为子设备发起动态注册，返回成功注册的子设备的设备证书
 // request:   /sys/{productKey}/{deviceName}/thing/sub/register
 // response:  /sys/{productKey}/{deviceName}/thing/sub/register_reply
-func (sf *Client) ThingSubRegister(pk, dn string) (*Token, error) {
+func (sf *Client) thingSubRegister(pk, dn string) (*Token, error) {
 	if !sf.isGateway {
 		return nil, ErrNotSupportFeature
 	}
