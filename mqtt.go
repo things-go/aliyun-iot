@@ -43,7 +43,7 @@ func (sf *MQTTClient) Subscribe(topic string, streamFunc dm.ProcDownStream) erro
 			return
 		}
 		if err := streamFunc(sf.Client, message.Topic(), message.Payload()); err != nil {
-			log.Printf("topic: %s, Error: %+v\r\n", message.Topic(), err)
+			log.Printf("topic: %s, error: %+v\r\n", message.Topic(), err)
 		}
 	}).Error()
 }

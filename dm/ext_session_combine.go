@@ -160,7 +160,7 @@ func (sf *Client) ExtCombineBatchLogin(pairs []CombinePair) (*Token, error) {
 	if err != nil {
 		return nil, err
 	}
-	_uri := sf.URIGateway(uri.ExtSessionPrefix, uri.CombineLogin)
+	_uri := sf.URIGateway(uri.ExtSessionPrefix, uri.CombineBatchLogin)
 	err = sf.Publish(_uri, 0, req)
 	if err != nil {
 		return nil, err
@@ -242,7 +242,7 @@ func (sf *Client) ExtCombineBatchLogout(pairs []infra.MetaPair) (*Token, error) 
 		return nil, err
 	}
 
-	_uri := sf.URIGateway(uri.ExtSessionPrefix, uri.CombineLogout)
+	_uri := sf.URIGateway(uri.ExtSessionPrefix, uri.CombineBatchLogout)
 	err = sf.Publish(_uri, 0, req)
 	if err != nil {
 		return nil, err

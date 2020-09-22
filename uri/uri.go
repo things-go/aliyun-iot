@@ -58,7 +58,8 @@ const (
 	ThingEventPostReplyWildcardOne     = "thing/event/+/post_reply"
 	ThingEventPropertyHistoryPost      = "thing/event/property/history/post"
 	ThingEventPropertyHistoryPostReply = "thing/event/property/history/post_reply"
-
+	ThingEventPropertyPackPost         = "thing/event/property/pack/post"
+	ThingEventPropertyPackPostReply    = "thing/event/property/pack/post_reply"
 	// 设备信息上行,下行云端
 	ThingDeviceInfoUpdate      = "thing/deviceinfo/update"
 	ThingDeviceInfoUpdateReply = "thing/deviceinfo/update_reply"
@@ -107,8 +108,6 @@ const (
 
 // 网关URI定义
 const (
-	ThingEventPropertyPackPost      = "thing/event/property/pack/post"
-	ThingEventPropertyPackPostReply = "thing/event/property/pack/post_reply"
 	// 子设备动态注册
 	ThingSubRegister      = "thing/sub/register"
 	ThingSubRegisterReply = "thing/sub/register_reply"

@@ -76,6 +76,12 @@ func (sf *Client) SubscribeAllTopic(productKey, deviceName string, isSub bool) e
 		if err = sf.Subscribe(_uri, ProcThingEventPostReply); err != nil {
 			sf.Log.Warnf(err.Error())
 		}
+
+		// event 主题订阅
+		_uri = uri.URI(uri.SysPrefix, uri.ThingEventPropertyHistoryPostReply, productKey, deviceName)
+		if err = sf.Subscribe(_uri, ProcThingEventPropertyHistoryPostReply); err != nil {
+			sf.Log.Warnf(err.Error())
+		}
 	}
 
 	// desired 期望属性订阅
@@ -84,8 +90,23 @@ func (sf *Client) SubscribeAllTopic(productKey, deviceName string, isSub bool) e
 		if err = sf.Subscribe(_uri, ProcThingDesiredPropertyGetReply); err != nil {
 			sf.Log.Warnf(err.Error())
 		}
-		_uri = uri.URI(uri.SysPrefix, uri.ThingDesiredPropertyDelete, productKey, deviceName)
+		_uri = uri.URI(uri.SysPrefix, uri.ThingDesiredPropertyDeleteReply, productKey, deviceName)
 		if err = sf.Subscribe(_uri, ProcThingDesiredPropertyDeleteReply); err != nil {
+			sf.Log.Warnf(err.Error())
+		}
+	}
+	// ntp订阅, 只有网关和独立设备支持ntp
+	if sf.hasNTP && !isSub {
+		_uri = uri.URI(uri.ExtNtpPrefix, uri.NtpResponse, productKey, deviceName)
+		if err = sf.Subscribe(_uri, ProcExtNtpResponse); err != nil {
+			sf.Log.Warnf(err.Error())
+		}
+	}
+
+	// diag
+	if sf.hasDiag && !isSub {
+		_uri = uri.URI(uri.SysPrefix, uri.ThingDiagPostReply, productKey, deviceName)
+		if err = sf.Subscribe(_uri, ProcThingDialPostReply); err != nil {
 			sf.Log.Warnf(err.Error())
 		}
 	}
@@ -99,7 +120,7 @@ func (sf *Client) SubscribeAllTopic(productKey, deviceName string, isSub bool) e
 		sf.Log.Warnf(err.Error())
 	}
 
-	// 服务调用
+	// service
 	_uri = uri.URI(uri.SysPrefix, uri.ThingServiceRequestWildcardSome, productKey, deviceName)
 	if err = sf.Subscribe(_uri, ProcThingServiceRequest); err != nil {
 		sf.Log.Warnf(err.Error())
@@ -108,6 +129,11 @@ func (sf *Client) SubscribeAllTopic(productKey, deviceName string, isSub bool) e
 	// dsltemplate 订阅
 	_uri = uri.URI(uri.SysPrefix, uri.ThingDslTemplateGetReply, productKey, deviceName)
 	if err = sf.Subscribe(_uri, ProcThingDsltemplateGetReply); err != nil {
+		sf.Log.Warnf(err.Error())
+	}
+	// dynamictsl
+	_uri = uri.URI(uri.SysPrefix, uri.ThingDynamicTslGetReply, productKey, deviceName)
+	if err = sf.Subscribe(_uri, ProcThingDynamictslGetReply); err != nil {
 		sf.Log.Warnf(err.Error())
 	}
 
@@ -125,24 +151,10 @@ func (sf *Client) SubscribeAllTopic(productKey, deviceName string, isSub bool) e
 		sf.Log.Warnf(err.Error())
 	}
 
-	// dynamictsl
-	_uri = uri.URI(uri.SysPrefix, uri.ThingDynamicTslGetReply, productKey, deviceName)
-	if err = sf.Subscribe(_uri, ProcThingDynamictslGetReply); err != nil {
-		sf.Log.Warnf(err.Error())
-	}
-
 	// RRPC
 	_uri = uri.URI(uri.SysPrefix, uri.RRPCRequestWildcardOne, productKey, deviceName)
 	if err = sf.Subscribe(_uri, ProcRRPCRequest); err != nil {
 		sf.Log.Warnf(err.Error())
-	}
-
-	// ntp订阅, 只有网关和独立设备支持ntp
-	if sf.hasNTP && !isSub {
-		_uri = uri.URI(uri.ExtNtpPrefix, uri.NtpResponse, productKey, deviceName)
-		if err = sf.Subscribe(_uri, ProcExtNtpResponse); err != nil {
-			sf.Log.Warnf(err.Error())
-		}
 	}
 
 	// config 主题订阅
@@ -161,58 +173,22 @@ func (sf *Client) SubscribeAllTopic(productKey, deviceName string, isSub bool) e
 		sf.Log.Warnf(err.Error())
 	}
 
-	// diag
-	if sf.hasDiag {
-		_uri = uri.URI(uri.SysPrefix, uri.ThingDiagPost, productKey, deviceName)
-		if err = sf.Subscribe(_uri, ProcThingDialPostReply); err != nil {
-			sf.Log.Warnf(err.Error())
-		}
-	}
-
 	if sf.isGateway {
-		if !isSub {
-			// 网关批量上报数据
-			_uri = sf.URIGateway(uri.SysPrefix, uri.ThingEventPropertyPackPostReply)
-			if err = sf.Subscribe(_uri, ProcThingEventPropertyPackPostReply); err != nil {
+		if isSub {
+			// 子设备禁用,启用,删除
+			_uri = uri.URI(uri.SysPrefix, uri.ThingDisable, productKey, deviceName)
+			if err = sf.Subscribe(_uri, ProcThingDisable); err != nil {
 				sf.Log.Warnf(err.Error())
 			}
-
-			// 添加该网关和子设备的拓扑关系
-			_uri = uri.URI(uri.SysPrefix, uri.ThingTopoAddReply, productKey, deviceName)
-			if err = sf.Subscribe(_uri, ProcThingTopoAddReply); err != nil {
+			_uri = uri.URI(uri.SysPrefix, uri.ThingEnable, productKey, deviceName)
+			if err = sf.Subscribe(_uri, ProcThingEnable); err != nil {
 				sf.Log.Warnf(err.Error())
 			}
-
-			// 删除该网关和子设备的拓扑关系
-			_uri = uri.URI(uri.SysPrefix, uri.ThingTopoDeleteReply, productKey, deviceName)
-			if err = sf.Subscribe(_uri, ProcThingTopoDeleteReply); err != nil {
+			_uri = uri.URI(uri.SysPrefix, uri.ThingDelete, productKey, deviceName)
+			if err = sf.Subscribe(_uri, ProcThingDelete); err != nil {
 				sf.Log.Warnf(err.Error())
 			}
-
-			// 获取该网关和子设备的拓扑关系
-			_uri = uri.URI(uri.SysPrefix, uri.ThingTopoGetReply, productKey, deviceName)
-			if err = sf.Subscribe(_uri, ProcThingTopoGetReply); err != nil {
-				sf.Log.Warnf(err.Error())
-			}
-
-			// 发现设备列表上报
-			if err = sf.Subscribe(uri.URI(uri.SysPrefix, uri.ThingListFoundReply, productKey, deviceName),
-				ProcThingListFoundReply); err != nil {
-				sf.Log.Warnf(err.Error())
-			}
-
-			// 添加设备拓扑关系通知,topic需要用网关的productKey,deviceName
-			_uri = uri.URI(uri.SysPrefix, uri.ThingTopoAddNotify, productKey, deviceName)
-			if err = sf.Subscribe(_uri, ProcThingTopoAddNotify); err != nil {
-				sf.Log.Warnf(err.Error())
-			}
-
-			// 网关网络拓扑关系变化通知,topic需要用网关的productKey,deviceName
-			_uri = uri.URI(uri.SysPrefix, uri.ThingTopoChange, productKey, deviceName)
-			if err = sf.Subscribe(_uri, ProcThingTopoChange); err != nil {
-				sf.Log.Warnf(err.Error())
-			}
-
+		} else {
 			// 子设备动态注册,topic需要用网关的productKey,deviceName
 			_uri = uri.URI(uri.SysPrefix, uri.ThingSubRegisterReply, productKey, deviceName)
 			if err = sf.Subscribe(_uri, ProcThingSubRegisterReply); err != nil {
@@ -228,18 +204,54 @@ func (sf *Client) SubscribeAllTopic(productKey, deviceName string, isSub bool) e
 			if err = sf.Subscribe(_uri, ProcExtCombineLogoutReply); err != nil {
 				sf.Log.Warnf(err.Error())
 			}
-		} else {
-			// 子设备禁用,启用,删除
-			_uri = uri.URI(uri.SysPrefix, uri.ThingDisable, productKey, deviceName)
-			if err = sf.Subscribe(_uri, ProcThingDisable); err != nil {
+			_uri = uri.URI(uri.ExtSessionPrefix, uri.CombineBatchLoginReply, productKey, deviceName)
+			if err = sf.Subscribe(_uri, ProcExtCombineBatchLoginReply); err != nil {
 				sf.Log.Warnf(err.Error())
 			}
-			_uri = uri.URI(uri.SysPrefix, uri.ThingEnable, productKey, deviceName)
-			if err = sf.Subscribe(_uri, ProcThingEnable); err != nil {
+			_uri = uri.URI(uri.ExtSessionPrefix, uri.CombineBatchLogoutReply, productKey, deviceName)
+			if err = sf.Subscribe(_uri, ProcExtCombineBatchLogoutReply); err != nil {
 				sf.Log.Warnf(err.Error())
 			}
-			_uri = uri.URI(uri.SysPrefix, uri.ThingDelete, productKey, deviceName)
-			if err = sf.Subscribe(_uri, ProcThingDelete); err != nil {
+
+			// 网关批量上报数据,topic需要用网关的productKey,deviceName
+			_uri = uri.URI(uri.SysPrefix, uri.ThingEventPropertyPackPostReply, productKey, deviceName)
+			if err = sf.Subscribe(_uri, ProcThingEventPropertyPackPostReply); err != nil {
+				sf.Log.Warnf(err.Error())
+			}
+
+			// 添加该网关和子设备的拓扑关系,topic需要用网关的productKey,deviceName
+			_uri = uri.URI(uri.SysPrefix, uri.ThingTopoAddReply, productKey, deviceName)
+			if err = sf.Subscribe(_uri, ProcThingTopoAddReply); err != nil {
+				sf.Log.Warnf(err.Error())
+			}
+
+			// 删除该网关和子设备的拓扑关系,topic需要用网关的productKey,deviceName
+			_uri = uri.URI(uri.SysPrefix, uri.ThingTopoDeleteReply, productKey, deviceName)
+			if err = sf.Subscribe(_uri, ProcThingTopoDeleteReply); err != nil {
+				sf.Log.Warnf(err.Error())
+			}
+
+			// 获取该网关和子设备的拓扑关系,topic需要用网关的productKey,deviceName
+			_uri = uri.URI(uri.SysPrefix, uri.ThingTopoGetReply, productKey, deviceName)
+			if err = sf.Subscribe(_uri, ProcThingTopoGetReply); err != nil {
+				sf.Log.Warnf(err.Error())
+			}
+
+			// 发现设备列表上报,topic需要用网关的productKey,deviceName
+			_uri = uri.URI(uri.SysPrefix, uri.ThingListFoundReply, productKey, deviceName)
+			if err = sf.Subscribe(_uri, ProcThingListFoundReply); err != nil {
+				sf.Log.Warnf(err.Error())
+			}
+
+			// 添加设备拓扑关系通知,topic需要用网关的productKey,deviceName
+			_uri = uri.URI(uri.SysPrefix, uri.ThingTopoAddNotify, productKey, deviceName)
+			if err = sf.Subscribe(_uri, ProcThingTopoAddNotify); err != nil {
+				sf.Log.Warnf(err.Error())
+			}
+
+			// 网关网络拓扑关系变化通知,topic需要用网关的productKey,deviceName
+			_uri = uri.URI(uri.SysPrefix, uri.ThingTopoChange, productKey, deviceName)
+			if err = sf.Subscribe(_uri, ProcThingTopoChange); err != nil {
 				sf.Log.Warnf(err.Error())
 			}
 		}
@@ -252,11 +264,11 @@ func (sf *Client) SubscribeAllTopic(productKey, deviceName string, isSub bool) e
 	return nil
 }
 
-// UnSubscribeSubDevAllTopic 取消子设备相关所有主题
-func (sf *Client) UnSubscribeSubDevAllTopic(productKey, deviceName string) error {
+// UnSubscribeSubDevAllTopic 取消订阅设备相关所有主题
+func (sf *Client) UnSubscribeAllTopic(productKey, deviceName string, isSub bool) error {
 	var topicList []string
 
-	if !sf.isGateway || sf.workOnWho == WorkOnHTTP {
+	if sf.workOnWho == WorkOnHTTP {
 		return nil
 	}
 
@@ -264,12 +276,13 @@ func (sf *Client) UnSubscribeSubDevAllTopic(productKey, deviceName string) error
 	if sf.hasRawModel {
 		topicList = append(topicList,
 			uri.URI(uri.SysPrefix, uri.ThingModelUpRawReply, productKey, deviceName),
-			uri.URI(uri.SysPrefix, uri.ThingModelDownRawReply, productKey, deviceName),
+			uri.URI(uri.SysPrefix, uri.ThingModelDownRaw, productKey, deviceName),
 		)
 	} else {
 		// event 取消订阅
 		topicList = append(topicList,
 			uri.URI(uri.SysPrefix, uri.ThingEventPostReplyWildcardOne, productKey, deviceName),
+			uri.URI(uri.SysPrefix, uri.ThingEventPropertyHistoryPostReply, productKey, deviceName),
 		)
 	}
 
@@ -277,9 +290,52 @@ func (sf *Client) UnSubscribeSubDevAllTopic(productKey, deviceName string) error
 	if sf.hasDesired {
 		topicList = append(topicList,
 			uri.URI(uri.SysPrefix, uri.ThingDesiredPropertyGetReply, productKey, deviceName),
-			uri.URI(uri.SysPrefix, uri.ThingDesiredPropertyDelete, productKey, deviceName),
+			uri.URI(uri.SysPrefix, uri.ThingDesiredPropertyDeleteReply, productKey, deviceName),
 		)
 	}
+	if sf.hasNTP && !isSub {
+		topicList = append(topicList, uri.URI(uri.ExtNtpPrefix, uri.NtpResponse, productKey, deviceName))
+	}
+	if sf.hasDiag && !isSub {
+		topicList = append(topicList, uri.URI(uri.SysPrefix, uri.ThingDiagPostReply, productKey, deviceName))
+	}
+
+	if sf.isGateway {
+		if isSub {
+			topicList = append(topicList,
+				// 子设备禁用,启用,删除
+				uri.URI(uri.SysPrefix, uri.ThingDisable, productKey, deviceName),
+				uri.URI(uri.SysPrefix, uri.ThingEnable, productKey, deviceName),
+				uri.URI(uri.SysPrefix, uri.ThingDelete, productKey, deviceName),
+			)
+		} else {
+			topicList = append(topicList,
+				// 子设备动态注册,topic需要用网关的productKey,deviceName
+				uri.URI(uri.SysPrefix, uri.ThingSubRegisterReply, productKey, deviceName),
+				// 子设备上线,下线,topic需要用网关的productKey,deviceName,
+				// 使用的是网关的通道,所以子设备不注册相关主题
+				uri.URI(uri.ExtSessionPrefix, uri.CombineLoginReply, productKey, deviceName),
+				uri.URI(uri.ExtSessionPrefix, uri.CombineLogoutReply, productKey, deviceName),
+				uri.URI(uri.ExtSessionPrefix, uri.CombineBatchLoginReply, productKey, deviceName),
+				uri.URI(uri.ExtSessionPrefix, uri.CombineBatchLogoutReply, productKey, deviceName),
+				// 网关批量上报数据,topic需要用网关的productKey,deviceName
+				uri.URI(uri.SysPrefix, uri.ThingEventPropertyPackPostReply, productKey, deviceName),
+				// 添加该网关和子设备的拓扑关系,topic需要用网关的productKey,deviceName
+				uri.URI(uri.SysPrefix, uri.ThingTopoAddReply, productKey, deviceName),
+				// 删除该网关和子设备的拓扑关系,topic需要用网关的productKey,deviceName
+				uri.URI(uri.SysPrefix, uri.ThingTopoDeleteReply, productKey, deviceName),
+				// 获取该网关和子设备的拓扑关系,topic需要用网关的productKey,deviceName
+				uri.URI(uri.SysPrefix, uri.ThingTopoGetReply, productKey, deviceName),
+				// 发现设备列表上报,topic需要用网关的productKey,deviceName
+				uri.URI(uri.SysPrefix, uri.ThingListFoundReply, productKey, deviceName),
+				// 添加设备拓扑关系通知,topic需要用网关的productKey,deviceName
+				uri.URI(uri.SysPrefix, uri.ThingTopoAddNotify, productKey, deviceName),
+				// 网关网络拓扑关系变化通知,topic需要用网关的productKey,deviceName
+				uri.URI(uri.SysPrefix, uri.ThingTopoChange, productKey, deviceName),
+			)
+		}
+	}
+
 	topicList = append(topicList,
 		// deviceInfo
 		uri.URI(uri.SysPrefix, uri.ThingDeviceInfoUpdateReply, productKey, deviceName),
@@ -288,8 +344,12 @@ func (sf *Client) UnSubscribeSubDevAllTopic(productKey, deviceName string) error
 		uri.URI(uri.SysPrefix, uri.ThingServiceRequestWildcardSome, productKey, deviceName),
 		// dystemplate
 		uri.URI(uri.SysPrefix, uri.ThingDslTemplateGetReply, productKey, deviceName),
-		// dynamictsl 不使用??
-		// infra.URI(SysPrefix, URIThingDynamicTslGetReply, productKey, deviceName),
+		// dynamictsl
+		uri.URI(uri.SysPrefix, uri.ThingDynamicTslGetReply, productKey, deviceName),
+		// log
+		uri.URI(uri.SysPrefix, uri.ThingConfigLogGetReply, productKey, deviceName),
+		uri.URI(uri.SysPrefix, uri.ThingLogPostReply, productKey, deviceName),
+		uri.URI(uri.SysPrefix, uri.ThingConfigLogPush, productKey, deviceName),
 		// RRPC
 		uri.URI(uri.SysPrefix, uri.RRPCRequestWildcardOne, productKey, deviceName),
 		// config

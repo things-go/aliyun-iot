@@ -22,7 +22,7 @@ const (
 	ProductKey    = "a1NHTWLlMny"
 	ProductSecret = "qv30SFtpGf3tSBfP"
 	DeviceName    = "mygateway"
-	DeviceSecret  = "723ff3e4a4352d09a971171b6d52a1eb"
+	DeviceSecret  = "6ed85dfb2ec5cd3746104cc3b2e0b188"
 )
 
 const (
