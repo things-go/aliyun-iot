@@ -48,8 +48,8 @@ func main() {
 
 	opts :=
 		mqtt.NewClientOptions().
-			AddBroker(fmt.Sprintf("%s:%d", signs.HostName, signs.Port)).
-			SetClientID(signs.ClientID).
+			AddBroker(signs.Addr()).
+			SetClientID(signs.ClientIDWithExt()).
 			SetUsername(signs.UserName).
 			SetPassword(signs.Password).
 			SetCleanSession(true).
@@ -88,6 +88,6 @@ type RawProc struct {
 }
 
 func (RawProc) ThingModelUpRawReply(_ *dm.Client, _ string, _ string, b []byte) error {
-	fmt.Println(b)
+	fmt.Println(string(b))
 	return nil
 }

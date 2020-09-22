@@ -18,6 +18,7 @@ import (
 	"strings"
 
 	"github.com/thinkgos/go-core-package/extrand"
+	"github.com/thinkgos/go-core-package/extstr"
 
 	"github.com/thinkgos/aliyun-iot/infra"
 )
@@ -68,7 +69,7 @@ type Response struct {
 }
 
 // RegisterCloud 一型一密动态注册,传入三元组,根据ProductKey,ProductSecret和deviceName获得DeviceSecret,
-// meta: 成功将直接修改meta
+// meta: 成功将直接修改meta的DeviceSecret
 // crd: 指定注册的云端,地址: [https://, http://]URL/auth/register/device
 // signMethods: 可选指定签名算法hmacmd5,hmacsha1,hmacsha256(默认)
 // NOTE: 设备联网前，需要在物联网平台预注册设备DeviceName，建议采用设备的MAC地址、IMEI、SN码等作为DeviceName
@@ -122,10 +123,14 @@ func (sf *Client) RegisterCloud(meta *infra.MetaTetrad, crd infra.CloudRegionDom
 }
 
 func requestBody(meta *infra.MetaTetrad, signMethods ...string) (string, error) {
-	signMd := append(signMethods, hmacSHA256)[0]
-	if !(signMd == hmacMD5 || signMd == hmacSHA1 || (signMd == hmacSHA256)) {
-		signMd = hmacSHA256 // 非法签名使用默认签名方法
+	signMd := hmacSHA256
+	if len(signMethods) > 0 {
+		signMd = signMethods[0]
 	}
+	if !extstr.Contains([]string{hmacMD5, hmacSHA1, hmacSHA256}, signMd) {
+		signMd = hmacSHA256 // 非法签名使用默认签名方法sha256
+	}
+
 	//  "8Ygb7ULYh53B6OA"
 	random := extrand.RandString(16)
 	// 计算签名 Signature
@@ -151,10 +156,11 @@ func calcSign(signMethod, random string, meta *infra.MetaTetrad) (string, error)
 	default:
 		return "", errors.New("not support sign method")
 	}
-	signSource := fmt.Sprintf("deviceName%sproductKey%srandom%s",
+
+	source := fmt.Sprintf("deviceName%sproductKey%srandom%s",
 		meta.DeviceName, meta.ProductKey, random)
 
-	if _, err := h.Write([]byte(signSource)); err != nil {
+	if _, err := h.Write([]byte(source)); err != nil {
 		return "", err
 	}
 	return hex.EncodeToString(h.Sum(nil)), nil
