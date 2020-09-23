@@ -29,12 +29,13 @@ const (
 // RRPC URI定义
 const (
 	//  系统RRPC调用
-	RRPCResponsePrefix     = "rrpc/response/%s"
+	RRPCResponse           = "rrpc/response/%s"
 	RRPCRequestWildcardOne = "rrpc/request/+"
 
 	// 自定义RRPC
-	ExtRRPCPrefix            = "/ext/rrpc/%s"
-	ExtRRPCWildcardOnePrefix = "/ext/rrpc/+"
+	ExtRRPCPrefix            = "/ext/rrpc/%s/"
+	ExtRRPCWildcardOnePrefix = "/ext/rrpc/+/"
+	ExtRRPCWildcardSome      = "/ext/rrpc/#"
 )
 
 // ota uri定义

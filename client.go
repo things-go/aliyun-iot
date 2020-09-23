@@ -87,18 +87,6 @@ func (sf *Client) SubscribeAllTopic(productKey, deviceName string, isSub bool) e
 			}
 		}
 
-		// event 主题订阅
-		_uri = uri.URI(uri.SysPrefix, uri.ThingEventPostReplyWildcardOne, productKey, deviceName)
-		if err = sf.Subscribe(_uri, ProcThingEventPostReply); err != nil {
-			sf.Log.Warnf(err.Error())
-		}
-
-		// event 主题订阅
-		_uri = uri.URI(uri.SysPrefix, uri.ThingEventPropertyHistoryPostReply, productKey, deviceName)
-		if err = sf.Subscribe(_uri, ProcThingEventPropertyHistoryPostReply); err != nil {
-			sf.Log.Warnf(err.Error())
-		}
-
 		// ntp订阅, 只有网关和独立设备支持ntp
 		if sf.hasNTP && !isSub {
 			_uri = uri.URI(uri.ExtNtpPrefix, uri.NtpResponse, productKey, deviceName)
@@ -114,6 +102,25 @@ func (sf *Client) SubscribeAllTopic(productKey, deviceName string, isSub bool) e
 				sf.Log.Warnf(err.Error())
 			}
 		}
+
+		if sf.hasExtRRPC {
+			if err = sf.Subscribe(uri.ExtRRPCWildcardSome, ProcExtRRPCRequest); err != nil {
+				sf.Log.Warnf(err.Error())
+			}
+		}
+
+		// event 主题订阅
+		_uri = uri.URI(uri.SysPrefix, uri.ThingEventPostReplyWildcardOne, productKey, deviceName)
+		if err = sf.Subscribe(_uri, ProcThingEventPostReply); err != nil {
+			sf.Log.Warnf(err.Error())
+		}
+
+		// event 主题订阅
+		_uri = uri.URI(uri.SysPrefix, uri.ThingEventPropertyHistoryPostReply, productKey, deviceName)
+		if err = sf.Subscribe(_uri, ProcThingEventPropertyHistoryPostReply); err != nil {
+			sf.Log.Warnf(err.Error())
+		}
+
 		// deviceInfo 主题订阅
 		_uri = uri.URI(uri.SysPrefix, uri.ThingDeviceInfoUpdateReply, productKey, deviceName)
 		if err = sf.Subscribe(_uri, ProcThingDeviceInfoUpdateReply); err != nil {
@@ -290,6 +297,10 @@ func (sf *Client) UnSubscribeAllTopic(productKey, deviceName string, isSub bool)
 		}
 		if sf.hasDiag && !isSub {
 			topicList = append(topicList, uri.URI(uri.SysPrefix, uri.ThingDiagPostReply, productKey, deviceName))
+		}
+
+		if sf.hasExtRRPC {
+			topicList = append(topicList, uri.ExtRRPCWildcardSome)
 		}
 		topicList = append(topicList,
 			// event 取消订阅

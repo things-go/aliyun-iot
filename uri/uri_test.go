@@ -113,6 +113,6 @@ func TestURISpilt(t *testing.T) {
 }
 
 func TestExtRRPC(t *testing.T) {
-	require.Equal(t, "/ext/rrpc/+/a/b/c", ExtRRPC("+", "/a/b/c"))
-	require.Equal(t, "/ext/rrpc/+/a/b/c", ExtRRPCWildcardOne("/a/b/c"))
+	require.Equal(t, "/ext/rrpc/+//a/b/c", ExtRRPC("+", "/a/b/c"))
+	require.Equal(t, "/ext/rrpc/+//a/b/c", ExtRRPCWildcardOne("/a/b/c"))
 }

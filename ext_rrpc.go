@@ -11,15 +11,23 @@ import (
 )
 
 // RRPCResponse rrcpc 回复
+// response: /sys/${YourProductKey}/${YourDeviceName}/rrpc/response/${messageId}
 func (sf *Client) RRPCResponse(pk, dn, messageID string, rsp Response) error {
-	_uri := uri.URI(uri.SysPrefix, uri.RRPCResponsePrefix, pk, dn, messageID)
+	_uri := uri.URI(uri.SysPrefix, uri.RRPCResponse, pk, dn, messageID)
 	return sf.Response(_uri, rsp)
 }
 
+// ExtRRPCResponse ext rrpc回复
+// response:  /ext/rrpc/${messageId}/${topic}
+// see https://help.aliyun.com/document_detail/90570.html?spm=a2c4g.11186623.6.656.64076175n5VFHO#title-0r5-s8c-t1c
+func (sf *Client) ExtRRPCResponse(messageID, topic string, payload interface{}) error {
+	_uri := uri.ExtRRPC(messageID, topic)
+	return sf.Publish(_uri, 0, payload)
+}
+
 // ProcRRPCRequest 处理RRPC请求
-// 下行
-// request: /sys/${YourProductKey}/${YourDeviceName}/rrpc/request/${messageId}
-// response: /sys/${YourProductKey}/${YourDeviceName}/rrpc/response/${messageId}
+// request:   /sys/${YourProductKey}/${YourDeviceName}/rrpc/request/${messageId}
+// response:  /sys/${YourProductKey}/${YourDeviceName}/rrpc/response/${messageId}
 // subscribe: /sys/${YourProductKey}/${YourDeviceName}/rrpc/request/+
 func ProcRRPCRequest(c *Client, rawURI string, payload []byte) error {
 	uris := uri.Spilt(rawURI)
@@ -34,11 +42,11 @@ func ProcRRPCRequest(c *Client, rawURI string, payload []byte) error {
 }
 
 // ProcExtRRPCRequest 处理扩展RRPC请求
-// 下行
 // ${topic} 不为空,设备建立要求clientID传ext = 1
 // request:   /ext/rrpc/${messageId}/${topic}
 // response:  /ext/rrpc/${messageId}/${topic}
 // subscribe: /ext/rrpc/+/${topic}
+// 			  /ext/rrpc/#
 func ProcExtRRPCRequest(c *Client, rawURI string, payload []byte) error {
 	uris := strings.SplitN(strings.TrimLeft(rawURI, uri.Sep), uri.Sep, 4)
 	if len(uris) < 3 {
