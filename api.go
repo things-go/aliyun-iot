@@ -1,4 +1,8 @@
-// Package dm imp aliyun dm
+// Copyright 2020 thinkgos (thinkgo@aliyun.com).  All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
+// Package aiot imp aliyun dm
 package aiot
 
 import (
