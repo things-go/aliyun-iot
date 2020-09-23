@@ -15,9 +15,9 @@ import (
 	"github.com/thinkgos/go-core-package/lib/logger"
 	"golang.org/x/sync/singleflight"
 
-	"github.com/thinkgos/aliyun-iot/dm"
+	aiot "github.com/thinkgos/aliyun-iot"
 	"github.com/thinkgos/aliyun-iot/infra"
-	uri2 "github.com/thinkgos/aliyun-iot/uri"
+	"github.com/thinkgos/aliyun-iot/uri"
 )
 
 // @see https://help.aliyun.com/document_detail/58034.html?spm=a2c4g.11186623.6.609.54316764YJj5MQ
@@ -79,7 +79,7 @@ type Client struct {
 	log   logger.Logger
 }
 
-var _ dm.Conn = (*Client)(nil)
+var _ aiot.Conn = (*Client)(nil)
 
 // New 新建alink http client
 // 默认加签算法: hmacmd5
@@ -166,7 +166,7 @@ type DataResponse struct {
 }
 
 // Publish push message,payload support []byte and string
-func (sf *Client) Publish(uri string, _ byte, payload interface{}) error {
+func (sf *Client) Publish(_uri string, _ byte, payload interface{}) error {
 	py := &DataResponse{}
 	for retry := 0; retry < 1; retry++ {
 		token, err := sf.getToken()
@@ -185,7 +185,7 @@ func (sf *Client) Publish(uri string, _ byte, payload interface{}) error {
 		}
 
 		request, err := http.NewRequestWithContext(context.Background(),
-			http.MethodPost, sf.endpoint+uri2.TopicPrefix+uri, buf)
+			http.MethodPost, sf.endpoint+uri.TopicPrefix+_uri, buf)
 		if err != nil {
 			return err
 		}
@@ -216,7 +216,7 @@ func (sf *Client) Publish(uri string, _ byte, payload interface{}) error {
 }
 
 // Subscribe 实现dm.Conn接口
-func (*Client) Subscribe(string, dm.ProcDownStream) error { return nil }
+func (*Client) Subscribe(string, aiot.ProcDownStream) error { return nil }
 
 // UnSubscribe 实现dm.Conn接口
 func (*Client) UnSubscribe(...string) error { return nil }

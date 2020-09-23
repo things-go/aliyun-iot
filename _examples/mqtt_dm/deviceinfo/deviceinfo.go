@@ -6,7 +6,7 @@ import (
 
 	aiot "github.com/thinkgos/aliyun-iot"
 	"github.com/thinkgos/aliyun-iot/_examples/mock"
-	"github.com/thinkgos/aliyun-iot/dmd"
+	"github.com/thinkgos/aliyun-iot/dm"
 )
 
 func main() {
@@ -16,7 +16,7 @@ func main() {
 
 func DeviceInfoTest(client *aiot.MQTTClient) {
 	err := client.LinkThingDeviceInfoUpdate(mock.ProductKey, mock.DeviceName,
-		[]dmd.DeviceInfoLabel{
+		[]dm.DeviceInfoLabel{
 			{AttrKey: "attrKey", AttrValue: "attrValue"},
 		}, time.Second*5)
 	if err != nil {
@@ -25,7 +25,7 @@ func DeviceInfoTest(client *aiot.MQTTClient) {
 	}
 	time.Sleep(time.Minute * 1)
 	err = client.LinkThingDeviceInfoDelete(mock.ProductKey, mock.DeviceName,
-		[]dmd.DeviceLabelKey{{AttrKey: "attrKey"}}, time.Second*5)
+		[]dm.DeviceLabelKey{{AttrKey: "attrKey"}}, time.Second*5)
 	if err != nil {
 		log.Println(err)
 		return

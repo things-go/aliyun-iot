@@ -11,7 +11,6 @@ import (
 
 	aiot "github.com/thinkgos/aliyun-iot"
 	"github.com/thinkgos/aliyun-iot/_examples/mock"
-	"github.com/thinkgos/aliyun-iot/dm"
 	"github.com/thinkgos/aliyun-iot/infra"
 	"github.com/thinkgos/aliyun-iot/sign"
 )
@@ -64,9 +63,9 @@ func main() {
 	dmClient := aiot.NewWithMQTT(
 		mock.MetaTriad,
 		mqtt.NewClient(opts),
-		dm.WithEnableModelRaw(),
-		dm.WithCallback(RawProc{}),
-		dm.WithLogger(logger.New(log.New(os.Stdout, "mqtt --> ", log.LstdFlags))),
+		aiot.WithEnableModelRaw(),
+		aiot.WithCallback(RawProc{}),
+		aiot.WithLogger(logger.New(log.New(os.Stdout, "mqtt --> ", log.LstdFlags))),
 	)
 
 	dmClient.Underlying().Connect().Wait()
@@ -84,10 +83,10 @@ func main() {
 }
 
 type RawProc struct {
-	dm.NopCb
+	aiot.NopCb
 }
 
-func (RawProc) ThingModelUpRawReply(_ *dm.Client, _ string, _ string, b []byte) error {
+func (RawProc) ThingModelUpRawReply(_ *aiot.Client, _ string, _ string, b []byte) error {
 	fmt.Println(string(b))
 	return nil
 }

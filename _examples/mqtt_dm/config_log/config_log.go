@@ -6,7 +6,6 @@ import (
 
 	aiot "github.com/thinkgos/aliyun-iot"
 	"github.com/thinkgos/aliyun-iot/_examples/mock"
-	"github.com/thinkgos/aliyun-iot/dm"
 )
 
 func main() {
@@ -16,7 +15,7 @@ func main() {
 }
 
 func ConfigLogGetTest(client *aiot.MQTTClient) {
-	data, err := client.LinkThingConfigLogGet(mock.ProductKey, mock.DeviceName, dm.ConfigLogParam{}, time.Second*5)
+	data, err := client.LinkThingConfigLogGet(mock.ProductKey, mock.DeviceName, aiot.ConfigLogParam{}, time.Second*5)
 	if err != nil {
 		log.Println(err)
 		return

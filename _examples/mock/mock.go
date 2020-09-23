@@ -12,7 +12,6 @@ import (
 	"github.com/thinkgos/go-core-package/lib/logger"
 
 	aiot "github.com/thinkgos/aliyun-iot"
-	"github.com/thinkgos/aliyun-iot/dm"
 	"github.com/thinkgos/aliyun-iot/infra"
 	"github.com/thinkgos/aliyun-iot/sign"
 )
@@ -102,13 +101,13 @@ func Init(triad infra.MetaTriad) *aiot.MQTTClient {
 	client := aiot.NewWithMQTT(
 		triad,
 		mqtt.NewClient(opts),
-		dm.WithEnableNTP(),
-		dm.WithEnableDesired(),
-		dm.WithEnableDiag(),
-		dm.WithEnableGateway(),
-		dm.WithCallback(mockCb{}),
-		dm.WithGwCallback(mockCb{}),
-		dm.WithLogger(logger.New(log.New(os.Stdout, "mqtt --> ", log.LstdFlags), logger.WithEnable(true))),
+		aiot.WithEnableNTP(),
+		aiot.WithEnableDesired(),
+		aiot.WithEnableDiag(),
+		aiot.WithEnableGateway(),
+		aiot.WithCallback(mockCb{}),
+		aiot.WithGwCallback(mockCb{}),
+		aiot.WithLogger(logger.New(log.New(os.Stdout, "mqtt --> ", log.LstdFlags), logger.WithEnable(true))),
 	)
 
 	client.Underlying().Connect().Wait()
@@ -152,25 +151,25 @@ func ThingEventPropertyPost(client *aiot.MQTTClient) {
 }
 
 type mockCb struct {
-	dm.NopCb
-	dm.NopGwCb
+	aiot.NopCb
+	aiot.NopGwCb
 }
 
-func (sf mockCb) RRPCRequest(c *dm.Client, messageID, productKey, deviceName string, payload []byte) error {
-	req := &dm.Request{}
+func (sf mockCb) RRPCRequest(c *aiot.Client, messageID, productKey, deviceName string, payload []byte) error {
+	req := &aiot.Request{}
 	if err := json.Unmarshal(payload, req); err != nil {
 		return err
 	}
 	c.Log.Debugf("rrpc.resopnse.%s", messageID)
 	c.Log.Debugf("%+v", req)
-	return c.RRPCResponse(productKey, deviceName, messageID, dm.Response{
+	return c.RRPCResponse(productKey, deviceName, messageID, aiot.Response{
 		ID:   req.ID,
 		Code: infra.CodeSuccess,
 		Data: "{}",
 	})
 }
 
-func (sf mockCb) ThingTopoChange(c *dm.Client, params dm.TopoChangeParams) error {
+func (sf mockCb) ThingTopoChange(c *aiot.Client, params aiot.TopoChangeParams) error {
 	c.Log.Debugf("%+v", params)
 	return nil
 }

@@ -9,9 +9,9 @@ import (
 
 	"github.com/thinkgos/go-core-package/lib/logger"
 
+	aiot "github.com/thinkgos/aliyun-iot"
 	"github.com/thinkgos/aliyun-iot/_examples/mock"
 	"github.com/thinkgos/aliyun-iot/ahttp"
-	"github.com/thinkgos/aliyun-iot/dm"
 	"github.com/thinkgos/aliyun-iot/infra"
 	"github.com/thinkgos/aliyun-iot/uri"
 )
@@ -25,9 +25,9 @@ func main() {
 
 	_uri := uri.URI(uri.SysPrefix, uri.ThingEventPropertyPost, mock.ProductKey, mock.DeviceName)
 	bPayload, err := json.Marshal(
-		dm.Request{
+		aiot.Request{
 			ID:      uint(rand.Int()),
-			Version: dm.DefaultVersion,
+			Version: aiot.DefaultVersion,
 			Params:  mock.InstanceValue(),
 			Method:  infra.MethodEventPropertyPost,
 		})
