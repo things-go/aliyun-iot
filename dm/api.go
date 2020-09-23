@@ -17,6 +17,9 @@ const (
 	DefaultCacheCleanupInterval = time.Second * 30
 )
 
+// DefaultVersion 平台通信版本
+const DefaultVersion = "1.0"
+
 // 当前的工作方式
 const (
 	WorkOnMQTT = iota
@@ -57,7 +60,7 @@ type Client struct {
 	cacheCleanupInterval time.Duration
 
 	workOnWho byte
-
+	version   string
 	// 选项功能
 	isGateway   bool
 	hasDiag     bool
@@ -75,9 +78,6 @@ type Client struct {
 	Log  logger.Logger
 }
 
-// Version 平台通信版本
-var Version = "1.0"
-
 // New 创建一个物管理客户端
 func New(triad infra.MetaTriad, conn Conn, opts ...Option) *Client {
 	c := &Client{
@@ -85,6 +85,7 @@ func New(triad infra.MetaTriad, conn Conn, opts ...Option) *Client {
 		tetrad:    triad,
 
 		workOnWho: WorkOnMQTT,
+		version:   DefaultVersion,
 
 		cacheExpiration:      DefaultCacheExpiration,
 		cacheCleanupInterval: DefaultCacheCleanupInterval,
@@ -109,7 +110,7 @@ func (sf *Client) Connect() error {
 	return sf.SubscribeAllTopic(sf.tetrad.ProductKey, sf.tetrad.DeviceName, false)
 }
 
-// NewSubDevice 增加一个一个子设备
+// AddSubDevice 增加一个一个子设备
 func (sf *Client) AddSubDevice(meta infra.MetaTriad) error {
 	if sf.isGateway {
 		return sf.Add(meta)

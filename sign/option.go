@@ -1,9 +1,6 @@
 package sign
 
 import (
-	"crypto/md5"
-	"crypto/sha1"
-	"crypto/sha256"
 	"strconv"
 )
 
@@ -16,15 +13,12 @@ func WithSignMethod(method string) Option {
 		switch method {
 		case hmacsha1:
 			ms.extParams["signmethod"] = hmacsha1
-			ms.hfc = sha1.New
 		case hmacmd5:
 			ms.extParams["signmethod"] = hmacmd5
-			ms.hfc = md5.New
 		case hmacsha256:
 			fallthrough
 		default:
 			ms.extParams["signmethod"] = hmacsha256
-			ms.hfc = sha256.New
 		}
 	}
 }

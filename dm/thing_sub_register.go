@@ -26,7 +26,7 @@ type SubRegisterResponse struct {
 }
 
 // thingSubRegister 子设备动态注册
-// 以通过上行请求为子设备发起动态注册，返回成功注册的子设备的设备证书
+// 网关类型的设备,通过上行请求为子设备发起动态注册,返回成功注册的子设备的设备证书
 // request:   /sys/{productKey}/{deviceName}/thing/sub/register
 // response:  /sys/{productKey}/{deviceName}/thing/sub/register_reply
 func (sf *Client) thingSubRegister(pk, dn string) (*Token, error) {
@@ -39,7 +39,7 @@ func (sf *Client) thingSubRegister(pk, dn string) (*Token, error) {
 	})
 }
 
-// ProcThingSubRegisterReply 处理子设备动态注册
+// ProcThingSubRegisterReply 处理子设备动态注册回复
 // request:   /sys/{productKey}/{deviceName}/thing/sub/register
 // response:  /sys/{productKey}/{deviceName}/thing/sub/register_reply
 // subscribe: /sys/{productKey}/{deviceName}/thing/sub/register_reply

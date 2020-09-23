@@ -4,18 +4,14 @@ package ahttp
 import (
 	"bytes"
 	"context"
-	"crypto/hmac"
-	"crypto/md5"
-	"crypto/sha1"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"hash"
 	"net/http"
 	"sync/atomic"
 	"time"
 
+	"github.com/thinkgos/go-core-package/lib/algo"
 	"github.com/thinkgos/go-core-package/lib/logger"
 	"golang.org/x/sync/singleflight"
 
@@ -226,21 +222,12 @@ func (*Client) Subscribe(string, dm.ProcDownStream) error { return nil }
 func (*Client) UnSubscribe(...string) error { return nil }
 
 func calcSign(signMethod, clientID string, triad infra.MetaTriad, timestamp int64) string {
-	var f func() hash.Hash
-
 	switch signMethod {
-	case hmacmd5:
-		f = md5.New
-	case hmacsha1:
-		f = sha1.New
+	case hmacmd5, hmacsha1:
 	default:
-		f = md5.New
+		signMethod = hmacmd5
 	}
-
-	h := hmac.New(f, []byte(triad.DeviceSecret))
 	source := fmt.Sprintf("clientId%sdeviceName%sproductKey%stimestamp%d",
 		clientID, triad.DeviceName, triad.ProductKey, timestamp)
-
-	h.Write([]byte(source)) // nolint: errCheck
-	return hex.EncodeToString(h.Sum(nil))
+	return algo.Hmac(signMethod, triad.DeviceSecret, source)
 }

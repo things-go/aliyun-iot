@@ -6,7 +6,7 @@ import (
 	"github.com/thinkgos/aliyun-iot/infra"
 )
 
-func Test_calcSign(t *testing.T) {
+func Test_requestBody(t *testing.T) {
 	t.Run("calcSign", func(t *testing.T) {
 		meta := infra.MetaTetrad{
 			ProductKey:    "a1iJcssSlPC",
@@ -14,10 +14,7 @@ func Test_calcSign(t *testing.T) {
 			DeviceName:    "dynamic",
 		}
 
-		s, err := calcSign("hmacsha256", "8Ygb7ULYh53B6OA", &meta)
-		if err != nil {
-			t.Errorf("calcSign() = %+v", err)
-		}
+		s := requestBody(&meta, "hmacsha256")
 		t.Logf("sign: %s", s)
 	})
 }

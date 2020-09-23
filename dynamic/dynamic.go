@@ -5,20 +5,15 @@ package dynamic
 import (
 	"bytes"
 	"context"
-	"crypto/hmac"
-	"crypto/md5"
-	"crypto/sha1"
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"hash"
 	"net/http"
 	"strings"
 
 	"github.com/thinkgos/go-core-package/extrand"
 	"github.com/thinkgos/go-core-package/extstr"
+	"github.com/thinkgos/go-core-package/lib/algo"
 
 	"github.com/thinkgos/aliyun-iot/infra"
 )
@@ -92,13 +87,9 @@ func (sf *Client) RegisterCloud(meta *infra.MetaTetrad, crd infra.CloudRegionDom
 		domain = "https://" + infra.HTTPCloudDomain[crd.Region]
 	}
 
-	requestBody, err := requestBody(meta, signMethods...)
-	if err != nil {
-		return err
-	}
+	requestBody := requestBody(meta, signMethods...)
 	request, err := http.NewRequestWithContext(context.Background(), http.MethodPost,
-		fmt.Sprintf("%s/auth/register/device", domain),
-		bytes.NewBufferString(requestBody))
+		domain+"/auth/register/device", bytes.NewBufferString(requestBody))
 	if err != nil {
 		return err
 	}
@@ -123,7 +114,7 @@ func (sf *Client) RegisterCloud(meta *infra.MetaTetrad, crd infra.CloudRegionDom
 	return nil
 }
 
-func requestBody(meta *infra.MetaTetrad, signMethods ...string) (string, error) {
+func requestBody(meta *infra.MetaTetrad, signMethods ...string) string {
 	signMd := hmacSHA256
 	if len(signMethods) > 0 {
 		signMd = signMethods[0]
@@ -131,39 +122,11 @@ func requestBody(meta *infra.MetaTetrad, signMethods ...string) (string, error) 
 	if !extstr.Contains([]string{hmacMD5, hmacSHA1, hmacSHA256}, signMd) {
 		signMd = hmacSHA256 // 非法签名使用默认签名方法sha256
 	}
-
 	//  "8Ygb7ULYh53B6OA"
 	random := extrand.RandString(16)
+	source := fmt.Sprintf("deviceName%sproductKey%srandom%s", meta.DeviceName, meta.ProductKey, random)
 	// 计算签名 Signature
-	sign, err := calcSign(signMd, random, meta)
-	if err != nil {
-		return "", err
-	}
+	sign := algo.Hmac(signMd, meta.ProductSecret, source)
 	return fmt.Sprintf("productKey=%s&deviceName=%s&random=%s&sign=%s&signMethod=%s",
-		meta.ProductKey, meta.DeviceName, random, sign, signMd), nil
-}
-
-// calcSign 计算动态签名,以productKey为key
-func calcSign(signMethod, random string, meta *infra.MetaTetrad) (string, error) {
-	var f func() hash.Hash
-
-	switch signMethod {
-	case hmacSHA1:
-		f = sha1.New
-	case hmacMD5:
-		f = md5.New
-	case hmacSHA256:
-		f = sha256.New
-	default:
-		return "", errors.New("not support sign method")
-	}
-
-	source := fmt.Sprintf("deviceName%sproductKey%srandom%s",
-		meta.DeviceName, meta.ProductKey, random)
-
-	h := hmac.New(f, []byte(meta.ProductSecret))
-	if _, err := h.Write([]byte(source)); err != nil {
-		return "", err
-	}
-	return hex.EncodeToString(h.Sum(nil)), nil
+		meta.ProductKey, meta.DeviceName, random, sign, signMd)
 }

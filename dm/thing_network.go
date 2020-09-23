@@ -16,11 +16,11 @@ type TopoAddParams struct {
 	DeviceName string `json:"deviceName"`
 	ClientID   string `json:"clientId"`
 	Timestamp  int64  `json:"timestamp,string"` // 时间戳
-	SignMethod string `json:"signmethod"`       // 支持hmacSha1、hmacSha256、hmacMd5、Sha256。
+	SignMethod string `json:"signmethod"`       // 支持hmacsha1、hmacsha256、hmacmd5、sha256(not used)
 	Sign       string `json:"sign"`
 }
 
-// thingTopoAdd 添加设备拓扑关系
+// thingTopoAdd 添加设备拓扑关系,必需持有secret时才可以进行网络拓扑添加
 // 子设备身份注册后,需网关上报与子设备的关系,然后才进行子设备上线
 // request:   /sys/{productKey}/{deviceName}/thing/topo/add
 // response:  /sys/{productKey}/{deviceName}/thing/topo/add_reply
@@ -34,11 +34,12 @@ func (sf *Client) thingTopoAdd(pk, dn string) (*Token, error) {
 	}
 
 	timestamp := infra.Millisecond(time.Now())
-	clientID := ClientID(pk, dn)
-	signs, err := generateSign("hmacsha256", pk, dn, ds, clientID, timestamp)
-	if err != nil {
-		return nil, err
-	}
+	clientID, signs := generateSign("hmacsha256",
+		infra.MetaTriad{
+			ProductKey:   pk,
+			DeviceName:   dn,
+			DeviceSecret: ds,
+		}, timestamp)
 	_uri := sf.URIGateway(uri.SysPrefix, uri.ThingTopoAdd)
 	return sf.SendRequest(_uri, infra.MethodTopoAdd, []TopoAddParams{
 		{

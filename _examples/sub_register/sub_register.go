@@ -13,6 +13,16 @@ import (
 // 子设备独立上线,是正常的
 // 子设备通过网关上线,不太正常.
 func main() {
+	// client := mock.Init(infra.MetaTriad{
+	// 	ProductKey:   mock.SensorProductKey,
+	// 	DeviceName:   mock.SensorDeviceName,
+	// 	DeviceSecret: mock.SensorDeviceSecret,
+	// })
+	// err := client.UnSubscribeAllTopic(mock.SensorProductKey, mock.SensorDeviceName, true)
+	// if err != nil {
+	// 	panic(err)
+	// }
+
 	client := mock.Init(mock.MetaTriad)
 	err := client.Add(mock.SensorTriad)
 	if err != nil {

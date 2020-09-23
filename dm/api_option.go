@@ -31,6 +31,13 @@ func WithWork(on int) Option {
 	}
 }
 
+// WithVersion 设置平台版本,默认为 DefaultVersion
+func WithVersion(ver string) Option {
+	return func(c *Client) {
+		c.version = ver
+	}
+}
+
 // WithEnableNTP 使能NTP
 func WithEnableNTP() Option {
 	return func(c *Client) {

@@ -1,16 +1,12 @@
 package dm
 
 import (
-	"crypto/hmac"
-	"crypto/md5"
-	"crypto/sha1"
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
-	"errors"
 	"fmt"
-	"hash"
 
+	"github.com/thinkgos/go-core-package/lib/algo"
+
+	"github.com/thinkgos/aliyun-iot/infra"
 	"github.com/thinkgos/aliyun-iot/uri"
 )
 
@@ -24,29 +20,12 @@ func ClientID(pk, dn string) string {
 	return pk + "." + dn
 }
 
-// 可以采用hmacmd5,hmacsha1,hmacsha256
-func generateSign(method, productKey, deviceName, deviceSecret, clientID string, timestamp int64) (string, error) {
-	var f func() hash.Hash
-
-	switch method {
-	case "hmacmd5":
-		f = md5.New
-	case "hmacsha1":
-		f = sha1.New
-	case "hmacsha256":
-		f = sha256.New
-	default:
-		return "", errors.New("invalid method")
-	}
-
-	// setup Password
-	h := hmac.New(f, []byte(deviceSecret))
+// 可以采用hmacmd5,hmacsha1,hmacsha256,返回clientID和加签后的值
+func generateSign(method string, meta infra.MetaTriad, timestamp int64) (string, string) {
+	clientID := ClientID(meta.ProductKey, meta.DeviceName)
 	source := fmt.Sprintf("clientId%sdeviceName%sproductKey%stimestamp%d",
-		clientID, deviceName, productKey, timestamp)
-	if _, err := h.Write([]byte(source)); err != nil {
-		return "", err
-	}
-	return hex.EncodeToString(h.Sum(nil)), nil
+		clientID, meta.DeviceName, meta.ProductKey, timestamp)
+	return clientID, algo.Hmac(method, meta.DeviceSecret, source)
 }
 
 func cloneJSONRawMessage(d json.RawMessage) json.RawMessage {

@@ -68,7 +68,7 @@ func (sf *Client) thingDiagPost(pk, dn string, p interface{}, isNow bool) (*Toke
 	id := sf.nextRequestID()
 	out, err := json.Marshal(&DiagRequest{
 		id,
-		Version,
+		sf.version,
 		DiagParam{
 			p,
 			model,

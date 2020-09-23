@@ -27,7 +27,7 @@ func main() {
 	bPayload, err := json.Marshal(
 		dm.Request{
 			ID:      uint(rand.Int()),
-			Version: dm.Version,
+			Version: dm.DefaultVersion,
 			Params:  mock.InstanceValue(),
 			Method:  infra.MethodEventPropertyPost,
 		})

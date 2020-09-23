@@ -18,7 +18,7 @@ func (sf *Client) nextRequestID() uint {
 // method: 方法
 // params: 消息体Request的params
 func (sf *Client) Request(_uri string, requestID uint, method string, params interface{}) error {
-	out, err := json.Marshal(&Request{requestID, Version, params, method})
+	out, err := json.Marshal(&Request{requestID, sf.version, params, method})
 	if err != nil {
 		return err
 	}
@@ -265,7 +265,7 @@ func (sf *Client) SubscribeAllTopic(productKey, deviceName string, isSub bool) e
 	return nil
 }
 
-// UnSubscribeSubDevAllTopic 取消订阅设备相关所有主题
+// UnSubscribeAllTopic 取消订阅设备相关所有主题
 func (sf *Client) UnSubscribeAllTopic(productKey, deviceName string, isSub bool) error {
 	var topicList []string
 

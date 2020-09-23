@@ -3,16 +3,14 @@
 package sign
 
 import (
-	"crypto/hmac"
-	"crypto/sha256"
-	"encoding/hex"
 	"errors"
 	"fmt"
-	"hash"
 	"net"
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/thinkgos/go-core-package/lib/algo"
 
 	"github.com/thinkgos/aliyun-iot/infra"
 )
@@ -72,11 +70,7 @@ type config struct {
 	enableTLS bool              // 使能tls
 	enableDM  bool              // 使能物模型
 	extParams map[string]string // clientID扩展参数
-	hfc       func() hash.Hash
 }
-
-// SDKVersion alink sdk version
-var SDKVersion = "sdk-golang-v0.0.1"
 
 // New 新建一个签名
 
@@ -99,9 +93,7 @@ func Generate(triad infra.MetaTriad, crd infra.CloudRegionDomain, opts ...Option
 			"signmethod": hmacsha256,
 			"lan":        "Golang",
 			"v":          alinkVersion,
-			"_v":         SDKVersion,
 		},
-		hfc: sha256.New,
 	}
 	for _, opt := range opts {
 		opt(ms)
@@ -109,15 +101,10 @@ func Generate(triad infra.MetaTriad, crd infra.CloudRegionDomain, opts ...Option
 
 	// setup ClientID
 	clientID := triad.ProductKey + "." + triad.DeviceName
-
-	signSource := fmt.Sprintf("clientId%sdeviceName%sproductKey%stimestamp%s",
+	source := fmt.Sprintf("clientId%sdeviceName%sproductKey%stimestamp%s",
 		clientID, triad.DeviceName, triad.ProductKey, fixedTimestamp)
 	// setup Password
-	h := hmac.New(ms.hfc, []byte(triad.DeviceSecret))
-	if _, err := h.Write([]byte(signSource)); err != nil {
-		return nil, err
-	}
-	pwd := hex.EncodeToString(h.Sum(nil))
+	pwd := algo.Hmac(ms.extParams["signmethod"], triad.DeviceSecret, source)
 
 	info := &Sign{
 		Port:      1883,

@@ -66,12 +66,14 @@ func (sf *Client) extCombineLogin(cp CombinePair) (*Token, error) {
 		return nil, err
 	}
 
-	clientID := ClientID(cp.ProductKey, cp.DeviceName)
 	timestamp := infra.Millisecond(time.Now())
-	signs, err := generateSign("hmacsha256", cp.ProductKey, cp.DeviceName, ds, clientID, timestamp)
-	if err != nil {
-		return nil, err
-	}
+	clientID, signs := generateSign("hmacsha256",
+		infra.MetaTriad{
+			ProductKey:   cp.ProductKey,
+			DeviceName:   cp.DeviceName,
+			DeviceSecret: ds,
+		},
+		timestamp)
 	id := sf.nextRequestID()
 	req, err := json.Marshal(&CombineLoginRequest{
 		id,
@@ -132,11 +134,11 @@ func (sf *Client) extCombineBatchLogin(pairs []CombinePair) (*Token, error) {
 		if err != nil {
 			return nil, err
 		}
-		clientID := ClientID(cp.ProductKey, cp.DeviceName)
-		signs, err := generateSign("hmacsha256", cp.ProductKey, cp.DeviceName, ds, clientID, timestamp)
-		if err != nil {
-			return nil, err
-		}
+		clientID, signs := generateSign("hmacsha256", infra.MetaTriad{
+			ProductKey:   cp.ProductKey,
+			DeviceName:   cp.DeviceName,
+			DeviceSecret: ds,
+		}, timestamp)
 		clps = append(clps, CombineLoginParams{
 			cp.ProductKey,
 			cp.DeviceName,
