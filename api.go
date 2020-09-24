@@ -25,11 +25,14 @@ const (
 // DefaultVersion 平台通信版本
 const DefaultVersion = "1.0"
 
-// 当前的工作方式
+// Mode 工作模式
+type Mode byte
+
+// 当前的工作模式
 const (
-	WorkOnMQTT = iota
-	WorkOnCOAP
-	WorkOnHTTP
+	ModeMQTT Mode = iota
+	ModeCOAP
+	ModeHTTP
 )
 
 // ProcDownStream 处理下行数据
@@ -76,8 +79,8 @@ type Client struct {
 	cacheExpiration      time.Duration
 	cacheCleanupInterval time.Duration
 
-	workOnWho byte
-	version   string
+	mode    Mode
+	version string
 	// 选项功能
 	isGateway   bool
 	hasDiag     bool
@@ -101,8 +104,8 @@ func New(triad infra.MetaTriad, conn Conn, opts ...Option) *Client {
 		requestID: uint32(time.Now().Nanosecond()),
 		tetrad:    triad,
 
-		workOnWho: WorkOnMQTT,
-		version:   DefaultVersion,
+		mode:    ModeMQTT,
+		version: DefaultVersion,
 
 		cacheExpiration:      DefaultCacheExpiration,
 		cacheCleanupInterval: DefaultCacheCleanupInterval,
@@ -116,7 +119,7 @@ func New(triad infra.MetaTriad, conn Conn, opts ...Option) *Client {
 	for _, opt := range opts {
 		opt(c)
 	}
-	if c.workOnWho != WorkOnHTTP {
+	if c.mode != ModeHTTP {
 		c.msgCache = cache.New(c.cacheExpiration, c.cacheCleanupInterval)
 	}
 	return c
@@ -124,6 +127,9 @@ func New(triad infra.MetaTriad, conn Conn, opts ...Option) *Client {
 
 // Connect 将订阅所有相关主题,主题有config配置
 func (sf *Client) Connect() error {
+	if sf.mode != ModeMQTT {
+		return nil
+	}
 	return sf.SubscribeAllTopic(sf.tetrad.ProductKey, sf.tetrad.DeviceName, false)
 }
 

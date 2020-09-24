@@ -21,17 +21,10 @@ func WithCache(expiration, cleanupInterval time.Duration) Option {
 	}
 }
 
-// WithWork 工作在...之上,WorkOnCOAP,WorkOnHTTP,WorkOnMQTT(默认)
-func WithWork(on int) Option {
+// WithMode 设置工作模式 支持 ModeCOAP ,ModeHTTP, ModeMQTT(默认)
+func WithMode(m Mode) Option {
 	return func(c *Client) {
-		switch on {
-		case WorkOnCOAP:
-			c.workOnWho = WorkOnCOAP
-		case WorkOnHTTP:
-			c.workOnWho = WorkOnHTTP
-		default:
-			c.workOnWho = WorkOnMQTT
-		}
+		c.mode = m
 	}
 }
 

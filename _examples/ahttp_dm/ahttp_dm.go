@@ -12,7 +12,7 @@ import (
 func main() {
 	dmClient := aiot.New(mock.MetaTriad,
 		ahttp.New(mock.MetaTriad),
-		aiot.WithWork(aiot.WorkOnHTTP))
+		aiot.WithMode(aiot.ModeHTTP))
 	for {
 		_, err := dmClient.ThingEventPropertyPost(mock.ProductKey, mock.DeviceName, mock.InstanceValue())
 		if err != nil {

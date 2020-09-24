@@ -59,7 +59,7 @@ func (sf *Client) SubscribeAllTopic(productKey, deviceName string, isSub bool) e
 	var err error
 	var _uri string
 
-	if sf.workOnWho == WorkOnHTTP {
+	if sf.mode == ModeHTTP {
 		return nil
 	}
 
@@ -280,7 +280,7 @@ func (sf *Client) SubscribeAllTopic(productKey, deviceName string, isSub bool) e
 func (sf *Client) UnSubscribeAllTopic(productKey, deviceName string, isSub bool) error {
 	var topicList []string
 
-	if sf.workOnWho == WorkOnHTTP {
+	if sf.mode == ModeHTTP {
 		return nil
 	}
 

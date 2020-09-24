@@ -23,7 +23,7 @@ var _ Conn = (*MQTTClient)(nil)
 
 // NewWithMQTT 新建MQTTClient
 func NewWithMQTT(meta infra.MetaTriad, c mqtt.Client, opts ...Option) *MQTTClient {
-	m := New(meta, nil, append(opts, WithWork(WorkOnMQTT))...)
+	m := New(meta, nil, opts...)
 	cli := &MQTTClient{
 		c,
 		m,

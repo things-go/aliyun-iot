@@ -46,7 +46,7 @@ func (sf *Token) Wait(timeout time.Duration) (m Message, err error) {
 
 // putPending 缓存插入指定ID3
 func (sf *Client) putPending(id uint) *Token {
-	if sf.workOnWho != WorkOnMQTT {
+	if sf.mode != ModeMQTT {
 		return &Token{closedchan}
 	}
 	entry := &Token{make(chan Message, 1)}
