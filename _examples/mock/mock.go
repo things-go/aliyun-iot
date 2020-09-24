@@ -83,24 +83,25 @@ func Init(triad infra.MetaTriad) *aiot.MQTTClient {
 	if err != nil {
 		panic(err)
 	}
-	opts :=
-		mqtt.NewClientOptions().
-			AddBroker(signs.Addr()).
-			SetClientID(signs.ClientIDWithExt()).
-			SetUsername(signs.UserName).
-			SetPassword(signs.Password).
-			SetCleanSession(true).
-			SetAutoReconnect(true).
-			SetOnConnectHandler(func(cli mqtt.Client) {
-				log.Println("mqtt client connection success")
-			}).
-			SetConnectionLostHandler(func(cli mqtt.Client, err error) {
-				log.Println("mqtt client connection lost, ", err)
-			})
+	opts := mqtt.NewClientOptions().
+		AddBroker(signs.Addr()).
+		SetClientID(signs.ClientIDWithExt()).
+		SetUsername(signs.UserName).
+		SetPassword(signs.Password).
+		SetCleanSession(true).
+		SetAutoReconnect(true).
+		SetOnConnectHandler(func(cli mqtt.Client) {
+			log.Println("mqtt client connection success")
+		}).
+		SetConnectionLostHandler(func(cli mqtt.Client, err error) {
+			log.Println("mqtt client connection lost, ", err)
+		})
+	mqc := mqtt.NewClient(opts)
+	mqc.Connect().Wait()
 
 	client := aiot.NewWithMQTT(
 		triad,
-		mqtt.NewClient(opts),
+		mqc,
 		aiot.WithEnableNTP(),
 		aiot.WithEnableDesired(),
 		aiot.WithEnableDiag(),
@@ -110,7 +111,6 @@ func Init(triad infra.MetaTriad) *aiot.MQTTClient {
 		aiot.WithLogger(logger.New(log.New(os.Stdout, "mqtt --> ", log.LstdFlags), logger.WithEnable(true))),
 	)
 
-	client.Underlying().Connect().Wait()
 	if err = client.Connect(); err != nil {
 		panic(err)
 	}

@@ -228,3 +228,6 @@ func (*Client) Subscribe(string, aiot.ProcDownStream) error { return nil }
 
 // UnSubscribe 实现dm.Conn接口
 func (*Client) UnSubscribe(...string) error { return nil }
+
+// Close 实现dm.Conn接口
+func (sf *Client) Close() error { return nil }

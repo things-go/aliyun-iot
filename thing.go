@@ -17,17 +17,6 @@ const (
 	property = "property"
 )
 
-// ProcDownStream 处理下行数据
-type ProcDownStream func(c *Client, rawURI string, payload []byte) error
-
-// Conn conn接口
-type Conn interface {
-	// Publish will publish a Message with the specified QoS and content
-	Publish(topic string, qos byte, payload interface{}) error
-	Subscribe(topic string, callback ProcDownStream) error
-	UnSubscribe(topic ...string) error
-}
-
 // Callback 事件回调接口
 type Callback interface {
 	// 透传应答

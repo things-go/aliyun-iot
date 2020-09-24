@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT style
 // license that can be found in the LICENSE file.
 
-package aiot
+package acoap
 
 import (
 	"bytes"
@@ -10,13 +10,14 @@ import (
 
 	"github.com/go-ocf/go-coap"
 
+	aiot "github.com/thinkgos/aliyun-iot"
 	"github.com/thinkgos/aliyun-iot/uri"
 )
 
 // @see https://help.aliyun.com/document_detail/57697.html?spm=a2c4g.11186623.6.606.5d7a12e0FGY05a
 
 // 确保 NopCb 实现 dm.Conn 接口
-var _ Conn = (*coapClient)(nil)
+var _ aiot.Conn = (*coapClient)(nil)
 
 // COAPClient COAP客户端
 type coapClient struct {
@@ -24,7 +25,7 @@ type coapClient struct {
 }
 
 // NewCOAP new coap con
-func NewCOAP(c *coap.ClientConn) Conn {
+func NewCOAP(c *coap.ClientConn) aiot.Conn {
 	return &coapClient{c}
 }
 
@@ -47,7 +48,12 @@ func (sf *coapClient) Publish(_uri string, _ byte, payload interface{}) error {
 }
 
 // Subscribe 实现dm.Conn接口
-func (*coapClient) Subscribe(string, ProcDownStream) error { return nil }
+func (*coapClient) Subscribe(string, aiot.ProcDownStream) error { return nil }
 
 // UnSubscribe 实现dm.Conn接口
 func (sf *coapClient) UnSubscribe(...string) error { return nil }
+
+// Close 实现dm.Conn接口
+func (sf *coapClient) Close() error {
+	return sf.c.Close()
+}

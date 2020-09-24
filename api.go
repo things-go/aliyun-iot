@@ -7,6 +7,7 @@ package aiot
 
 import (
 	"encoding/json"
+	"io"
 	"time"
 
 	"github.com/patrickmn/go-cache"
@@ -30,6 +31,18 @@ const (
 	WorkOnCOAP
 	WorkOnHTTP
 )
+
+// ProcDownStream 处理下行数据
+type ProcDownStream func(c *Client, rawURI string, payload []byte) error
+
+// Conn conn接口
+type Conn interface {
+	// Publish will publish a Message with the specified QoS and content
+	Publish(topic string, qos byte, payload interface{}) error
+	Subscribe(topic string, callback ProcDownStream) error
+	UnSubscribe(topic ...string) error
+	io.Closer
+}
 
 // Request 请求
 type Request struct {

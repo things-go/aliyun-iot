@@ -127,9 +127,11 @@ func requestBody(meta *infra.MetaTetrad, signMethods ...string) string {
 	}
 	//  "8Ygb7ULYh53B6OA"
 	random := extrand.RandString(16)
-	source := fmt.Sprintf("deviceName%sproductKey%srandom%s", meta.DeviceName, meta.ProductKey, random)
+	// deviceName{deviceName}productKey{productKey}random{random}
+	source := "deviceName" + meta.DeviceName + "productKey" + meta.ProductKey + "random" + random
 	// 计算签名 Signature
 	sign := algo.Hmac(signMd, meta.ProductSecret, source)
+
 	return fmt.Sprintf("productKey=%s&deviceName=%s&random=%s&sign=%s&signMethod=%s",
 		meta.ProductKey, meta.DeviceName, random, sign, signMd)
 }
