@@ -8,20 +8,17 @@ package sign
 
 import (
 	"errors"
-	"fmt"
 	"net"
 	"sort"
 	"strconv"
 	"strings"
-
-	"github.com/thinkgos/go-core-package/lib/algo"
 
 	"github.com/thinkgos/aliyun-iot/infra"
 )
 
 // default defined
 const (
-	fixedTimestamp = "2524608000000"
+	fixedTimestamp = 2524608000000
 	alinkVersion   = "20"
 
 	// config method MQTT设备签名只支持以下签名方法
@@ -92,7 +89,7 @@ func Generate(triad infra.MetaTriad, crd infra.CloudRegionDomain, opts ...Option
 	ms := &config{
 		enableDM: true,
 		extParams: map[string]string{
-			"timestamp":  fixedTimestamp, // 表示当前时间的毫秒值,可以不传递
+			"timestamp":  strconv.FormatUint(fixedTimestamp, 10), // 表示当前时间的毫秒值,可以不传递
 			"securemode": modeTCPDirectPlain,
 			"signmethod": hmacsha256,
 			"lan":        "Golang",
@@ -103,13 +100,8 @@ func Generate(triad infra.MetaTriad, crd infra.CloudRegionDomain, opts ...Option
 		opt(ms)
 	}
 
-	// setup ClientID
-	clientID := triad.ProductKey + "." + triad.DeviceName
-	source := fmt.Sprintf("clientId%sdeviceName%sproductKey%stimestamp%s",
-		clientID, triad.DeviceName, triad.ProductKey, fixedTimestamp)
-	// setup Password
-	pwd := algo.Hmac(ms.extParams["signmethod"], triad.DeviceSecret, source)
-
+	// setup ClientID,Password
+	clientID, pwd := infra.CalcSign(ms.extParams["signmethod"], triad, fixedTimestamp)
 	info := &Sign{
 		Port:      1883,
 		ClientID:  clientID,
@@ -133,12 +125,11 @@ func Generate(triad infra.MetaTriad, crd infra.CloudRegionDomain, opts ...Option
 
 // generateExtParam 根据deviceID生成clientID
 func generateExtParam(extParams map[string]string) string {
-	var l int
-
 	if len(extParams) == 0 {
 		return ""
 	}
 
+	l := 0
 	keys := make([]string, 0, len(extParams))
 	for k, v := range extParams {
 		keys = append(keys, k)

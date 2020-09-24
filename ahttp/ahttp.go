@@ -10,12 +10,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"sync/atomic"
 	"time"
 
-	"github.com/thinkgos/go-core-package/lib/algo"
 	"github.com/thinkgos/go-core-package/lib/logger"
 	"golang.org/x/sync/singleflight"
 
@@ -117,13 +115,19 @@ func (sf *Client) getToken() (string, error) {
 
 	tk, err, _ := sf.group.Do("auth", func() (interface{}, error) {
 		// 生成body加签
-		clientID := sf.triad.ProductKey + "." + sf.triad.DeviceName
+		signMethod := sf.signMethod
+		switch signMethod {
+		case hmacmd5, hmacsha1:
+		default:
+			signMethod = hmacmd5
+		}
 		timestamp := infra.Millisecond(time.Now())
+		clientID, sign := infra.CalcSign(signMethod, sf.triad, timestamp)
 		authReq := &AuthRequest{
 			sf.version,
 			clientID,
-			sf.signMethod,
-			calcSign(sf.signMethod, clientID, sf.triad, timestamp),
+			signMethod,
+			sign,
 			sf.triad.ProductKey,
 			sf.triad.DeviceName,
 			timestamp,
@@ -224,14 +228,3 @@ func (*Client) Subscribe(string, aiot.ProcDownStream) error { return nil }
 
 // UnSubscribe 实现dm.Conn接口
 func (*Client) UnSubscribe(...string) error { return nil }
-
-func calcSign(signMethod, clientID string, triad infra.MetaTriad, timestamp int64) string {
-	switch signMethod {
-	case hmacmd5, hmacsha1:
-	default:
-		signMethod = hmacmd5
-	}
-	source := fmt.Sprintf("clientId%sdeviceName%sproductKey%stimestamp%d",
-		clientID, triad.DeviceName, triad.ProductKey, timestamp)
-	return algo.Hmac(signMethod, triad.DeviceSecret, source)
-}

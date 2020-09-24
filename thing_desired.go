@@ -61,7 +61,7 @@ func ProcThingDesiredPropertyGetReply(c *Client, rawURI string, payload []byte) 
 		err = infra.NewCodeError(rsp.Code, rsp.Message)
 	}
 
-	c.signalPending(Message{rsp.ID, cloneJSONRawMessage(rsp.Data), err})
+	c.signalPending(Message{rsp.ID, dupJSONRawMessage(rsp.Data), err})
 
 	c.Log.Debugf("thing.property.desired.get.reply @%d", rsp.ID)
 

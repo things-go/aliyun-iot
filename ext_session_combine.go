@@ -71,7 +71,7 @@ func (sf *Client) extCombineLogin(cp CombinePair) (*Token, error) {
 	}
 
 	timestamp := infra.Millisecond(time.Now())
-	clientID, signs := generateSign("hmacsha256",
+	clientID, signs := infra.CalcSign("hmacsha256",
 		infra.MetaTriad{
 			ProductKey:   cp.ProductKey,
 			DeviceName:   cp.DeviceName,
@@ -138,7 +138,7 @@ func (sf *Client) extCombineBatchLogin(pairs []CombinePair) (*Token, error) {
 		if err != nil {
 			return nil, err
 		}
-		clientID, signs := generateSign("hmacsha256", infra.MetaTriad{
+		clientID, signs := infra.CalcSign("hmacsha256", infra.MetaTriad{
 			ProductKey:   cp.ProductKey,
 			DeviceName:   cp.DeviceName,
 			DeviceSecret: ds,
