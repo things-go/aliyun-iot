@@ -10,11 +10,9 @@ import (
 )
 
 func main() {
-	dmClient := aiot.New(mock.MetaTriad,
-		ahttp.New(mock.MetaTriad),
-		aiot.WithMode(aiot.ModeHTTP))
+	client := aiot.New(mock.MetaTriad, ahttp.New(mock.MetaTriad), aiot.WithMode(aiot.ModeHTTP))
 	for {
-		_, err := dmClient.ThingEventPropertyPost(mock.ProductKey, mock.DeviceName, mock.InstanceValue())
+		_, err := client.ThingEventPropertyPost(mock.ProductKey, mock.DeviceName, mock.InstanceValue())
 		if err != nil {
 			fmt.Println(err)
 		}

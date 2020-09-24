@@ -4,7 +4,11 @@
 
 package dataflow
 
-import "time"
+import (
+	"time"
+
+	"github.com/thinkgos/aliyun-iot/infra"
+)
 
 const (
 	layout    = "2006-01-02 15:04:05.999"
@@ -61,5 +65,5 @@ func (sf UTCtime) String() string {
 
 // Unix 时间戳转换
 func Unix(msec int64) time.Time {
-	return time.Unix(msec/1000, (msec%1000)*1000000)
+	return infra.Time(msec)
 }

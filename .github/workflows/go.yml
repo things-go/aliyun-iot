@@ -27,4 +27,5 @@ jobs:
         fi
 
     - name: Go test
-      run: go test -v -benchmem -test.bench=".*" -coverprofile=coverage.txt -covermode=atomic ./...
+      run: |
+        go test -v -benchmem -test.bench=".*" -coverprofile=coverage.txt -covermode=atomic ./...

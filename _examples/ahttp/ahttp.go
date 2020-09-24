@@ -24,18 +24,17 @@ func main() {
 	client := ahttp.New(mock.MetaTriad, ahttp.WithLogger(l))
 
 	_uri := uri.URI(uri.SysPrefix, uri.ThingEventPropertyPost, mock.ProductKey, mock.DeviceName)
-	bPayload, err := json.Marshal(
-		aiot.Request{
-			ID:      uint(rand.Int()),
-			Version: aiot.DefaultVersion,
-			Params:  mock.InstanceValue(),
-			Method:  infra.MethodEventPropertyPost,
-		})
+	bPayload, err := json.Marshal(aiot.Request{
+		ID:      uint(rand.Int()),
+		Version: aiot.DefaultVersion,
+		Params:  mock.InstanceValue(),
+		Method:  infra.MethodEventPropertyPost,
+	})
 	for {
 		err = client.Publish(_uri, 1, bPayload)
 		if err != nil {
 			log.Println(err)
 		}
-		time.Sleep(time.Second * 10)
+		time.Sleep(time.Second * 15)
 	}
 }

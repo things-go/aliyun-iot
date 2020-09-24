@@ -54,6 +54,4 @@ func (*coapClient) Subscribe(string, aiot.ProcDownStream) error { return nil }
 func (sf *coapClient) UnSubscribe(...string) error { return nil }
 
 // Close 实现dm.Conn接口
-func (sf *coapClient) Close() error {
-	return sf.c.Close()
-}
+func (sf *coapClient) Close() error { return sf.c.Close() }
