@@ -9,7 +9,14 @@ import (
 )
 
 func main() {
-	meta := mock.MetaTetrad
+
+	var meta = infra.MetaTetrad{
+		mock.ProductKey,
+		mock.ProductSecret,
+		"dynamic",
+		"",
+	}
+
 	crd := infra.CloudRegionDomain{
 		Region:       infra.CloudRegionShangHai,
 		CustomDomain: "127.0.0.1:8080",
