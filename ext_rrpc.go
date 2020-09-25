@@ -18,6 +18,7 @@ func (sf *Client) RRPCResponse(pk, dn, messageID string, rsp Response) error {
 }
 
 // ExtRRPCResponse ext rrpc回复
+// NOTE: 只支持Qos=0回复
 // response:  /ext/rrpc/${messageId}/${topic}
 // see https://help.aliyun.com/document_detail/90570.html?spm=a2c4g.11186623.6.656.64076175n5VFHO#title-0r5-s8c-t1c
 func (sf *Client) ExtRRPCResponse(messageID, topic string, payload interface{}) error {

@@ -160,10 +160,10 @@ func (sf *Client) SubDeviceConnect(pk, dn string, cleanSession bool, timeout tim
 		}
 	}
 	// 子设备添加到拓扑
-	err = sf.LinkThingTopoAdd(pk, dn, timeout)
-	if err != nil {
-		return err
-	}
+	// err = sf.LinkThingTopoAdd(pk, dn, timeout)
+	// if err != nil {
+	// 	return err
+	// }
 	// 上线
 	err = sf.LinkExtCombineLogin(CombinePair{pk, dn, cleanSession}, timeout)
 	if err != nil {

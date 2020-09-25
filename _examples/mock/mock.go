@@ -54,7 +54,7 @@ var SensorTerad = infra.MetaTetrad{
 var SensorTriad = infra.MetaTriad{
 	"a15aMYCIe4I",
 	"mysensor",
-	"",
+	"1a5a0ffd6b06e402740067cbbc7de2ee",
 }
 
 type Instance struct {

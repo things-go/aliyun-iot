@@ -22,6 +22,7 @@ const (
 	ExtSessionPrefix = "/ext/session/%s/%s/"
 	ExtNtpPrefix     = "/ext/ntp/%s/%s/"
 	ExtErrorPrefix   = "/ext/errorf/%s/%s"
+	ExtNetworkProbe  = "/ext/network/probe/+"
 
 	ReplySuffix = "reply"
 )

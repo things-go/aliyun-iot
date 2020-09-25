@@ -105,7 +105,7 @@ func Generate(triad infra.MetaTriad, crd infra.CloudRegionDomain, opts ...Option
 	info := &Sign{
 		Port:      1883,
 		ClientID:  clientID,
-		extParams: generateExtParam(ms.extParams),
+		extParams: encodeExtParam(ms.extParams),
 		UserName:  triad.DeviceName + "&" + triad.ProductKey,
 		Password:  pwd,
 	}
@@ -123,8 +123,8 @@ func Generate(triad infra.MetaTriad, crd infra.CloudRegionDomain, opts ...Option
 	return info, nil
 }
 
-// generateExtParam 根据extParams扩展字符串
-func generateExtParam(extParams map[string]string) string {
+// encodeExtParam 根据extParams编码扩展字符串
+func encodeExtParam(extParams map[string]string) string {
 	if len(extParams) == 0 {
 		return ""
 	}

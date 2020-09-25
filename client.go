@@ -62,17 +62,20 @@ func (sf *Client) SubscribeAllTopic(productKey, deviceName string, isSub bool) e
 	if sf.mode == ModeHTTP {
 		return nil
 	}
-
+	// model raw
 	_uri = uri.URI(uri.SysPrefix, uri.ThingModelUpRawReply, productKey, deviceName)
 	if err = sf.Subscribe(_uri, ProcThingModelUpRawReply); err != nil {
 		sf.Log.Warnf(err.Error())
 	}
-
 	_uri = uri.URI(uri.SysPrefix, uri.ThingModelDownRaw, productKey, deviceName)
 	if err = sf.Subscribe(_uri, ProcThingModelDownRaw); err != nil {
 		sf.Log.Warnf(err.Error())
 	}
 
+	// 网络探针
+	if err = sf.Subscribe(uri.ExtNetworkProbe, ProcExtNetworkProbeRequest); err != nil {
+		sf.Log.Warnf(err.Error())
+	}
 	// 只使能model raw
 	if !sf.hasRawModel {
 		// desired 期望属性订阅
@@ -369,6 +372,8 @@ func (sf *Client) UnSubscribeAllTopic(productKey, deviceName string, isSub bool)
 		// model raw 取消订阅
 		uri.URI(uri.SysPrefix, uri.ThingModelUpRawReply, productKey, deviceName),
 		uri.URI(uri.SysPrefix, uri.ThingModelDownRaw, productKey, deviceName),
+		// 网络探针
+		uri.ExtNetworkProbe,
 	)
 	return sf.UnSubscribe(topicList...)
 }
