@@ -6,7 +6,6 @@ package infra
 
 import (
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/thinkgos/go-core-package/lib/algo"
@@ -54,21 +53,9 @@ func Time(msec int64) time.Time {
 // timestamp: 时间戳,单位ms
 func CalcSign(method string, meta MetaTriad, timestamp int64) (string, string) {
 	clientID := ClientID(meta.ProductKey, meta.DeviceName)
-	tts := strconv.FormatInt(timestamp, 10)
-
-	b := strings.Builder{}
-	b.Grow(8 + len(clientID) + 10 + len(meta.DeviceName) + 10 + len(meta.ProductKey) + 9 + len(tts))
-	// clientId{clientId}deviceName{deviceName}productKey{productKey}timestamp{timestamp}
-	b.WriteString("clientId")
-	b.WriteString(clientID)
-	b.WriteString("deviceName")
-	b.WriteString(meta.DeviceName)
-	b.WriteString("productKey")
-	b.WriteString(meta.ProductKey)
-	b.WriteString("timestamp")
-	b.WriteString(tts)
-	source := b.String()
-	// source := fmt.Sprintf("clientId%sdeviceName%sproductKey%stimestamp%d",
-	// 	clientID, meta.DeviceName, meta.ProductKey, timestamp)
+	source := "clientId" + clientID +
+		"deviceName" + meta.DeviceName +
+		"productKey" + meta.ProductKey +
+		"timestamp" + strconv.FormatInt(timestamp, 10)
 	return clientID, algo.Hmac(method, meta.DeviceSecret, source)
 }

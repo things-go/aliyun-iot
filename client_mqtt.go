@@ -35,9 +35,6 @@ func NewWithMQTT(meta infra.MetaTriad, c mqtt.Client, opts ...Option) *MQTTClien
 // Underlying 获得底层的Client
 func (sf *MQTTClient) Underlying() mqtt.Client { return sf.c }
 
-// Connect 实现dm.Conn接口
-func (sf *MQTTClient) Connect() error { return nil }
-
 // Publish 实现dm.Conn接口
 func (sf *MQTTClient) Publish(topic string, qos byte, payload interface{}) error {
 	return sf.c.Publish(topic, qos, false, payload).Error()

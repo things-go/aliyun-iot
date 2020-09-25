@@ -10,8 +10,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/thinkgos/go-core-package/extrand"
@@ -132,6 +132,11 @@ func requestBody(meta *infra.MetaTetrad, signMethods ...string) string {
 	// 计算签名 Signature
 	sign := algo.Hmac(signMd, meta.ProductSecret, source)
 
-	return fmt.Sprintf("productKey=%s&deviceName=%s&random=%s&sign=%s&signMethod=%s",
-		meta.ProductKey, meta.DeviceName, random, sign, signMd)
+	bd := url.Values{}
+	bd.Add("productKey", meta.ProductKey)
+	bd.Add("deviceName", meta.DeviceName)
+	bd.Add("random", random)
+	bd.Add("sign", sign)
+	bd.Add("signMethod", signMd)
+	return bd.Encode()
 }

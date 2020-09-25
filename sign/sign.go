@@ -123,7 +123,7 @@ func Generate(triad infra.MetaTriad, crd infra.CloudRegionDomain, opts ...Option
 	return info, nil
 }
 
-// generateExtParam 根据deviceID生成clientID
+// generateExtParam 根据extParams扩展字符串
 func generateExtParam(extParams map[string]string) string {
 	if len(extParams) == 0 {
 		return ""

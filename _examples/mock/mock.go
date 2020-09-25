@@ -142,7 +142,7 @@ func SensorInstanceValue() SensorInstance {
 
 func ThingEventPropertyPost(client *aiot.MQTTClient) {
 	for {
-		err := client.LinkThingEventPropertyPost(ProductKey, DeviceName, InstanceValue(), time.Second)
+		err := client.LinkThingEventPropertyPost(ProductKey, DeviceName, InstanceValue(), 3*time.Second)
 		if err != nil {
 			log.Printf("error: %#v", err)
 		}
