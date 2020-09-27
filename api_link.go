@@ -97,7 +97,7 @@ func (sf *Client) LinkThingDesiredPropertyDelete(pk, dn string, params interface
 /**************************************** label *****************************/
 
 // LinkThingDeviceInfoUpdate 设备信息上传(如厂商,设备型号等,可以保存为设备标签),同步
-func (sf *Client) LinkThingDeviceInfoUpdate(pk, dn string, params interface{}, timeout time.Duration) error {
+func (sf *Client) LinkThingDeviceInfoUpdate(pk, dn string, params []DeviceInfoLabel, timeout time.Duration) error {
 	token, err := sf.ThingDeviceInfoUpdate(pk, dn, params)
 	if err != nil {
 		return err
@@ -107,7 +107,7 @@ func (sf *Client) LinkThingDeviceInfoUpdate(pk, dn string, params interface{}, t
 }
 
 // LinkThingDeviceInfoDelete 删除标签信息.同步
-func (sf *Client) LinkThingDeviceInfoDelete(pk, dn string, params interface{}, timeout time.Duration) error {
+func (sf *Client) LinkThingDeviceInfoDelete(pk, dn string, params []DeviceLabelKey, timeout time.Duration) error {
 	token, err := sf.ThingDeviceInfoDelete(pk, dn, params)
 	if err != nil {
 		return err

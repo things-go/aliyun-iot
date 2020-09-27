@@ -13,10 +13,22 @@ import (
 
 // @see https://help.aliyun.com/document_detail/89304.html?spm=a2c4g.11186623.6.710.31c552ceVRAsmU
 
+// DevInfoLabelCoordinateKey 地理位置标签
+const DevInfoLabelCoordinateKey = "coordinate"
+
+// DeviceInfoLabel 更新设备标签的键值对
+type DeviceInfoLabel struct {
+	AttrKey   string `json:"attrKey"`
+	AttrValue string `json:"attrValue"`
+}
+
 // ThingDeviceInfoUpdate 设备信息上传(如厂商、设备型号等，可以保存为设备标签)
 // request:  /sys/{productKey}/{deviceName}/thing/deviceinfo/update
 // response: /sys/{productKey}/{deviceName}/thing/deviceinfo/update_reply
-func (sf *Client) ThingDeviceInfoUpdate(pk, dn string, params interface{}) (*Token, error) {
+func (sf *Client) ThingDeviceInfoUpdate(pk, dn string, params []DeviceInfoLabel) (*Token, error) {
+	if len(params) == 0 {
+		return nil, ErrInvalidParameter
+	}
 	if !sf.IsActive(pk, dn) {
 		return nil, ErrNotActive
 	}
@@ -24,10 +36,18 @@ func (sf *Client) ThingDeviceInfoUpdate(pk, dn string, params interface{}) (*Tok
 	return sf.SendRequest(_uri, infra.MethodDeviceInfoUpdate, params)
 }
 
+// DeviceLabelKey 删除设备标答的键
+type DeviceLabelKey struct {
+	AttrKey string `json:"attrKey"`
+}
+
 // ThingDeviceInfoDelete 删除标签信息
 // request:  /sys/{productKey}/{deviceName}/thing/deviceinfo/delete
 // response: /sys/{productKey}/{deviceName}/thing/deviceinfo/delete_reply
-func (sf *Client) ThingDeviceInfoDelete(pk, dn string, params interface{}) (*Token, error) {
+func (sf *Client) ThingDeviceInfoDelete(pk, dn string, params []DeviceLabelKey) (*Token, error) {
+	if len(params) == 0 {
+		return nil, ErrInvalidParameter
+	}
 	if !sf.IsActive(pk, dn) {
 		return nil, ErrNotActive
 	}
