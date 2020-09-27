@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/thinkgos/aliyun-iot/_examples/mock"
 	"github.com/thinkgos/aliyun-iot/infra"
@@ -13,9 +13,9 @@ func main() {
 		Region: infra.CloudRegionShangHai,
 	}
 
-	info, err := sign.Generate(mock.MetaTriad, crd)
+	info, err := sign.Generate(mock.MetaTriad, crd, sign.WithTimestamp())
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("%+v", info)
+	log.Printf("%+v", info)
 }

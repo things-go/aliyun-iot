@@ -25,6 +25,8 @@ const (
 	hmacsha256 = "hmacsha256"
 	hmacsha1   = "hmacsha1"
 	hmacmd5    = "hmacmd5"
+	// itls domain
+	itlsDomain = "x509.itls.cn-shanghai.aliyuncs.com"
 )
 
 // all secure mode define
@@ -70,10 +72,9 @@ func (ms *Sign) ClientIDWithExt() string {
 type config struct {
 	enableTLS bool              // 使能tls
 	enableDM  bool              // 使能物模型
+	timestamp int64             // 表示当前时间的毫秒值,可以不传递, 默认 fixedTimestamp
 	extParams map[string]string // clientID扩展参数
 }
-
-// New 新建一个签名
 
 // Generate 根据MetaInfo和region生成签名
 // 默认不支持PreAUTH
@@ -81,15 +82,14 @@ type config struct {
 // 默认使能物模型
 // 默认hmacmd5签名加密
 // 默认sdk版本为 SDKVersion
-// TODO: 支持tls
 func Generate(triad infra.MetaTriad, crd infra.CloudRegionDomain, opts ...Option) (*Sign, error) {
 	if crd.Region == infra.CloudRegionCustom && crd.CustomDomain == "" {
 		return nil, errors.New("invalid custom domain")
 	}
 	ms := &config{
-		enableDM: true,
+		enableDM:  true,
+		timestamp: fixedTimestamp,
 		extParams: map[string]string{
-			"timestamp":  strconv.FormatUint(fixedTimestamp, 10), // 表示当前时间的毫秒值,可以不传递
 			"securemode": modeTCPDirectPlain,
 			"signmethod": hmacsha256,
 			"lan":        "Golang",
@@ -99,9 +99,10 @@ func Generate(triad infra.MetaTriad, crd infra.CloudRegionDomain, opts ...Option
 	for _, opt := range opts {
 		opt(ms)
 	}
+	ms.extParams["timestamp"] = strconv.FormatInt(ms.timestamp, 10)
 
 	// setup ClientID,Password
-	clientID, pwd := infra.CalcSign(ms.extParams["signmethod"], triad, fixedTimestamp)
+	clientID, pwd := infra.CalcSign(ms.extParams["signmethod"], triad, ms.timestamp)
 	info := &Sign{
 		Port:      1883,
 		ClientID:  clientID,
@@ -109,16 +110,15 @@ func Generate(triad infra.MetaTriad, crd infra.CloudRegionDomain, opts ...Option
 		UserName:  triad.DeviceName + "&" + triad.ProductKey,
 		Password:  pwd,
 	}
-
-	domain := crd.CustomDomain
-	if crd.Region != infra.CloudRegionCustom {
-		domain = infra.MQTTCloudDomain[crd.Region]
-	}
 	// setup HostName
-	info.HostName = triad.ProductKey + "." + domain
-	// setup Port
 	if ms.enableTLS {
-		info.Port = 443
+		info.HostName = itlsDomain
+	} else {
+		domain := crd.CustomDomain
+		if crd.Region != infra.CloudRegionCustom {
+			domain = infra.MQTTCloudDomain[crd.Region]
+		}
+		info.HostName = triad.ProductKey + "." + domain
 	}
 	return info, nil
 }
@@ -139,7 +139,7 @@ func encodeExtParam(extParams map[string]string) string {
 	// sort key
 	sort.Strings(keys)
 
-	builder := new(strings.Builder)
+	builder := strings.Builder{}
 	builder.Grow(2 + l)
 	builder.WriteString("|")
 	l = 0

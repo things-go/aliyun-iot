@@ -99,7 +99,7 @@ func (sf *Client) extCombineLogin(cp CombinePair) (*Token, error) {
 	return sf.putPending(id), nil
 }
 
-// CombineBatchLoginRequest 子设备上线请求
+// CombineBatchLoginParams 子设备上线请求参数域
 type CombineBatchLoginParams struct {
 	DeviceList []CombineLoginParams `json:"deviceList"`
 }
