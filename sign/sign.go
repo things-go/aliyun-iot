@@ -7,11 +7,15 @@
 package sign
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"errors"
 	"net"
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/thinkgos/go-core-package/extcert"
 
 	"github.com/thinkgos/aliyun-iot/infra"
 )
@@ -26,7 +30,7 @@ const (
 	hmacsha1   = "hmacsha1"
 	hmacmd5    = "hmacmd5"
 	// itls domain
-	itlsDomain = "x509.itls.cn-shanghai.aliyuncs.com"
+	// itlsDomain = "x509.itls.cn-shanghai.aliyuncs.com"
 )
 
 // all secure mode define
@@ -50,17 +54,13 @@ const (
 
 // Sign 签名后的信息
 type Sign struct {
+	Addr      string // broker addr
 	HostName  string
 	Port      uint16
 	ClientID  string
 	extParams string // clientID的扩展参数
 	UserName  string // deviceName & productKey
 	Password  string
-}
-
-// Addr address like host:port
-func (ms *Sign) Addr() string {
-	return net.JoinHostPort(ms.HostName, strconv.FormatUint(uint64(ms.Port), 10))
 }
 
 // ClientIDWithExt 登录使用的 client + "| 扩展参数 |"
@@ -72,6 +72,7 @@ func (ms *Sign) ClientIDWithExt() string {
 type config struct {
 	enableTLS bool              // 使能tls
 	enableDM  bool              // 使能物模型
+	port      uint16            // 端口,默认为1883
 	timestamp int64             // 表示当前时间的毫秒值,可以不传递, 默认 fixedTimestamp
 	extParams map[string]string // clientID扩展参数
 }
@@ -86,10 +87,12 @@ func Generate(triad infra.MetaTriad, crd infra.CloudRegionDomain, opts ...Option
 	if crd.Region == infra.CloudRegionCustom && crd.CustomDomain == "" {
 		return nil, errors.New("invalid custom domain")
 	}
-	ms := &config{
-		enableDM:  true,
-		timestamp: fixedTimestamp,
-		extParams: map[string]string{
+	c := &config{
+		false,
+		true,
+		1883,
+		fixedTimestamp,
+		map[string]string{
 			"securemode": modeTCPDirectPlain,
 			"signmethod": hmacsha256,
 			"lan":        "Golang",
@@ -97,30 +100,35 @@ func Generate(triad infra.MetaTriad, crd infra.CloudRegionDomain, opts ...Option
 		},
 	}
 	for _, opt := range opts {
-		opt(ms)
+		opt(c)
 	}
-	ms.extParams["timestamp"] = strconv.FormatInt(ms.timestamp, 10)
+	c.extParams["timestamp"] = strconv.FormatInt(c.timestamp, 10)
 
-	// setup ClientID,Password
-	clientID, pwd := infra.CalcSign(ms.extParams["signmethod"], triad, ms.timestamp)
-	info := &Sign{
-		Port:      1883,
-		ClientID:  clientID,
-		extParams: encodeExtParam(ms.extParams),
-		UserName:  triad.DeviceName + "&" + triad.ProductKey,
-		Password:  pwd,
+	schema := "tcp://"
+	if c.enableTLS {
+		schema = "tls://"
 	}
 	// setup HostName
-	if ms.enableTLS {
-		info.HostName = itlsDomain
+	buildHost := strings.Builder{}
+	buildHost.WriteString(triad.ProductKey)
+	buildHost.WriteString(".")
+	if crd.Region != infra.CloudRegionCustom {
+		buildHost.WriteString(infra.MQTTCloudDomain[crd.Region])
 	} else {
-		domain := crd.CustomDomain
-		if crd.Region != infra.CloudRegionCustom {
-			domain = infra.MQTTCloudDomain[crd.Region]
-		}
-		info.HostName = triad.ProductKey + "." + domain
+		buildHost.WriteString(crd.CustomDomain)
 	}
-	return info, nil
+	hostname := buildHost.String()
+	// setup ClientID,Password
+	clientID, pwd := infra.CalcSign(c.extParams["signmethod"], triad, c.timestamp)
+	return &Sign{
+		schema + net.JoinHostPort(hostname, strconv.FormatUint(uint64(c.port), 10)),
+		hostname,
+		c.port,
+		clientID,
+		encodeExtParam(c.extParams),
+		triad.DeviceName + "&" + triad.ProductKey,
+		pwd,
+	}, nil
 }
 
 // encodeExtParam 根据extParams编码扩展字符串
@@ -155,4 +163,54 @@ func encodeExtParam(extParams map[string]string) string {
 	}
 	builder.WriteString("|")
 	return builder.String()
+}
+
+// NewTLSConfig new tls config from ca file
+// 如果ca有"base64://"前缀,直接解析后面的字符串,否则认为这是个ca为文件名
+func NewTLSConfig(ca string) (*tls.Config, error) {
+	bs, err := extcert.LoadCrt(ca)
+	if err != nil {
+		return nil, err
+	}
+	return TLSConfig(bs)
+}
+
+// TLSConfig tls config
+func TLSConfig(cacertPem []byte) (*tls.Config, error) {
+	// Import trusted certificates from CAfile.pem.
+	// Alternatively, manually add CA certificates to
+	// default openssl CA bundle.
+	certpool := x509.NewCertPool()
+	certpool.AppendCertsFromPEM(cacertPem)
+
+	//	// Import client certificate/key pair
+	//	cert, err := tls.X509KeyPair([]byte(cert_pem), []byte(key_pem))
+	//	if err != nil {
+	//		return nil, err
+	//	}
+
+	//	// Just to print out the client certificate..
+	//	cert.Leaf, err = x509.ParseCertificate(cert.Certificate[0])
+	//	if err != nil {
+	//		return nil, err
+	//	}
+
+	// Create tls.Config with desired tls properties
+	return &tls.Config{
+		// RootCAs = certs used to verify server cert.
+		RootCAs: certpool,
+		// ClientAuth = whether to request cert from server.
+		// Since the server is set up for SSL, this happens
+		// anyways.
+		ClientAuth: tls.NoClientCert,
+		// ClientCAs = certs used to validate client cert.
+		ClientCAs: nil,
+		// InsecureSkipVerify = verify that cert contents
+		// match server. IP matches what is in cert etc.
+		InsecureSkipVerify: true,
+		// Certificates = list of certs client sends to server.
+		//		Certificates: []tls.Certificate{cert},
+		MinVersion: tls.VersionTLS12,
+		MaxVersion: tls.VersionTLS12,
+	}, nil
 }

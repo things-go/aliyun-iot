@@ -13,6 +13,13 @@ import (
 // Option option
 type Option func(*config)
 
+// WithPort 设置端口, 默认1883
+func WithPort(port uint16) Option {
+	return func(c *config) {
+		c.port = port
+	}
+}
+
 // WithSignMethod 设置签名方法,目前只支持hmacsha1,hmacmd5,hmacsha256(默认)
 func WithSignMethod(method string) Option {
 	return func(c *config) {

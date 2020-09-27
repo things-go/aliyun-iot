@@ -47,7 +47,7 @@ func main() {
 
 	opts :=
 		mqtt.NewClientOptions().
-			AddBroker(signs.Addr()).
+			AddBroker(signs.Addr).
 			SetClientID(signs.ClientIDWithExt()).
 			SetUsername(signs.UserName).
 			SetPassword(signs.Password).

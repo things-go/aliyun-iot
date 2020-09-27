@@ -79,12 +79,13 @@ type SensorInstance struct {
 }
 
 func Init(triad infra.MetaTriad) *aiot.MQTTClient {
-	signs, err := sign.Generate(triad, infra.CloudRegionDomain{Region: infra.CloudRegionShangHai})
+	signs, err := sign.Generate(triad, infra.CloudRegionDomain{Region: infra.CloudRegionShangHai}, sign.WithTimestamp())
 	if err != nil {
 		panic(err)
 	}
+
 	opts := mqtt.NewClientOptions().
-		AddBroker(signs.Addr()).
+		AddBroker(signs.Addr).
 		SetClientID(signs.ClientIDWithExt()).
 		SetUsername(signs.UserName).
 		SetPassword(signs.Password).
@@ -96,6 +97,7 @@ func Init(triad infra.MetaTriad) *aiot.MQTTClient {
 		SetConnectionLostHandler(func(cli mqtt.Client, err error) {
 			log.Println("mqtt client connection lost, ", err)
 		})
+
 	mqc := mqtt.NewClient(opts)
 	mqc.Connect().Wait()
 
