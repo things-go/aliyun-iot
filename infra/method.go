@@ -25,4 +25,8 @@ const (
 	MethodTopoDelete               = "thing.topo.delete"
 	MethodTopoGet                  = "thing.topo.get"
 	MethodListFound                = "thing.list.found"
+	MethodCombineLogin             = "combine.login"
+	MethodCombineLogout            = "combine.logout"
+	MethodCombineBatchLogin        = "combine.batch.login"
+	MethodCombineBatchLogout       = "combine.batch.logout"
 )

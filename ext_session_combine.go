@@ -40,12 +40,6 @@ type CombineLoginParams struct {
 	CleanSession bool `json:"cleanSession,string"`
 }
 
-// CombineLoginRequest 子设备上线请求
-type CombineLoginRequest struct {
-	ID     uint               `json:"id,string"`
-	Params CombineLoginParams `json:"params"`
-}
-
 // CombineLoginResponse 子设备上线回复
 type CombineLoginResponse struct {
 	ID      uint           `json:"id,string"`
@@ -79,8 +73,9 @@ func (sf *Client) extCombineLogin(cp CombinePair) (*Token, error) {
 		},
 		timestamp)
 	id := sf.nextRequestID()
-	req, err := json.Marshal(&CombineLoginRequest{
+	req, err := json.Marshal(&Request{
 		id,
+		sf.version,
 		CombineLoginParams{
 			cp.ProductKey,
 			cp.DeviceName,
@@ -90,6 +85,7 @@ func (sf *Client) extCombineLogin(cp CombinePair) (*Token, error) {
 			signs,
 			cp.CleanSession,
 		},
+		infra.MethodCombineLogin,
 	})
 	if err != nil {
 		return nil, err
@@ -104,11 +100,8 @@ func (sf *Client) extCombineLogin(cp CombinePair) (*Token, error) {
 }
 
 // CombineBatchLoginRequest 子设备上线请求
-type CombineBatchLoginRequest struct {
-	ID     uint `json:"id,string"`
-	Params struct {
-		DeviceList []CombineLoginParams `json:"deviceList"`
-	} `json:"params"`
+type CombineBatchLoginParams struct {
+	DeviceList []CombineLoginParams `json:"deviceList"`
 }
 
 // CombineBatchLoginResponse 子设备批量上线回复
@@ -155,13 +148,11 @@ func (sf *Client) extCombineBatchLogin(pairs []CombinePair) (*Token, error) {
 	}
 
 	id := sf.nextRequestID()
-	req, err := json.Marshal(&CombineBatchLoginRequest{
+	req, err := json.Marshal(&Request{
 		id,
-		struct {
-			DeviceList []CombineLoginParams `json:"deviceList"`
-		}{
-			clps,
-		},
+		sf.version,
+		CombineBatchLoginParams{clps},
+		infra.MethodCombineBatchLogin,
 	})
 	if err != nil {
 		return nil, err
@@ -173,12 +164,6 @@ func (sf *Client) extCombineBatchLogin(pairs []CombinePair) (*Token, error) {
 	}
 	sf.Log.Debugf("ext.session.combine.batch.login @%d", id)
 	return sf.putPending(id), nil
-}
-
-// CombineLogoutRequest 子设备下线请求
-type CombineLogoutRequest struct {
-	ID     uint           `json:"id,string"`
-	Params infra.MetaPair `json:"params"`
 }
 
 // CombineLogoutResponse 子设备上线回复
@@ -199,9 +184,11 @@ func (sf *Client) extCombineLogout(pk, dn string) (*Token, error) {
 	}
 
 	id := sf.nextRequestID()
-	req, err := json.Marshal(&CombineLogoutRequest{
+	req, err := json.Marshal(&Request{
 		id,
+		sf.version,
 		infra.MetaPair{ProductKey: pk, DeviceName: dn},
+		infra.MethodCombineLogout,
 	})
 	if err != nil {
 		return nil, err
@@ -214,12 +201,6 @@ func (sf *Client) extCombineLogout(pk, dn string) (*Token, error) {
 	}
 	sf.Log.Debugf("ext.session.combine.logout @%d", id)
 	return sf.putPending(id), nil
-}
-
-// CombineBatchLogoutRequest 子设备批量下线请求
-type CombineBatchLogoutRequest struct {
-	ID     uint             `json:"id,string"`
-	Params []infra.MetaPair `json:"params"`
 }
 
 // CombineBatchLogoutResponse 子设备批量下线回复
@@ -243,7 +224,12 @@ func (sf *Client) extCombineBatchLogout(pairs []infra.MetaPair) (*Token, error) 
 	}
 
 	id := sf.nextRequestID()
-	req, err := json.Marshal(&CombineBatchLogoutRequest{id, pairs})
+	req, err := json.Marshal(&Request{
+		id,
+		sf.version,
+		pairs,
+		infra.MethodCombineBatchLogout,
+	})
 	if err != nil {
 		return nil, err
 	}
