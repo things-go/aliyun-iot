@@ -13,6 +13,13 @@ import (
 // Option option
 type Option func(*config)
 
+// WithDeviceToken 设置device token 只在SecureModeNoPreRegistration时需设置
+func WithDeviceToken(deviceToken string) Option {
+	return func(c *config) {
+		c.deviceToken = deviceToken
+	}
+}
+
 // WithPort 设置端口, 默认1883
 func WithPort(port uint16) Option {
 	return func(c *config) {
@@ -23,53 +30,21 @@ func WithPort(port uint16) Option {
 // WithSignMethod 设置签名方法,目前只支持hmacsha1,hmacmd5,hmacsha256(默认)
 func WithSignMethod(method string) Option {
 	return func(c *config) {
-		switch method {
-		case hmacsha1:
-			c.extParams["signmethod"] = hmacsha1
-		case hmacmd5:
-			c.extParams["signmethod"] = hmacmd5
-		case hmacsha256:
-			fallthrough
-		default:
-			c.extParams["signmethod"] = hmacsha256
-		}
+		c.method = method
 	}
 }
 
-// WithSecureMode 设置支持的安全模式
-func WithSecureMode(mode SecureMode) Option {
+// WithSecureMode 设置安全模式, 默认SecureModeTCPDirectPlain,tcp直连
+func WithSecureMode(secureMode string) Option {
 	return func(c *config) {
-		switch mode {
-		case SecureModeTLSGuider:
-			c.enableTLS = true
-			c.extParams["securemode"] = modeTLSGuider
-		case SecureModeTLSDirect:
-			c.enableTLS = true
-			c.extParams["securemode"] = modeTLSDirect
-		case SecureModeITLSDNSID2:
-			c.enableTLS = true
-			c.extParams["securemode"] = modeITLSDNSID2
-		case SecureModeTCPDirectPlain:
-			fallthrough
-		default:
-			c.enableTLS = false
-			c.extParams["securemode"] = modeTCPDirectPlain
-		}
+		c.secureMode = secureMode
 	}
 }
 
-// WithEnableDeviceModel 设置是否支持物模型
+// WithEnableDeviceModel 设置是否支持物模型,默认为物模型
 func WithEnableDeviceModel(enable bool) Option {
 	return func(c *config) {
-		if enable {
-			c.extParams["v"] = alinkVersion
-			delete(c.extParams, "gw")
-			delete(c.extParams, "ext")
-		} else {
-			c.extParams["gw"] = "0"
-			c.extParams["ext"] = "0"
-			delete(c.extParams, "v")
-		}
+		c.enableDM = enable
 	}
 }
 
@@ -96,7 +71,7 @@ func WithExtParamsKV(key, value string) Option {
 	}
 }
 
-// WithTimestamp 添加当前时间的毫秒值,可以不传递,默认: fixedTimestamp 单位ms
+// WithTimestamp 添加当前时间的毫秒值,可以不传递,默认: fixedTimestamp,单位ms
 func WithTimestamp() Option {
 	return func(c *config) {
 		c.timestamp = infra.Millisecond(time.Now())

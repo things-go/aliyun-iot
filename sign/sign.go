@@ -33,23 +33,13 @@ const (
 	// itlsDomain = "x509.itls.cn-shanghai.aliyuncs.com"
 )
 
-// all secure mode define
-const (
-	modeTLSGuider      = "-1"
-	modeTLSDirect      = "2"
-	modeTCPDirectPlain = "3"
-	modeITLSDNSID2     = "8"
-)
-
-// SecureMode 安全模式
-type SecureMode byte
-
 // SecureMode 支持的安全模型
 const (
-	SecureModeTLSGuider SecureMode = iota
-	SecureModeTLSDirect
-	SecureModeTCPDirectPlain
-	SecureModeITLSDNSID2
+	SecureModeNoPreRegistration = "-2" // 一型一密免预注册
+	SecureModeTLSGuider         = "-1"
+	SecureModeTLSDirect         = "2" // TLS直连
+	SecureModeTCPDirectPlain    = "3" // TCP直连
+	SecureModeITLSDNSID2        = "8" // ITLS, ID2方式
 )
 
 // Sign 签名后的信息
@@ -70,30 +60,35 @@ func (ms *Sign) ClientIDWithExt() string {
 
 // config MQTT签名主要配置
 type config struct {
-	enableTLS bool              // 使能tls
-	enableDM  bool              // 使能物模型
-	port      uint16            // 端口,默认为1883
-	timestamp int64             // 表示当前时间的毫秒值,可以不传递, 默认 fixedTimestamp
-	extParams map[string]string // clientID扩展参数
+	secureMode  string            // 安全模式
+	deviceToken string            // only use on SecureModeNoPreRegistration
+	method      string            // 签名方法
+	enableDM    bool              // 使能物模型
+	port        uint16            // 端口,默认为1883
+	timestamp   int64             // 表示当前时间的毫秒值,可以不传递, 默认 fixedTimestamp
+	extParams   map[string]string // clientID扩展参数
 }
 
-// Generate 根据MetaInfo和region生成签名
+// Generate 根据MetaTriad和region生成签名
 // 默认不支持PreAUTH
 // 默认安全模式为SecureModeTcpDirectPlain)
 // 默认使能物模型
-// 默认hmacmd5签名加密
-// 默认sdk版本为 SDKVersion
+// 默认固定时间戳
+// 默认hmacsha256签名加密
+// TODO: itls x509方式
 func Generate(triad infra.MetaTriad, crd infra.CloudRegionDomain, opts ...Option) (*Sign, error) {
 	if crd.Region == infra.CloudRegionCustom && crd.CustomDomain == "" {
 		return nil, errors.New("invalid custom domain")
 	}
 	c := &config{
-		false,
+		SecureModeTCPDirectPlain,
+		"",
+		"hmacsha256",
 		true,
 		1883,
 		fixedTimestamp,
 		map[string]string{
-			"securemode": modeTCPDirectPlain,
+			"securemode": SecureModeTCPDirectPlain,
 			"signmethod": hmacsha256,
 			"lan":        "Golang",
 			"v":          alinkVersion,
@@ -103,9 +98,39 @@ func Generate(triad infra.MetaTriad, crd infra.CloudRegionDomain, opts ...Option
 		opt(c)
 	}
 	c.extParams["timestamp"] = strconv.FormatInt(c.timestamp, 10)
+	if c.enableDM {
+		c.extParams["v"] = alinkVersion
+		delete(c.extParams, "gw")
+		delete(c.extParams, "ext")
+	} else {
+		delete(c.extParams, "v")
+		c.extParams["gw"] = "0"
+		c.extParams["ext"] = "0"
+	}
+
+	var enableTLS bool // 使能tls
+	switch c.secureMode {
+	case SecureModeNoPreRegistration:
+		c.extParams["securemode"] = SecureModeNoPreRegistration
+		panic("feature not support")
+	case SecureModeTLSGuider:
+		enableTLS = true
+		c.extParams["securemode"] = SecureModeTLSGuider
+	case SecureModeTLSDirect:
+		enableTLS = true
+		c.extParams["securemode"] = SecureModeTLSDirect
+	case SecureModeITLSDNSID2:
+		enableTLS = true
+		c.extParams["securemode"] = SecureModeITLSDNSID2
+	case SecureModeTCPDirectPlain:
+		fallthrough
+	default:
+		enableTLS = false
+		c.extParams["securemode"] = SecureModeTCPDirectPlain
+	}
 
 	schema := "tcp://"
-	if c.enableTLS {
+	if enableTLS {
 		schema = "tls://"
 	}
 	// setup HostName
@@ -118,15 +143,43 @@ func Generate(triad infra.MetaTriad, crd infra.CloudRegionDomain, opts ...Option
 		buildHost.WriteString(crd.CustomDomain)
 	}
 	hostname := buildHost.String()
+	addr := schema + net.JoinHostPort(hostname, strconv.FormatUint(uint64(c.port), 10))
+	username := triad.DeviceName + "&" + triad.ProductKey
+
+	if c.secureMode == SecureModeNoPreRegistration {
+		c.extParams["authType"] = "connwl"
+		delete(c.extParams, "timestamp")
+		delete(c.extParams, "signmethod")
+		return &Sign{
+			addr,
+			hostname,
+			c.port,
+			infra.ClientID(triad.ProductKey, triad.DeviceName),
+			encodeExtParam(c.extParams),
+			username,
+			c.deviceToken,
+		}, nil
+	}
+
+	switch c.method {
+	case hmacsha1:
+		c.extParams["signmethod"] = hmacsha1
+	case hmacmd5:
+		c.extParams["signmethod"] = hmacmd5
+	case hmacsha256:
+		fallthrough
+	default:
+		c.method = hmacsha256
+	}
 	// setup ClientID,Password
-	clientID, pwd := infra.CalcSign(c.extParams["signmethod"], triad, c.timestamp)
+	clientID, pwd := infra.CalcSign(c.method, triad, c.timestamp)
 	return &Sign{
-		schema + net.JoinHostPort(hostname, strconv.FormatUint(uint64(c.port), 10)),
+		addr,
 		hostname,
 		c.port,
 		clientID,
 		encodeExtParam(c.extParams),
-		triad.DeviceName + "&" + triad.ProductKey,
+		username,
 		pwd,
 	}, nil
 }
