@@ -14,6 +14,7 @@ func TestURI(t *testing.T) {
 		name       string
 		productKey string
 		deviceName string
+		inName     []string
 	}
 	tests := []struct {
 		name string
@@ -23,47 +24,62 @@ func TestURI(t *testing.T) {
 		{
 			"all",
 			args{
-				prefix:     SysPrefix,
-				name:       ThingEventPropertyPost,
-				productKey: "productKey",
-				deviceName: "deviceName",
+				SysPrefix,
+				ThingEventPropertyPost,
+				"productKey",
+				"deviceName",
+				nil,
 			},
 			fmt.Sprintf(SysPrefix+ThingEventPropertyPost, "productKey", "deviceName"),
 		},
 		{
-			"空prefix",
+			"in name",
 			args{
-				prefix:     "",
-				name:       ThingEventPropertyPost,
+				prefix:     SysPrefix,
+				name:       ThingEventPost,
 				productKey: "productKey",
 				deviceName: "deviceName",
+				inName:     []string{"event"},
+			},
+			fmt.Sprintf(SysPrefix+ThingEventPost, "productKey", "deviceName", "event"),
+		},
+		{
+			"空prefix",
+			args{
+				"",
+				ThingEventPropertyPost,
+				"productKey",
+				"deviceName",
+				nil,
 			},
 			ThingEventPropertyPost,
 		},
 		{
 			"空name",
 			args{
-				prefix:     SysPrefix,
-				name:       "",
-				productKey: "productKey",
-				deviceName: "deviceName",
+				SysPrefix,
+				"",
+				"productKey",
+				"deviceName",
+				nil,
 			},
 			fmt.Sprintf(SysPrefix, "productKey", "deviceName"),
 		},
 		{
 			"空prefix和name",
 			args{
-				prefix:     "",
-				name:       "",
-				productKey: "productKey",
-				deviceName: "deviceName",
+				"",
+				"",
+				"productKey",
+				"deviceName",
+				nil,
 			},
 			"",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := URI(tt.args.prefix, tt.args.name, tt.args.productKey, tt.args.deviceName); got != tt.want {
+			if got := URI(tt.args.prefix, tt.args.name, tt.args.productKey, tt.args.deviceName, tt.args.inName...); got != tt.want {
 				t.Errorf("uriService() = %v, want %v", got, tt.want)
 			}
 		})
