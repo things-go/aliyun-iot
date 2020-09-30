@@ -23,8 +23,9 @@ func TestClientID(t *testing.T) {
 }
 
 func TestTime(t *testing.T) {
-	tm := time.Date(2020, 9, 29, 10, 10, 10, 10000000, time.Local)
-	msec := int64(1601345410010)
+	tm := time.Date(2020, 9, 29, 10, 10, 10, 10000000, time.UTC)
+	msec := int64(1601374210010)
+
 	require.Equal(t, msec, Millisecond(tm))
-	require.Equal(t, tm, Time(msec))
+	require.True(t, tm.Equal(Time(msec)))
 }
