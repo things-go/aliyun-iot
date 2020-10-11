@@ -1,3 +1,7 @@
+// Copyright 2020 thinkgos (thinkgo@aliyun.com).  All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 // Package dataflow 定义数据流转的数据格式
 // 实现iot转发的解析以及相关
 // 客户端将获得一个messageBody,解析到message, payload承载着真实的dataflow数据流

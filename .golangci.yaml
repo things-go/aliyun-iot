@@ -32,6 +32,8 @@ linters-settings:
       - unnamedResult
       - unnecessaryBlock
       - commentedOutCode
+      - emptyFallthrough
+      - sloppyReassign
   goimports:
     local-prefixes: github.com/golangci/golangci-lint
   golint:

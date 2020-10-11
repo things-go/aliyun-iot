@@ -16,30 +16,28 @@ const (
 
 func TestMQTTSign(t *testing.T) {
 	t.Run("MQTT sign almost all", func(t *testing.T) {
-		ms := NewMQTTSign(
-			WithSignMethod("hmacsha256"),
-			WithExtRRPC(),
-			WithSDKVersion("SDK-Golang-v1.13.3"),
-			WithCustomKV("testKey", "testValue"),
-		)
-		signout, err := ms.Generate(
-			&infra.MetaInfo{
+		signout, err := Generate(
+			infra.MetaTriad{
 				ProductKey:   testProductKey,
 				DeviceName:   testDeviceName,
 				DeviceSecret: testDeviceSecret,
 			},
 			infra.CloudRegionDomain{
 				Region: infra.CloudRegionShangHai,
-			})
+			},
+			WithSignMethod("hmacsha256"),
+			WithExtRRPC(),
+			WithSDKVersion("SDK-Golang-v1.13.3"),
+			WithExtParamsKV("testKey", "testValue"),
+		)
 
 		require.NoError(t, err)
 		t.Logf("%+v", signout)
 	})
 
 	t.Run("MQTT sign custom cloud region", func(t *testing.T) {
-		ms := NewMQTTSign(WithSignMethod("hmacsha1"))
-		signout, err := ms.Generate(
-			&infra.MetaInfo{
+		signout, err := Generate(
+			infra.MetaTriad{
 				ProductKey:   testProductKey,
 				DeviceName:   testDeviceName,
 				DeviceSecret: testDeviceSecret,
@@ -47,14 +45,15 @@ func TestMQTTSign(t *testing.T) {
 			infra.CloudRegionDomain{
 				Region:       infra.CloudRegionCustom,
 				CustomDomain: "iot.custom.com",
-			})
+			},
+			WithSignMethod("hmacsha1"),
+		)
 		require.NoError(t, err)
 		t.Logf("%+v", signout)
 	})
 
 	t.Run("MQTT sign empty custom cloud region", func(t *testing.T) {
-		ms := NewMQTTSign()
-		_, err := ms.Generate(&infra.MetaInfo{
+		_, err := Generate(infra.MetaTriad{
 			ProductKey:   testProductKey,
 			DeviceName:   testDeviceName,
 			DeviceSecret: testDeviceSecret,

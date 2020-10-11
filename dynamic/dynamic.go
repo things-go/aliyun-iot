@@ -1,23 +1,22 @@
+// Copyright 2020 thinkgos (thinkgo@aliyun.com).  All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 // Package dynamic 实现动态注册,只限直连设备动态注册,阿里云目前限制激活过的设备不可再注册
-// see
 package dynamic
 
 import (
 	"bytes"
 	"context"
-	"crypto/hmac"
-	"crypto/md5"
-	"crypto/sha1"
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
 	"errors"
-	"fmt"
-	"hash"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/thinkgos/go-core-package/extrand"
+	"github.com/thinkgos/go-core-package/extstr"
+	"github.com/thinkgos/go-core-package/lib/algo"
 
 	"github.com/thinkgos/aliyun-iot/infra"
 )
@@ -45,11 +44,14 @@ type Client struct {
 }
 
 // New new a dynamic client
-func New() *Client {
+func New(opts ...Option) *Client {
 	c := &Client{
 		http.DefaultClient,
 	}
 
+	for _, opt := range opts {
+		opt(c)
+	}
 	return c
 }
 
@@ -65,11 +67,12 @@ type Response struct {
 }
 
 // RegisterCloud 一型一密动态注册,传入三元组,根据ProductKey,ProductSecret和deviceName获得DeviceSecret,
-// meta: 成功将直接修改meta
-// crd: 指定注册的云端,地址: [https://, http://]URL/auth/register/device
+// meta: 成功将直接修改meta的DeviceSecret
+// crd: 指定注册的云端,地址: [https://, http://]host:port/auth/register/device
 // signMethods: 可选指定签名算法hmacmd5,hmacsha1,hmacsha256(默认)
 // NOTE: 设备联网前，需要在物联网平台预注册设备DeviceName，建议采用设备的MAC地址、IMEI、SN码等作为DeviceName
-func (sf *Client) RegisterCloud(meta *infra.MetaInfo, crd infra.CloudRegionDomain, signMethods ...string) error {
+// @see https://help.aliyun.com/document_detail/89298.html?spm=a2c4g.11186623.6.703.53265bc9vmD6q8
+func (sf *Client) RegisterCloud(meta *infra.MetaTetrad, crd infra.CloudRegionDomain, signMethods ...string) error {
 	var domain string
 
 	if meta == nil || meta.ProductKey == "" || meta.ProductSecret == "" || meta.DeviceName == "" {
@@ -87,13 +90,9 @@ func (sf *Client) RegisterCloud(meta *infra.MetaInfo, crd infra.CloudRegionDomai
 		domain = "https://" + infra.HTTPCloudDomain[crd.Region]
 	}
 
-	requestBody, err := requestBody(meta, signMethods...)
-	if err != nil {
-		return err
-	}
+	requestBody := requestBody(meta, signMethods...)
 	request, err := http.NewRequestWithContext(context.Background(), http.MethodPost,
-		fmt.Sprintf("%s/auth/register/device", domain),
-		bytes.NewBufferString(requestBody))
+		domain+"/auth/register/device", bytes.NewBufferString(requestBody))
 	if err != nil {
 		return err
 	}
@@ -118,41 +117,26 @@ func (sf *Client) RegisterCloud(meta *infra.MetaInfo, crd infra.CloudRegionDomai
 	return nil
 }
 
-func requestBody(meta *infra.MetaInfo, signMethods ...string) (string, error) {
-	signMd := append(signMethods, hmacSHA256)[0]
-	if !(signMd == hmacMD5 || signMd == hmacSHA1 || (signMd == hmacSHA256)) {
-		signMd = hmacSHA256 // 非法签名使用默认签名方法
+func requestBody(meta *infra.MetaTetrad, signMethods ...string) string {
+	signMd := hmacSHA256
+	if len(signMethods) > 0 {
+		signMd = signMethods[0]
+	}
+	if !extstr.Contains([]string{hmacMD5, hmacSHA1, hmacSHA256}, signMd) {
+		signMd = hmacSHA256 // 非法签名使用默认签名方法sha256
 	}
 	//  "8Ygb7ULYh53B6OA"
 	random := extrand.RandString(16)
+	// deviceName{deviceName}productKey{productKey}random{random}
+	source := "deviceName" + meta.DeviceName + "productKey" + meta.ProductKey + "random" + random
 	// 计算签名 Signature
-	sign, err := calcSign(signMd, random, meta)
-	if err != nil {
-		return "", err
-	}
-	return fmt.Sprintf("productKey=%s&deviceName=%s&random=%s&sign=%s&signMethod=%s",
-		meta.ProductKey, meta.DeviceName, random, sign, signMd), nil
-}
+	sign := algo.Hmac(signMd, meta.ProductSecret, source)
 
-// calcSign 计算动态签名,以productKey为key
-func calcSign(signMethod, random string, meta *infra.MetaInfo) (string, error) {
-	var h hash.Hash
-
-	switch signMethod {
-	case hmacSHA1:
-		h = hmac.New(sha1.New, []byte(meta.ProductSecret))
-	case hmacMD5:
-		h = hmac.New(md5.New, []byte(meta.ProductSecret))
-	case hmacSHA256:
-		h = hmac.New(sha256.New, []byte(meta.ProductSecret))
-	default:
-		return "", errors.New("not support sign method")
-	}
-	signSource := fmt.Sprintf("deviceName%sproductKey%srandom%s",
-		meta.DeviceName, meta.ProductKey, random)
-
-	if _, err := h.Write([]byte(signSource)); err != nil {
-		return "", err
-	}
-	return hex.EncodeToString(h.Sum(nil)), nil
+	bd := url.Values{}
+	bd.Add("productKey", meta.ProductKey)
+	bd.Add("deviceName", meta.DeviceName)
+	bd.Add("random", random)
+	bd.Add("sign", sign)
+	bd.Add("signMethod", signMd)
+	return bd.Encode()
 }

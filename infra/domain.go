@@ -1,3 +1,7 @@
+// Copyright 2020 thinkgos (thinkgo@aliyun.com).  All rights reserved.
+// Use of this source code is governed by a MIT style
+// license that can be found in the LICENSE file.
+
 package infra
 
 // HTTPCloudDomain http 域名
@@ -35,12 +39,4 @@ const (
 type CloudRegionDomain struct {
 	Region       CloudRegion
 	CustomDomain string // address:port,当Region为CloudRegionCustom需要定义此字段,其它无效
-}
-
-// MetaInfo 产品与设备三元组
-type MetaInfo struct {
-	ProductKey    string
-	ProductSecret string
-	DeviceName    string
-	DeviceSecret  string
 }
