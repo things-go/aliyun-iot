@@ -57,13 +57,9 @@ func New(opts ...Option) *Client {
 
 // Response 应答
 type Response struct {
-	Code int `json:"code"`
-	Data struct {
-		ProductKey   string `json:"productKey"`
-		DeviceName   string `json:"deviceName"`
-		DeviceSecret string `json:"deviceSecret"`
-	} `json:"data"`
-	Message string `json:"message"`
+	Code    int             `json:"code"`
+	Data    infra.MetaTriad `json:"data"`
+	Message string          `json:"message"`
 }
 
 // RegisterCloud 一型一密动态注册,传入三元组,根据ProductKey,ProductSecret和deviceName获得DeviceSecret,
