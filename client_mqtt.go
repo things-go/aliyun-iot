@@ -42,6 +42,7 @@ func (sf *MQTTClient) Publish(topic string, qos byte, payload interface{}) error
 
 // Subscribe 实现dm.Conn接口
 func (sf *MQTTClient) Subscribe(topic string, streamFunc ProcDownStream) error {
+	log.Printf("Subscribe topic: %s", topic)
 	return sf.c.Subscribe(topic, 1, func(client mqtt.Client, message mqtt.Message) {
 		if message.Duplicate() {
 			return

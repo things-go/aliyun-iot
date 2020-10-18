@@ -270,20 +270,20 @@ func (sf *Client) SubscribeAllTopic(productKey, deviceName string, isSub bool) e
 				sf.Log.Warnf(err.Error())
 			}
 		}
-		// OTA
-		if sf.hasOTA {
+	}
 
-			// OTA升级通知
-			_uri = uri.URI(uri.OtaDeviceUpgradePrefix, "", productKey, deviceName)
-			if err = sf.Subscribe(_uri, ProcOtaUpgrade); err != nil {
-				sf.Log.Warnf(err.Error())
-			}
+	// OTA
+	if sf.hasOTA {
+		// OTA升级通知
+		_uri = uri.URI(uri.OtaDeviceUpgradePrefix, "", productKey, deviceName)
+		if err = sf.Subscribe(_uri, ProcOtaUpgrade); err != nil {
+			sf.Log.Warnf(err.Error())
+		}
 
-			// OTA 固件版本查询应答
-			_uri = uri.URI(uri.SysPrefix, uri.ThingOtaFirmwareGetReply, productKey, deviceName)
-			if err = sf.Subscribe(_uri, ProcThingOtaFirmwareGetReply); err != nil {
-				sf.Log.Warnf(err.Error())
-			}
+		// OTA 固件版本查询应答
+		_uri = uri.URI(uri.SysPrefix, uri.ThingOtaFirmwareGetReply, productKey, deviceName)
+		if err = sf.Subscribe(_uri, ProcThingOtaFirmwareGetReply); err != nil {
+			sf.Log.Warnf(err.Error())
 		}
 	}
 

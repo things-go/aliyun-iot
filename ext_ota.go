@@ -6,9 +6,9 @@ package aiot
 
 import (
 	"encoding/json"
-
 	"github.com/thinkgos/aliyun-iot/infra"
 	uri "github.com/thinkgos/aliyun-iot/uri"
+	"log"
 )
 
 // OtaRequest OTA请求体
@@ -97,8 +97,8 @@ type OtaFirmwareData struct {
 
 // OtaFirmwareResponse ota firmware response
 type OtaFirmwareResponse struct {
-	ID      uint            `json:"id,string"`
-	Code    int             `json:"code"`
+	ID      uint            `json:"id"`
+	Code    int             `json:"code,string"`
 	Data    OtaFirmwareData `json:"data"`
 	Message string          `json:"message"`
 }
@@ -145,6 +145,7 @@ func ProcThingOtaFirmwareGetReply(c *Client, rawURI string, payload []byte) erro
 // request：  /ota/device/upgrade/${YourProductKey}/${YourDeviceName}
 // subscribe：/ota/device/upgrade/${YourProductKey}/${YourDeviceName}
 func ProcOtaUpgrade(c *Client, rawURI string, payload []byte) error {
+	log.Println(string(payload))
 	uris := uri.Spilt(rawURI)
 	if len(uris) < 5 {
 		return ErrInvalidURI
