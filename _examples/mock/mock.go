@@ -79,7 +79,7 @@ type SensorInstance struct {
 }
 
 func Init(triad infra.MetaTriad) *aiot.MQTTClient {
-	signs, err := sign.Generate(triad, infra.CloudRegionDomain{Region: infra.CloudRegionShangHai}, sign.WithTimestamp())
+	signs, err := sign.Generate(triad, infra.CloudRegionDomain{Region: infra.CloudRegionShangHai}, sign.WithTimestamp(), sign.WithEnableDeviceModel(false))
 	if err != nil {
 		panic(err)
 	}
