@@ -7,11 +7,10 @@ import (
 	"github.com/thinkgos/aliyun-iot/_examples/mock"
 )
 
-// TODO: 子设备如何上传属性
 // 目前证明
 // 网关是正常的
 // 子设备独立上线,是正常的
-// 子设备通过网关上线,不太正常.
+// 子设备通过网关上线,正常的.
 func main() {
 	// client := mock.Init(infra.MetaTriad{
 	// 	ProductKey:   mock.SensorProductKey,

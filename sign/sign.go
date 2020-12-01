@@ -83,67 +83,54 @@ func Generate(triad infra.MetaTriad, crd infra.CloudRegionDomain, opts ...Option
 	c := &config{
 		SecureModeTCPDirectPlain,
 		"",
-		"hmacsha256",
+		hmacsha256,
 		true,
 		1883,
 		fixedTimestamp,
 		map[string]string{
 			"securemode": SecureModeTCPDirectPlain,
 			"signmethod": hmacsha256,
+			"gw":         "0",
+			"ext":        "0",
 			"lan":        "Golang",
-			"v":          alinkVersion,
 		},
 	}
 	for _, opt := range opts {
 		opt(c)
 	}
 	c.extParams["timestamp"] = strconv.FormatInt(c.timestamp, 10)
-	if c.enableDM {
+	if !c.enableDM {
 		c.extParams["v"] = alinkVersion
 		delete(c.extParams, "gw")
 		delete(c.extParams, "ext")
-	} else {
-		delete(c.extParams, "v")
-		c.extParams["gw"] = "0"
-		c.extParams["ext"] = "0"
 	}
 
 	var enableTLS bool // 使能tls
 	switch c.secureMode {
 	case SecureModeNoPreRegistration:
-		c.extParams["securemode"] = SecureModeNoPreRegistration
 		panic("feature not support")
-	case SecureModeTLSGuider:
+	case SecureModeTLSGuider, SecureModeTLSDirect, SecureModeITLSDNSID2:
 		enableTLS = true
-		c.extParams["securemode"] = SecureModeTLSGuider
-	case SecureModeTLSDirect:
-		enableTLS = true
-		c.extParams["securemode"] = SecureModeTLSDirect
-	case SecureModeITLSDNSID2:
-		enableTLS = true
-		c.extParams["securemode"] = SecureModeITLSDNSID2
-	case SecureModeTCPDirectPlain:
-		fallthrough
-	default:
+	default: // SecureModeTCPDirectPlain
+		c.secureMode = SecureModeTCPDirectPlain
 		enableTLS = false
-		c.extParams["securemode"] = SecureModeTCPDirectPlain
 	}
+	c.extParams["securemode"] = c.secureMode
 
 	schema := "tcp://"
 	if enableTLS {
 		schema = "tls://"
 	}
+
 	// setup HostName
-	buildHost := strings.Builder{}
-	buildHost.WriteString(triad.ProductKey)
-	buildHost.WriteString(".")
-	if crd.Region != infra.CloudRegionCustom {
-		buildHost.WriteString(infra.MQTTCloudDomain[crd.Region])
+	hostname := triad.ProductKey + "."
+	if crd.Region == infra.CloudRegionCustom {
+		hostname += crd.CustomDomain
 	} else {
-		buildHost.WriteString(crd.CustomDomain)
+		hostname += infra.MQTTCloudDomain[crd.Region]
 	}
-	hostname := buildHost.String()
-	addr := schema + net.JoinHostPort(hostname, strconv.FormatUint(uint64(c.port), 10))
+
+	addr := schema + net.JoinHostPort(hostname, strconv.Itoa(int(c.port)))
 	username := triad.DeviceName + "&" + triad.ProductKey
 
 	if c.secureMode == SecureModeNoPreRegistration {
@@ -162,15 +149,11 @@ func Generate(triad infra.MetaTriad, crd infra.CloudRegionDomain, opts ...Option
 	}
 
 	switch c.method {
-	case hmacsha1:
-		c.extParams["signmethod"] = hmacsha1
-	case hmacmd5:
-		c.extParams["signmethod"] = hmacmd5
-	case hmacsha256:
-		fallthrough
+	case hmacsha1, hmacmd5, hmacsha256:
 	default:
 		c.method = hmacsha256
 	}
+	c.extParams["signmethod"] = c.method
 	// setup ClientID,Password
 	clientID, pwd := infra.CalcSign(c.method, triad, c.timestamp)
 	return &Sign{

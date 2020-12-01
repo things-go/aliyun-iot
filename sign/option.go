@@ -41,8 +41,8 @@ func WithSecureMode(secureMode string) Option {
 	}
 }
 
-// WithEnableDeviceModel 设置是否支持物模型,默认为物模型
-func WithEnableDeviceModel(enable bool) Option {
+// WithDeviceModel 设置是否支持物模型,默认为物模型
+func WithDeviceModel(enable bool) Option {
 	return func(c *config) {
 		c.enableDM = enable
 	}
@@ -51,7 +51,7 @@ func WithEnableDeviceModel(enable bool) Option {
 // WithExtRRPC 支持扩展RRPC 仅物模型下支持
 func WithExtRRPC() Option {
 	return func(c *config) {
-		if _, ok := c.extParams["v"]; ok {
+		if c.enableDM {
 			c.extParams["ext"] = "1"
 		}
 	}
