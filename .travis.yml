@@ -9,7 +9,7 @@ go:
   - 1.14.x
   - 1.15.x
 
-go_import_path: github.com/thinkgos/TODO_ADD_PACKAGENAME
+go_import_path: github.com/thinkgos/aliyun-iot
 
 before_install:
   - if [[ "${GO111MODULE}" = "on" ]]; then mkdir "${HOME}/go"; export GOPATH="${HOME}/go";
