@@ -11,6 +11,8 @@ import (
 	"github.com/thinkgos/aliyun-iot/uri"
 )
 
+// @see https://help.aliyun.com/document_detail/120329.html?spm=5176.11065259.1996646101.searchclickresult.3703243801uSYu
+
 // ExtErrorResponse 子设备错误回复
 type ExtErrorResponse struct {
 	ID      uint           `json:"id,string"`
@@ -19,7 +21,7 @@ type ExtErrorResponse struct {
 	Message string         `json:"message,omitempty"`
 }
 
-// ProcExtErrorResponse 处理错误的回复
+// ProcExtErrorResponse 处理错误的回复,仅与子设备
 // response:  ext/error/{productKey}/{deviceName}
 // subscribe: ext/error/{productKey}/{deviceName}
 func ProcExtErrorResponse(c *Client, rawURI string, payload []byte) error {
