@@ -64,6 +64,7 @@ type config struct {
 	deviceToken string            // only use on SecureModeNoPreRegistration
 	method      string            // 签名方法
 	enableDM    bool              // 使能物模型
+	extRRPC     bool              // 物模型下,支持扩展RRPC
 	port        uint16            // 端口,默认为1883
 	timestamp   int64             // 表示当前时间的毫秒值,可以不传递, 默认 fixedTimestamp
 	extParams   map[string]string // clientID扩展参数
@@ -85,6 +86,7 @@ func Generate(triad infra.MetaTriad, crd infra.CloudRegionDomain, opts ...Option
 		"",
 		hmacsha256,
 		true,
+		false,
 		1883,
 		fixedTimestamp,
 		map[string]string{
@@ -98,7 +100,11 @@ func Generate(triad infra.MetaTriad, crd infra.CloudRegionDomain, opts ...Option
 	for _, opt := range opts {
 		opt(c)
 	}
+
 	c.extParams["timestamp"] = strconv.FormatInt(c.timestamp, 10)
+	if c.enableDM && c.extRRPC {
+		c.extParams["ext"] = "1"
+	}
 	if !c.enableDM {
 		c.extParams["v"] = alinkVersion
 		delete(c.extParams, "gw")
