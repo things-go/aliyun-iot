@@ -179,23 +179,22 @@ func encodeExtParam(extParams map[string]string) string {
 		return ""
 	}
 
-	l := 0
+	// key=value, key=value
+	n := len(extParams)*2 - 1 // ','和'='的个数
 	keys := make([]string, 0, len(extParams))
 	for k, v := range extParams {
 		keys = append(keys, k)
-		l += len(keys) + len(v) + 2 // key=value, key=value,
+		n += len(k) + len(v)
 	}
-	l-- // 减去多的那个','
-	// sort key
-	sort.Strings(keys)
+	sort.Strings(keys) // sort key
 
 	builder := strings.Builder{}
-	builder.Grow(2 + l)
+	builder.Grow(2 + n)
 	builder.WriteString("|")
-	l = 0
+	n = 0
 	for _, key := range keys {
-		if l == 0 {
-			l = 1
+		if n == 0 {
+			n = 1
 		} else {
 			builder.WriteString(",")
 		}
