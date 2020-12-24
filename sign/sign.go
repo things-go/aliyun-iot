@@ -191,11 +191,8 @@ func encodeExtParam(extParams map[string]string) string {
 	builder := strings.Builder{}
 	builder.Grow(2 + n)
 	builder.WriteString("|")
-	n = 0
 	for _, key := range keys {
-		if n == 0 {
-			n = 1
-		} else {
+		if builder.Len() > 1 {
 			builder.WriteString(",")
 		}
 		builder.WriteString(key)
