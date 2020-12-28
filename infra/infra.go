@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/thinkgos/go-core-package/extime"
 	"github.com/thinkgos/go-core-package/lib/algo"
 )
 
@@ -39,12 +40,12 @@ func ClientID(pk, dn string) string {
 
 // Millisecond time.Time 转为 毫秒
 func Millisecond(tm time.Time) int64 {
-	return tm.Unix()*1000 + int64(tm.Nanosecond())/1000000
+	return extime.Millisecond(tm)
 }
 
 // Time 毫秒转time.Time
 func Time(msec int64) time.Time {
-	return time.Unix(msec/1000, (msec%1000)*1000000)
+	return extime.Time(msec)
 }
 
 // CalcSign 返回clientID和加签后的值
