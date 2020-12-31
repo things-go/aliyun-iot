@@ -34,10 +34,13 @@
     - [x] event property history post
 
 ## Donation
-**alipay**
+
+if package help you a lot,you can support us by:
+
+**Alipay**
 
 ![alipay](https://github.com/thinkgos/thinkgos/blob/master/asserts/alipay.jpg)
 
-**wxpay**
+**WeChat Pay**
 
 ![wxpay](https://github.com/thinkgos/thinkgos/blob/master/asserts/wxpay.jpg)
