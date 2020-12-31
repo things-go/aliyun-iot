@@ -13,7 +13,7 @@
 - [x] sign: 实现MQTT签名,独立使用,不依赖第三方任何包
 - [x] dynamic: 直连设备动态注册
 - [x] ahttp: http 上云实现
-- [ ] dataflow: 服务器订阅数据流定义
+- [x] dataflow: 服务器订阅数据流定义
 
 
 ## Feature 
@@ -27,8 +27,17 @@
     - [x] config get and push
     - [x] label update and delete
     - [x] RRPC
-    - [ ] extend RRPC
+    - [x] extend RRPC
 
 - gateway
-    - [ ] event property pack post
-    - [ ] event property history post
+    - [x] event property pack post
+    - [x] event property history post
+
+## Sponsor
+**alipay**
+
+![alipay](https://raw.githubusercontent.com/thinkgos/thinkgos/master/asserts/alipay.jpg)
+
+**wxpay**
+
+![wxpay](https://raw.githubusercontent.com/thinkgos/thinkgos/master/asserts/wxpay.jpg)
