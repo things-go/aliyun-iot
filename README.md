@@ -33,7 +33,7 @@
     - [x] event property pack post
     - [x] event property history post
 
-## Sponsor
+## Donation
 **alipay**
 
 ![alipay](https://github.com/thinkgos/thinkgos/blob/master/asserts/alipay.jpg)
