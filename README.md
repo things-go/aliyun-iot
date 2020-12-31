@@ -36,8 +36,8 @@
 ## Sponsor
 **alipay**
 
-![alipay](https://raw.githubusercontent.com/thinkgos/thinkgos/master/asserts/alipay.jpg)
+![alipay](https://github.com/thinkgos/thinkgos/blob/master/asserts/alipay.jpg)
 
 **wxpay**
 
-![wxpay](https://raw.githubusercontent.com/thinkgos/thinkgos/master/asserts/wxpay.jpg)
+![wxpay](https://github.com/thinkgos/thinkgos/blob/master/asserts/wxpay.jpg)
