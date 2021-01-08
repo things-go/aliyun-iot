@@ -15,7 +15,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/thinkgos/go-core-package/extcert"
+	"github.com/thinkgos/x/extcert"
 
 	"github.com/thinkgos/aliyun-iot/infra"
 )

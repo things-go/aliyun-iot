@@ -14,7 +14,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/thinkgos/go-core-package/lib/logger"
+	"github.com/thinkgos/x/lib/logger"
 	"golang.org/x/sync/singleflight"
 
 	aiot "github.com/thinkgos/aliyun-iot"

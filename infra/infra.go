@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/thinkgos/go-core-package/extime"
-	"github.com/thinkgos/go-core-package/lib/algo"
+	"github.com/thinkgos/x/extime"
+	"github.com/thinkgos/x/lib/algo"
 )
 
 // MetaPair 产品名与设备名

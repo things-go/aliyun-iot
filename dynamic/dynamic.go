@@ -14,9 +14,9 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/thinkgos/go-core-package/extrand"
-	"github.com/thinkgos/go-core-package/extstr"
-	"github.com/thinkgos/go-core-package/lib/algo"
+	"github.com/thinkgos/x/extrand"
+	"github.com/thinkgos/x/extstr"
+	"github.com/thinkgos/x/lib/algo"
 
 	"github.com/thinkgos/aliyun-iot/infra"
 )
