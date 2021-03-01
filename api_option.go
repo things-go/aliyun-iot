@@ -7,7 +7,7 @@ package aiot
 import (
 	"time"
 
-	"github.com/thinkgos/x/lib/logger"
+	"github.com/thinkgos/aliyun-iot/logger"
 )
 
 // Option 配置选项

@@ -14,11 +14,11 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/thinkgos/x/lib/logger"
 	"golang.org/x/sync/singleflight"
 
 	aiot "github.com/thinkgos/aliyun-iot"
 	"github.com/thinkgos/aliyun-iot/infra"
+	"github.com/thinkgos/aliyun-iot/logger"
 	"github.com/thinkgos/aliyun-iot/uri"
 )
 

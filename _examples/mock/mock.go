@@ -9,10 +9,10 @@ import (
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
-	"github.com/thinkgos/x/lib/logger"
 
 	aiot "github.com/thinkgos/aliyun-iot"
 	"github.com/thinkgos/aliyun-iot/infra"
+	"github.com/thinkgos/aliyun-iot/logger"
 	"github.com/thinkgos/aliyun-iot/sign"
 )
 

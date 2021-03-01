@@ -14,10 +14,6 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/thinkgos/x/extrand"
-	"github.com/thinkgos/x/extstr"
-	"github.com/thinkgos/x/lib/algo"
-
 	"github.com/thinkgos/aliyun-iot/infra"
 )
 
@@ -118,15 +114,17 @@ func requestBody(meta *infra.MetaTetrad, signMethods ...string) string {
 	if len(signMethods) > 0 {
 		signMd = signMethods[0]
 	}
-	if !extstr.Contains([]string{hmacMD5, hmacSHA1, hmacSHA256}, signMd) {
+
+	if !(signMd == hmacMD5 || signMd == hmacSHA1 || signMd == hmacSHA256) {
 		signMd = hmacSHA256 // 非法签名使用默认签名方法sha256
 	}
+
 	//  "8Ygb7ULYh53B6OA"
-	random := extrand.Alphabet(16)
+	random := infra.RandAlphabet(16)
 	// deviceName{deviceName}productKey{productKey}random{random}
 	source := "deviceName" + meta.DeviceName + "productKey" + meta.ProductKey + "random" + random
 	// 计算签名 Signature
-	sign := algo.Hmac(signMd, meta.ProductSecret, source)
+	sign := infra.Hmac(signMd, meta.ProductSecret, source)
 
 	bd := url.Values{}
 	bd.Add("productKey", meta.ProductKey)

@@ -6,11 +6,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/thinkgos/x/lib/logger"
-
 	aiot "github.com/thinkgos/aliyun-iot"
 	"github.com/thinkgos/aliyun-iot/_examples/mock"
 	"github.com/thinkgos/aliyun-iot/ahttp"
+	"github.com/thinkgos/aliyun-iot/logger"
 )
 
 func main() {

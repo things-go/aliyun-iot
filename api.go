@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/patrickmn/go-cache"
-	"github.com/thinkgos/x/lib/logger"
+	"github.com/thinkgos/aliyun-iot/logger"
 
 	"github.com/thinkgos/aliyun-iot/infra"
 )

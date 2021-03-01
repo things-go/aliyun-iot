@@ -15,8 +15,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/thinkgos/x/extcert"
-
 	"github.com/thinkgos/aliyun-iot/infra"
 )
 
@@ -206,7 +204,7 @@ func encodeExtParam(extParams map[string]string) string {
 // NewTLSConfig new tls config from ca file
 // 如果ca有"base64://"前缀,直接解析后面的字符串,否则认为这是个ca为文件名
 func NewTLSConfig(ca string) (*tls.Config, error) {
-	bs, err := extcert.LoadCrt(ca)
+	bs, err := infra.LoadCrt(ca)
 	if err != nil {
 		return nil, err
 	}

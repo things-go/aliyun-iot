@@ -77,7 +77,7 @@ func NewDevMgr(root infra.MetaTriad) *DevMgr {
 // Len 设备个数,含root设备
 func (sf *DevMgr) Len() int {
 	sf.rw.RLock()
-	defer sf.rw.Unlock()
+	defer sf.rw.RUnlock()
 	return len(sf.nodes) + 1
 }
 
