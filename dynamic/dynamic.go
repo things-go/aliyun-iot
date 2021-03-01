@@ -122,7 +122,7 @@ func requestBody(meta *infra.MetaTetrad, signMethods ...string) string {
 		signMd = hmacSHA256 // 非法签名使用默认签名方法sha256
 	}
 	//  "8Ygb7ULYh53B6OA"
-	random := extrand.RandString(16)
+	random := extrand.Alphabet(16)
 	// deviceName{deviceName}productKey{productKey}random{random}
 	source := "deviceName" + meta.DeviceName + "productKey" + meta.ProductKey + "random" + random
 	// 计算签名 Signature
