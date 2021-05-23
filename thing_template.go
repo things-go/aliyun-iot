@@ -7,8 +7,8 @@ package aiot
 import (
 	"encoding/json"
 
-	"github.com/thinkgos/aliyun-iot/infra"
-	"github.com/thinkgos/aliyun-iot/uri"
+	"github.com/things-go/aliyun-iot/infra"
+	"github.com/things-go/aliyun-iot/uri"
 )
 
 // ThingDsltemplateGet 设备可以通过上行请求获取设备的TSL模板（包含属性、服务和事件的定义）

@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/thinkgos/aliyun-iot/infra"
+	"github.com/things-go/aliyun-iot/infra"
 )
 
 const (

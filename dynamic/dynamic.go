@@ -14,7 +14,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/thinkgos/aliyun-iot/infra"
+	"github.com/things-go/aliyun-iot/infra"
 )
 
 // sign method 动态注册只支持以下签名方法

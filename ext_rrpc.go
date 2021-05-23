@@ -7,7 +7,7 @@ package aiot
 import (
 	"strings"
 
-	"github.com/thinkgos/aliyun-iot/uri"
+	"github.com/things-go/aliyun-iot/uri"
 )
 
 // RRPCResponse rrcpc 回复

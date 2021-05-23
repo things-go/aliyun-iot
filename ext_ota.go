@@ -7,8 +7,8 @@ package aiot
 import (
 	"encoding/json"
 
-	"github.com/thinkgos/aliyun-iot/infra"
-	uri "github.com/thinkgos/aliyun-iot/uri"
+	"github.com/things-go/aliyun-iot/infra"
+	uri "github.com/things-go/aliyun-iot/uri"
 )
 
 // OtaRequest OTA请求体

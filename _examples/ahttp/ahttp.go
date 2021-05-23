@@ -7,12 +7,12 @@ import (
 	"os"
 	"time"
 
-	aiot "github.com/thinkgos/aliyun-iot"
-	"github.com/thinkgos/aliyun-iot/_examples/mock"
-	"github.com/thinkgos/aliyun-iot/ahttp"
-	"github.com/thinkgos/aliyun-iot/infra"
-	"github.com/thinkgos/aliyun-iot/logger"
-	"github.com/thinkgos/aliyun-iot/uri"
+	aiot "github.com/things-go/aliyun-iot"
+	"github.com/things-go/aliyun-iot/_examples/mock"
+	"github.com/things-go/aliyun-iot/ahttp"
+	"github.com/things-go/aliyun-iot/infra"
+	"github.com/things-go/aliyun-iot/logger"
+	"github.com/things-go/aliyun-iot/uri"
 )
 
 // 采用物模型测试

@@ -11,9 +11,9 @@ import (
 	"time"
 
 	"github.com/patrickmn/go-cache"
-	"github.com/thinkgos/aliyun-iot/logger"
 
-	"github.com/thinkgos/aliyun-iot/infra"
+	"github.com/things-go/aliyun-iot/infra"
+	"github.com/things-go/aliyun-iot/logger"
 )
 
 // 缓存默认值

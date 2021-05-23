@@ -7,8 +7,8 @@ package aiot
 import (
 	"encoding/json"
 
-	"github.com/thinkgos/aliyun-iot/infra"
-	"github.com/thinkgos/aliyun-iot/uri"
+	"github.com/things-go/aliyun-iot/infra"
+	"github.com/things-go/aliyun-iot/uri"
 )
 
 // @see https://help.aliyun.com/document_detail/120329.html?spm=5176.11065259.1996646101.searchclickresult.3703243801uSYu

@@ -1,4 +1,4 @@
-module github.com/thinkgos/aliyun-iot
+module github.com/things-go/aliyun-iot
 
 go 1.15
 

@@ -9,7 +9,7 @@ import (
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 
-	"github.com/thinkgos/aliyun-iot/infra"
+	"github.com/things-go/aliyun-iot/infra"
 )
 
 // MQTTClient MQTT客户端

@@ -7,8 +7,8 @@ package aiot
 import (
 	"encoding/json"
 
-	"github.com/thinkgos/aliyun-iot/infra"
-	"github.com/thinkgos/aliyun-iot/uri"
+	"github.com/things-go/aliyun-iot/infra"
+	"github.com/things-go/aliyun-iot/uri"
 )
 
 // ProcThingDisable 禁用子设备

@@ -7,7 +7,7 @@ package aiot
 import (
 	"sync"
 
-	"github.com/thinkgos/aliyun-iot/infra"
+	"github.com/things-go/aliyun-iot/infra"
 )
 
 // DevStatus 设备状态

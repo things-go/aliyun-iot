@@ -3,7 +3,7 @@ package dynamic
 import (
 	"testing"
 
-	"github.com/thinkgos/aliyun-iot/infra"
+	"github.com/things-go/aliyun-iot/infra"
 )
 
 func Test_requestBody(t *testing.T) {

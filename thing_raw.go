@@ -5,7 +5,7 @@
 package aiot
 
 import (
-	uri "github.com/thinkgos/aliyun-iot/uri"
+	uri "github.com/things-go/aliyun-iot/uri"
 )
 
 // @see https://help.aliyun.com/document_detail/89301.html?spm=a2c4g.11186623.6.706.570f3f69J3fW5z

@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/thinkgos/aliyun-iot/logger"
+	"github.com/things-go/aliyun-iot/logger"
 )
 
 // Option client option

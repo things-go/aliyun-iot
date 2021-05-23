@@ -3,9 +3,9 @@ package main
 import (
 	"log"
 
-	"github.com/thinkgos/aliyun-iot/_examples/mock"
-	"github.com/thinkgos/aliyun-iot/infra"
-	"github.com/thinkgos/aliyun-iot/sign"
+	"github.com/things-go/aliyun-iot/_examples/mock"
+	"github.com/things-go/aliyun-iot/infra"
+	"github.com/things-go/aliyun-iot/sign"
 )
 
 func main() {

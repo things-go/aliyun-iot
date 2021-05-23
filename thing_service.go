@@ -4,7 +4,7 @@
 
 package aiot
 
-import "github.com/thinkgos/aliyun-iot/uri"
+import "github.com/things-go/aliyun-iot/uri"
 
 // ProcThingServiceRequest 处理设备服务调用(异步)
 // 下行

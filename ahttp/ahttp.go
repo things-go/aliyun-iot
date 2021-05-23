@@ -16,10 +16,10 @@ import (
 
 	"golang.org/x/sync/singleflight"
 
-	aiot "github.com/thinkgos/aliyun-iot"
-	"github.com/thinkgos/aliyun-iot/infra"
-	"github.com/thinkgos/aliyun-iot/logger"
-	"github.com/thinkgos/aliyun-iot/uri"
+	aiot "github.com/things-go/aliyun-iot"
+	"github.com/things-go/aliyun-iot/infra"
+	"github.com/things-go/aliyun-iot/logger"
+	"github.com/things-go/aliyun-iot/uri"
 )
 
 // @see https://help.aliyun.com/document_detail/58034.html?spm=a2c4g.11186623.6.609.54316764YJj5MQ

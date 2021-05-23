@@ -8,8 +8,8 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/thinkgos/aliyun-iot/infra"
-	"github.com/thinkgos/aliyun-iot/uri"
+	"github.com/things-go/aliyun-iot/infra"
+	"github.com/things-go/aliyun-iot/uri"
 )
 
 // @see https://help.aliyun.com/document_detail/102509.html?spm=a2c4g.11186623.6.689.7f67741ai8OqLc

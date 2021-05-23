@@ -10,10 +10,10 @@ import (
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 
-	aiot "github.com/thinkgos/aliyun-iot"
-	"github.com/thinkgos/aliyun-iot/infra"
-	"github.com/thinkgos/aliyun-iot/logger"
-	"github.com/thinkgos/aliyun-iot/sign"
+	aiot "github.com/things-go/aliyun-iot"
+	"github.com/things-go/aliyun-iot/infra"
+	"github.com/things-go/aliyun-iot/logger"
+	"github.com/things-go/aliyun-iot/sign"
 )
 
 // just for test

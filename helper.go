@@ -7,7 +7,7 @@ package aiot
 import (
 	"encoding/json"
 
-	"github.com/thinkgos/aliyun-iot/uri"
+	"github.com/things-go/aliyun-iot/uri"
 )
 
 // URIGateway 获得本设备网关URI

@@ -7,7 +7,7 @@ package sign
 import (
 	"time"
 
-	"github.com/thinkgos/aliyun-iot/infra"
+	"github.com/things-go/aliyun-iot/infra"
 )
 
 // Option option

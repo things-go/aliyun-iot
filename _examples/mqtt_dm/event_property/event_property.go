@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/thinkgos/aliyun-iot/_examples/mock"
+	"github.com/things-go/aliyun-iot/_examples/mock"
 )
 
 func main() {

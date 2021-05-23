@@ -4,9 +4,9 @@ import (
 	"log"
 	"time"
 
-	aiot "github.com/thinkgos/aliyun-iot"
-	"github.com/thinkgos/aliyun-iot/_examples/mock"
-	"github.com/thinkgos/aliyun-iot/infra"
+	aiot "github.com/things-go/aliyun-iot"
+	"github.com/things-go/aliyun-iot/_examples/mock"
+	"github.com/things-go/aliyun-iot/infra"
 )
 
 func main() {

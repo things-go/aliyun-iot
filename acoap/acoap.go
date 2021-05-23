@@ -10,8 +10,8 @@ import (
 
 	"github.com/go-ocf/go-coap"
 
-	aiot "github.com/thinkgos/aliyun-iot"
-	"github.com/thinkgos/aliyun-iot/uri"
+	aiot "github.com/things-go/aliyun-iot"
+	"github.com/things-go/aliyun-iot/uri"
 )
 
 // @see https://help.aliyun.com/document_detail/57697.html?spm=a2c4g.11186623.6.606.5d7a12e0FGY05a

@@ -8,7 +8,7 @@ import (
 	"encoding/json"
 	"sync/atomic"
 
-	"github.com/thinkgos/aliyun-iot/uri"
+	"github.com/things-go/aliyun-iot/uri"
 )
 
 // nextRequestID 获得下一个requestID,协程安全
