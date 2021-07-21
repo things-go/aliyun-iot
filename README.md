@@ -2,7 +2,6 @@
 
 [![GoDoc](https://godoc.org/github.com/things-go/aliyun-iot?status.svg)](https://godoc.org/github.com/things-go/aliyun-iot)
 [![Go.Dev reference](https://img.shields.io/badge/go.dev-reference-blue?logo=go&logoColor=white)](https://pkg.go.dev/github.com/things-go/aliyun-iot?tab=doc)
-[![Build Status](https://www.travis-ci.com/things-go/aliyun-iot.svg?branch=master)](https://www.travis-ci.com/things-go/aliyun-iot)
 [![codecov](https://codecov.io/gh/things-go/aliyun-iot/branch/master/graph/badge.svg)](https://codecov.io/gh/things-go/aliyun-iot)
 ![Action Status](https://github.com/things-go/aliyun-iot/workflows/Go/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/things-go/aliyun-iot)](https://goreportcard.com/report/github.com/things-go/aliyun-iot)
@@ -32,6 +31,10 @@
 - gateway
     - [x] event property pack post
     - [x] event property history post
+
+## License
+
+This project is under MIT License. See the [LICENSE](LICENSE) file for the full license text.
 
 ## Donation
 
