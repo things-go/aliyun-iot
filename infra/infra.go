@@ -52,10 +52,10 @@ func Time(msec int64) time.Time {
 	return time.Unix(msec/1000, (msec%1000)*int64(time.Millisecond))
 }
 
-// CalcSign 返回clientID和加签后的值
-// sign,mqtt 可以采用 hmacmd5,hmacsha1,hmacsha256
-// http 支持 hmacmd5,hmacsha1
-// timestamp: 时间戳,单位ms
+// CalcSign 计算签名, 返回clientID和加签后的值
+// sign,mqtt 支持 hmacmd5, hmacsha1, hmacsha256
+// http 支持 hmacmd5, hmacsha1
+// timestamp: 时间戳,单位: ms
 func CalcSign(method string, meta MetaTriad, timestamp int64) (string, string) {
 	clientID := ClientID(meta.ProductKey, meta.DeviceName)
 	source := "clientId" + clientID +

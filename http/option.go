@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT style
 // license that can be found in the LICENSE file.
 
-package ahttp
+package http
 
 import (
 	"net/http"
@@ -33,7 +33,8 @@ func WithEndpoint(h string) Option {
 	}
 }
 
-// WithSignMethod 设置签名方法,目前支持hmacsha1,hmacmd5(默认)
+// WithSignMethod 设置签名方法
+// 目前支持 hmacsha1, hmacmd5(默认)
 func WithSignMethod(method string) Option {
 	return func(c *Client) {
 		if method == hmacsha1 {

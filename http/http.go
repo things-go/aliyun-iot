@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 // Package ahttp 实现http client 上传数据. 授权方式为自动调用授权,可手动调用,也可以直接调用发送数据接口
-package ahttp
+package http
 
 import (
 	"bytes"
@@ -27,15 +27,15 @@ import (
 // 错误码
 const (
 	CodeSuccess              = 0
-	CodeUnknown              = 10000
-	CodeParamException       = 10001
-	CodeAuthFailed           = 20000
-	CodeTokenExpired         = 20001 // 需重新调用auth进行鉴权，获取token
-	CodeTokenIsNull          = 20002 // 需重新调用auth进行鉴权，获取token
-	CodeTokenCheckFailed     = 20003 // 根据token获取identify信息失败。需重新调用auth进行鉴权，获取token
-	CodeUpdateSessionFailed  = 20004
-	CodePublishMessageFailed = 30001
-	CodeRequestTooMany       = 40000
+	CodeUnknown              = 10000 // 未知错误
+	CodeParamException       = 10001 // 请求的参数异常
+	CodeAuthFailed           = 20000 // 设备鉴权失败
+	CodeTokenExpired         = 20001 // 需重新调用auth进行鉴权,获取token
+	CodeTokenIsNull          = 20002 // 需重新调用auth进行鉴权,获取token
+	CodeTokenCheckFailed     = 20003 // 根据token获取identify信息失败.需重新调用auth进行鉴权,获取token
+	CodeUpdateSessionFailed  = 20004 // 更新失败
+	CodePublishMessageFailed = 30001 //
+	CodeRequestTooMany       = 40000 // 请求次数过多，流控限制.
 )
 
 // Sign method
@@ -46,14 +46,14 @@ const (
 
 // AuthRequest 鉴权请求
 type AuthRequest struct {
-	Version    string `json:"version"`
-	ClientID   string `json:"clientId"` // 长度为64字符内，建议以MAC地址或SN码作为clientId. 目前productKey.deviceName
-	SignMethod string `json:"signmethod"`
-	Sign       string `json:"sign"`
-	ProductKey string `json:"productKey"`
-	DeviceName string `json:"deviceName"`
-	// 校验时间戳15分钟内的请求有效。时间戳格式为数值，单位ms
-	// 值为自GMT 1970年1月1日0时0分到当前时间点所经过的毫秒数。
+	Version    string `json:"version"`    // 版本号, 不传入此参数,则默认 default.
+	ClientID   string `json:"clientId"`   // 长度为64字符内,建议以MAC地址或SN码作为clientId. 目前productKey.deviceName
+	SignMethod string `json:"signmethod"` // 签名方法: 支持hmacsha1, hmacmd5(默认)
+	Sign       string `json:"sign"`       // 签名: hmacmd5(DeviceSecret,content)
+	ProductKey string `json:"productKey"` // 设备所属的产品
+	DeviceName string `json:"deviceName"` // 设备名称
+	// 校验时间戳15分钟内的请求有效.时间戳格式为数值,单位: ms
+	// 值为自GMT 1970年1月1日0时0分到当前时间点所经过的毫秒数.
 	Timestamp int64 `json:"timestamp"`
 }
 
@@ -84,7 +84,7 @@ type Client struct {
 var _ aiot.Conn = (*Client)(nil)
 
 // New 新建alink http client
-// 默认加签算法: hmacmd5
+// 默认加签算法: hmacmd5(目前支持 hmacsha1, hmacmd5(默认))
 // 默认host: https://iot-as-http.cn-shanghai.aliyuncs.com
 // 默认使用 http.DefaultClient
 func New(meta infra.MetaTriad, opts ...Option) *Client {
@@ -123,7 +123,8 @@ func (sf *Client) getToken() (string, error) {
 		}
 		timestamp := infra.Millisecond(time.Now())
 		clientID, sign := infra.CalcSign(signMethod, sf.triad, timestamp)
-		authReq := &AuthRequest{
+
+		b, err := json.Marshal(&AuthRequest{
 			sf.version,
 			clientID,
 			signMethod,
@@ -131,9 +132,7 @@ func (sf *Client) getToken() (string, error) {
 			sf.triad.ProductKey,
 			sf.triad.DeviceName,
 			timestamp,
-		}
-
-		b, err := json.Marshal(authReq)
+		})
 		if err != nil {
 			return "", err
 		}
@@ -151,7 +150,8 @@ func (sf *Client) getToken() (string, error) {
 		defer response.Body.Close()
 
 		authRsp := &AuthResponse{}
-		if err := json.NewDecoder(response.Body).Decode(authRsp); err != nil {
+		err = json.NewDecoder(response.Body).Decode(authRsp)
+		if err != nil {
 			return "", err
 		}
 
@@ -173,7 +173,7 @@ type DataResponse struct {
 	} `json:"info"`
 }
 
-// Publish push message,payload support []byte and string
+// Publish push message, payload support []byte and string
 func (sf *Client) Publish(_uri string, _ byte, payload interface{}) error {
 	py := &DataResponse{}
 	for retry := 0; retry < 1; retry++ {
