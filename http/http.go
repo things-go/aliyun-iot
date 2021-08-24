@@ -209,11 +209,12 @@ func (sf *Client) Publish(_uri string, _ byte, payload interface{}) error {
 		}
 		defer response.Body.Close()
 
-		if err := json.NewDecoder(response.Body).Decode(py); err != nil {
+		err = json.NewDecoder(response.Body).Decode(py)
+		if err != nil {
 			return err
 		}
 		sf.log.Debugf("publish response, %+v", py)
-		if py.Code == 0 {
+		if py.Code == CodeSuccess {
 			return nil
 		}
 
