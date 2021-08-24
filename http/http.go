@@ -105,15 +105,19 @@ func New(meta infra.MetaTriad, opts ...Option) *Client {
 
 // 鉴权
 func (sf *Client) getToken() (string, error) {
-	if sf.triad.ProductKey == "" || sf.triad.DeviceName == "" || sf.triad.DeviceSecret == "" {
-		return "", errors.New("invalid device meta triad")
-	}
-
 	if token := sf.token.Load().(string); token != "" {
 		return token, nil
 	}
+	return sf.refreshToken()
+}
 
+func (sf *Client) refreshToken() (string, error) {
+	if sf.triad.ProductKey == "" || sf.triad.DeviceName == "" || sf.triad.DeviceSecret == "" {
+		return "", errors.New("invalid device meta triad")
+	}
 	tk, err, _ := sf.group.Do("auth", func() (interface{}, error) {
+		sf.token.Store("") // 置token无效, 让新进来的直接进入刷新token
+
 		// 生成body加签
 		signMethod := sf.signMethod
 		switch signMethod {
@@ -216,9 +220,9 @@ func (sf *Client) Publish(_uri string, _ byte, payload interface{}) error {
 		if !(py.Code == CodeTokenExpired ||
 			py.Code == CodeTokenCheckFailed ||
 			py.Code == CodeTokenIsNull) {
-			sf.token.Store("")
 			return infra.NewCodeError(py.Code, py.Message)
 		}
+		sf.refreshToken() // nolint: errcheck
 	}
 	return infra.NewCodeError(py.Code, py.Message)
 }
